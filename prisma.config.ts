@@ -1,6 +1,5 @@
-// prisma.config.ts
-import { defineConfig } from "prisma/config";
+import 'dotenv/config'
 
-export default defineConfig({
-    // ใช้ config tool เท่านั้น
-});
+export default {
+    schema: 'prisma/schema.prisma',
+}

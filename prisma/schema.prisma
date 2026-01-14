@@ -1,14 +1,72 @@
 generator client {
   provider = "prisma-client-js"
+  // previewFeatures = ["prismaSchemaFolder"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // หรือ mysql
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    String @id @default(cuid())
-  email String @unique
-  name  String
+//////////////////////
+// MASTER
+//////////////////////
+
+model OrgBranch {
+  branch_id   String  @id @default(uuid())
+  branch_code String  @db.VarChar(20)
+  branch_name String  @db.VarChar(200)
+  is_active   Boolean @default(true)
+
+  warehouses Warehouse[]
+
+  @@map("org_branch")
+}
+
+model Warehouse {
+  warehouse_id   String @id @default(uuid())
+  branch_id      String
+  warehouse_code String @db.VarChar(20)
+  warehouse_name String @db.VarChar(200)
+
+  branch OrgBranch @relation(fields: [branch_id], references: [branch_id])
+
+  @@map("warehouse")
+}
+
+model Vendor {
+  vendor_id         String  @id @default(uuid())
+  vendor_code       String  @db.VarChar(30)
+  vendor_name       String  @db.VarChar(255)
+  tax_id            String? @db.VarChar(20)
+  payment_term_days Int
+  status            String  @db.VarChar(20)
+
+  @@map("vendor")
+}
+
+model Item {
+  item_id   String @id @default(uuid())
+  item_code String @db.VarChar(50)
+  item_name String @db.VarChar(255)
+  item_type String @db.VarChar(20)
+  uom       String @db.VarChar(20)
+
+  @@map("item")
+}
+
+model CostCenter {
+  cost_center_id   String @id @default(uuid())
+  cost_center_code String @db.VarChar(30)
+  cost_center_name String @db.VarChar(200)
+
+  @@map("cost_center")
+}
+
+model Project {
+  project_id   String @id @default(uuid())
+  project_code String @db.VarChar(30)
+  project_name String @db.VarChar(200)
+
+  @@map("project")
 }
