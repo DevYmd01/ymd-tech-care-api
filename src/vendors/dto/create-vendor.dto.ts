@@ -86,3 +86,6 @@ export class CreateVendorDto {
     @IsString()
     remark?: string;
 }
+
+
+
