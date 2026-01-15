@@ -13,6 +13,8 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix('api'); // 👈 เพิ่มบรรทัดนี้
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
