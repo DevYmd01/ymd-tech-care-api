@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVendorDto, UpdateVendorStatusDto } from './dto/create-vendor.dto';
 
@@ -43,6 +43,7 @@ export class VendorsService {
         });
     };
 
+    // อัปเดตสถานะเจ้าหนี้ตามรหัส
     async updateStatus(
         vendorId: number,
         dto: UpdateVendorStatusDto,
@@ -55,14 +56,29 @@ export class VendorsService {
             throw new NotFoundException('Vendor not found');
         }
 
-        await this.prisma.vendor_master.update({
-            where: { vendor_id: vendorId },
-            data: {
-                status: dto.status,
-                remark: dto.remark ?? null,
-            },
-        });
-    }
+        try {
+            await this.prisma.vendor_master.update({
+                where: { vendor_id: vendorId },
+                data: {
+                    status: dto.status,
+                    remark: dto.remark ?? null,
+                },
+            });
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Unable to update vendor status',
+            );
+        }
+
+        return {
+            vendor_id: vendor.vendor_code ?? vendor.vendor_id,
+            message: 'Vendor updated successfully',
+        };
+    };
+
+
+
+
 
 }
 
