@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Get, Param, Put, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Patch, Query } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
-import { CreateVendorDto, UpdateVendorStatusDto } from './dto/create-vendor.dto';
+import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto } from './dto/create-vendor.dto';
 
 @Controller('vendors')
 export class VendorsController {
@@ -15,9 +15,13 @@ export class VendorsController {
 
     /// ดึงข้อมูลเจ้าหนี้
     @Get()
-    findAll() {
-        return this.vendorsService.findAll();
+    findAll(
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+    ) {
+        return this.vendorsService.findAll(page, limit);
     }
+
 
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
     @Get(':vendor_id')
@@ -39,6 +43,21 @@ export class VendorsController {
         await this.vendorsService.updateStatus(+vendor_id, dto);
         return { message: 'Vendor status updated successfully' };
     }
+
+    /// สร้างบันทึกผลการประเมินเจ้าหนี้
+    @Post(':vendor_id/performance')
+    createVendorPerformance(@Param('vendor_id') vendor_id: string, @Body() dto: CreateVendorPerformanceDto) {
+        return this.vendorsService.createVendorPerformance(+vendor_id, dto);
+    }
+
+    /// ดึงข้อมูลผลการประเมินเจ้าหนี้ตามรหัส
+    @Get(':vendor_id/performance')
+    getVendorPerformance(@Param('vendor_id') vendor_id: string) {
+        return this.vendorsService.getVendorPerformance(+vendor_id);
+    }
+
+
+
 
 }
 

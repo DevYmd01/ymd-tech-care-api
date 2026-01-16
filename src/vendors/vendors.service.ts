@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateVendorDto, UpdateVendorStatusDto } from './dto/create-vendor.dto';
+import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto } from './dto/create-vendor.dto';
 
 @Injectable()
 export class VendorsService {
@@ -17,9 +17,17 @@ export class VendorsService {
     };
 
     /// ดึงข้อมูลเจ้าหนี้ทั้งหมด
-    async findAll() {
-        return this.prisma.vendor_master.findMany();
-    };
+    findAll(page?: number, limit?: number) {
+        if (!page || !limit) {
+            return this.prisma.vendor_master.findMany();
+        }
+
+        return this.prisma.vendor_master.findMany({
+            skip: (Number(page) - 1) * Number(limit),
+            take: Number(limit),
+        });
+    }
+
 
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
     async findOne(vendor_id: number) {
@@ -75,6 +83,49 @@ export class VendorsService {
             message: 'Vendor updated successfully',
         };
     };
+
+    /// สร้างบันทึกผลการประเมินเจ้าหนี้
+    async createVendorPerformance(
+        vendor_id: number,
+        dto: CreateVendorPerformanceDto,
+    ) {
+        const vendor = await this.prisma.vendor_master.findUnique({
+            where: { vendor_id },
+        });
+
+        if (!vendor) {
+            throw new NotFoundException('Vendor not found');
+        }
+
+        return this.prisma.vendor_performance.create({
+            data: {
+                vendor_id,
+                evaluation_date: dto.evaluation_date
+                    ? new Date(dto.evaluation_date)
+                    : null,
+                evaluation_period: dto.evaluation_period,
+                quality_score: dto.quality_score,
+                delivery_score: dto.delivery_score,
+                price_score: dto.price_score,
+                service_score: dto.service_score,
+                total_score: dto.total_score,
+                rating: dto.rating,
+                remark: dto.remark,
+                evaluated_by: dto.evaluated_by,
+            },
+        });
+    }
+
+
+    /// แสดงบันทึกผลการประเมินเจ้าหนี้ตามรหัส
+    async getVendorPerformance(vendor_id: number) {
+        return this.prisma.vendor_performance.findMany({
+            where: { vendor_id },
+            orderBy: {
+                evaluation_date: 'desc',
+            },
+        });
+    }
 
 
 

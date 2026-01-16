@@ -1,9 +1,12 @@
 import {
     IsString,
+    IsDateString,
     IsOptional,
     IsBoolean,
     IsNumber,
     IsEnum,
+    Max,
+    Min,
 } from 'class-validator';
 
 /// สร้างเจ้าหนี้
@@ -108,4 +111,74 @@ export class UpdateVendorStatusDto {
     @IsString()
     remark?: string;
 }
+
+
+
+///สร้างบันทึกผลการประเมินเจ้าหนี้
+/// สร้างบันทึกผลการประเมินเจ้าหนี้
+export class CreateVendorPerformanceDto {
+
+    /// วันที่ประเมิน
+    @IsOptional()
+    @IsDateString()
+    evaluation_date?: string; // ISO date เช่น 2025-01-15
+
+    /// งวดการประเมิน
+    @IsOptional()
+    @IsString()
+    evaluation_period?: string; // เช่น 2025-Q1
+
+    /// คะแนนคุณภาพ
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Max(100)
+    quality_score?: number;
+
+    /// คะแนนการส่งมอบ
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Max(100)
+    delivery_score?: number;
+
+    /// คะแนนราคา
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Max(100)
+    price_score?: number;
+
+    /// คะแนนบริการ
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Max(100)
+    service_score?: number;
+
+    /// คะแนนรวม
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Max(100)
+    total_score?: number;
+
+    /// เกรดประเมิน
+    @IsOptional()
+    @IsString()
+    rating?: string; // A–E
+
+    /// หมายเหตุ
+    @IsOptional()
+    @IsString()
+    remark?: string;
+
+    /// ผู้ประเมิน
+    @IsOptional()
+    @IsString()
+    evaluated_by?: string;
+}
+
+
+
 
