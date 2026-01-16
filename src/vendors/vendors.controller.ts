@@ -19,19 +19,28 @@ export class VendorsController {
         @Query('page') page?: number,
         @Query('limit') limit?: number,
     ) {
-        return this.vendorsService.findAll(page, limit);
+        return this.vendorsService.findAll(
+            page ? Number(page) : 1,
+            limit ? Number(limit) : 10,
+        );
     }
+
 
 
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
     @Get(':vendor_id')
-    findOne(@Param('vendor_id') vendor_id: string) {
+    findOne(
+        @Param('vendor_id') vendor_id: string,
+    ) {
         return this.vendorsService.findOne(+vendor_id);
     }
 
     /// อัปเดตข้อมูลเจ้าหนี้ตามรหัส
     @Put(':vendor_id')
-    update(@Param('vendor_id') vendor_id: string, @Body() dto: CreateVendorDto) {
+    update(
+        @Param('vendor_id') vendor_id: string,
+        @Body() dto: CreateVendorDto,
+    ) {
         return this.vendorsService.update(+vendor_id, dto);
     }
 

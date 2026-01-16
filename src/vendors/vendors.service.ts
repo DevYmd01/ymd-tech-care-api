@@ -8,25 +8,44 @@ export class VendorsService {
 
     /// สร้างเจ้าหนี้
     async create(dto: CreateVendorDto) {
-        return this.prisma.vendor_master.create({
+        const vendor = await this.prisma.vendor_master.create({
             data: {
                 ...dto,
                 status: dto.status ?? 'ACTIVE',
             },
         });
+
+        return { vendor_id: vendor.vendor_id, message: "Vendor created successfully" };
     };
 
     /// ดึงข้อมูลเจ้าหนี้ทั้งหมด
-    findAll(page?: number, limit?: number) {
-        if (!page || !limit) {
-            return this.prisma.vendor_master.findMany();
-        }
+    async findAll(page = 1, limit = 10) {
+        const skip = (page - 1) * limit;
 
-        return this.prisma.vendor_master.findMany({
-            skip: (Number(page) - 1) * Number(limit),
-            take: Number(limit),
-        });
+        const [data, total] = await this.prisma.$transaction([
+            this.prisma.vendor_master.findMany({
+                skip,
+                take: limit,
+                orderBy: { vendor_id: 'asc' },
+                select: {
+                    vendor_id: true,
+                    vendor_code: true,
+                    vendor_name: true,
+                    status: true,
+                    rating: true,
+                },
+            }),
+            this.prisma.vendor_master.count(),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+        };
     }
+
+
 
 
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
