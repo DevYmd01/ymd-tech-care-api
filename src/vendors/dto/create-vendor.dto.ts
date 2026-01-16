@@ -3,8 +3,10 @@ import {
     IsOptional,
     IsBoolean,
     IsNumber,
+    IsEnum,
 } from 'class-validator';
 
+/// สร้างเจ้าหนี้
 export class CreateVendorDto {
     @IsOptional()
     @IsString()
@@ -88,4 +90,22 @@ export class CreateVendorDto {
 }
 
 
+// update-vendor-status.dto.ts
+/// อัปเดตสถานะเจ้าหนี้
+export enum VendorStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+    SUSPENDED = 'SUSPENDED',
+    BLACKLISTED = 'BLACKLISTED',
+}
+
+/// อัปเดตสถานะเจ้าหนี้
+export class UpdateVendorStatusDto {
+    @IsEnum(VendorStatus)
+    status: VendorStatus;
+
+    @IsOptional()
+    @IsString()
+    remark?: string;
+}
 

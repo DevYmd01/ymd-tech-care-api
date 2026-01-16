@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVendorDto, UpdateVendorStatusDto } from './dto/create-vendor.dto';
 
@@ -59,7 +59,7 @@ export class VendorsService {
             where: { vendor_id: vendorId },
             data: {
                 status: dto.status,
-                status_reason: dto.reason ?? null,
+                remark: dto.remark ?? null,
             },
         });
     }
