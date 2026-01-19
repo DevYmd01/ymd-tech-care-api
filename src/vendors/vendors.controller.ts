@@ -1,6 +1,11 @@
 import { Controller, Post, Body, Get, Param, Put, Patch, Query } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
-import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto, CreateVendorContactDto } from './dto/create-vendor.dto';
+import {
+    CreateVendorDto,
+    UpdateVendorStatusDto,
+    CreateVendorPerformanceDto,
+    CreateVendorContactDto
+} from './dto/create-vendor.dto';
 
 @Controller('vendors')
 export class VendorsController {
