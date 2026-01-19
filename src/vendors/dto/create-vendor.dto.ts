@@ -128,6 +128,9 @@ export class CreateVendorContactDto {
 
     @IsString()
     mobile?: string;
+
+    @IsBoolean()
+    is_primary: boolean;
 }
 
 /// เพิ่มบัญชีธนาคารให้กับเจ้าหนี้

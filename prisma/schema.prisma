@@ -75,19 +75,19 @@ model Project {
 /// ตารางเจ้าหนี้
 model vendor_master {
   /// รหัสเจ้าหนี้
-  vendor_code           String?                @db.VarChar(20)
+  vendor_code           String?   @db.VarChar(20)
   /// ชื่อเจ้าหนี้ (ไทย)
-  vendor_name           String?                @db.VarChar(200)
+  vendor_name           String?   @db.VarChar(200)
   /// ชื่อเจ้าหนี้ (อังกฤษ)
-  vendor_name_en        String?                @db.VarChar(200)
+  vendor_name_en        String?   @db.VarChar(200)
   /// ประเภทเจ้าหนี้ (MANUFACTURER, DISTRIBUTOR, etc.)
-  vendor_type           String?                @db.VarChar(30)
+  vendor_type           String?   @db.VarChar(30)
   /// หมวดหมู่ธุรกิจ
-  category              String?                @db.VarChar(100)
+  category              String?   @db.VarChar(100)
   /// เลขประจำตัวผู้เสียภาษี
-  tax_id                String?                @db.VarChar(13)
+  tax_id                String?   @db.VarChar(13)
   /// ชื่อสาขา
-  branch_name           String?                @db.VarChar(100)
+  branch_name           String?   @db.VarChar(100)
   /// จดทะเบียน VAT หรือไม่
   is_vat_registered     Boolean?
   /// มีการหัก ณ ที่จ่ายหรือไม่
@@ -95,59 +95,62 @@ model vendor_master {
   /// เงื่อนไขการชำระเงิน (วัน)
   payment_term_days     Int?
   /// วงเงินเครดิต
-  credit_limit          Decimal?               @db.Decimal(15, 2)
+  credit_limit          Decimal?  @db.Decimal(15, 2)
   /// รหัสสกุลเงิน
-  currency_code         String?                @db.VarChar(3)
+  currency_code         String?   @db.VarChar(3)
   /// สถานะ (ACTIVE, INACTIVE)
-  status                String?                @db.VarChar(20)
+  status                String?   @db.VarChar(20)
   /// เกรดประเมิน (A–E)
-  rating                String?                @db.VarChar(1)
+  rating                String?   @db.VarChar(1)
   /// คะแนนประเมินผล (0–100)
-  performance_score     Decimal?               @db.Decimal(5, 2)
+  performance_score     Decimal?  @db.Decimal(5, 2)
   /// ผู้ติดต่อหลัก
-  contact_person        String?                @db.VarChar(100)
+  contact_person        String?   @db.VarChar(100)
   /// เบอร์โทรศัพท์
-  phone                 String?                @db.VarChar(20)
+  phone                 String?   @db.VarChar(20)
   /// เบอร์มือถือ
-  mobile                String?                @db.VarChar(20)
+  mobile                String?   @db.VarChar(20)
   /// อีเมล
-  email                 String?                @db.VarChar(100)
+  email                 String?   @db.VarChar(100)
   /// เว็บไซต์
-  website               String?                @db.VarChar(200)
+  website               String?   @db.VarChar(200)
   /// ที่อยู่
   address               String?
   /// เขต/อำเภอ
-  district              String?                @db.VarChar(100)
+  district              String?   @db.VarChar(100)
   /// จังหวัด
-  province              String?                @db.VarChar(100)
+  province              String?   @db.VarChar(100)
   /// รหัสไปรษณีย์
-  postal_code           String?                @db.VarChar(10)
+  postal_code           String?   @db.VarChar(10)
   /// ประเทศ
-  country               String?                @db.VarChar(100)
+  country               String?   @db.VarChar(100)
   /// วันที่ลงทะเบียน
-  registration_date     DateTime?              @db.Date
+  registration_date     DateTime? @db.Date
   /// วันที่อนุมัติ
-  approved_date         DateTime?              @db.Date
+  approved_date         DateTime? @db.Date
   /// วันที่ทำธุรกรรมล่าสุด
-  last_transaction_date DateTime?              @db.Date
+  last_transaction_date DateTime? @db.Date
   /// มูลค่าการซื้อทั้งหมด
-  total_purchase_amount Decimal?               @db.Decimal(15, 2)
+  total_purchase_amount Decimal?  @db.Decimal(15, 2)
   /// หมายเหตุ
   remark                String?
   /// ผู้สร้าง
-  created_by            String?                @db.VarChar(50)
+  created_by            String?   @db.VarChar(50)
   /// วันที่สร้าง
-  created_date          DateTime               @default(now())
+  created_date          DateTime  @default(now())
   /// ผู้แก้ไข
-  updated_by            String?                @db.VarChar(50)
+  updated_by            String?   @db.VarChar(50)
   /// วันที่แก้ไข
-  updated_date          DateTime               @updatedAt
+  updated_date          DateTime  @updatedAt
   /// PK รหัสอ้างอิงเจ้าหนี้
-  vendor_id             Int                    @id @default(autoincrement())
-  vendorBankAccounts    vendor_bank_accounts[]
-  vendorContacts        vendor_contacts[]
-  vendorDocuments       vendor_documents[]
-  vendorPerformances    vendor_performance[]
+  vendor_id             Int       @id @default(autoincrement())
+
+  /// API layer (พอแล้ว ไม่ต้องมีมากกว่านี้)
+
+  contacts           vendor_contacts[]
+  bank_accounts      vendor_bank_accounts[]
+  vendorDocuments    vendor_documents[]
+  vendorPerformances vendor_performance[]
 
   @@map("vendor_master")
 }

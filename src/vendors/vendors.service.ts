@@ -6,18 +6,6 @@ import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto, Cre
 export class VendorsService {
     constructor(private prisma: PrismaService) { }
 
-    /// สร้างเจ้าหนี้
-    // async create(dto: CreateVendorDto) {
-    //     const vendor = await this.prisma.vendor_master.create({
-    //         data: {
-    //             ...dto,
-    //             status: dto.status ?? 'ACTIVE',
-    //         },
-    //     });
-
-    //     return { vendor_id: vendor.vendor_id, message: "Vendor created successfully" };
-    // };
-
     /// สร้างเจ้าหนี้ (รวม contacts + bank)
     async create(dto: CreateVendorDto) {
         return this.prisma.$transaction(async (tx) => {
@@ -57,6 +45,7 @@ export class VendorsService {
                         email: c.email,
                         phone: c.phone,
                         mobile: c.mobile,
+                        is_primary: c.is_primary,
                         position: c.position,
                     })),
                 });
@@ -122,21 +111,92 @@ export class VendorsService {
             where: {
                 vendor_id,
             },
+            include: {
+                contacts: true,
+                bank_accounts: true,
+            },
         });
     };
 
-    /// อัปเดตข้อมูลเจ้าหนี้ตามรหัส
+    /// อัปเดตข้อมูลเจ้าหนี้
     async update(vendor_id: number, dto: CreateVendorDto) {
-        return this.prisma.vendor_master.update({
-            where: {
-                vendor_id,
-            },
-            data: {
-                ...dto,
-                status: dto.status ?? 'ACTIVE',
-            },
+        return this.prisma.$transaction(async (tx) => {
+
+            // 1. update vendor master
+            const vendor = await tx.vendor_master.update({
+                where: { vendor_id },
+                data: {
+                    vendor_code: dto.vendor_code,
+                    vendor_name: dto.vendor_name,
+                    vendor_name_en: dto.vendor_name_en,
+                    vendor_type: dto.vendor_type,
+                    tax_id: dto.tax_id,
+                    category: dto.category,
+                    branch_name: dto.branch_name,
+                    is_vat_registered: dto.is_vat_registered,
+                    wht_applicable: dto.wht_applicable,
+                    payment_term_days: dto.payment_term_days,
+                    credit_limit: dto.credit_limit,
+                    currency_code: dto.currency_code,
+                    contact_person: dto.contact_person,
+                    phone: dto.phone,
+                    email: dto.email,
+                    address: dto.address,
+                    province: dto.province,
+                    country: dto.country,
+                    remark: dto.remark,
+                    status: dto.status ?? 'ACTIVE',
+                },
+            });
+
+            // 2. ลบ contacts เดิม
+            await tx.vendor_contacts.deleteMany({
+                where: { vendor_id },
+            });
+
+            // 3. เพิ่ม contacts ใหม่
+            if (dto.contacts?.length) {
+                await tx.vendor_contacts.createMany({
+                    data: dto.contacts.map(c => ({
+                        vendor_id,
+                        contact_name: c.contact_name,
+                        email: c.email,
+                        phone: c.phone,
+                        mobile: c.mobile,
+                        position: c.position,
+                        is_primary: c.is_primary,
+                    })),
+                });
+            }
+
+            // 4. ลบ bank accounts เดิม
+            await tx.vendor_bank_accounts.deleteMany({
+                where: { vendor_id },
+            });
+
+            // 5. เพิ่ม bank accounts ใหม่
+            if (dto.bank_accounts?.length) {
+                await tx.vendor_bank_accounts.createMany({
+                    data: dto.bank_accounts.map(b => ({
+                        vendor_id,
+                        bank_name: b.bank_name,
+                        bank_branch: b.bank_branch,
+                        account_no: b.account_no,
+                        account_name: b.account_name,
+                        account_type: b.account_type,
+                        swift_code: b.swift_code,
+                        is_default: b.is_default,
+                    })),
+                });
+            }
+
+            return {
+                vendor_id: vendor.vendor_id,
+                message: 'Vendor updated successfully',
+            };
         });
-    };
+    }
+
 
     // อัปเดตสถานะเจ้าหนี้ตามรหัส
     async updateStatus(
