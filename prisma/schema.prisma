@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//////////////
+/// Master Data
+/////////////
+
 model OrgBranch {
   branch_id   String      @id @default(uuid())
   branch_code String      @db.VarChar(20)
@@ -63,6 +67,10 @@ model Project {
 
   @@map("project")
 }
+
+//////////////
+/// Transaction Data
+/////////////
 
 /// ตารางเจ้าหนี้
 model vendor_master {

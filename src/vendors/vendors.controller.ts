@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Put, Patch, Query } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
-import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto } from './dto/create-vendor.dto';
+import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto, CreateVendorContactDto } from './dto/create-vendor.dto';
 
 @Controller('vendors')
 export class VendorsController {
@@ -65,7 +65,18 @@ export class VendorsController {
         return this.vendorsService.getVendorPerformance(+vendor_id);
     }
 
+    /// สร้างผู้ติดต่อ
+    @Post(':vendor_id/contacts')
+    createVendorContact(@Param('vendor_id') vendor_id: string, @Body() dto: CreateVendorContactDto) {
+        return this.vendorsService.createVendorContact(+vendor_id, dto);
+    }
 
+    /// ดึงข้อมูลผู้ติดต่อตามรหัส
+    @Get(':vendor_id/contacts')
+    getVendorContact(@Param('vendor_id') vendor_id:
+        string) {
+        return this.vendorsService.getVendorContact(+vendor_id);
+    }
 
 
 }

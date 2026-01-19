@@ -7,7 +7,11 @@ import {
     IsEnum,
     Max,
     Min,
+    IsArray,
+    ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+
 
 /// สร้างเจ้าหนี้
 export class CreateVendorDto {
@@ -61,10 +65,6 @@ export class CreateVendorDto {
 
     @IsOptional()
     @IsString()
-    status?: string;
-
-    @IsOptional()
-    @IsString()
     contact_person?: string;
 
     @IsOptional()
@@ -90,10 +90,70 @@ export class CreateVendorDto {
     @IsOptional()
     @IsString()
     remark?: string;
+
+    /// เพิ่มผู้ติดต่อ
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateVendorContactDto)
+    contacts?: CreateVendorContactDto[];
+
+    /// เพิ่มบัญชีธนาคาร
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateVendorBankAccountDto)
+    bank_accounts?: CreateVendorBankAccountDto[];
+
+
+    @IsOptional()
+    @IsString()
+    status?: string;
+
 }
 
+/// เพิ่มผู้ติดต่อให้กับเจ้าหนี้
+export class CreateVendorContactDto {
+    @IsString()
+    contact_name: string;
 
-// update-vendor-status.dto.ts
+    @IsString()
+    email: string;
+
+    @IsString()
+    phone: string;
+
+    @IsString()
+    position: string;
+
+    @IsString()
+    mobile?: string;
+}
+
+/// เพิ่มบัญชีธนาคารให้กับเจ้าหนี้
+export class CreateVendorBankAccountDto {
+    @IsString()
+    bank_name: string;
+
+    @IsString()
+    bank_branch: string;
+
+    @IsString()
+    account_no: string;
+
+    @IsString()
+    account_name: string;
+
+    @IsString()
+    account_type: string;
+
+    @IsString()
+    swift_code: string;
+
+    @IsBoolean()
+    is_default: boolean;
+}
+
 /// อัปเดตสถานะเจ้าหนี้
 export enum VendorStatus {
     ACTIVE = 'ACTIVE',
@@ -113,9 +173,7 @@ export class UpdateVendorStatusDto {
 }
 
 
-
 ///สร้างบันทึกผลการประเมินเจ้าหนี้
-/// สร้างบันทึกผลการประเมินเจ้าหนี้
 export class CreateVendorPerformanceDto {
 
     /// วันที่ประเมิน
@@ -178,6 +236,7 @@ export class CreateVendorPerformanceDto {
     @IsString()
     evaluated_by?: string;
 }
+
 
 
 

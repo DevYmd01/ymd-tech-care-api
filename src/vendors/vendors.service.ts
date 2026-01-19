@@ -1,22 +1,90 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto } from './dto/create-vendor.dto';
+import { CreateVendorDto, UpdateVendorStatusDto, CreateVendorPerformanceDto, CreateVendorContactDto } from './dto/create-vendor.dto';
 
 @Injectable()
 export class VendorsService {
     constructor(private prisma: PrismaService) { }
 
     /// สร้างเจ้าหนี้
-    async create(dto: CreateVendorDto) {
-        const vendor = await this.prisma.vendor_master.create({
-            data: {
-                ...dto,
-                status: dto.status ?? 'ACTIVE',
-            },
-        });
+    // async create(dto: CreateVendorDto) {
+    //     const vendor = await this.prisma.vendor_master.create({
+    //         data: {
+    //             ...dto,
+    //             status: dto.status ?? 'ACTIVE',
+    //         },
+    //     });
 
-        return { vendor_id: vendor.vendor_id, message: "Vendor created successfully" };
-    };
+    //     return { vendor_id: vendor.vendor_id, message: "Vendor created successfully" };
+    // };
+
+    /// สร้างเจ้าหนี้ (รวม contacts + bank)
+    async create(dto: CreateVendorDto) {
+        return this.prisma.$transaction(async (tx) => {
+
+            // 1. สร้าง vendor
+            const vendor = await tx.vendor_master.create({
+                data: {
+                    vendor_code: dto.vendor_code,
+                    vendor_name: dto.vendor_name,
+                    vendor_name_en: dto.vendor_name_en,
+                    vendor_type: dto.vendor_type,
+                    tax_id: dto.tax_id,
+                    category: dto.category,
+                    branch_name: dto.branch_name,
+                    is_vat_registered: dto.is_vat_registered,
+                    wht_applicable: dto.wht_applicable,
+                    payment_term_days: dto.payment_term_days,
+                    credit_limit: dto.credit_limit,
+                    currency_code: dto.currency_code,
+                    contact_person: dto.contact_person,
+                    phone: dto.phone,
+                    email: dto.email,
+                    address: dto.address,
+                    province: dto.province,
+                    country: dto.country,
+                    remark: dto.remark,
+                    status: dto.status ?? 'ACTIVE',
+                },
+            });
+
+            // 2. สร้าง contacts
+            if (dto.contacts?.length) {
+                await tx.vendor_contacts.createMany({
+                    data: dto.contacts.map(c => ({
+                        vendor_id: vendor.vendor_id,
+                        contact_name: c.contact_name,
+                        email: c.email,
+                        phone: c.phone,
+                        mobile: c.mobile,
+                        position: c.position,
+                    })),
+                });
+            }
+
+            // 3. สร้าง bank accounts
+            if (dto.bank_accounts?.length) {
+                await tx.vendor_bank_accounts.createMany({
+                    data: dto.bank_accounts.map(b => ({
+                        vendor_id: vendor.vendor_id,
+                        bank_name: b.bank_name,
+                        bank_branch: b.bank_branch,
+                        account_no: b.account_no,
+                        account_name: b.account_name,
+                        account_type: b.account_type,
+                        swift_code: b.swift_code,
+                        is_default: b.is_default,
+                    })),
+                });
+            }
+
+            return {
+                vendor_id: vendor.vendor_id,
+                message: 'Vendor created successfully',
+            };
+        });
+    }
+
 
     /// ดึงข้อมูลเจ้าหนี้ทั้งหมด
     async findAll(page = 1, limit = 10) {
@@ -147,8 +215,33 @@ export class VendorsService {
     }
 
 
+    /// เพิ่มผู้ติดต่อให้กับเจ้าหนี้
+    async createVendorContact(vendor_id: number, dto: CreateVendorContactDto) {
+        const vendor = await this.prisma.vendor_master.findUnique({
+            where: { vendor_id },
+        });
 
+        if (!vendor) {
+            throw new NotFoundException('Vendor not found');
+        }
 
+        return this.prisma.vendor_contacts.create({
+            data: {
+                vendor_id,
+                contact_name: dto.contact_name,
+                email: dto.email,
+                phone: dto.phone,
+                position: dto.position,
+            },
+        });
+    }
+
+    /// ดึงข้อมูลผู้ติดต่อตามรหัสเจ้าหนี้
+    async getVendorContact(vendor_id: number) {
+        return this.prisma.vendor_contacts.findMany({
+            where: { vendor_id },
+        });
+    }
 
 }
 
