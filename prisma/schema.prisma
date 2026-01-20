@@ -12,18 +12,19 @@ datasource db {
 /////////////
 
 model OrgBranch {
-  branch_id   String      @id @default(uuid())
+  branch_id   Int         @id @default(autoincrement())
   branch_code String      @db.VarChar(20)
   branch_name String      @db.VarChar(200)
   is_active   Boolean     @default(true)
   warehouses  Warehouse[]
+  prHeaders   pr_header[]
 
   @@map("org_branch")
 }
 
 model Warehouse {
-  warehouse_id   String    @id @default(uuid())
-  branch_id      String
+  warehouse_id   Int       @id @default(autoincrement())
+  branch_id      Int
   warehouse_code String    @db.VarChar(20)
   warehouse_name String    @db.VarChar(200)
   branch         OrgBranch @relation(fields: [branch_id], references: [branch_id])
@@ -32,7 +33,7 @@ model Warehouse {
 }
 
 model Vendor {
-  vendor_id         String  @id @default(uuid())
+  vendor_id         Int     @id @default(autoincrement())
   vendor_code       String  @db.VarChar(30)
   vendor_name       String  @db.VarChar(255)
   tax_id            String? @db.VarChar(20)
@@ -43,7 +44,7 @@ model Vendor {
 }
 
 model Item {
-  item_id   String @id @default(uuid())
+  item_id   Int    @id @default(autoincrement())
   item_code String @db.VarChar(50)
   item_name String @db.VarChar(255)
   item_type String @db.VarChar(20)
@@ -53,7 +54,7 @@ model Item {
 }
 
 model CostCenter {
-  cost_center_id   String @id @default(uuid())
+  cost_center_id   Int    @id @default(autoincrement())
   cost_center_code String @db.VarChar(30)
   cost_center_name String @db.VarChar(200)
 
@@ -61,16 +62,12 @@ model CostCenter {
 }
 
 model Project {
-  project_id   String @id @default(uuid())
+  project_id   Int    @id @default(autoincrement())
   project_code String @db.VarChar(30)
   project_name String @db.VarChar(200)
 
   @@map("project")
 }
-
-//////////////
-/// Transaction Data
-/////////////
 
 /// ตารางเจ้าหนี้
 model vendor_master {
@@ -305,4 +302,30 @@ model payment_terms {
   is_active       Boolean?
 
   @@map("payment_terms")
+}
+
+//////////////
+/// Transaction Tables
+/////////////
+
+///ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header)
+model pr_header {
+  ///รหัสใบขอซื้อ (PK)
+  pr_id         Int      @id @default(autoincrement())
+  ///เลขที่ใบขอซื้อ
+  pr_no         String   @db.VarChar(30)
+  ///รหัสสาขา (FK)
+  branch_id     Int
+  ///รหัสผู้ขอซื้อ (FK)
+  // requester_user_id Int
+  ///วันที่ขอซื้อ
+  request_date  DateTime
+  ///วันที่ต้องการ
+  required_date DateTime
+  ///สถานะ
+  status        String   @db.VarChar(20)
+  ///จำนวนเงินรวม
+  total_amount  Decimal  @db.Decimal(18, 2)
+
+  branch OrgBranch @relation(fields: [branch_id], references: [branch_id])
 }

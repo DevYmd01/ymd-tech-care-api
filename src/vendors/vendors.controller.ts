@@ -4,8 +4,19 @@ import {
     CreateVendorDto,
     UpdateVendorStatusDto,
     CreateVendorPerformanceDto,
-    CreateVendorContactDto
+    CreateVendorContactDto,
+    CreateVendorBankAccountDto
 } from './dto/create-vendor.dto';
+import { UpdateVendorDto } from './dto/update-vendor.dto';
+
+/**
+ * VendorsController
+ * ----------------
+ * หน้าที่:
+ * - รับ request
+ * - ส่งต่อให้ service
+ * - ❌ ไม่มี logic
+ */
 
 @Controller('vendors')
 export class VendorsController {
@@ -30,8 +41,6 @@ export class VendorsController {
         );
     }
 
-
-
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
     @Get(':vendor_id')
     findOne(
@@ -42,11 +51,11 @@ export class VendorsController {
 
     /// อัปเดตข้อมูลเจ้าหนี้ตามรหัส
     @Put(':vendor_id')
-    update(
+    updateVendor(
         @Param('vendor_id') vendor_id: string,
-        @Body() dto: CreateVendorDto,
+        @Body() dto: UpdateVendorDto,
     ) {
-        return this.vendorsService.update(+vendor_id, dto);
+        return this.vendorsService.updateVendor(+vendor_id, dto);
     }
 
     @Patch(':vendor_id/status')
@@ -83,6 +92,11 @@ export class VendorsController {
         return this.vendorsService.getVendorContact(+vendor_id);
     }
 
+    /// สร้างบัญชีธนาคาร
+    @Post(':vendor_id/bank-accounts')
+    createVendorBankAccount(@Param('vendor_id') vendor_id: string, @Body() dto: CreateVendorBankAccountDto) {
+        return this.vendorsService.createVendorBankAccount(+vendor_id, dto);
+    }
 
 }
 
