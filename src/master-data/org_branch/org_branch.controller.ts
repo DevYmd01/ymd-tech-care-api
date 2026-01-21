@@ -3,7 +3,7 @@ import { OrgBranchService } from './org_branch.service';
 import { CreateOrgBranchDto, UpdateOrgBranchDto } from './dto/create-org-branch.dto';
 
 
-@Controller('org-branchs')
+@Controller('org-branches')
 export class OrgBranchController {
     constructor(private readonly orgBranchService: OrgBranchService) { }
 
