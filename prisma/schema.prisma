@@ -10,29 +10,28 @@ datasource db {
 //////////////
 /// Master Data
 /////////////
-model OrgBranch {
+model org_branch {
   branch_id   Int         @id @default(autoincrement())
-  branch_code String      @db.VarChar(20)
+  branch_code String      @unique @db.VarChar(20)
   branch_name String      @db.VarChar(200)
   is_active   Boolean     @default(true)
-  warehouses  Warehouse[]
+  warehouses  warehouse[]
   prHeaders   pr_header[]
 
   @@map("org_branch")
 }
 
-
-model Warehouse {
-  warehouse_id   Int       @id @default(autoincrement())
+model warehouse {
+  warehouse_id   Int        @id @default(autoincrement())
   branch_id      Int
-  warehouse_code String    @db.VarChar(20)
-  warehouse_name String    @db.VarChar(200)
-  branch         OrgBranch @relation(fields: [branch_id], references: [branch_id])
+  warehouse_code String     @unique @db.VarChar(20)
+  warehouse_name String     @db.VarChar(200)
+  branch         org_branch @relation(fields: [branch_id], references: [branch_id])
 
   @@map("warehouse")
 }
 
-model Vendor {
+model vendor {
   vendor_id         Int     @id @default(autoincrement())
   vendor_code       String  @db.VarChar(30)
   vendor_name       String  @db.VarChar(255)
@@ -43,7 +42,7 @@ model Vendor {
   @@map("vendor")
 }
 
-model Item {
+model item {
   item_id   Int    @id @default(autoincrement())
   item_code String @db.VarChar(50)
   item_name String @db.VarChar(255)
@@ -53,18 +52,26 @@ model Item {
   @@map("item")
 }
 
-model CostCenter {
-  cost_center_id   Int    @id @default(autoincrement())
-  cost_center_code String @db.VarChar(30)
-  cost_center_name String @db.VarChar(200)
+model cost_center {
+  cost_center_id   Int       @id @default(autoincrement())
+  cost_center_code String    @db.VarChar(30)
+  cost_center_name String    @db.VarChar(200)
+  projects         project[]
 
   @@map("cost_center")
 }
 
-model Project {
-  project_id   Int    @id @default(autoincrement())
-  project_code String @db.VarChar(30)
-  project_name String @db.VarChar(200)
+model project {
+  project_id     Int         @id @default(autoincrement())
+  project_code   String      @db.VarChar(30)
+  project_name   String      @db.VarChar(200)
+  description    String
+  cost_center_id Int
+  cost_center    cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
+  budget_amount  Decimal     @db.Decimal(15, 2)
+  start_date     DateTime
+  end_date       DateTime
+  status         String      @db.VarChar(20)
 
   @@map("project")
 }
@@ -327,5 +334,5 @@ model pr_header {
   ///จำนวนเงินรวม
   total_amount  Decimal  @db.Decimal(18, 2)
 
-  branch OrgBranch @relation(fields: [branch_id], references: [branch_id])
+  branch org_branch @relation(fields: [branch_id], references: [branch_id])
 }
