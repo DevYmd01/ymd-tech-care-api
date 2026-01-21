@@ -16,3 +16,6 @@ import { VendorBankRepository } from './repositories/vendor-bank.repository';
   exports: [VendorsService]
 })
 export class VendorsModule { }
+
+
+

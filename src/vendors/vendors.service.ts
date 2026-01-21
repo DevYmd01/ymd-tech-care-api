@@ -25,72 +25,6 @@ export class VendorsService {
      */
 
     /// สร้างเจ้าหนี้ (รวม contacts + bank)
-    // async create(dto: CreateVendorDto) {
-    //     return this.prisma.$transaction(async (tx) => {
-
-    //         // 1. สร้าง vendor
-    //         const vendor = await tx.vendor_master.create({
-    //             data: {
-    //                 vendor_code: dto.vendor_code,
-    //                 vendor_name: dto.vendor_name,
-    //                 vendor_name_en: dto.vendor_name_en,
-    //                 vendor_type: dto.vendor_type,
-    //                 tax_id: dto.tax_id,
-    //                 category: dto.category,
-    //                 branch_name: dto.branch_name,
-    //                 is_vat_registered: dto.is_vat_registered,
-    //                 wht_applicable: dto.wht_applicable,
-    //                 payment_term_days: dto.payment_term_days,
-    //                 credit_limit: dto.credit_limit,
-    //                 currency_code: dto.currency_code,
-    //                 contact_person: dto.contact_person,
-    //                 phone: dto.phone,
-    //                 email: dto.email,
-    //                 address: dto.address,
-    //                 province: dto.province,
-    //                 country: dto.country,
-    //                 remark: dto.remark,
-    //                 status: dto.status ?? 'ACTIVE',
-    //             },
-    //         });
-
-    //         // 2. สร้าง contacts
-    //         if (dto.contacts?.length) {
-    //             await tx.vendor_contacts.createMany({
-    //                 data: dto.contacts.map(c => ({
-    //                     vendor_id: vendor.vendor_id,
-    //                     contact_name: c.contact_name,
-    //                     email: c.email,
-    //                     phone: c.phone,
-    //                     mobile: c.mobile,
-    //                     is_primary: c.is_primary,
-    //                     position: c.position,
-    //                 })),
-    //             });
-    //         }
-
-    //         // 3. สร้าง bank accounts
-    //         if (dto.bank_accounts?.length) {
-    //             await tx.vendor_bank_accounts.createMany({
-    //                 data: dto.bank_accounts.map(b => ({
-    //                     vendor_id: vendor.vendor_id,
-    //                     bank_name: b.bank_name,
-    //                     bank_branch: b.bank_branch,
-    //                     account_no: b.account_no,
-    //                     account_name: b.account_name,
-    //                     account_type: b.account_type,
-    //                     swift_code: b.swift_code,
-    //                     is_default: b.is_default,
-    //                 })),
-    //             });
-    //         }
-
-    //         return {
-    //             vendor_id: vendor.vendor_id,
-    //             message: 'Vendor created successfully',
-    //         };
-    //     });
-    // }
     async create(dto: CreateVendorDto) {
         return this.prisma.$transaction(async (tx) => {
 
@@ -121,20 +55,9 @@ export class VendorsService {
         return this.prisma.$transaction(async (tx) => {
             const skip = (page - 1) * limit;
 
-            const data = await tx.vendor_master.findMany({
-                skip,
-                take: limit,
-                orderBy: { vendor_id: 'asc' },
-                select: {
-                    vendor_id: true,
-                    vendor_code: true,
-                    vendor_name: true,
-                    status: true,
-                    rating: true,
-                },
-            });
+            const data = await this.vendorRepo.findAll(tx, skip, limit);
 
-            const total = await tx.vendor_master.count();
+            const total = await this.vendorRepo.count(tx);
 
             return {
                 data,
@@ -142,8 +65,8 @@ export class VendorsService {
                 page,
             };
         });
-    }
 
+    }
 
     /// ดึงข้อมูลเจ้าหนี้ตามรหัส
     async findOne(vendor_id: number) {
@@ -162,10 +85,8 @@ export class VendorsService {
     async updateVendor(vendor_id: number, dto: UpdateVendorDto) {
         return this.prisma.$transaction(async (tx) => {
 
-            // 1. update vendor_master (ข้อมูลหลัก)
             await this.vendorRepo.updateVendorMaster(tx, vendor_id, dto);
 
-            // 2. sync contacts (array: เพิ่ม / ลบ / แก้)
             if (dto.contacts) {
                 await this.vendorContactRepo.syncVendorContacts(
                     tx,
@@ -174,7 +95,6 @@ export class VendorsService {
                 );
             }
 
-            // 3. sync bank accounts (array)
             if (dto.bank_accounts) {
                 await this.vendorBankRepo.syncVendorBankAccounts(
                     tx,
@@ -183,11 +103,12 @@ export class VendorsService {
                 );
             }
 
-            return { message: 'Vendor updated successfully' };
+            return {
+                vendor_id,
+                message: 'Vendor updated successfully',
+            };
         });
     }
-
-
 
     // อัปเดตสถานะเจ้าหนี้ตามรหัส
     async updateStatus(

@@ -50,12 +50,13 @@ export class VendorRepository {
         });
     }
 
+    /// นับจำนวนเจ้าหนี้
     count(tx) {
         return tx.vendor_master.count();
     }
 
     /// อัปเดตข้อมูลเจ้าหนี้
-    updateVendorMaster(tx, vendor_id: number, dto: UpdateVendorDto) {
+    updateVendorMaster(tx: Prisma.TransactionClient, vendor_id: number, dto: UpdateVendorDto) {
         const {
             contacts,
             bank_accounts,
