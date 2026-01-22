@@ -10,27 +10,38 @@ datasource db {
 //////////////
 /// Master Data
 /////////////
+
+///ตารางเก็บข้อมูลสาขา
 model org_branch {
   branch_id   Int         @id @default(autoincrement())
   branch_code String      @unique @db.VarChar(20)
   branch_name String      @db.VarChar(200)
   is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
   warehouses  warehouse[]
   prHeaders   pr_header[]
 
   @@map("org_branch")
 }
 
+///ตารางเก็บข้อมูลคลัง
 model warehouse {
-  warehouse_id   Int        @id @default(autoincrement())
+  warehouse_id   Int         @id @default(autoincrement())
   branch_id      Int
-  warehouse_code String     @unique @db.VarChar(20)
-  warehouse_name String     @db.VarChar(200)
-  branch         org_branch @relation(fields: [branch_id], references: [branch_id])
+  warehouse_code String      @unique @db.VarChar(20)
+  warehouse_name String      @db.VarChar(200)
+  address        String      @db.Text
+  is_active      Boolean     @default(true)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
+  prHeaders      pr_header[]
 
   @@map("warehouse")
 }
 
+///ตารางเก็บข้อมูลเจ้าหนี้
 model vendor {
   vendor_id         Int     @id @default(autoincrement())
   vendor_code       String  @db.VarChar(30)
@@ -42,36 +53,85 @@ model vendor {
   @@map("vendor")
 }
 
+///ตารางเก็บข้อมูลสินค้า
 model item {
-  item_id   Int    @id @default(autoincrement())
-  item_code String @db.VarChar(50)
-  item_name String @db.VarChar(255)
-  item_type String @db.VarChar(20)
-  uom       String @db.VarChar(20)
+  item_id               Int        @id @default(autoincrement())
+  item_code             String     @db.VarChar(50)
+  item_name             String     @db.VarChar(255)
+  item_type             String     @db.VarChar(20)
+  uom                   String     @db.VarChar(20)
+  itemType              item_type? @relation(fields: [item_typeItem_type_id], references: [item_type_id])
+  item_typeItem_type_id Int?
 
   @@map("item")
 }
 
+///ตารางเก็บข้อมูลหน่วยนับ
+model uom {
+  uom_id    Int       @id @default(autoincrement())
+  uom_code  String    @db.VarChar(20)
+  uom_name  String    @db.VarChar(100)
+  is_active Boolean?
+  prLines   pr_line[]
+
+  @@map("uom")
+}
+
+///ตารางเก็บข้อมูลประเภทสินค้า
+model item_type {
+  ///รหัสประเภทสินค้า
+  item_type_id      Int       @id @default(autoincrement())
+  ///รหัสประเภทสินค้า
+  item_type_code    String    @db.VarChar(30)
+  ///ชื่อประเภทสินค้า
+  item_type_name    String    @db.VarChar(200)
+  ///ชื่อประเภทสินค้า (อังกฤษ)
+  item_type_nameeng String    @db.VarChar(200)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  items             item[]
+  prLines           pr_line[]
+
+  @@map("item_type")
+}
+
+///ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
+  ///รหัสศูนย์ต้นทุน
   cost_center_id   Int       @id @default(autoincrement())
+  ///รหัสศูนย์ต้นทุน
   cost_center_code String    @db.VarChar(30)
+  ///ชื่อศูนย์ต้นทุน
   cost_center_name String    @db.VarChar(200)
+  ///โครงการ
   projects         project[]
+  prLines          pr_line[]
 
   @@map("cost_center")
 }
 
+///ตารางเก็บข้อมูลโครงการ
 model project {
+  ///รหัสโครงการ
   project_id     Int         @id @default(autoincrement())
+  ///รหัสโครงการ
   project_code   String      @db.VarChar(30)
+  ///ชื่อโครงการ
   project_name   String      @db.VarChar(200)
+  ///รายละเอียดโครงการ
   description    String
+  ///รหัสศูนย์ต้นทุน
   cost_center_id Int
   cost_center    cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
+  ///งบประมาณ
   budget_amount  Decimal     @db.Decimal(15, 2)
+  ///วันที่เริ่มต้นโครงการ
   start_date     DateTime
+  ///วันที่สิ้นสุดโครงการ
   end_date       DateTime
+  ///สถานะโครงการ
   status         String      @db.VarChar(20)
+  prLines        pr_line[]
 
   @@map("project")
 }
@@ -318,21 +378,64 @@ model payment_terms {
 ///ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header)
 model pr_header {
   ///รหัสใบขอซื้อ (PK)
-  pr_id         Int      @id @default(autoincrement())
+  pr_id             Int      @id @default(autoincrement())
   ///เลขที่ใบขอซื้อ
-  pr_no         String   @db.VarChar(30)
+  pr_no             String   @db.VarChar(30)
+  ///วันที่สร้างใบขอซื้อ
+  pr_date           DateTime
   ///รหัสสาขา (FK)
-  branch_id     Int
-  ///รหัสผู้ขอซื้อ (FK)
-  // requester_user_id Int
-  ///วันที่ขอซื้อ
-  request_date  DateTime
+  branch_id         Int
+  ///รหัสคลัง (FK)
+  warehouse_id      Int
   ///วันที่ต้องการ
-  required_date DateTime
+  need_by_date      DateTime
   ///สถานะ
-  status        String   @db.VarChar(20)
-  ///จำนวนเงินรวม
-  total_amount  Decimal  @db.Decimal(18, 2)
+  status            String   @db.VarChar(20)
+  ///รหัสสกุลเงิน
+  currency_code     String   @db.VarChar(3)
+  ///อัตราแลกเปลี่ยน
+  exchange_rate     Decimal  @db.Decimal(18, 2)
+  ///หมายเหตุ
+  remark            String?  @db.Text
+  ///จำนวนเงินรวม ยอดประมาณการ
+  total_amount      Decimal  @db.Decimal(18, 2)
+  ///เครดิตเทอม (วัน)
+  payment_term_days Int?
+  ///วันที่สร้าง
+  created_at        DateTime @default(now())
+  ///วันที่แก้ไขล่าสุด
+  updated_at        DateTime @updatedAt
 
-  branch org_branch @relation(fields: [branch_id], references: [branch_id])
+  branch    org_branch @relation(fields: [branch_id], references: [branch_id])
+  warehouse warehouse  @relation(fields: [warehouse_id], references: [warehouse_id])
+  prLines   pr_line[]
+}
+
+model pr_line {
+  pr_line_id Int @id @default(autoincrement())
+  line_no    Int
+
+  item_id        Int
+  description    String? @db.Text
+  pr_id          Int
+  qty            Decimal @db.Decimal(18, 3)
+  uom_id         Int
+  est_unit_price Decimal @db.Decimal(18, 4)
+
+  tax_code              String? @db.VarChar(20)
+  cost_center_id        Int
+  project_id            Int
+  required_receipt_type String? @db.VarChar(20)
+
+  // ======================
+  // Relations
+  // ======================
+  pr          pr_header   @relation(fields: [pr_id], references: [pr_id])
+  item        item_type   @relation(fields: [item_id], references: [item_type_id])
+  uom         uom         @relation(fields: [uom_id], references: [uom_id])
+  cost_center cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
+  project     project     @relation(fields: [project_id], references: [project_id])
+
+  @@unique([pr_id, line_no])
+  @@index([pr_id])
 }
