@@ -13,12 +13,12 @@ export class CreatePRDTO {
     // ปกติให้ backend generate
     @IsOptional()
     @IsString()
-    pr_no?: string;
+    pr_no: string;
 
     // วันที่สร้าง PR
     @IsOptional()
     @IsDateString()
-    pr_date?: string;
+    pr_date: string;
 
     // สาขา (required)
     @IsNumber()
@@ -33,7 +33,7 @@ export class CreatePRDTO {
     // วันที่ต้องการของ
     @IsOptional()
     @IsDateString()
-    need_by_date?: string;
+    need_by_date: string;
 
     // สถานะ PR (เช่น DRAFT, SUBMITTED, APPROVED)
     @IsString()
@@ -48,19 +48,19 @@ export class CreatePRDTO {
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    exchange_rate?: number;
+    exchange_rate: number;
 
     // หมายเหตุ
     @IsOptional()
     @IsString()
-    remark?: string;
+    remark: string;
 
     // ยอดรวม (ควรคำนวณจาก PR line)
     @IsOptional()
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    total_amount?: number;
+    total_amount: number;
 
     // เครดิตวัน
     @IsNumber()
@@ -68,3 +68,6 @@ export class CreatePRDTO {
     @Type(() => Number)
     payment_term_days: number;
 }
+
+
+
