@@ -7,11 +7,12 @@ import { VendorsModule } from './master-data/vendors/vendors.module';
 import { PrModule } from './modules/procurement/pr/pr.module';
 import { VendorTypeModule } from './modules/master-data/vendor-type/vendor-type.module';
 import { VendorGroupModule } from './modules/master-data/vendor-group/vendor-group.module';
+import { CurrencyModule } from './modules/master-data/currency/currency.module';
 
 
 
 @Module({
-  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule],
+  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule, CurrencyModule],
   controllers: [AppController],
   providers: [AppService],
 })
