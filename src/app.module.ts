@@ -5,11 +5,13 @@ import { OrgBranchModule } from './master-data/org_branch/org_branch.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VendorsModule } from './master-data/vendors/vendors.module';
 import { PrModule } from './modules/procurement/pr/pr.module';
+import { VendorTypeModule } from './modules/master-data/vendor-type/vendor-type.module';
+import { VendorGroupModule } from './modules/master-data/vendor-group/vendor-group.module';
 
 
 
 @Module({
-  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule],
+  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule],
   controllers: [AppController],
   providers: [AppService],
 })

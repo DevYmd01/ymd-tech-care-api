@@ -25,7 +25,7 @@ export class PRHeaderRepository {
 
                 created_at: new Date(),
                 updated_at: new Date(),
-                total_amount: dto.total_amount,
+                total_est_amount: dto.total_amount,
             },
         });
     }

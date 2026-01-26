@@ -54,7 +54,7 @@ model vendor {
   tax_id            String?  @db.VarChar(20)
   /// จด VAT หรือไม่
   vat_registered    Boolean
-  /// วันที่ต้องการของ
+  /// เครดิตเทอม (วัน)
   payment_term_days Int
   ///สกุลเงิน
   currency_code     String   @db.VarChar(3)
@@ -73,12 +73,55 @@ model vendor {
   ///รหัสกลุ่มเจ้าหนี้
   vendor_group_id   Int
 
-  vendor_type  vendor_type  @relation(fields: [vendor_type_id], references: [vendor_type_id])
-  vendor_group vendor_group @relation(fields: [vendor_group_id], references: [vendor_group_id])
-  prLines      pr_line[]
-  rfqLines     rfq_line[]
+  vendor_type     vendor_type      @relation(fields: [vendor_type_id], references: [vendor_type_id])
+  vendor_group    vendor_group     @relation(fields: [vendor_group_id], references: [vendor_group_id])
+  prLines         pr_line[]
+  rfqLines        rfq_line[]
+  vendorAddresses vendor_address[]
 
   @@map("vendor")
+}
+
+model vendor_address {
+  vendor_address_id Int @id @default(autoincrement())
+  vendor_id         Int
+
+  /// REGISTERED / CONTACT / BILLING / SHIPPING
+  address_type    VendorAddressType
+  /// ที่อยู่
+  address         String            @db.Text
+  /// อำเภอ
+  district        String?           @db.VarChar(100)
+  /// จังหวัด
+  province        String?           @db.VarChar(100)
+  /// รหัสไปรษณีย์
+  postal_code     String?           @db.VarChar(10)
+  /// ประเทศ
+  country         String            @db.VarChar(100)
+  /// ผู้ติดต่อ
+  contact_person  String?           @db.VarChar(255)
+  /// เบอร์โทรศัพท์
+  phone           String?           @db.VarChar(20)
+  /// ต่อ
+  phone_extension String?           @db.VarChar(20)
+  /// อีเมล
+  email           String?           @db.VarChar(255)
+  /// สถานะ
+  is_default      Boolean           @default(false)
+  /// สถานะ
+  is_active       Boolean           @default(true)
+
+  vendor vendor @relation(fields: [vendor_id], references: [vendor_id])
+
+  @@index([vendor_id])
+  @@map("vendor_address")
+}
+
+enum VendorAddressType {
+  REGISTERED // ที่อยู่ตามเลขผู้เสียภาษี
+  CONTACT // ที่อยู่ติดต่อ
+  BILLING // วางบิล
+  SHIPPING // ส่งของ
 }
 
 /// ไม่
