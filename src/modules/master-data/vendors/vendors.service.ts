@@ -3,7 +3,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { CreateVendorRepository } from './repositories/create-vendor.repository';
 import { CreateAddressRepository } from './repositories/create-address.repository';
-import { CreateVendorContactDto } from './dto/create-contact.dto';
 import { CreateContactRepository } from './repositories/create-contact.repository';
 import { CreateBankRepository } from './repositories/create-bank.repository';
 import { UpdateVendorDto } from './dto/update-vendor.dto';

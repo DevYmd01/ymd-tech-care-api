@@ -6,6 +6,10 @@ import { CreateVendorRepository } from './repositories/create-vendor.repository'
 import { CreateAddressRepository } from './repositories/create-address.repository';
 import { CreateContactRepository } from './repositories/create-contact.repository';
 import { CreateBankRepository } from './repositories/create-bank.repository';
+import { UpdateVendorRepository } from './repositories/update-vendor.repository';
+import { UpdateVendorAddressRepository } from './repositories/update-address.repository';
+import { UpdateVendorContactRepository } from './repositories/update-contact.reopsitory';
+import { UpdateVendorBankRepository } from './repositories/update-bank.repository';
 
 @Module({
   controllers: [VendorsController],
@@ -16,6 +20,10 @@ import { CreateBankRepository } from './repositories/create-bank.repository';
     CreateAddressRepository,
     CreateContactRepository,
     CreateBankRepository,
+    UpdateVendorRepository,
+    UpdateVendorAddressRepository,
+    UpdateVendorContactRepository,
+    UpdateVendorBankRepository,
   ],
 })
 export class VendorsModule { }
