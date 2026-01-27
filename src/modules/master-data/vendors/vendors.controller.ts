@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 
@@ -14,5 +14,10 @@ export class VendorsController {
     @Get()
     findAll() {
         return this.vendorService.findAll();
+    }
+
+    @Get(':vendor_id')
+    findOne(@Param('vendor_id') vendor_id: number) {
+        return this.vendorService.findOne(vendor_id);
     }
 }

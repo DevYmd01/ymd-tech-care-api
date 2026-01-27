@@ -10,7 +10,6 @@ import { VendorGroupModule } from './modules/master-data/vendor-group/vendor-gro
 import { CurrencyModule } from './modules/master-data/currency/currency.module';
 
 
-
 @Module({
   imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule, CurrencyModule],
   controllers: [AppController],

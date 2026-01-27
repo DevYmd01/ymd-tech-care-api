@@ -49,6 +49,8 @@ export class VendorsService {
                 where: { vendor_id: vendor.vendor_id },
                 include: {
                     vendorAddresses: true,
+                    vendorContacts: true,
+                    vendorBankAccounts: true,
                 },
             });
         });
@@ -59,6 +61,20 @@ export class VendorsService {
         return this.prisma.vendor.findMany({
             include: {
                 vendorAddresses: true,
+                vendorContacts: true,
+                vendorBankAccounts: true,
+            },
+        });
+    }
+
+    /// ดึงข้อมูลเจ้าหนี้ตาม id
+    findOne(id: number) {
+        return this.prisma.vendor.findUnique({
+            where: { vendor_id: id },
+            include: {
+                vendorAddresses: true,
+                vendorContacts: true,
+                vendorBankAccounts: true,
             },
         });
     }

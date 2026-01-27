@@ -56,8 +56,6 @@ model vendor {
   is_vat_registered Boolean  @default(false)
   /// เครดิตเทอม (วัน)
   payment_term_days Int
-  ///สกุลเงิน
-  currency_code     String?  @db.VarChar(3)
   ///เบอร์โทรศัพท์
   phone             String?  @db.VarChar(20)
   ///อีเมล
@@ -71,14 +69,16 @@ model vendor {
   ///รหัสกลุ่มเจ้าหนี้
   vendor_group_id   Int
   ///สกุลเงิน
-  currency_id       Int
+  currency_id       Int?
 
-  vendor_type     vendor_type      @relation(fields: [vendor_type_id], references: [vendor_type_id])
-  vendor_group    vendor_group     @relation(fields: [vendor_group_id], references: [vendor_group_id])
-  currency        currency         @relation(fields: [currency_id], references: [currency_id])
-  prLines         pr_line[]
-  rfqLines        rfq_line[]
-  vendorAddresses vendor_address[]
+  vendor_type        vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
+  vendor_group       vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
+  currency           currency?              @relation(fields: [currency_id], references: [currency_id])
+  prLines            pr_line[]
+  rfqLines           rfq_line[]
+  vendorAddresses    vendor_address[]
+  vendorContacts     vendor_contacts[]
+  vendorBankAccounts vendor_bank_accounts[]
 
   @@map("vendor")
 }
@@ -494,28 +494,30 @@ model vendor_master {
 /// ตารางผู้ติดต่อ
 model vendor_contacts {
   /// ชื่อผู้ติดต่อ
-  contact_name String        @db.VarChar(100)
+  contact_name           String         @db.VarChar(100)
   /// ตำแหน่ง
-  position     String?       @db.VarChar(100)
+  position               String?        @db.VarChar(100)
   /// แผนก
-  department   String?       @db.VarChar(100)
+  department             String?        @db.VarChar(100)
   /// เบอร์โทรศัพท์
-  phone        String?       @db.VarChar(20)
+  phone                  String?        @db.VarChar(20)
   /// เบอร์มือถือ
-  mobile       String?       @db.VarChar(20)
+  mobile                 String?        @db.VarChar(20)
   /// อีเมล
-  email        String?       @db.VarChar(100)
+  email                  String?        @db.VarChar(100)
   /// เป็นผู้ติดต่อหลักหรือไม่
-  is_primary   Boolean       @default(false)
+  is_primary             Boolean        @default(false)
   /// วันที่สร้างข้อมูล
-  created_at   DateTime      @default(now())
+  created_at             DateTime       @default(now())
   /// วันที่แก้ไขล่าสุด
-  updated_at   DateTime      @updatedAt
+  updated_at             DateTime       @updatedAt
   /// รหัสผู้ติดต่อ (PK)
-  contact_id   Int           @id @default(autoincrement())
+  contact_id             Int            @id @default(autoincrement())
   /// รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
-  vendor_id    Int
-  vendor       vendor_master @relation(fields: [vendor_id], references: [vendor_id])
+  vendor_id              Int
+  vendor                 vendor         @relation(fields: [vendor_id], references: [vendor_id])
+  vendorMaster           vendor_master? @relation(fields: [vendor_masterVendor_id], references: [vendor_id])
+  vendor_masterVendor_id Int?
 
   @@index([vendor_id])
 }
@@ -523,24 +525,26 @@ model vendor_contacts {
 /// ตารางเก็บข้อมูลบัญชีธนาคารของเจ้าหนี้
 model vendor_bank_accounts {
   /// ชื่อธนาคาร
-  bank_name       String        @db.VarChar(100)
+  bank_name              String         @db.VarChar(100)
   /// สาขาธนาคาร
-  bank_branch     String        @db.VarChar(100)
+  bank_branch            String         @db.VarChar(100)
   /// เลขที่บัญชีธนาคาร
-  account_no      String        @db.VarChar(30)
+  account_no             String         @db.VarChar(30)
   /// ชื่อบัญชี
-  account_name    String        @db.VarChar(200)
+  account_name           String         @db.VarChar(200)
   /// ประเภทบัญชี SAVING / CURRENT
-  account_type    String        @db.VarChar(20)
+  account_type           String         @db.VarChar(20)
   /// รหัส SWIFT (ถ้ามี)
-  swift_code      String?       @db.VarChar(20)
+  swift_code             String?        @db.VarChar(20)
   /// เป็นบัญชีหลักของเจ้าหนี้หรือไม่
-  is_default      Boolean       @default(false)
+  is_default             Boolean        @default(false)
   /// PK รหัสบัญชีธนาคาร
-  bank_account_id Int           @id @default(autoincrement())
+  bank_account_id        Int            @id @default(autoincrement())
   /// FK รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
-  vendor_id       Int
-  vendor          vendor_master @relation(fields: [vendor_id], references: [vendor_id])
+  vendor_id              Int
+  vendor                 vendor         @relation(fields: [vendor_id], references: [vendor_id])
+  vendorMaster           vendor_master? @relation(fields: [vendor_masterVendor_id], references: [vendor_id])
+  vendor_masterVendor_id Int?
 
   @@index([vendor_id])
   @@map("vendor_bank_accounts")
