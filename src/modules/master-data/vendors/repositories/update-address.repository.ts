@@ -4,11 +4,34 @@ import { UpdateVendorAddressDto } from '../dto/update-vendor.dto';
 
 @Injectable()
 export class UpdateVendorAddressRepository {
-    async upsertMany(
+    async sync(
         tx: Prisma.TransactionClient,
         vendor_id: number,
         addresses: UpdateVendorAddressDto[],
     ) {
+
+        // 1. ดึงของเดิมจาก DB
+        const existing = await tx.vendor_address.findMany({
+            where: { vendor_id },
+            select: { vendor_address_id: true },
+        });
+
+        const existingIds = existing.map(e => e.vendor_address_id);
+        const incomingIds = addresses
+            .filter(c => c.vendor_address_id)
+            .map(c => c.vendor_address_id!);
+
+        // 2. ลบตัวที่ FE ไม่ส่งมา
+        const deleteIds = existingIds.filter(
+            id => !incomingIds.includes(id),
+        );
+
+        if (deleteIds.length) {
+            await tx.vendor_address.deleteMany({
+                where: { vendor_address_id: { in: deleteIds } },
+            });
+        }
+
         for (const addr of addresses) {
             if (addr.vendor_address_id) {
                 // UPDATE

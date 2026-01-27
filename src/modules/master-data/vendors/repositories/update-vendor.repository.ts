@@ -9,9 +9,8 @@ export class UpdateVendorRepository {
         vendor_id: number,
         dto: UpdateVendorDto,
     ) {
-        return tx.vendor.update({
-            where: { vendor_id },
-            data: {
+        const data = Object.fromEntries(
+            Object.entries({
                 vendor_code: dto.vendor_code,
                 vendor_name: dto.vendor_name,
                 tax_id: dto.tax_id,
@@ -23,7 +22,13 @@ export class UpdateVendorRepository {
                 vendor_type_id: dto.vendor_type_id,
                 vendor_group_id: dto.vendor_group_id,
                 currency_id: dto.currency_id,
-            },
+            }).filter(([_, v]) => v !== undefined)
+        );
+
+        return tx.vendor.update({
+            where: { vendor_id },
+            data,
         });
     }
+
 }

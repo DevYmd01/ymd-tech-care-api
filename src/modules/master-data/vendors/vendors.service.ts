@@ -6,6 +6,11 @@ import { CreateAddressRepository } from './repositories/create-address.repositor
 import { CreateVendorContactDto } from './dto/create-contact.dto';
 import { CreateContactRepository } from './repositories/create-contact.repository';
 import { CreateBankRepository } from './repositories/create-bank.repository';
+import { UpdateVendorDto } from './dto/update-vendor.dto';
+import { UpdateVendorRepository } from './repositories/update-vendor.repository';
+import { UpdateVendorAddressRepository } from './repositories/update-address.repository';
+import { UpdateVendorContactRepository } from './repositories/update-contact.reopsitory';
+import { UpdateVendorBankRepository } from './repositories/update-bank.repository';
 
 @Injectable()
 export class VendorsService {
@@ -14,6 +19,10 @@ export class VendorsService {
         private readonly createAddressRepository: CreateAddressRepository,
         private readonly createContactRepository: CreateContactRepository,
         private readonly createBankRepository: CreateBankRepository,
+        private readonly updateVendorRepository: UpdateVendorRepository,
+        private readonly updateVendorAddressRepository: UpdateVendorAddressRepository,
+        private readonly updateVendorContactRepository: UpdateVendorContactRepository,
+        private readonly updateVendorBankRepository: UpdateVendorBankRepository,
     ) { }
 
     /// สร้างเจ้าหนี้
@@ -55,6 +64,46 @@ export class VendorsService {
             });
         });
     }
+
+    update(vendor_id: number, dto: UpdateVendorDto) {
+        return this.prisma.$transaction(async (tx) => {
+            await this.updateVendorRepository.update(tx, vendor_id, dto);
+
+            if (dto.addresses?.length) {
+                await this.updateVendorAddressRepository.sync(
+                    tx,
+                    vendor_id,
+                    dto.addresses,
+                );
+            }
+
+            if (dto.contacts?.length) {
+                await this.updateVendorContactRepository.sync(
+                    tx,
+                    vendor_id,
+                    dto.contacts,
+                );
+            }
+
+            if (dto.bank_accounts?.length) {
+                await this.updateVendorBankRepository.sync(
+                    tx,
+                    vendor_id,
+                    dto.bank_accounts,
+                );
+            }
+
+            return tx.vendor.findUnique({
+                where: { vendor_id },
+                include: {
+                    vendorAddresses: true,
+                    vendorContacts: true,
+                    vendorBankAccounts: true,
+                },
+            });
+        });
+    }
+
 
     /// ดึงข้อมูลเจ้าหนี้ทั้งหมด
     findAll() {

@@ -4,11 +4,35 @@ import { UpdateVendorBankAccountDto } from "../dto/update-vendor.dto";
 
 @Injectable()
 export class UpdateVendorBankRepository {
-    async upsertMany(
+    async sync(
         tx: Prisma.TransactionClient,
         vendor_id: number,
         banks: UpdateVendorBankAccountDto[],
     ) {
+
+        // 1. ดึงของเดิมจาก DB
+        const existing = await tx.vendor_bank_accounts.findMany({
+            where: { vendor_id },
+            select: { bank_account_id: true },
+        });
+
+        const existingIds = existing.map(e => e.bank_account_id);
+        const incomingIds = banks
+            .filter(c => c.bank_account_id)
+            .map(c => c.bank_account_id!);
+
+        // 2. ลบตัวที่ FE ไม่ส่งมา
+        const deleteIds = existingIds.filter(
+            id => !incomingIds.includes(id),
+        );
+
+        if (deleteIds.length) {
+            await tx.vendor_bank_accounts.deleteMany({
+                where: { bank_account_id: { in: deleteIds } },
+            });
+        }
+
+        // อัปเดต/สร้าง ข้อมูลใหม่
         for (const b of banks) {
             if (b.bank_account_id) {
                 await tx.vendor_bank_accounts.update({
