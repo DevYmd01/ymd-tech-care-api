@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OrgBranchModule } from './master-data/org_branch/org_branch.module';
+import { OrgBranchModule } from './modules/master-data/org_branch/org_branch.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VendorsModule } from './modules/master-data/vendors/vendors.module';
 import { PrModule } from './modules/procurement/pr/pr.module';
