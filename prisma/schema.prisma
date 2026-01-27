@@ -53,28 +53,29 @@ model vendor {
   ///เลขที่ผู้เสียภาษี
   tax_id            String?  @db.VarChar(20)
   /// จด VAT หรือไม่
-  vat_registered    Boolean
+  is_vat_registered Boolean  @default(false)
   /// เครดิตเทอม (วัน)
   payment_term_days Int
   ///สกุลเงิน
-  currency_code     String   @db.VarChar(3)
+  currency_code     String?  @db.VarChar(3)
   ///เบอร์โทรศัพท์
   phone             String?  @db.VarChar(20)
   ///อีเมล
   email             String?  @db.VarChar(255)
-  ///ที่อยู่
-  address           String?  @db.Text
   ///สถานะ
-  is_active         Boolean
+  is_active         Boolean  @default(true)
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
   ///รหัสประเภทเจ้าหนี้
   vendor_type_id    Int
   ///รหัสกลุ่มเจ้าหนี้
   vendor_group_id   Int
+  ///สกุลเงิน
+  currency_id       Int
 
   vendor_type     vendor_type      @relation(fields: [vendor_type_id], references: [vendor_type_id])
   vendor_group    vendor_group     @relation(fields: [vendor_group_id], references: [vendor_group_id])
+  currency        currency         @relation(fields: [currency_id], references: [currency_id])
   prLines         pr_line[]
   rfqLines        rfq_line[]
   vendorAddresses vendor_address[]
@@ -366,6 +367,7 @@ model currency {
   status           String   @db.VarChar(20)
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+  vendors          vendor[]
 
   @@map("currency")
 }

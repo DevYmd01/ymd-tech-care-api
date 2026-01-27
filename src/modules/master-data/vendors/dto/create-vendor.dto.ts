@@ -9,10 +9,10 @@ import {
     Min,             // กำหนดค่าต่ำสุดของตัวเลข
     IsArray,         // ตรวจว่าเป็น array
     ValidateNested,  // ใช้ตรวจ object ซ้อน (เช่น array ของ DTO)
+    IsIn,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
-
 
 /// สร้างเจ้าหนี้
 export class CreateVendorDto {
@@ -30,15 +30,11 @@ export class CreateVendorDto {
 
     @IsOptional()
     @IsBoolean()
-    vat_registered?: boolean;
+    is_vat_registered?: boolean;
 
     @IsOptional()
     @IsNumber()
     payment_term_days?: number;
-
-    @IsOptional()
-    @IsString()
-    currency_code?: string;
 
     @IsOptional()
     @IsString()
@@ -48,23 +44,34 @@ export class CreateVendorDto {
     @IsString()
     email?: string;
 
+    /// ที่อยู่ ข้อมูล array ของ CreateVendorAddressDto
     @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreateVendorAddressDto)
     addresses?: CreateVendorAddressDto[]
 
+    /// สถานะ
     @IsOptional()
-    @IsString()
-    province?: string;
+    @IsBoolean()
+    is_active?: boolean;
 
+    /// FK 
+    ///////////////
+    /// ประเภทเจ้าหนี้
     @IsOptional()
-    @IsString()
-    country?: string;
+    @IsNumber()
+    vendor_type_id?: number
 
+    /// กลุ่มเจ้าหนี้
     @IsOptional()
-    @IsString()
-    remark?: string;
+    @IsNumber()
+    vendor_group_id?: number
+
+    /// ค่าเงิน
+    @IsOptional()
+    @IsNumber()
+    currency_id?: number
 
     /// เพิ่มผู้ติดต่อ
     @IsOptional()
@@ -89,16 +96,42 @@ export class CreateVendorDto {
 
 /// เพิ่มที่อยู่ให้กับเจ้าหนี้
 export class CreateVendorAddressDto {
-    address_type: 'REGISTERED' | 'BILLING' | 'SHIPPING' | 'CONTACT';
+    @IsIn(['REGISTERED', 'CONTACT', 'BILLING', 'SHIPPING'])
+    address_type: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
 
-    address: string;
+    @IsString()
+    address?: string;
 
-    contact_person?: string;
-    phone?: string;
-    phone_extension?: string;
-    email?: string;
+    @IsString()
+    district: string;
 
+    @IsString()
+    province: string;
+
+    @IsString()
+    postal_code: string;
+
+    @IsOptional()
+    @IsString()
+    country?: string;
+
+    @IsString()
+    contact_person: string;
+
+    @IsString()
+    phone: string;
+
+    @IsString()
+    phone_extension: string;
+
+    @IsString()
+    email: string;
+
+    @IsBoolean()
     is_default?: boolean;
+
+    @IsBoolean()
+    is_active?: boolean;
 }
 
 /// เพิ่มผู้ติดต่อให้กับเจ้าหนี้
@@ -118,9 +151,11 @@ export class CreateVendorContactDto {
     @IsString()
     mobile?: string;
 
+    @IsOptional()
     @IsBoolean()
-    is_primary: boolean;
+    is_primary?: boolean;
 }
+
 
 /// เพิ่มบัญชีธนาคารให้กับเจ้าหนี้
 export class CreateVendorBankAccountDto {
@@ -152,79 +187,4 @@ export enum VendorStatus {
     INACTIVE = 'INACTIVE',
     SUSPENDED = 'SUSPENDED',
     BLACKLISTED = 'BLACKLISTED',
-}
-
-/// อัปเดตสถานะเจ้าหนี้
-export class UpdateVendorStatusDto {
-    @IsEnum(VendorStatus)
-    status: VendorStatus;
-
-    @IsOptional()
-    @IsString()
-    remark?: string;
-}
-
-
-///สร้างบันทึกผลการประเมินเจ้าหนี้
-export class CreateVendorPerformanceDto {
-
-    /// วันที่ประเมิน
-    @IsOptional()
-    @IsDateString()
-    evaluation_date?: string; // ISO date เช่น 2025-01-15
-
-    /// งวดการประเมิน
-    @IsOptional()
-    @IsString()
-    evaluation_period?: string; // เช่น 2025-Q1
-
-    /// คะแนนคุณภาพ
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    quality_score?: number;
-
-    /// คะแนนการส่งมอบ
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    delivery_score?: number;
-
-    /// คะแนนราคา
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    price_score?: number;
-
-    /// คะแนนบริการ
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    service_score?: number;
-
-    /// คะแนนรวม
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    total_score?: number;
-
-    /// เกรดประเมิน
-    @IsOptional()
-    @IsString()
-    rating?: string; // A–E
-
-    /// หมายเหตุ
-    @IsOptional()
-    @IsString()
-    remark?: string;
-
-    /// ผู้ประเมิน
-    @IsOptional()
-    @IsString()
-    evaluated_by?: string;
 }

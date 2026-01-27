@@ -18,7 +18,7 @@ import { UpdateVendorDto } from './dto/update-vendor.dto';
  * - ❌ ไม่มี logic
  */
 
-@Controller('vendors')
+@Controller('vendors-master-data')
 export class VendorsController {
 
     constructor(private readonly vendorsService: VendorsService) { }
