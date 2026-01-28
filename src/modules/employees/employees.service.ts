@@ -3,6 +3,7 @@ import { CreateEmployeesDto } from './dto/create-employees.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateAddressDto } from './dto/creact-address.dto';
 import { UpdateEmployeesDto } from './dto/update-employees.dto';
+import { UpdateAddressDto } from './dto/update-address.dto';
 
 @Injectable()
 export class EmployeesService {
@@ -72,7 +73,8 @@ export class EmployeesService {
                 is_active: dto.is_active!,
                 manager_employee_id: dto.manager_employee_id!,
                 employeeAddresses: {
-                    create: dto.addresses?.map((address: CreateAddressDto) => ({
+                    create: dto.addresses?.map((address: UpdateAddressDto) => ({
+                        employee_address_id: address.employee_address_id!,
                         address_type: address.address_type!,
                         address: address.address!,
                         district: address.district!,

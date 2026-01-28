@@ -2,8 +2,8 @@
 import { CreateEmployeesDto } from "./create-employees.dto";
 import { IsOptional, IsNumber, IsString, MaxLength, IsDate, IsBoolean, IsArray, ValidateNested, IsDateString } from "class-validator";
 import { Type } from "class-transformer";
-import { CreateAddressDto } from "./creact-address.dto";
 import { PartialType } from "@nestjs/mapped-types";
+import { UpdateAddressDto } from "./update-address.dto";
 
 export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
 
@@ -109,8 +109,7 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
     manager_employee_id: number;
 
     @IsOptional()
-    @IsArray()
+    @Type(() => UpdateAddressDto)
     @ValidateNested({ each: true })
-    @Type(() => CreateAddressDto)
-    addresses?: CreateAddressDto[];
+    addresses?: UpdateAddressDto[];
 }
