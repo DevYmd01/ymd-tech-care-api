@@ -22,37 +22,40 @@ model org_branch {
   warehouses  warehouse[]
   prHeaders   pr_header[]
   rfqHeaders  rfq_header[]
+  employees   employees[]
 
   @@map("org_branch")
 }
 
 ///ตารางเก็บข้อมูลตำแหน่ง 
 model org_position {
-  position_id      Int      @id @default(autoincrement())
-  position_code    String   @unique @db.VarChar(20)
-  position_name    String   @db.VarChar(200)
-  position_name_en String   @db.VarChar(200)
-  is_active        Boolean  @default(true)
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  position_id      Int         @id @default(autoincrement())
+  position_code    String      @unique @db.VarChar(20)
+  position_name    String      @db.VarChar(200)
+  position_name_en String      @db.VarChar(200)
+  is_active        Boolean     @default(true)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  employees        employees[]
 }
 
 ///ตารางเก็บข้อมูลแผนก
 model org_department {
   ///รหัสแผนก
-  department_id      Int      @id @default(autoincrement())
+  department_id      Int         @id @default(autoincrement())
   ///รหัสแผนก
-  department_code    String   @unique @db.VarChar(20)
+  department_code    String      @unique @db.VarChar(20)
   ///ชื่อแผนก
-  department_name    String   @db.VarChar(200)
+  department_name    String      @db.VarChar(200)
   ///ชื่อแผนก (ภาษาอังกฤษ)
-  department_name_en String   @db.VarChar(200)
+  department_name_en String      @db.VarChar(200)
   ///สถานะ
-  is_active          Boolean  @default(true)
+  is_active          Boolean     @default(true)
   ///วันที่สร้าง
-  created_at         DateTime @default(now())
+  created_at         DateTime    @default(now())
   ///วันที่แก้ไข
-  updated_at         DateTime @updatedAt
+  updated_at         DateTime    @updatedAt
+  employees          employees[]
 }
 
 ///ตารางเก็บข้อมูลคลัง M2
@@ -69,6 +72,69 @@ model warehouse {
   prHeaders      pr_header[]
 
   @@map("warehouse")
+}
+
+model employees {
+  employee_id           Int             @id @default(autoincrement())
+  branch_id             Int
+  employee_code         String          @unique @db.VarChar(20)
+  employee_title_th     String          @db.VarChar(20)
+  employee_title_en     String          @db.VarChar(20)
+  employee_firstname_th String          @db.VarChar(200)
+  employee_lastname_th  String          @db.VarChar(200)
+  employee_firstname_en String          @db.VarChar(200)
+  employee_lastname_en  String          @db.VarChar(200)
+  employee_fullname     String          @db.VarChar(400)
+  employee_startdate    DateTime
+  employee_resigndate   DateTime?
+  employee_status       String          @db.VarChar(20)
+  phone                 String          @db.VarChar(20)
+  email                 String          @db.VarChar(255)
+  remark                String?         @db.Text
+  tax_id                String?         @db.VarChar(20)
+  emp_type              Boolean         @default(false)
+  position_id           Int
+  department_id         Int
+  is_active             Boolean         @default(true)
+  manager_employee_id   Int?
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @default(now()) @updatedAt
+  branch                org_branch      @relation(fields: [branch_id], references: [branch_id])
+  position              org_position    @relation(fields: [position_id], references: [position_id])
+  department            org_department  @relation(fields: [department_id], references: [department_id])
+  manager_employee      employees?      @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
+  employees             employees[]     @relation("EmployeeManager")
+  employeeAuths         employee_auth[]
+}
+
+///ตารางเก็บข้อมูลการ login
+model employee_auth {
+  employee_id Int       @id @default(autoincrement())
+  username    String    @unique
+  password    String
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  employee    employees @relation(fields: [employee_id], references: [employee_id])
+}
+
+enum EmployeeAddressType {
+  REGISTERED
+  CONTACT
+  BILLING
+  SHIPPING
+}
+
+model employee_address {
+  employee_address_id Int                 @id @default(autoincrement())
+  employee_id         Int
+  address_type        EmployeeAddressType
+  address             String              @db.Text
+  district            String?             @db.VarChar(100)
+  province            String?             @db.VarChar(100)
+  postal_code         String?             @db.VarChar(10)
+  country             String              @db.VarChar(100)
+  contact_person      String?             @db.VarChar(255)
 }
 
 ///ตารางเก็บข้อมูลเจ้าหนี้ M3

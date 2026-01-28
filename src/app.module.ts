@@ -8,10 +8,13 @@ import { PrModule } from './modules/procurement/pr/pr.module';
 import { VendorTypeModule } from './modules/master-data/vendor-type/vendor-type.module';
 import { VendorGroupModule } from './modules/master-data/vendor-group/vendor-group.module';
 import { CurrencyModule } from './modules/master-data/currency/currency.module';
+import { DepartmentModule } from './modules/master-data/department/department.module';
+import { EmployeesModule } from './modules/master-data/employees/employees.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 
 @Module({
-  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule, CurrencyModule],
+  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule, CurrencyModule, DepartmentModule, EmployeesModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
