@@ -12,7 +12,6 @@ import { DepartmentModule } from './modules/master-data/department/department.mo
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AuthModule } from './modules/system/auth/auth.module';
 import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
-import { AuthModule } from './modules/auth/auth.module';
 
 
 @Module({
