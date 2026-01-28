@@ -6,7 +6,10 @@ import {
     IsOptional,
     IsString,
     MaxLength,
+    ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateAddressDto } from './creact-address.dto';
 
 export class CreateEmployeesDto {
     @IsNumber()
@@ -86,4 +89,9 @@ export class CreateEmployeesDto {
     @IsOptional()
     @IsNumber()
     manager_employee_id?: number;
+
+    @IsOptional()
+    @Type(() => CreateAddressDto)
+    @ValidateNested({ each: true })
+    addresses?: CreateAddressDto[];
 }

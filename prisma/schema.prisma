@@ -98,14 +98,15 @@ model employees {
   is_active             Boolean   @default(true)
   manager_employee_id   Int?
 
-  created_at       DateTime        @default(now())
-  updated_at       DateTime        @default(now()) @updatedAt
-  branch           org_branch      @relation(fields: [branch_id], references: [branch_id])
-  position         org_position    @relation(fields: [position_id], references: [position_id])
-  department       org_department  @relation(fields: [department_id], references: [department_id])
-  manager_employee employees?      @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
-  employees        employees[]     @relation("EmployeeManager")
-  employeeAuths    employee_auth[]
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @default(now()) @updatedAt
+  branch            org_branch         @relation(fields: [branch_id], references: [branch_id])
+  position          org_position       @relation(fields: [position_id], references: [position_id])
+  department        org_department     @relation(fields: [department_id], references: [department_id])
+  manager_employee  employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
+  employees         employees[]        @relation("EmployeeManager")
+  employeeAuths     employee_auth[]
+  employeeAddresses employee_address[]
 }
 
 ///ตารางเก็บข้อมูลการ login
@@ -136,6 +137,7 @@ model employee_address {
   postal_code         String?             @db.VarChar(10)
   country             String              @db.VarChar(100)
   contact_person      String?             @db.VarChar(255)
+  employee            employees           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
 }
 
 ///ตารางเก็บข้อมูลเจ้าหนี้ M3
