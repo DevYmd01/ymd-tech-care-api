@@ -9,12 +9,25 @@ import { VendorTypeModule } from './modules/master-data/vendor-type/vendor-type.
 import { VendorGroupModule } from './modules/master-data/vendor-group/vendor-group.module';
 import { CurrencyModule } from './modules/master-data/currency/currency.module';
 import { DepartmentModule } from './modules/master-data/department/department.module';
-import { EmployeesModule } from './modules/master-data/employees/employees.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { AuthModule } from './modules/system/auth/auth.module';
+import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
 
 
 @Module({
-  imports: [OrgBranchModule, PrismaModule, VendorsModule, PrModule, VendorTypeModule, VendorGroupModule, CurrencyModule, DepartmentModule, EmployeesModule, AuthModule],
+  imports: [
+    OrgBranchModule,
+    PrismaModule,
+    VendorsModule,
+    PrModule,
+    VendorTypeModule,
+    VendorGroupModule,
+    CurrencyModule,
+    DepartmentModule,
+    EmployeesModule,
+    AuthModule,
+    OrgPositionModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
