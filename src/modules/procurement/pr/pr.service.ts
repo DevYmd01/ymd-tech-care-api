@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePRDTO } from './dto/ceacte-pr.dto'
+import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { PRHeaderRepository } from './repositories/pr-header.repository';
 @Injectable()
 export class PrService {
@@ -9,7 +9,7 @@ export class PrService {
         private prHeaderRepo: PRHeaderRepository,
     ) { }
 
-    async create(dto: CreatePRDTO) {
+    async create(dto: CreatePRHeaderDTO) {
         return this.prisma.$transaction(async (tx) => {
             return this.prHeaderRepo.create(tx, dto);
         });

@@ -3,12 +3,11 @@ import {
     IsDateString,
     IsOptional,
     IsNumber,
-    IsEnum,
     Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreatePRDTO {
+export class CreatePRHeaderDTO {
 
     // ปกติให้ backend generate
     @IsOptional()
@@ -67,6 +66,36 @@ export class CreatePRDTO {
     @Min(0)
     @Type(() => Number)
     payment_term_days: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    requester_user_id: number;
+
+    @IsOptional()
+    @IsString()
+    preferred_vendor: string;
+
+    @IsOptional()
+    @IsDateString()
+    delivery_date: string;
+
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    @Type(() => Number)
+    credit_days: number;
+
+    @IsOptional()
+    @IsString()
+    vendor_quote_no: string;
+
+    @IsOptional()
+    @IsString()
+    shipping_method: string;
+
+    @IsOptional()
+    @IsString()
+    requester_name: string;
 }
 
 

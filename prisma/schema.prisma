@@ -107,6 +107,7 @@ model employees {
   employees         employees[]        @relation("EmployeeManager")
   employeeAuths     employee_auth[]
   employeeAddresses employee_address[]
+  prHeaders         pr_header[]
 }
 
 ///ตารางเก็บข้อมูลการ login
@@ -779,9 +780,27 @@ model pr_header {
   created_at        DateTime  @default(now())
   ///วันที่แก้ไขล่าสุด
   updated_at        DateTime  @updatedAt
+  ///รหัสผู้ขอ (FK)
+  requester_user_id Int
+  /// ======================
+  /// Additional Fields
+  /// ======================
+  ///ผู้ขายที่แนะนำ
+  preferred_vendor  String?   @db.VarChar(100)
+  ///วันที่ส่งมอบที่ต้องการ
+  delivery_date     DateTime?
+  ///วันเครดิต
+  credit_days       Int?
+  ///เลขที่ใบเสนอราคาจากผู้ขาย
+  vendor_quote_no   String?   @db.VarChar(50)
+  ///วิธีการจัดส่ง
+  shipping_method   String?   @db.VarChar(50)
+  ///ผู้ขอ
+  requester_name    String?   @db.VarChar(100)
 
   branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
   warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
+  requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
   prLines             pr_line[]
   quoteCompareHeaders quote_compare_header[]
   rfqHeaders          rfq_header[]
@@ -815,6 +834,8 @@ model pr_line {
   required_receipt_type         String?        @db.VarChar(20)
   ///รหัสผู้ขายที่ต้องการ (FK)
   preferred_vendor_id           Int?
+  ///รหัสหมวดหมู่สินค้า
+  item_categoryItem_category_id Int?
   // ======================
   // Relations
   // ======================
@@ -832,8 +853,6 @@ model pr_line {
   preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
   ///หมวดหมู่สินค้า
   itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
-  ///รหัสหมวดหมู่สินค้า
-  item_categoryItem_category_id Int?
 
   @@unique([pr_id, line_no])
   @@index([pr_id])

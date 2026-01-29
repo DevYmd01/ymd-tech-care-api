@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { CreatePRDTO } from '../dto/ceacte-pr.dto';
+import { CreatePRHeaderDTO } from '../dto/creacte-pr-header.dto';
 
 @Injectable()
 export class PRHeaderRepository {
     async create(
         tx: Prisma.TransactionClient,
-        dto: CreatePRDTO,
+        dto: CreatePRHeaderDTO,
     ) {
         return tx.pr_header.create({
             data: {
@@ -26,6 +26,7 @@ export class PRHeaderRepository {
                 created_at: new Date(),
                 updated_at: new Date(),
                 total_est_amount: dto.total_amount,
+                requester_user_id: dto.requester_user_id,
             },
         });
     }
