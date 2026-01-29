@@ -13,6 +13,7 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { AuthModule } from './modules/system/auth/auth.module';
 import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
 import { WarehouseModule } from './modules/master-data/warehouse/warehouse.module';
+import { ItemCategoryModule } from './modules/master-data/item-category/item-category.module';
 
 
 @Module({
@@ -28,7 +29,8 @@ import { WarehouseModule } from './modules/master-data/warehouse/warehouse.modul
     EmployeesModule,
     AuthModule,
     OrgPositionModule,
-    WarehouseModule
+    WarehouseModule,
+    ItemCategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],
