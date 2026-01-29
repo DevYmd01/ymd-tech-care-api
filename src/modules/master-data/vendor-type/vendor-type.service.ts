@@ -19,6 +19,22 @@ export class VendorTypeService {
         });
     }
 
+    async findOne(vendor_type_id: number) {
+        return this.prisma.vendor_type.findUnique({
+            where: {
+                vendor_type_id: vendor_type_id,
+            },
+            select: {
+                vendor_type_id: true,
+                vendor_type_code: true,
+                vendor_type_name: true,
+                vendor_type_nameeng: true,
+                description: true,
+                status: true,
+            }
+        });
+    }
+
     async create(createVendorTypeDTO: CreateVendorTypeDTO) {
         return this.prisma.vendor_type.create({
             data: {

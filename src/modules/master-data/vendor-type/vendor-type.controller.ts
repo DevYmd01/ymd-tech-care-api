@@ -18,13 +18,18 @@ export class VendorTypeController {
         return this.vendorTypeService.findAll();
     }
 
+    @Get(':vendor_type_id')
+    findOne(@Param('vendor_type_id') vendor_type_id: string) {
+        return this.vendorTypeService.findOne(+vendor_type_id);
+    }
+
     @Post()
     create(@Body() createVendorTypeDTO: CreateVendorTypeDTO) {
         return this.vendorTypeService.create(createVendorTypeDTO);
     }
 
     @Put(':vendor_type_id')
-    update(@Param('vendor_type_id') vendor_type_id: string, @Body() updateVendorTypeDTO: UpdateVendorTypeDTO) {
+    update(@Param('vendor_type_id') vendor_type_id: string, @Body() updateVendorTypeDTO: CreateVendorTypeDTO) {
         return this.vendorTypeService.update(+vendor_type_id, updateVendorTypeDTO);
     }
 }
