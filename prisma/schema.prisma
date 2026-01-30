@@ -178,6 +178,8 @@ model vendor {
   vendorAddresses    vendor_address[]
   vendorContacts     vendor_contacts[]
   vendorBankAccounts vendor_bank_accounts[]
+  vendorDocuments    vendor_documents[]
+  vendorPerformances vendor_performance[]
 
   @@map("vendor")
 }
@@ -507,116 +509,31 @@ model receive_place {
   @@map("receive_place")
 }
 
-/// ตารางเจ้าหนี้
-model vendor_master {
-  /// รหัสเจ้าหนี้
-  vendor_code           String?   @db.VarChar(20)
-  /// ชื่อเจ้าหนี้ (ไทย)
-  vendor_name           String?   @db.VarChar(200)
-  /// ชื่อเจ้าหนี้ (อังกฤษ)
-  vendor_name_en        String?   @db.VarChar(200)
-  /// ประเภทเจ้าหนี้ (MANUFACTURER, DISTRIBUTOR, etc.)
-  vendor_type           String?   @db.VarChar(30)
-  /// หมวดหมู่ธุรกิจ
-  category              String?   @db.VarChar(100)
-  /// เลขประจำตัวผู้เสียภาษี
-  tax_id                String?   @db.VarChar(13)
-  /// ชื่อสาขา
-  branch_name           String?   @db.VarChar(100)
-  /// จดทะเบียน VAT หรือไม่
-  is_vat_registered     Boolean?
-  /// มีการหัก ณ ที่จ่ายหรือไม่
-  wht_applicable        Boolean?
-  /// เงื่อนไขการชำระเงิน (วัน)
-  payment_term_days     Int?
-  /// วงเงินเครดิต
-  credit_limit          Decimal?  @db.Decimal(15, 2)
-  /// รหัสสกุลเงิน
-  currency_code         String?   @db.VarChar(3)
-  /// สถานะ (ACTIVE, INACTIVE)
-  status                String?   @db.VarChar(20)
-  /// เกรดประเมิน (A–E)
-  rating                String?   @db.VarChar(1)
-  /// คะแนนประเมินผล (0–100)
-  performance_score     Decimal?  @db.Decimal(5, 2)
-  /// ผู้ติดต่อหลัก
-  contact_person        String?   @db.VarChar(100)
-  /// เบอร์โทรศัพท์
-  phone                 String?   @db.VarChar(20)
-  /// เบอร์มือถือ
-  mobile                String?   @db.VarChar(20)
-  /// อีเมล
-  email                 String?   @db.VarChar(100)
-  /// เว็บไซต์
-  website               String?   @db.VarChar(200)
-  /// ที่อยู่
-  address               String?
-  /// เขต/อำเภอ
-  district              String?   @db.VarChar(100)
-  /// จังหวัด
-  province              String?   @db.VarChar(100)
-  /// รหัสไปรษณีย์
-  postal_code           String?   @db.VarChar(10)
-  /// ประเทศ
-  country               String?   @db.VarChar(100)
-  /// วันที่ลงทะเบียน
-  registration_date     DateTime? @db.Date
-  /// วันที่อนุมัติ
-  approved_date         DateTime? @db.Date
-  /// วันที่ทำธุรกรรมล่าสุด
-  last_transaction_date DateTime? @db.Date
-  /// มูลค่าการซื้อทั้งหมด
-  total_purchase_amount Decimal?  @db.Decimal(15, 2)
-  /// หมายเหตุ
-  remark                String?
-  /// ผู้สร้าง
-  created_by            String?   @db.VarChar(50)
-  /// วันที่สร้าง
-  created_date          DateTime  @default(now())
-  /// ผู้แก้ไข
-  updated_by            String?   @db.VarChar(50)
-  /// วันที่แก้ไข
-  updated_date          DateTime  @updatedAt
-  /// PK รหัสอ้างอิงเจ้าหนี้
-  vendor_id             Int       @id @default(autoincrement())
-
-  /// API layer (พอแล้ว ไม่ต้องมีมากกว่านี้)
-
-  contacts           vendor_contacts[]
-  bank_accounts      vendor_bank_accounts[]
-  vendorDocuments    vendor_documents[]
-  vendorPerformances vendor_performance[]
-
-  @@map("vendor_master")
-}
-
 /// ตารางผู้ติดต่อ
 model vendor_contacts {
   /// ชื่อผู้ติดต่อ
-  contact_name           String         @db.VarChar(100)
+  contact_name String   @db.VarChar(100)
   /// ตำแหน่ง
-  position               String?        @db.VarChar(100)
+  position     String?  @db.VarChar(100)
   /// แผนก
-  department             String?        @db.VarChar(100)
+  department   String?  @db.VarChar(100)
   /// เบอร์โทรศัพท์
-  phone                  String?        @db.VarChar(20)
+  phone        String?  @db.VarChar(20)
   /// เบอร์มือถือ
-  mobile                 String?        @db.VarChar(20)
+  mobile       String?  @db.VarChar(20)
   /// อีเมล
-  email                  String?        @db.VarChar(100)
+  email        String?  @db.VarChar(100)
   /// เป็นผู้ติดต่อหลักหรือไม่
-  is_primary             Boolean        @default(false)
+  is_primary   Boolean  @default(false)
   /// วันที่สร้างข้อมูล
-  created_at             DateTime       @default(now())
+  created_at   DateTime @default(now())
   /// วันที่แก้ไขล่าสุด
-  updated_at             DateTime       @updatedAt
+  updated_at   DateTime @updatedAt
   /// รหัสผู้ติดต่อ (PK)
-  contact_id             Int            @id @default(autoincrement())
+  contact_id   Int      @id @default(autoincrement())
   /// รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
-  vendor_id              Int
-  vendor                 vendor         @relation(fields: [vendor_id], references: [vendor_id])
-  vendorMaster           vendor_master? @relation(fields: [vendor_masterVendor_id], references: [vendor_id])
-  vendor_masterVendor_id Int?
+  vendor_id    Int
+  vendor       vendor   @relation(fields: [vendor_id], references: [vendor_id])
 
   @@index([vendor_id])
 }
@@ -624,26 +541,24 @@ model vendor_contacts {
 /// ตารางเก็บข้อมูลบัญชีธนาคารของเจ้าหนี้
 model vendor_bank_accounts {
   /// ชื่อธนาคาร
-  bank_name              String         @db.VarChar(100)
+  bank_name       String  @db.VarChar(100)
   /// สาขาธนาคาร
-  bank_branch            String         @db.VarChar(100)
+  bank_branch     String  @db.VarChar(100)
   /// เลขที่บัญชีธนาคาร
-  account_no             String         @db.VarChar(30)
+  account_no      String  @db.VarChar(30)
   /// ชื่อบัญชี
-  account_name           String         @db.VarChar(200)
+  account_name    String  @db.VarChar(200)
   /// ประเภทบัญชี SAVING / CURRENT
-  account_type           String         @db.VarChar(20)
+  account_type    String  @db.VarChar(20)
   /// รหัส SWIFT (ถ้ามี)
-  swift_code             String?        @db.VarChar(20)
+  swift_code      String? @db.VarChar(20)
   /// เป็นบัญชีหลักของเจ้าหนี้หรือไม่
-  is_default             Boolean        @default(false)
+  is_default      Boolean @default(false)
   /// PK รหัสบัญชีธนาคาร
-  bank_account_id        Int            @id @default(autoincrement())
+  bank_account_id Int     @id @default(autoincrement())
   /// FK รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
-  vendor_id              Int
-  vendor                 vendor         @relation(fields: [vendor_id], references: [vendor_id])
-  vendorMaster           vendor_master? @relation(fields: [vendor_masterVendor_id], references: [vendor_id])
-  vendor_masterVendor_id Int?
+  vendor_id       Int
+  vendor          vendor  @relation(fields: [vendor_id], references: [vendor_id])
 
   @@index([vendor_id])
   @@map("vendor_bank_accounts")
@@ -652,28 +567,28 @@ model vendor_bank_accounts {
 /// ตารางเอกสารประกอบของเจ้าหนี้
 model vendor_documents {
   /// ประเภทเอกสาร
-  document_type String?       @db.VarChar(50)
+  document_type String?   @db.VarChar(50)
   /// เลขที่เอกสาร
-  document_no   String?       @db.VarChar(50)
+  document_no   String?   @db.VarChar(50)
   /// วันที่ออกเอกสาร
-  issue_date    DateTime?     @db.Date
+  issue_date    DateTime? @db.Date
   /// วันหมดอายุ
-  expiry_date   DateTime?     @db.Date
+  expiry_date   DateTime? @db.Date
   /// ที่อยู่ไฟล์
-  file_path     String?       @db.VarChar(500)
+  file_path     String?   @db.VarChar(500)
   /// ชื่อไฟล์
-  file_name     String?       @db.VarChar(200)
+  file_name     String?   @db.VarChar(200)
   /// หมายเหตุ
   remark        String?
   /// วันที่สร้างข้อมูล
-  created_at    DateTime      @default(now())
+  created_at    DateTime  @default(now())
   /// วันที่แก้ไขล่าสุด
-  updated_at    DateTime      @updatedAt
+  updated_at    DateTime  @updatedAt
   /// รหัสเอกสาร (PK)
-  document_id   Int           @id @default(autoincrement())
+  document_id   Int       @id @default(autoincrement())
   /// รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
   vendor_id     Int
-  vendor        vendor_master @relation(fields: [vendor_id], references: [vendor_id])
+  vendor        vendor    @relation(fields: [vendor_id], references: [vendor_id])
 
   @@index([vendor_id])
   @@map("vendor_documents")
@@ -682,34 +597,34 @@ model vendor_documents {
 /// ตารางบันทึกผลการประเมินเจ้าหนี้
 model vendor_performance {
   /// รหัสการประเมิน (PK)
-  performance_id    Int           @id @default(autoincrement())
+  performance_id    Int       @id @default(autoincrement())
   /// รหัสอ้างอิงเจ้าหนี้ (FK → vendor_master.vendor_id)
   vendor_id         Int
   /// วันที่ประเมิน
-  evaluation_date   DateTime?     @db.Date
+  evaluation_date   DateTime? @db.Date
   /// งวดการประเมิน
-  evaluation_period String?       @db.VarChar(20)
+  evaluation_period String?   @db.VarChar(20)
   /// คะแนนคุณภาพ
-  quality_score     Decimal?      @db.Decimal(5, 2)
+  quality_score     Decimal?  @db.Decimal(5, 2)
   /// คะแนนการส่งมอบ
-  delivery_score    Decimal?      @db.Decimal(5, 2)
+  delivery_score    Decimal?  @db.Decimal(5, 2)
   /// คะแนนราคา
-  price_score       Decimal?      @db.Decimal(5, 2)
+  price_score       Decimal?  @db.Decimal(5, 2)
   /// คะแนนบริการ
-  service_score     Decimal?      @db.Decimal(5, 2)
+  service_score     Decimal?  @db.Decimal(5, 2)
   /// คะแนนรวม
-  total_score       Decimal?      @db.Decimal(5, 2)
+  total_score       Decimal?  @db.Decimal(5, 2)
   /// เกรดประเมิน
-  rating            String?       @db.VarChar(1)
+  rating            String?   @db.VarChar(1)
   /// หมายเหตุ
   remark            String?
   /// ผู้ประเมิน
-  evaluated_by      String?       @db.VarChar(50)
+  evaluated_by      String?   @db.VarChar(50)
   /// วันที่สร้างข้อมูล
-  created_at        DateTime      @default(now())
+  created_at        DateTime  @default(now())
   /// วันที่แก้ไขล่าสุด
-  updated_at        DateTime      @updatedAt
-  vendor            vendor_master @relation(fields: [vendor_id], references: [vendor_id])
+  updated_at        DateTime  @updatedAt
+  vendor            vendor    @relation(fields: [vendor_id], references: [vendor_id])
 
   @@map("vendor_performance")
 }

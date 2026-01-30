@@ -14,6 +14,7 @@ import { AuthModule } from './modules/system/auth/auth.module';
 import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
 import { WarehouseModule } from './modules/master-data/warehouse/warehouse.module';
 import { ItemCategoryModule } from './modules/master-data/item-category/item-category.module';
+import { ItemTypeModule } from './modules/master-data/item-type/item-type.module';
 
 
 @Module({
@@ -30,7 +31,8 @@ import { ItemCategoryModule } from './modules/master-data/item-category/item-cat
     AuthModule,
     OrgPositionModule,
     WarehouseModule,
-    ItemCategoryModule
+    ItemCategoryModule,
+    ItemTypeModule
   ],
   controllers: [AppController],
   providers: [AppService],
