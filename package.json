@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -19,8 +22,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:merge": "ts-node prisma/merge-schema.ts",
-    "prisma:migrate": "npm run prisma:merge && prisma migrate dev",
-    "prisma:gen": "npm run prisma:merge && prisma generate"
+    "prisma:generate": "npm run prisma:merge && npx prisma generate",
+    "prisma:migrate": "npm run prisma:merge && npx prisma migrate dev"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

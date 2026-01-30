@@ -7,15 +7,15 @@ const output = path.join(__dirname, 'schema.prisma');
 const files = fs
     .readdirSync(schemaDir)
     .filter(f => f.endsWith('.prisma'))
-    .sort(); // สำคัญมาก
+    .sort(); // 00_base ต้องมาก่อน
 
 let content = '';
 
 for (const file of files) {
-    content += fs.readFileSync(path.join(schemaDir, file), 'utf8');
+    const filePath = path.join(schemaDir, file);
+    content += fs.readFileSync(filePath, 'utf8').trim();
     content += '\n\n';
 }
 
-fs.writeFileSync(output, content);
-
+fs.writeFileSync(output, content.trim() + '\n');
 console.log('✅ Prisma schema merged');

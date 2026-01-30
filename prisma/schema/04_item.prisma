@@ -12,6 +12,8 @@ model item {
     category_id           Int?
     itemUoms              item_uom[]
     itemBarcodes          item_barcode[]
+    itemBrand             item_brand?    @relation(fields: [brand_id], references: [item_brand_id])
+    brand_id              Int?
 
     @@map("item")
 }
@@ -117,4 +119,25 @@ model item_category {
     rfqLines              rfq_line[]
 
     @@map("item_category")
+}
+
+///ตารางเก็บข้อมูลยี่ห้อสินค้า
+model item_brand {
+    ///รหัสยี่ห้อสินค้า
+    item_brand_id      Int      @id @default(autoincrement())
+    ///รหัสยี่ห้อสินค้า
+    item_brand_code    String   @db.VarChar(30)
+    ///ชื่อยี่ห้อสินค้า
+    item_brand_name    String   @db.VarChar(200)
+    ///ชื่อยี่ห้อสินค้า (อังกฤษ)
+    item_brand_nameeng String   @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active          Boolean
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_brand")
 }
