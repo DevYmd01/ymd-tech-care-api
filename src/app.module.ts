@@ -13,8 +13,15 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { AuthModule } from './modules/system/auth/auth.module';
 import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
 import { WarehouseModule } from './modules/master-data/warehouse/warehouse.module';
-import { ItemCategoryModule } from './modules/master-data/item-category/item-category.module';
-import { ItemTypeModule } from './modules/master-data/item-type/item-type.module';
+import { ItemCategoryModule } from './modules/master-data/item/item-category/item-category.module';
+import { ItemTypeModule } from './modules/master-data/item/item-type/item-type.module';
+import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-barcode.module';
+import { ItemBrandModule } from './modules/master-data/item/item-brand/item-brand.module';
+import { ItemPatternModule } from './modules/master-data/item/item-pattern/item-pattern.module';
+import { ItemDesignModule } from './modules/master-data/item/item-design/item-design.module';
+import { ItemClassService } from './modules/master-data/item/item-class/item-class.service';
+import { ItemClassModule } from './modules/master-data/item/item-class/item-class.module';
+import { ItemSizeModule } from './modules/master-data/item/item-size/item-size.module';
 
 
 @Module({
@@ -32,10 +39,16 @@ import { ItemTypeModule } from './modules/master-data/item-type/item-type.module
     OrgPositionModule,
     WarehouseModule,
     ItemCategoryModule,
-    ItemTypeModule
+    ItemTypeModule,
+    ItemBarcodeModule,
+    ItemBrandModule,
+    ItemPatternModule,
+    ItemDesignModule,
+    ItemClassModule,
+    ItemSizeModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ItemClassService],
 })
 export class AppModule { }
 

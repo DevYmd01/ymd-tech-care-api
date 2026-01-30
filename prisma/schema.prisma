@@ -74,8 +74,6 @@ model employee_address {
     employee            employees           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
 }
 
-
-
 ///ตารางเก็บข้อมูลสาขา 
 model org_branch {
     branch_id   Int          @id @default(autoincrement())
@@ -155,7 +153,14 @@ model item {
     itemBarcodes          item_barcode[]
     itemBrand             item_brand?    @relation(fields: [brand_id], references: [item_brand_id])
     brand_id              Int?
-
+    itemPattern           item_pattern?  @relation(fields: [pattern_id], references: [item_pattern_id])
+    pattern_id            Int?
+    itemDesign            item_design?   @relation(fields: [design_id], references: [item_design_id])
+    design_id             Int?
+    itemClass             item_class?    @relation(fields: [class_id], references: [item_class_id])
+    class_id              Int?
+    itemSize              item_size?     @relation(fields: [size_id], references: [item_size_id])
+    size_id               Int?
     @@map("item")
 }
 
@@ -273,7 +278,7 @@ model item_brand {
     ///ชื่อยี่ห้อสินค้า (อังกฤษ)
     item_brand_nameeng String   @db.VarChar(200)
     ///สถานะการใช้งาน
-    is_active          Boolean
+    is_active          Boolean  @default(true)
     ///วันที่สร้าง
     created_at         DateTime @default(now())
     ///วันที่แก้ไขล่าสุด
@@ -282,6 +287,84 @@ model item_brand {
 
     @@map("item_brand")
 }
+
+///ตารางเก็บข้อมูลรูปแบบสินค้า
+model item_pattern {
+    ///รหัสรูปแบบสินค้า
+    item_pattern_id      Int      @id @default(autoincrement())
+    ///รหัสรูปแบบสินค้า
+    item_pattern_code    String   @db.VarChar(30)
+    ///ชื่อรูปแบบสินค้า
+    item_pattern_name    String   @db.VarChar(200)
+    ///ชื่อรูปแบบสินค้า (อังกฤษ)
+    item_pattern_nameeng String   @db.VarChar(200)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_pattern")
+}
+
+///ตารางเก็บข้อมูลรูปแบบสินค้า
+model item_design {
+    ///รหัสรูปแบบสินค้า
+    item_design_id      Int      @id @default(autoincrement())
+    ///รหัสรูปแบบสินค้า
+    item_design_code    String   @db.VarChar(30)
+    ///ชื่อรูปแบบสินค้า
+    item_design_name    String   @db.VarChar(200)
+    ///ชื่อรูปแบบสินค้า (อังกฤษ)
+    item_design_nameeng String   @db.VarChar(200)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_design")
+}
+
+///ตารางเก็บข้อมูลรุ่นสินค้า
+model item_class {
+    ///รหัสกลุ่มสินค้า
+    item_class_id      Int      @id @default(autoincrement())
+    ///รหัสกลุ่มสินค้า
+    item_class_code    String   @db.VarChar(30)
+    ///ชื่อกลุ่มสินค้า
+    item_class_name    String   @db.VarChar(200)
+    ///ชื่อกลุ่มสินค้า (อังกฤษ)
+    item_class_nameeng String   @db.VarChar(200)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_class")
+}
+
+///ตารางเก็บข้อมูลขนาดสินค้า
+model item_size {
+    ///รหัสขนาดสินค้า
+    item_size_id      Int      @id @default(autoincrement())
+    ///รหัสขนาดสินค้า
+    item_size_code    String   @db.VarChar(30)
+    ///ชื่อขนาดสินค้า
+    item_size_name    String   @db.VarChar(200)
+    ///ชื่อขนาดสินค้า (อังกฤษ)
+    item_size_nameeng String   @db.VarChar(200)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_size")
+}
+
+
 
 ///ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
@@ -561,8 +644,6 @@ model payment_terms {
 
     @@map("payment_terms")
 }
-
-
 
 ///ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
