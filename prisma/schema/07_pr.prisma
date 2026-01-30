@@ -1,0 +1,344 @@
+///ตารางเก็บข้อมูลศูนย์ต้นทุน
+model cost_center {
+    ///รหัสศูนย์ต้นทุน
+    cost_center_id   Int        @id @default(autoincrement())
+    ///รหัสศูนย์ต้นทุน
+    cost_center_code String     @db.VarChar(30)
+    ///ชื่อศูนย์ต้นทุน
+    cost_center_name String     @db.VarChar(200)
+    ///โครงการ
+    projects         project[]
+    prLines          pr_line[]
+    rfqLines         rfq_line[]
+
+    @@map("cost_center")
+}
+
+///ตารางเก็บข้อมูลโครงการ
+model project {
+    ///รหัสโครงการ
+    project_id     Int         @id @default(autoincrement())
+    ///รหัสโครงการ
+    project_code   String      @db.VarChar(30)
+    ///ชื่อโครงการ
+    project_name   String      @db.VarChar(200)
+    ///รายละเอียดโครงการ
+    description    String
+    ///รหัสศูนย์ต้นทุน
+    cost_center_id Int
+    cost_center    cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
+    ///งบประมาณ
+    budget_amount  Decimal     @db.Decimal(15, 2)
+    ///วันที่เริ่มต้นโครงการ
+    start_date     DateTime
+    ///วันที่สิ้นสุดโครงการ
+    end_date       DateTime
+    ///สถานะโครงการ
+    status         String      @db.VarChar(20)
+    prLines        pr_line[]
+    rfqLines       rfq_line[]
+
+    @@map("project")
+}
+
+///ตารางเก็บข้อมูลกลุ่มภาษี
+model tax_group {
+    ///รหัสกลุ่มภาษี
+    tax_group_id   Int      @id @default(autoincrement())
+    ///รหัสกลุ่มภาษี
+    tax_group_code String   @db.VarChar(30)
+    ///รายละเอียดกลุ่มภาษี
+    description    String
+    ///ประเภทภาษี
+    tax_type       String   @db.VarChar(20)
+    ///อัตราภาษี
+    tax_rate       Decimal  @db.Decimal(15, 2)
+    ///สถานะกลุ่มภาษี
+    status         String   @db.VarChar(20)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
+
+    @@map("tax_group")
+}
+
+///ตารางเก็บข้อมูลสกุลเงิน
+model currency {
+    ///รหัสสกุลเงิน
+    currency_id      Int      @id @default(autoincrement())
+    ///รหัสสกุลเงิน
+    currency_code    String   @db.VarChar(30)
+    ///ชื่อสกุลเงิน
+    currency_name    String   @db.VarChar(200)
+    ///ชื่อสกุลเงิน (อังกฤษ)
+    currency_nameeng String   @db.VarChar(200)
+    ///อัตราแลกเปลี่ยน (THB)
+    exchange_rate    Decimal  @db.Decimal(15, 2)
+    ///สถานะสกุลเงิน
+    status           String   @db.VarChar(20)
+    created_at       DateTime @default(now())
+    updated_at       DateTime @updatedAt
+    vendors          vendor[]
+
+    @@map("currency")
+}
+
+///ตารางเก็บข้อมูลประเภทสกุลเงิน
+model currency_type {
+    ///รหัสประเภทสกุลเงิน
+    currency_type_id      Int      @id @default(autoincrement())
+    ///รหัสประเภทสกุลเงิน
+    currency_type_code    String   @db.VarChar(30)
+    ///ชื่อประเภทสกุลเงิน
+    currency_type_name    String   @db.VarChar(200)
+    ///ชื่อประเภทสกุลเงิน (อังกฤษ)
+    currency_type_nameeng String   @db.VarChar(200)
+    ///สถานะประเภทสกุลเงิน
+    created_at            DateTime @default(now())
+    updated_at            DateTime @updatedAt
+
+    @@map("currency_type")
+}
+
+/// ตารางสถานที่รับ
+model receive_place {
+    ///รหัสสถานที่รับ
+    receive_place_id      Int    @id @default(autoincrement())
+    ///รหัสสถานที่รับ
+    receive_place_code    String @db.VarChar(30)
+    ///ชื่อสถานที่รับ
+    receive_place_name    String @db.VarChar(200)
+    ///ชื่อสถานที่รับ (อังกฤษ)
+    receive_place_nameeng String @db.VarChar(200)
+
+    ///สถานะสถานที่รับ
+    receive_contact String   @db.VarChar(200)
+    created_at      DateTime @default(now())
+    updated_at      DateTime @updatedAt
+
+    @@map("receive_place")
+}
+
+//////////////
+/// Transaction Procurement Tables
+/////////////
+
+///ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
+model pr_header {
+    ///รหัสใบขอซื้อ (PK)
+    pr_id             Int       @id @default(autoincrement())
+    ///เลขที่ใบขอซื้อ
+    pr_no             String    @db.VarChar(30)
+    ///วันที่สร้างใบขอซื้อ
+    pr_date           DateTime
+    ///รหัสสาขา (FK)
+    branch_id         Int
+    ///รหัสคลัง (FK)
+    warehouse_id      Int?
+    ///วันที่ต้องการ
+    need_by_date      DateTime?
+    ///สถานะ
+    status            String    @db.VarChar(20)
+    ///รหัสสกุลเงิน
+    currency_code     String    @db.VarChar(3)
+    ///อัตราแลกเปลี่ยน
+    exchange_rate     Decimal   @db.Decimal(18, 2)
+    ///หมายเหตุ
+    remark            String?   @db.Text
+    ///จำนวนเงินรวม ยอดประมาณการ
+    total_est_amount  Decimal   @db.Decimal(18, 2)
+    ///เครดิตเทอม (วัน)
+    payment_term_days Int?
+    ///วันที่สร้าง
+    created_at        DateTime  @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at        DateTime  @updatedAt
+    ///รหัสผู้ขอ (FK)
+    requester_user_id Int
+    /// ======================
+    /// Additional Fields
+    /// ======================
+    ///ผู้ขายที่แนะนำ
+    preferred_vendor  String?   @db.VarChar(100)
+    ///วันที่ส่งมอบที่ต้องการ
+    delivery_date     DateTime?
+    ///วันเครดิต
+    credit_days       Int?
+    ///เลขที่ใบเสนอราคาจากผู้ขาย
+    vendor_quote_no   String?   @db.VarChar(50)
+    ///วิธีการจัดส่ง
+    shipping_method   String?   @db.VarChar(50)
+    ///ผู้ขอ
+    requester_name    String?   @db.VarChar(100)
+
+    branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
+    warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
+    requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
+    prLines             pr_line[]
+    quoteCompareHeaders quote_compare_header[]
+    rfqHeaders          rfq_header[]
+}
+
+/// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)
+model pr_line {
+    ///รหัสใบขอซื้อ (PK)
+    pr_line_id                    Int            @id @default(autoincrement())
+    ///ลำดับ
+    line_no                       Int
+    ///รหัสสินค้า (FK)
+    item_id                       Int?
+    ///รายละเอียด
+    description                   String?        @db.Text
+    ///รหัสใบขอซื้อ (FK)
+    pr_id                         Int
+    ///จำนวน
+    qty                           Decimal        @db.Decimal(18, 3)
+    ///รหัสหน่วยนับ (FK)
+    uom_id                        Int
+    ///ราคาต่อหน่วยโดยประมาณ
+    est_unit_price                Decimal        @db.Decimal(18, 4)
+    ///รหัสภาษี
+    tax_code                      String?        @db.VarChar(20)
+    ///รหัสศูนย์ต้นทุน (FK)
+    cost_center_id                Int
+    ///รหัสโครงการ (FK)
+    project_id                    Int
+    ///ประเภทการรับสินค้าที่ต้องการ
+    required_receipt_type         String?        @db.VarChar(20)
+    ///รหัสผู้ขายที่ต้องการ (FK)
+    preferred_vendor_id           Int?
+    ///รหัสหมวดหมู่สินค้า
+    item_categoryItem_category_id Int?
+    // ======================
+    // Relations
+    // ======================
+    ///ใบขอซื้อ
+    pr                            pr_header      @relation(fields: [pr_id], references: [pr_id])
+    ///สินค้า
+    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
+    ///หน่วยนับ
+    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
+    ///ศูนย์ต้นทุน
+    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
+    ///โครงการ
+    project                       project        @relation(fields: [project_id], references: [project_id])
+    ///ผู้ขายที่ต้องการ
+    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    ///หมวดหมู่สินค้า
+    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
+
+    @@unique([pr_id, line_no])
+    @@index([pr_id])
+}
+
+/// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Header) (P3)
+model rfq_header {
+    ///รหัสใบขอซื้อ (PK)
+    rfq_id             Int       @id @default(autoincrement())
+    ///เลขที่ใบขอซื้อ
+    rfq_no             String    @db.VarChar(30)
+    ///วันที่สร้างใบขอซื้อ
+    rfq_date           DateTime
+    ///รหัสใบขอซื้อ (FK)
+    qc_id              Int
+    ///รหัสใบขอซื้อ (FK)
+    pr_id              Int
+    ///รหัสสาขา (FK)
+    branch_id          Int
+    ///ผู้ขอ
+    requested_by       String    @db.VarChar(50)
+    ///สถานะ
+    status             String    @db.VarChar(20)
+    ///วันที่ต้องการ
+    quotation_due_date DateTime?
+    ///รหัสสกุลเงิน
+    currency_code      String    @db.VarChar(3)
+    ///อัตราแลกเปลี่ยน
+    exchange_rate      Decimal   @db.Decimal(18, 2)
+    ///สถานที่รับสินค้า
+    receive_location   String?   @db.Text
+    ///เงื่อนไขการชำระเงิน
+    payment_term_hint  String?   @db.VarChar(20)
+    ///เงื่อนไขการส่งมอบ
+    incoterm           String?   @db.VarChar(20)
+    ///หมายเหตุ
+    remarks            String?   @db.Text
+    created_at         DateTime  @default(now())
+    updated_at         DateTime  @updatedAt
+
+    qc       quote_compare_header @relation(fields: [qc_id], references: [qc_id])
+    pr       pr_header            @relation(fields: [pr_id], references: [pr_id])
+    branch   org_branch           @relation(fields: [branch_id], references: [branch_id])
+    rfqLines rfq_line[]
+}
+
+/// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
+model rfq_line {
+    ///รหัสใบขอซื้อ (PK)
+    rfq_line_id                   Int            @id @default(autoincrement())
+    ///ลำดับ
+    line_no                       Int
+    ///รหัสสินค้า (FK)
+    item_id                       Int?
+    ///รายละเอียด
+    description                   String?        @db.Text
+    ///รหัสใบขอซื้อ (FK)
+    rfq_id                        Int
+    ///จำนวน
+    qty                           Decimal        @db.Decimal(18, 3)
+    ///รหัสหน่วยนับ (FK)
+    uom_id                        Int
+    ///ราคาต่อหน่วยโดยประมาณ
+    // est_unit_price                Decimal        @db.Decimal(18, 4)
+    ///รหัสภาษี
+    tax_code                      String?        @db.VarChar(20)
+    ///รหัสศูนย์ต้นทุน (FK)
+    cost_center_id                Int
+    ///รหัสโครงการ (FK)
+    project_id                    Int
+    ///ประเภทการรับสินค้าที่ต้องการ
+    required_receipt_type         String?        @db.VarChar(20)
+    ///รหัสผู้ขายที่ต้องการ (FK)
+    preferred_vendor_id           Int?
+    // ======================
+    // Relations
+    // ======================
+    ///ใบขอซื้อ
+    rfq                           rfq_header     @relation(fields: [rfq_id], references: [rfq_id])
+    ///สินค้า
+    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
+    ///หน่วยนับ
+    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
+    ///ศูนย์ต้นทุน
+    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
+    ///โครงการ
+    project                       project        @relation(fields: [project_id], references: [project_id])
+    ///ผู้ขายที่ต้องการ
+    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    ///หมวดหมู่สินค้า
+    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
+    ///รหัสหมวดหมู่สินค้า
+    item_categoryItem_category_id Int?
+
+    @@unique([rfq_id, line_no])
+    @@index([rfq_id])
+}
+
+/// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)
+model quote_compare_header {
+    ///รหัสใบเปรียบเทียบราคา (PK)
+    qc_id      Int      @id @default(autoincrement())
+    ///เลขที่ใบเปรียบเทียบราคา
+    qc_no      String   @unique @db.VarChar(30)
+    ///รหัสใบขอซื้อ (FK)
+    pr_id      Int
+    ///สถานะ
+    status     String   @db.VarChar(20)
+    ///วันที่สร้าง
+    created_at DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at DateTime @updatedAt
+
+    /// ใบขอซื้อ (FK)
+    pr         pr_header    @relation(fields: [pr_id], references: [pr_id])
+    rfqHeaders rfq_header[]
+}
