@@ -157,6 +157,10 @@ model item {
     item_patternItem_pattern_id Int?
     itemDesign                  item_design?   @relation(fields: [item_designItem_design_id], references: [item_design_id])
     item_designItem_design_id   Int?
+    itemClass                   item_class?    @relation(fields: [item_classItem_class_id], references: [item_class_id])
+    item_classItem_class_id     Int?
+    itemSize                    item_size?     @relation(fields: [item_sizeItem_size_id], references: [item_size_id])
+    item_sizeItem_size_id       Int?
 
     @@map("item")
 }
@@ -328,6 +332,46 @@ model item_design {
     items               item[]
 
     @@map("item_design")
+}
+
+model item_class {
+    ///รหัสคลาสสินค้า
+    item_class_id      Int      @id @default(autoincrement())
+    ///รหัสคลาสสินค้า
+    item_class_code    String   @db.VarChar(30)
+    ///ชื่อคลาสสินค้า
+    item_class_name    String   @db.VarChar(200)
+    ///ชื่อคลาสสินค้า (อังกฤษ)
+    item_class_nameeng String?  @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active          Boolean? @default(true)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_class")
+}
+
+model item_size {
+    ///รหัสขนาดสินค้า
+    item_size_id      Int      @id @default(autoincrement())
+    ///รหัสขนาดสินค้า
+    item_size_code    String   @db.VarChar(30)
+    ///ชื่อขนาดสินค้า
+    item_size_name    String   @db.VarChar(200)
+    ///ชื่อขนาดสินค้า (อังกฤษ)
+    item_size_nameeng String?  @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active         Boolean? @default(true)
+    ///วันที่สร้าง
+    created_at        DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at        DateTime @updatedAt
+    items             item[]
+
+    @@map("item_size")
 }
 
 ///-------------

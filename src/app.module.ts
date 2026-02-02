@@ -19,6 +19,7 @@ import { ItemSizeModule } from './modules/master-data/item/item-size/item-size.m
 import { ItemBrandModule } from './modules/master-data/item/item-brand/item-brand.module';
 import { ItemPatternModule } from './modules/master-data/item/item-pattern/item-pattern.module';
 import { ItemDesignModule } from './modules/master-data/item/item-design/item-design.module';
+import { ItemClassModule } from './modules/master-data/item/item-class/item-class.module';
 
 
 @Module({
@@ -40,7 +41,8 @@ import { ItemDesignModule } from './modules/master-data/item/item-design/item-de
     ItemSizeModule,
     ItemBrandModule,
     ItemPatternModule,
-    ItemDesignModule
+    ItemDesignModule,
+    ItemClassModule
   ],
   controllers: [AppController],
   providers: [AppService],
