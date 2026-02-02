@@ -15,6 +15,9 @@ import { OrgPositionModule } from './modules/master-data/org-position/org-positi
 import { WarehouseModule } from './modules/master-data/warehouse/warehouse.module';
 import { ItemCategoryModule } from './modules/master-data/item-category/item-category.module';
 import { ItemTypeModule } from './modules/master-data/item-type/item-type.module';
+import { ItemSizeModule } from './modules/master-data/item/item-size/item-size.module';
+import { ItemBrandModule } from './modules/master-data/item/item-brand/item-brand.module';
+import { ItemPatternModule } from './modules/master-data/item/item-pattern/item-pattern.module';
 
 
 @Module({
@@ -32,7 +35,10 @@ import { ItemTypeModule } from './modules/master-data/item-type/item-type.module
     OrgPositionModule,
     WarehouseModule,
     ItemCategoryModule,
-    ItemTypeModule
+    ItemTypeModule,
+    ItemSizeModule,
+    ItemBrandModule,
+    ItemPatternModule
   ],
   controllers: [AppController],
   providers: [AppService],

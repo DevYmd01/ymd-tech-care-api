@@ -140,17 +140,21 @@ model warehouse {
 /// ไม่
 ///ตารางเก็บข้อมูลสินค้า 
 model item {
-    item_id               Int            @id @default(autoincrement())
-    item_code             String         @db.VarChar(50)
-    item_name             String         @db.VarChar(255)
-    item_type             String         @db.VarChar(20)
-    uom                   String         @db.VarChar(20)
-    itemType              item_type?     @relation(fields: [item_typeItem_type_id], references: [item_type_id])
-    item_typeItem_type_id Int?
-    itemCategory          item_category? @relation(fields: [category_id], references: [item_category_id])
-    category_id           Int?
-    itemUoms              item_uom[]
-    itemBarcodes          item_barcode[]
+    item_id                     Int            @id @default(autoincrement())
+    item_code                   String         @db.VarChar(50)
+    item_name                   String         @db.VarChar(255)
+    item_type                   String         @db.VarChar(20)
+    uom                         String         @db.VarChar(20)
+    itemType                    item_type?     @relation(fields: [item_typeItem_type_id], references: [item_type_id])
+    item_typeItem_type_id       Int?
+    itemCategory                item_category? @relation(fields: [category_id], references: [item_category_id])
+    category_id                 Int?
+    itemUoms                    item_uom[]
+    itemBarcodes                item_barcode[]
+    itemBrand                   item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    item_brandItem_brand_id     Int?
+    itemPattern                 item_pattern?  @relation(fields: [item_patternItem_pattern_id], references: [item_pattern_id])
+    item_patternItem_pattern_id Int?
 
     @@map("item")
 }
@@ -244,7 +248,7 @@ model item_category {
     ///ชื่อหมวดหมู่สินค้า
     item_category_name    String     @db.VarChar(200)
     ///ชื่อหมวดหมู่สินค้า (อังกฤษ)
-    item_category_nameeng String     @db.VarChar(200)
+    item_category_nameeng String?    @db.VarChar(200)
     ///สถานะการใช้งาน
     is_active             Boolean
     ///วันที่สร้าง
@@ -257,6 +261,54 @@ model item_category {
 
     @@map("item_category")
 }
+
+////----------
+
+///ตารางเก็บข้อมูลยี่ห้อสินค้า
+model item_brand {
+    ///รหัสยี่ห้อสินค้า
+    item_brand_id      Int        @id @default(autoincrement())
+    ///รหัสยี่ห้อสินค้า
+    item_brand_code    String     @db.VarChar(30)
+    ///ชื่อยี่ห้อสินค้า
+    item_brand_name    String     @db.VarChar(200)
+    ///ชื่อยี่ห้อสินค้า (อังกฤษ)
+    item_brand_nameeng String     @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active          Boolean    @default(true)
+    ///วันที่สร้าง
+    created_at         DateTime   @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime   @updatedAt
+    items              item[]
+    prLines            pr_line[]
+    rfqLines           rfq_line[]
+
+    @@map("item_brand")
+}
+
+///ตารางเก็บข้อมูลลายสินค้า รูปแบบสินค้า
+model item_pattern {
+    ///รหัสลายสินค้า
+    item_pattern_id      Int      @id @default(autoincrement())
+    ///รหัสลายสินค้า
+    item_pattern_code    String   @db.VarChar(30)
+    ///ชื่อลายสินค้า
+    item_pattern_name    String   @db.VarChar(200)
+    ///ชื่อลายสินค้า (อังกฤษ)
+    item_pattern_nameeng String?  @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active            Boolean? @default(true)
+    ///วันที่สร้าง
+    created_at           DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at           DateTime @updatedAt
+    items                item[]
+
+    @@map("item_pattern")
+}
+
+///-------------
 
 ///ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
@@ -764,6 +816,8 @@ model pr_line {
     preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
     ///หมวดหมู่สินค้า
     itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
+    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    item_brandItem_brand_id       Int?
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -857,6 +911,8 @@ model rfq_line {
     itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
     ///รหัสหมวดหมู่สินค้า
     item_categoryItem_category_id Int?
+    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    item_brandItem_brand_id       Int?
 
     @@unique([rfq_id, line_no])
     @@index([rfq_id])
