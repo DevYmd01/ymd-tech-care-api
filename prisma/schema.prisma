@@ -155,6 +155,8 @@ model item {
     item_brandItem_brand_id     Int?
     itemPattern                 item_pattern?  @relation(fields: [item_patternItem_pattern_id], references: [item_pattern_id])
     item_patternItem_pattern_id Int?
+    itemDesign                  item_design?   @relation(fields: [item_designItem_design_id], references: [item_design_id])
+    item_designItem_design_id   Int?
 
     @@map("item")
 }
@@ -306,6 +308,26 @@ model item_pattern {
     items                item[]
 
     @@map("item_pattern")
+}
+
+model item_design {
+    ///รหัสลายสินค้า
+    item_design_id      Int      @id @default(autoincrement())
+    ///รหัสลายสินค้า
+    item_design_code    String   @db.VarChar(30)
+    ///ชื่อลายสินค้า
+    item_design_name    String   @db.VarChar(200)
+    ///ชื่อลายสินค้า (อังกฤษ)
+    item_design_nameeng String?  @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active           Boolean? @default(true)
+    ///วันที่สร้าง
+    created_at          DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at          DateTime @updatedAt
+    items               item[]
+
+    @@map("item_design")
 }
 
 ///-------------
