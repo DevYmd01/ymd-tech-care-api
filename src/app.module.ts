@@ -20,6 +20,7 @@ import { ItemBrandModule } from './modules/master-data/item/item-brand/item-bran
 import { ItemPatternModule } from './modules/master-data/item/item-pattern/item-pattern.module';
 import { ItemDesignModule } from './modules/master-data/item/item-design/item-design.module';
 import { ItemClassModule } from './modules/master-data/item/item-class/item-class.module';
+import { ItemGroupModule } from './modules/master-data/item/item-group/item-group.module';
 
 
 @Module({
@@ -42,7 +43,8 @@ import { ItemClassModule } from './modules/master-data/item/item-class/item-clas
     ItemBrandModule,
     ItemPatternModule,
     ItemDesignModule,
-    ItemClassModule
+    ItemClassModule,
+    ItemGroupModule
   ],
   controllers: [AppController],
   providers: [AppService],

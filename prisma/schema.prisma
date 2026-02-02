@@ -161,6 +161,8 @@ model item {
     item_classItem_class_id     Int?
     itemSize                    item_size?     @relation(fields: [item_sizeItem_size_id], references: [item_size_id])
     item_sizeItem_size_id       Int?
+    itemGroup                   item_group?    @relation(fields: [item_groupItem_group_id], references: [item_group_id])
+    item_groupItem_group_id     Int?
 
     @@map("item")
 }
@@ -372,6 +374,26 @@ model item_size {
     items             item[]
 
     @@map("item_size")
+}
+
+model item_group {
+    ///รหัสกลุ่มสินค้า
+    item_group_id      Int      @id @default(autoincrement())
+    ///รหัสกลุ่มสินค้า
+    item_group_code    String   @db.VarChar(30)
+    ///ชื่อกลุ่มสินค้า
+    item_group_name    String   @db.VarChar(200)
+    ///ชื่อกลุ่มสินค้า (อังกฤษ)
+    item_group_nameeng String?  @db.VarChar(200)
+    ///สถานะการใช้งาน
+    is_active          Boolean? @default(true)
+    ///วันที่สร้าง
+    created_at         DateTime @default(now())
+    ///วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_group")
 }
 
 ///-------------
