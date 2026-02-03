@@ -185,10 +185,13 @@ model item {
 
 ///ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id    Int      @id @default(autoincrement())
-    uom_code  String   @db.VarChar(20)
-    uom_name  String   @db.VarChar(100)
-    is_active Boolean?
+    uom_id      Int      @id @default(autoincrement())
+    uom_code    String   @db.VarChar(20)
+    uom_name    String   @db.VarChar(100)
+    uom_nameeng String?  @db.VarChar(100)
+    is_active   Boolean? @default(true)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
 
     baseItems     item[] @relation("BaseUom")
     purchaseItems item[] @relation("PurchaseUom")

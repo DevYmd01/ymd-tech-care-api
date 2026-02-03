@@ -22,6 +22,7 @@ import { ItemDesignModule } from './modules/master-data/item/item-design/item-de
 import { ItemClassModule } from './modules/master-data/item/item-class/item-class.module';
 import { ItemGroupModule } from './modules/master-data/item/item-group/item-group.module';
 import { ItemMasterModule } from './modules/master-data/item/item-master/item-master.module';
+import { UomModule } from './modules/master-data/uom/uom.module';
 
 
 @Module({
@@ -46,7 +47,8 @@ import { ItemMasterModule } from './modules/master-data/item/item-master/item-ma
     ItemDesignModule,
     ItemClassModule,
     ItemGroupModule,
-    ItemMasterModule
+    ItemMasterModule,
+    UomModule
   ],
   controllers: [AppController],
   providers: [AppService],
