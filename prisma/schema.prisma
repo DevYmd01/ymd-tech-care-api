@@ -140,45 +140,66 @@ model warehouse {
 /// ไม่
 ///ตารางเก็บข้อมูลสินค้า 
 model item {
-    item_id                     Int            @id @default(autoincrement())
-    item_code                   String         @db.VarChar(50)
-    item_name                   String         @db.VarChar(255)
-    item_type                   String         @db.VarChar(20)
-    uom                         String         @db.VarChar(20)
-    itemType                    item_type?     @relation(fields: [item_typeItem_type_id], references: [item_type_id])
-    item_typeItem_type_id       Int?
-    itemCategory                item_category? @relation(fields: [category_id], references: [item_category_id])
-    category_id                 Int?
-    itemUoms                    item_uom[]
-    itemBarcodes                item_barcode[]
-    itemBrand                   item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
-    item_brandItem_brand_id     Int?
-    itemPattern                 item_pattern?  @relation(fields: [item_patternItem_pattern_id], references: [item_pattern_id])
-    item_patternItem_pattern_id Int?
-    itemDesign                  item_design?   @relation(fields: [item_designItem_design_id], references: [item_design_id])
-    item_designItem_design_id   Int?
-    itemClass                   item_class?    @relation(fields: [item_classItem_class_id], references: [item_class_id])
-    item_classItem_class_id     Int?
-    itemSize                    item_size?     @relation(fields: [item_sizeItem_size_id], references: [item_size_id])
-    item_sizeItem_size_id       Int?
-    itemGroup                   item_group?    @relation(fields: [item_groupItem_group_id], references: [item_group_id])
-    item_groupItem_group_id     Int?
+    item_id            Int            @id @default(autoincrement())
+    item_code          String         @db.VarChar(50)
+    item_name          String         @db.VarChar(255)
+    baseUom            uom            @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    base_uom_id        Int
+    purchaseUom        uom?           @relation("PurchaseUom", fields: [purchase_uom_id], references: [uom_id])
+    purchase_uom_id    Int?
+    saleUom            uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    sale_uom_id        Int?
+    default_tax_code   String?        @db.VarChar(20)
+    created_at         DateTime       @default(now())
+    updated_at         DateTime       @updatedAt
+    // -----
+    itemType           item_type?     @relation(fields: [item_type_id], references: [item_type_id])
+    item_type_id       Int?
+    item_type_code     String?        @db.VarChar(20)
+    itemCategory       item_category? @relation(fields: [item_category_id], references: [item_category_id])
+    item_category_id   Int?
+    item_category_code String?        @db.VarChar(20)
+    itemBrand          item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
+    item_brand_id      Int?
+    item_brand_code    String?        @db.VarChar(20)
+    itemPattern        item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    item_pattern_id    Int?
+    item_pattern_code  String?        @db.VarChar(20)
+    itemDesign         item_design?   @relation(fields: [item_design_id], references: [item_design_id])
+    item_design_id     Int?
+    item_design_code   String?        @db.VarChar(20)
+    itemClass          item_class?    @relation(fields: [item_class_id], references: [item_class_id])
+    item_class_id      Int?
+    item_class_code    String?        @db.VarChar(20)
+    itemSize           item_size?     @relation(fields: [item_size_id], references: [item_size_id])
+    item_size_id       Int?
+    item_size_code     String?        @db.VarChar(20)
+    itemGroup          item_group?    @relation(fields: [item_group_id], references: [item_group_id])
+    item_group_id      Int?
+    item_group_code    String?        @db.VarChar(20)
+    itemUoms           item_uom[]
+    itemBarcodes       item_barcode[]
 
     @@map("item")
 }
 
 ///ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id       Int            @id @default(autoincrement())
-    uom_code     String         @db.VarChar(20)
-    uom_name     String         @db.VarChar(100)
-    is_active    Boolean?
+    uom_id    Int      @id @default(autoincrement())
+    uom_code  String   @db.VarChar(20)
+    uom_name  String   @db.VarChar(100)
+    is_active Boolean?
+
+    baseItems     item[] @relation("BaseUom")
+    purchaseItems item[] @relation("PurchaseUom")
+    saleItems     item[] @relation("SaleUom")
+
+    fromItemUoms item_uom[] @relation("ItemUomFrom")
+    toItemUoms   item_uom[] @relation("ItemUomTo")
+
     prLines      pr_line[]
-    itemUoms1    item_uom[]     @relation("ItemUomFrom")
-    itemUoms2    item_uom[]     @relation("ItemUomTo")
-    itemUoms3    item_uom[]     @relation("ItemUom")
-    itemBarcodes item_barcode[]
     rfqLines     rfq_line[]
+    itemBarcodes item_barcode[]
 
     @@map("uom")
 }
@@ -192,13 +213,9 @@ model item_uom {
     is_purchase_uom Boolean  @default(false)
     created_at      DateTime @default(now())
     updated_at      DateTime @updatedAt
-
-    item item @relation(fields: [item_id], references: [item_id])
-
-    fromUom uom  @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
-    toUom   uom  @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
-    uom     uom? @relation("ItemUom", fields: [uom_id], references: [uom_id])
-    uom_id  Int?
+    item            item     @relation(fields: [item_id], references: [item_id])
+    fromUom         uom      @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
+    toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
 
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
