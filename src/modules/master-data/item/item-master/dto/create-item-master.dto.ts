@@ -10,7 +10,7 @@ export class CreateItemMasterDto {
     item_name: string;
     @IsOptional()
     @IsNumber()
-    base_uom_id?: number;
+    base_uom_id: number;
     @IsOptional()
     @IsNumber()
     purchase_uom_id?: number;

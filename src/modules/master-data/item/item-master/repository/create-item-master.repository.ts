@@ -12,6 +12,7 @@ export class CreateItemMasterRepository {
         itemMaster: CreateItemMasterDto;
     }) {
         const { tx, itemMaster } = params;
+
         return tx.item.create({
             data: {
                 item_code: itemMaster.item_code!,
@@ -44,4 +45,5 @@ export class CreateItemMasterRepository {
         });
     }
 }
+
 
