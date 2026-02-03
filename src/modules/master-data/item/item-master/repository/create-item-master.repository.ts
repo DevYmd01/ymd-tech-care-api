@@ -36,6 +36,10 @@ export class CreateItemMasterRepository {
                 item_size_code: itemMaster.item_size_code!,
                 item_group_id: itemMaster.item_group_id!,
                 item_group_code: itemMaster.item_group_code!,
+                default_issue_policy: itemMaster.default_issue_policy!,
+                lot_tracking_level: itemMaster.lot_tracking_level!,
+                serial_tracking_level: itemMaster.serial_tracking_level!,
+                shelf_life_days: itemMaster.shelf_life_days!,
             },
         });
     }

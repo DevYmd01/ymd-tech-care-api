@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum } from "class-validator";
+import { TrackingLevel, IssuePolicy } from '@prisma/client'
 
 export class CreateItemMasterDto {
     @IsNotEmpty()
@@ -67,4 +68,16 @@ export class CreateItemMasterDto {
     @IsOptional()
     @IsString()
     item_group_code?: string;
+    @IsOptional()
+    @IsEnum(IssuePolicy)
+    default_issue_policy?: IssuePolicy;
+    @IsOptional()
+    @IsEnum(TrackingLevel)
+    lot_tracking_level?: TrackingLevel;
+    @IsOptional()
+    @IsEnum(TrackingLevel)
+    serial_tracking_level?: TrackingLevel;
+    @IsOptional()
+    @IsNumber()
+    shelf_life_days?: number;
 }

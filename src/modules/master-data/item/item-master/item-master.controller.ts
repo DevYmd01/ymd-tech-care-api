@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { ItemMasterService } from './item-master.service';
 import { CreateItemMasterDto } from './dto/create-item-master.dto';
-import { Body, Delete, Get, Param, Post, Patch } from '@nestjs/common';
+import { Body, Get, Param, Post, Patch } from '@nestjs/common';
+import { UpdateItemMasterDto } from './dto/update-item-master.dto';
 
 @Controller('item-master')
 export class ItemMasterController {
@@ -10,6 +11,11 @@ export class ItemMasterController {
     @Post()
     async createItemMaster(@Body() createItemMasterDto: CreateItemMasterDto) {
         return this.itemMasterService.createItemMaster(createItemMasterDto);
+    }
+
+    @Patch(':item_master_id')
+    async updateItemMaster(@Param('item_master_id') item_master_id: string, @Body() updateItemMasterDto: UpdateItemMasterDto) {
+        return this.itemMasterService.updateItemMaster(Number(item_master_id), updateItemMasterDto);
     }
 
     @Get()
