@@ -775,7 +775,7 @@ model tax_group {
     tax_type       String   @db.VarChar(20)
     ///อัตราภาษี
     tax_rate       Decimal  @db.Decimal(15, 2)
-    ///สถานะกลุ่มภาษี
+    ///สถานะกลุ่มภาษี (Y/N)
     status         String   @db.VarChar(20)
     created_at     DateTime @default(now())
     updated_at     DateTime @updatedAt
@@ -838,6 +838,62 @@ model receive_place {
     updated_at      DateTime @updatedAt
 
     @@map("receive_place")
+}
+
+///////////////
+/// Document Running Tables
+//////////////
+
+/// ตารางเก็บข้อมูลรูปแบบเอกสาร
+model document_format {
+    ///รหัสรูปแบบเอกสาร
+    document_format_id Int @id @default(autoincrement())
+
+    ///รหัสโมดูล
+    module_code        String
+    ///รหัสประเภทเอกสาร
+    document_type_code String
+    /// ตัวอักษรนำหน้า
+    prefix             String?
+    /// รูปแบบเลขที่เอกสาร
+    pattern            String
+    /// จำนวนตัวเลข
+    seq_length         Int
+    /// รอบเลขที่เอกสาร
+    running_cycle      String
+    /// วันที่สร้าง
+    created_at         DateTime           @default(now())
+    /// วันที่แก้ไขส
+    updated_at         DateTime           @updatedAt
+    documentRunnings   document_running[]
+
+    @@unique([module_code, document_type_code])
+}
+
+/// ตารางเก็บข้อมูลเลขที่เอกสาร
+model document_running {
+    ///รหัสเลขที่เอกสาร
+    id                 Int             @id @default(autoincrement())
+    ///รหัสรูปแบบเอกสาร
+    document_format    document_format @relation(fields: [document_format_id], references: [document_format_id], onDelete: Restrict)
+    ///รหัสรูปแบบเอกสาร
+    document_format_id Int
+    ///รหัสสาขา
+    branch_id          Int?
+    ///ตัวอักษรนำหน้า
+    prefix             String?
+    ///ปี
+    year               Int?
+    ///เดือน
+    month              Int?
+    ///วัน
+    day                Int?
+    ///เลขที่เอกสารสุดท้าย
+    last_seq           Int
+    ///วันที่แก้ไข
+    updated_at         DateTime        @updatedAt
+
+    @@unique([document_format_id, branch_id, prefix, year, month, day])
 }
 
 //////////////
