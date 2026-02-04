@@ -6,8 +6,8 @@ import { GenerateDocNumberDto } from './dto/generate-doc-number.dto';
 export class DocumentNumberService {
     constructor(private readonly prisma: PrismaService) { }
 
-    async generate(dto: GenerateDocNumberDto): Promise<string> {
-        const date = dto.date ? new Date(dto.date) : new Date();
+    async generate(params: GenerateDocNumberDto): Promise<string> {
+        const date = params.date ?? new Date();
 
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -15,8 +15,8 @@ export class DocumentNumberService {
 
         const format = await this.prisma.document_format.findFirst({
             where: {
-                module_code: dto.module_code,
-                document_type_code: dto.document_type_code,
+                module_code: params.module_code,
+                document_type_code: params.document_type_code,
             },
         });
 
@@ -24,18 +24,55 @@ export class DocumentNumberService {
             throw new BadRequestException('Document format not found');
         }
 
+        const tokens = this.extractTokens(format.pattern);
+        this.validateTokens(tokens);
+
+        // 🔒 Validate branch if needed
+        if (tokens.includes('BR') && !params.branch_id) {
+            throw new BadRequestException('branch_id is required for this document format');
+        }
+
+        const branch = tokens.includes('BR') && params.branch_id
+            ? await this.prisma.org_branch.findUnique({
+                where: { branch_id: params.branch_id },
+                select: { branch_code: true },
+            })
+            : null;
+
+        const branchCode = branch?.branch_code ?? '';
+        console.log('branchCode', branchCode);
         const runningKey = {
             document_format_id: format.document_format_id,
-            branch_id: dto.branchId ?? 0,
-            prefix: dto.prefix ?? format.prefix ?? '-',
-            year: format.use_year ? year : 0,
-            month: format.use_month ? month : 0,
-            day: format.use_day ? day : 0,
+            branch_id: tokens.includes('BR') ? params.branch_id ?? 0 : 0,
+            prefix: format.prefix ?? '',
+            year: tokens.includes('YYYY') ? year : 0,
+            month: tokens.includes('MM') ? month : 0,
+            day: tokens.includes('DD') ? day : 0,
         };
 
         const seq = await this.getNextSequence(runningKey);
 
-        return this.formatDocumentNumber(format, runningKey, seq);
+        return this.buildDocumentNumber(
+            format.pattern,
+            runningKey,
+            seq,
+            format.seq_length,
+            branchCode,
+        );
+    }
+
+    private extractTokens(pattern: string): string[] {
+        return Array.from(pattern.matchAll(/\{(\w+)\}/g)).map((m) => m[1]);
+    }
+
+    private validateTokens(tokens: string[]) {
+        const allowed = ['PREFIX', 'BR', 'YYYY', 'MM', 'DD', 'RUN'];
+
+        tokens.forEach((t) => {
+            if (!allowed.includes(t)) {
+                throw new BadRequestException(`Invalid token {${t}} in document pattern`);
+            }
+        });
     }
 
     private async getNextSequence(key: {
@@ -52,7 +89,7 @@ export class DocumentNumberService {
                     document_format_id_branch_id_prefix_year_month_day: key,
                 },
             });
-
+            console.log(running);
             if (!running) {
                 const created = await tx.document_running.create({
                     data: {
@@ -60,7 +97,6 @@ export class DocumentNumberService {
                         last_seq: 1,
                     },
                 });
-
                 return created.last_seq;
             }
 
@@ -73,25 +109,29 @@ export class DocumentNumberService {
         });
     }
 
-    private formatDocumentNumber(
-        format: any,
+
+    private buildDocumentNumber(
+        pattern: string,
         key: {
             prefix: string;
+            branch_id: number;
             year: number;
             month: number;
             day: number;
         },
         seq: number,
+        seqLength: number,
+        branchCode: string,
     ): string {
-        const parts: string[] = [];
-
-        if (key.prefix !== '-') parts.push(key.prefix);
-        if (key.year) parts.push(key.year.toString());
-        if (key.month) parts.push(key.month.toString().padStart(2, '0'));
-        if (key.day) parts.push(key.day.toString().padStart(2, '0'));
-
-        parts.push(seq.toString().padStart(format.seq_length, '0'));
-
-        return parts.join('-');
+        return pattern
+            .replace('{PREFIX}', key.prefix)
+            .replace('{BR}', branchCode)
+            .replace('{YYYY}', key.year ? key.year.toString() : '')
+            .replace('{MM}', key.month ? key.month.toString().padStart(2, '0') : '')
+            .replace('{DD}', key.day ? key.day.toString().padStart(2, '0') : '')
+            .replace('{RUN}', seq.toString().padStart(seqLength, '0'))
+            .replace(/--+/g, '-')
+            .replace(/\/+/g, '/')
+            .replace(/^-|-$|\/$/g, '');
     }
 }
