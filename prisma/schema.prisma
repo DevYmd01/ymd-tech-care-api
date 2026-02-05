@@ -8,42 +8,41 @@ datasource db {
 }
 
 model employees {
-    employee_id           Int       @id @default(autoincrement())
+    employee_id           Int                @id @default(autoincrement())
     branch_id             Int
-    employee_code         String    @unique @db.VarChar(20)
-    employee_title_th     String    @db.VarChar(20)
-    employee_title_en     String    @db.VarChar(20)
-    employee_firstname_th String    @db.VarChar(200)
-    employee_lastname_th  String    @db.VarChar(200)
-    employee_firstname_en String    @db.VarChar(200)
-    employee_lastname_en  String    @db.VarChar(200)
-    employee_fullname     String    @db.VarChar(400)
+    employee_code         String             @unique @db.VarChar(20)
+    employee_title_th     String             @db.VarChar(20)
+    employee_title_en     String             @db.VarChar(20)
+    employee_firstname_th String             @db.VarChar(200)
+    employee_lastname_th  String             @db.VarChar(200)
+    employee_firstname_en String             @db.VarChar(200)
+    employee_lastname_en  String             @db.VarChar(200)
+    employee_fullname     String             @db.VarChar(400)
     employee_startdate    DateTime
     employee_resigndate   DateTime?
-    employee_status       String    @db.VarChar(20)
-    phone                 String    @db.VarChar(20)
-    email                 String    @db.VarChar(255)
-    remark                String?   @db.Text
-    tax_id                String?   @db.VarChar(20)
-    emp_type              Boolean   @default(false)
+    employee_status       String             @db.VarChar(20)
+    phone                 String             @db.VarChar(20)
+    email                 String             @db.VarChar(255)
+    remark                String?
+    tax_id                String?            @db.VarChar(20)
+    emp_type              Boolean            @default(false)
     position_id           Int
     department_id         Int
-    is_active             Boolean   @default(true)
+    is_active             Boolean            @default(true)
     manager_employee_id   Int?
-
-    created_at        DateTime           @default(now())
-    updated_at        DateTime           @default(now()) @updatedAt
-    branch            org_branch         @relation(fields: [branch_id], references: [branch_id])
-    position          org_position       @relation(fields: [position_id], references: [position_id])
-    department        org_department     @relation(fields: [department_id], references: [department_id])
-    manager_employee  employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
-    employees         employees[]        @relation("EmployeeManager")
-    employeeAuths     employee_auth[]
-    employeeAddresses employee_address[]
-    prHeaders         pr_header[]
+    created_at            DateTime           @default(now())
+    updated_at            DateTime           @default(now()) @updatedAt
+    employeeAddresses     employee_address[]
+    employeeAuths         employee_auth?
+    branch                org_branch         @relation(fields: [branch_id], references: [branch_id])
+    department            org_department     @relation(fields: [department_id], references: [department_id])
+    manager_employee      employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
+    employees             employees[]        @relation("EmployeeManager")
+    position              org_position       @relation(fields: [position_id], references: [position_id])
+    prHeaders             pr_header[]
 }
 
-///ตารางเก็บข้อมูลการ login
+/// ตารางเก็บข้อมูลการ login
 model employee_auth {
     employee_id Int       @id
     username    String    @unique
@@ -54,18 +53,11 @@ model employee_auth {
     employee    employees @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
 }
 
-enum EmployeeAddressType {
-    REGISTERED
-    CONTACT
-    BILLING
-    SHIPPING
-}
-
 model employee_address {
     employee_address_id Int                 @id @default(autoincrement())
     employee_id         Int
     address_type        EmployeeAddressType
-    address             String              @db.Text
+    address             String
     district            String?             @db.VarChar(100)
     province            String?             @db.VarChar(100)
     postal_code         String?             @db.VarChar(10)
@@ -74,23 +66,23 @@ model employee_address {
     employee            employees           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
 }
 
-///ตารางเก็บข้อมูลสาขา 
+/// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_id   Int          @id @default(autoincrement())
     branch_code String       @unique @db.VarChar(20)
     branch_name String       @db.VarChar(200)
     is_active   Boolean      @default(true)
+    branch_id   Int          @id @default(autoincrement())
     created_at  DateTime     @default(now())
     updated_at  DateTime     @updatedAt
-    warehouses  warehouse[]
+    employees   employees[]
     prHeaders   pr_header[]
     rfqHeaders  rfq_header[]
-    employees   employees[]
+    warehouses  warehouse[]
 
     @@map("org_branch")
 }
 
-///ตารางเก็บข้อมูลตำแหน่ง 
+/// ตารางเก็บข้อมูลตำแหน่ง 
 model org_position {
     position_id      Int         @id @default(autoincrement())
     position_code    String      @unique @db.VarChar(20)
@@ -102,91 +94,86 @@ model org_position {
     employees        employees[]
 }
 
-///ตารางเก็บข้อมูลแผนก
+/// ตารางเก็บข้อมูลแผนก
 model org_department {
-    ///รหัสแผนก
+    /// รหัสแผนก
     department_id      Int         @id @default(autoincrement())
-    ///รหัสแผนก
+    /// รหัสแผนก
     department_code    String      @unique @db.VarChar(20)
-    ///ชื่อแผนก
+    /// ชื่อแผนก
     department_name    String      @db.VarChar(200)
-    ///ชื่อแผนก (ภาษาอังกฤษ)
+    /// ชื่อแผนก (ภาษาอังกฤษ)
     department_name_en String      @db.VarChar(200)
-    ///สถานะ
+    /// สถานะ
     is_active          Boolean     @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at         DateTime    @default(now())
-    ///วันที่แก้ไข
+    /// วันที่แก้ไข
     updated_at         DateTime    @updatedAt
     employees          employees[]
 }
 
-///ตารางเก็บข้อมูลคลัง 
+/// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_id   Int         @id @default(autoincrement())
-    branch_id      Int
     warehouse_code String      @unique @db.VarChar(20)
     warehouse_name String      @db.VarChar(200)
-    address        String      @db.Text
-    is_active      Boolean     @default(true)
+    warehouse_id   Int         @id @default(autoincrement())
+    branch_id      Int
+    address        String
     created_at     DateTime    @default(now())
+    is_active      Boolean     @default(true)
     updated_at     DateTime    @updatedAt
-    branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
     prHeaders      pr_header[]
+    branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
 
     @@map("warehouse")
 }
 
 /// ไม่
-///ตารางเก็บข้อมูลสินค้า 
+/// ตารางเก็บข้อมูลสินค้า 
 model item {
-    item_id               Int            @id @default(autoincrement())
     item_code             String         @unique @db.VarChar(50)
     item_name             String         @db.VarChar(255)
-    baseUom               uom            @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    item_id               Int            @id @default(autoincrement())
     base_uom_id           Int
-    purchaseUom           uom?           @relation("PurchaseUom", fields: [purchase_uom_id], references: [uom_id])
-    purchase_uom_id       Int?
-    saleUom               uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
-    sale_uom_id           Int?
-    default_tax_code      String?        @db.VarChar(20)
     created_at            DateTime       @default(now())
-    updated_at            DateTime       @updatedAt
-    // -----
-    itemType              item_type?     @relation(fields: [item_type_id], references: [item_type_id])
-    item_type_id          Int?
-    item_type_code        String?        @db.VarChar(20)
-    itemCategory          item_category? @relation(fields: [item_category_id], references: [item_category_id])
-    item_category_id      Int?
-    item_category_code    String?        @db.VarChar(20)
-    itemBrand             item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
-    item_brand_id         Int?
+    default_tax_code      String?        @db.VarChar(20)
     item_brand_code       String?        @db.VarChar(20)
-    itemPattern           item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
-    item_pattern_id       Int?
-    item_pattern_code     String?        @db.VarChar(20)
-    itemDesign            item_design?   @relation(fields: [item_design_id], references: [item_design_id])
-    item_design_id        Int?
-    item_design_code      String?        @db.VarChar(20)
-    itemClass             item_class?    @relation(fields: [item_class_id], references: [item_class_id])
-    item_class_id         Int?
+    item_brand_id         Int?
+    item_category_code    String?        @db.VarChar(20)
+    item_category_id      Int?
     item_class_code       String?        @db.VarChar(20)
-    itemSize              item_size?     @relation(fields: [item_size_id], references: [item_size_id])
-    item_size_id          Int?
-    item_size_code        String?        @db.VarChar(20)
-    itemGroup             item_group?    @relation(fields: [item_group_id], references: [item_group_id])
-    item_group_id         Int?
+    item_class_id         Int?
+    item_design_code      String?        @db.VarChar(20)
+    item_design_id        Int?
     item_group_code       String?        @db.VarChar(20)
-    // ===== Inventory Control Policy =====
+    item_group_id         Int?
+    item_pattern_code     String?        @db.VarChar(20)
+    item_pattern_id       Int?
+    item_size_code        String?        @db.VarChar(20)
+    item_size_id          Int?
+    item_type_code        String?        @db.VarChar(20)
+    item_type_id          Int?
+    purchase_uom_id       Int?
+    sale_uom_id           Int?
+    updated_at            DateTime       @updatedAt
+    default_issue_policy  IssuePolicy    @default(FEFO)
     lot_tracking_level    TrackingLevel  @default(NONE)
     serial_tracking_level TrackingLevel  @default(NONE)
-    // อายุสินค้า (วัน)
     shelf_life_days       Int?
-    // วิธีการเบิกสินค้า
-    default_issue_policy  IssuePolicy    @default(FEFO)
-    //   ----- End Inventory Control Policy -----
-    itemUoms              item_uom[]
+    baseUom               uom            @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    itemBrand             item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
+    itemCategory          item_category? @relation(fields: [item_category_id], references: [item_category_id])
+    itemClass             item_class?    @relation(fields: [item_class_id], references: [item_class_id])
+    itemDesign            item_design?   @relation(fields: [item_design_id], references: [item_design_id])
+    itemGroup             item_group?    @relation(fields: [item_group_id], references: [item_group_id])
+    itemPattern           item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    itemSize              item_size?     @relation(fields: [item_size_id], references: [item_size_id])
+    itemType              item_type?     @relation(fields: [item_type_id], references: [item_type_id])
+    purchaseUom           uom?           @relation("PurchaseUom", fields: [purchase_uom_id], references: [uom_id])
+    saleUom               uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
     itemBarcodes          item_barcode[]
+    itemUoms              item_uom[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -194,38 +181,23 @@ model item {
     @@map("item")
 }
 
-enum TrackingLevel {
-    NONE
-    OPTIONAL
-    REQUIRED
-}
-
-enum IssuePolicy {
-    FIFO
-    FEFO
-    MANUAL
-}
-
-///ตารางเก็บข้อมูลหน่วยนับ
+/// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id      Int      @id @default(autoincrement())
-    uom_code    String   @db.VarChar(20)
-    uom_name    String   @db.VarChar(100)
-    uom_nameeng String?  @db.VarChar(100)
-    is_active   Boolean? @default(true)
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
-
-    baseItems     item[] @relation("BaseUom")
-    purchaseItems item[] @relation("PurchaseUom")
-    saleItems     item[] @relation("SaleUom")
-
-    fromItemUoms item_uom[] @relation("ItemUomFrom")
-    toItemUoms   item_uom[] @relation("ItemUomTo")
-
-    prLines      pr_line[]
-    rfqLines     rfq_line[]
-    itemBarcodes item_barcode[]
+    uom_id        Int            @id @default(autoincrement())
+    uom_code      String         @db.VarChar(20)
+    uom_name      String         @db.VarChar(100)
+    is_active     Boolean?       @default(true)
+    created_at    DateTime       @default(now())
+    uom_nameeng   String?        @db.VarChar(100)
+    updated_at    DateTime       @updatedAt
+    baseItems     item[]         @relation("BaseUom")
+    purchaseItems item[]         @relation("PurchaseUom")
+    saleItems     item[]         @relation("SaleUom")
+    itemBarcodes  item_barcode[]
+    fromItemUoms  item_uom[]     @relation("ItemUomFrom")
+    toItemUoms    item_uom[]     @relation("ItemUomTo")
+    prLines       pr_line[]
+    rfqLines      rfq_line[]
 
     @@map("uom")
 }
@@ -239,23 +211,23 @@ model item_uom {
     is_purchase_uom Boolean  @default(false)
     created_at      DateTime @default(now())
     updated_at      DateTime @updatedAt
-    item            item     @relation(fields: [item_id], references: [item_id])
     fromUom         uom      @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
+    item            item     @relation(fields: [item_id], references: [item_id])
     toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
 
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
 }
 
-///ตารางเก็บข้อมูลประเภทสินค้า
+/// ตารางเก็บข้อมูลประเภทสินค้า
 model item_type {
-    ///รหัสประเภทสินค้า
+    /// รหัสประเภทสินค้า
     item_type_id      Int        @id @default(autoincrement())
-    ///รหัสประเภทสินค้า
+    /// รหัสประเภทสินค้า
     item_type_code    String     @unique @db.VarChar(30)
-    ///ชื่อประเภทสินค้า
+    /// ชื่อประเภทสินค้า
     item_type_name    String     @db.VarChar(200)
-    ///ชื่อประเภทสินค้า (อังกฤษ)
+    /// ชื่อประเภทสินค้า (อังกฤษ)
     item_type_nameeng String     @db.VarChar(200)
     created_at        DateTime   @default(now())
     updated_at        DateTime   @updatedAt
@@ -266,45 +238,43 @@ model item_type {
     @@map("item_type")
 }
 
-///ตารางเก็บข้อมูลบาร์โค้ดสินค้า
+/// ตารางเก็บข้อมูลบาร์โค้ดสินค้า
 model item_barcode {
-    ///รหัสบาร์โค้ด
+    /// รหัสบาร์โค้ด
     item_barcode_id   Int      @id @default(autoincrement())
-    ///รหัสบาร์โค้ด
+    /// รหัสบาร์โค้ด
     item_barcode_code String   @db.VarChar(30)
-    ///รหัสสินค้า
+    /// รหัสสินค้า
     item_id           Int
-    ///รหัสหน่วยนับ
+    /// รหัสหน่วยนับ
     uom_id            Int
-    ///บาร์โค้ดหลักหรือไม่
+    /// บาร์โค้ดหลักหรือไม่
     is_primary        Boolean
-    ///รหัสสินค้า
-    item              item     @relation(fields: [item_id], references: [item_id])
-    ///รหัสหน่วยนับ
-    uom               uom      @relation(fields: [uom_id], references: [uom_id])
-    ///วันที่สร้างบาร์โค้ด
+    /// วันที่สร้างบาร์โค้ด
     created_at        DateTime @default(now())
-    ///วันที่แก้ไขบาร์โค้ด
+    /// วันที่แก้ไขบาร์โค้ด
     updated_at        DateTime @updatedAt
+    item              item     @relation(fields: [item_id], references: [item_id])
+    uom               uom      @relation(fields: [uom_id], references: [uom_id])
 
     @@map("item_barcode")
 }
 
-///ตารางเก็บข้อมูลหมวดหมู่สินค้า
+/// ตารางเก็บข้อมูลหมวดหมู่สินค้า
 model item_category {
-    ///รหัสหมวดหมู่สินค้า
+    /// รหัสหมวดหมู่สินค้า
     item_category_id      Int        @id @default(autoincrement())
-    ///รหัสหมวดหมู่สินค้า
+    /// รหัสหมวดหมู่สินค้า
     item_category_code    String     @db.VarChar(30)
-    ///ชื่อหมวดหมู่สินค้า
+    /// ชื่อหมวดหมู่สินค้า
     item_category_name    String     @db.VarChar(200)
-    ///ชื่อหมวดหมู่สินค้า (อังกฤษ)
+    /// ชื่อหมวดหมู่สินค้า (อังกฤษ)
     item_category_nameeng String?    @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active             Boolean
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at            DateTime   @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at            DateTime   @updatedAt
     items                 item[]
     prLines               pr_line[]
@@ -313,23 +283,21 @@ model item_category {
     @@map("item_category")
 }
 
-////----------
-
-///ตารางเก็บข้อมูลยี่ห้อสินค้า
+/// ตารางเก็บข้อมูลยี่ห้อสินค้า
 model item_brand {
-    ///รหัสยี่ห้อสินค้า
+    /// รหัสยี่ห้อสินค้า
     item_brand_id      Int        @id @default(autoincrement())
-    ///รหัสยี่ห้อสินค้า
+    /// รหัสยี่ห้อสินค้า
     item_brand_code    String     @db.VarChar(30)
-    ///ชื่อยี่ห้อสินค้า
+    /// ชื่อยี่ห้อสินค้า
     item_brand_name    String     @db.VarChar(200)
-    ///ชื่อยี่ห้อสินค้า (อังกฤษ)
+    /// ชื่อยี่ห้อสินค้า (อังกฤษ)
     item_brand_nameeng String     @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active          Boolean    @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at         DateTime   @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at         DateTime   @updatedAt
     items              item[]
     prLines            pr_line[]
@@ -338,21 +306,21 @@ model item_brand {
     @@map("item_brand")
 }
 
-///ตารางเก็บข้อมูลลายสินค้า รูปแบบสินค้า
+/// ตารางเก็บข้อมูลลายสินค้า รูปแบบสินค้า
 model item_pattern {
-    ///รหัสลายสินค้า
+    /// รหัสลายสินค้า
     item_pattern_id      Int      @id @default(autoincrement())
-    ///รหัสลายสินค้า
+    /// รหัสลายสินค้า
     item_pattern_code    String   @db.VarChar(30)
-    ///ชื่อลายสินค้า
+    /// ชื่อลายสินค้า
     item_pattern_name    String   @db.VarChar(200)
-    ///ชื่อลายสินค้า (อังกฤษ)
+    /// ชื่อลายสินค้า (อังกฤษ)
     item_pattern_nameeng String?  @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active            Boolean? @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at           DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at           DateTime @updatedAt
     items                item[]
 
@@ -360,19 +328,19 @@ model item_pattern {
 }
 
 model item_design {
-    ///รหัสลายสินค้า
+    /// รหัสลายสินค้า
     item_design_id      Int      @id @default(autoincrement())
-    ///รหัสลายสินค้า
+    /// รหัสลายสินค้า
     item_design_code    String   @db.VarChar(30)
-    ///ชื่อลายสินค้า
+    /// ชื่อลายสินค้า
     item_design_name    String   @db.VarChar(200)
-    ///ชื่อลายสินค้า (อังกฤษ)
+    /// ชื่อลายสินค้า (อังกฤษ)
     item_design_nameeng String?  @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active           Boolean? @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at          DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at          DateTime @updatedAt
     items               item[]
 
@@ -380,19 +348,19 @@ model item_design {
 }
 
 model item_class {
-    ///รหัสคลาสสินค้า
+    /// รหัสคลาสสินค้า
     item_class_id      Int      @id @default(autoincrement())
-    ///รหัสคลาสสินค้า
+    /// รหัสคลาสสินค้า
     item_class_code    String   @db.VarChar(30)
-    ///ชื่อคลาสสินค้า
+    /// ชื่อคลาสสินค้า
     item_class_name    String   @db.VarChar(200)
-    ///ชื่อคลาสสินค้า (อังกฤษ)
+    /// ชื่อคลาสสินค้า (อังกฤษ)
     item_class_nameeng String?  @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active          Boolean? @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at         DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at         DateTime @updatedAt
     items              item[]
 
@@ -400,19 +368,19 @@ model item_class {
 }
 
 model item_size {
-    ///รหัสขนาดสินค้า
+    /// รหัสขนาดสินค้า
     item_size_id      Int      @id @default(autoincrement())
-    ///รหัสขนาดสินค้า
+    /// รหัสขนาดสินค้า
     item_size_code    String   @db.VarChar(30)
-    ///ชื่อขนาดสินค้า
+    /// ชื่อขนาดสินค้า
     item_size_name    String   @db.VarChar(200)
-    ///ชื่อขนาดสินค้า (อังกฤษ)
+    /// ชื่อขนาดสินค้า (อังกฤษ)
     item_size_nameeng String?  @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active         Boolean? @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at        DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at        DateTime @updatedAt
     items             item[]
 
@@ -420,64 +388,61 @@ model item_size {
 }
 
 model item_group {
-    ///รหัสกลุ่มสินค้า
+    /// รหัสกลุ่มสินค้า
     item_group_id      Int      @id @default(autoincrement())
-    ///รหัสกลุ่มสินค้า
+    /// รหัสกลุ่มสินค้า
     item_group_code    String   @db.VarChar(30)
-    ///ชื่อกลุ่มสินค้า
+    /// ชื่อกลุ่มสินค้า
     item_group_name    String   @db.VarChar(200)
-    ///ชื่อกลุ่มสินค้า (อังกฤษ)
+    /// ชื่อกลุ่มสินค้า (อังกฤษ)
     item_group_nameeng String?  @db.VarChar(200)
-    ///สถานะการใช้งาน
+    /// สถานะการใช้งาน
     is_active          Boolean? @default(true)
-    ///วันที่สร้าง
+    /// วันที่สร้าง
     created_at         DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
+    /// วันที่แก้ไขล่าสุด
     updated_at         DateTime @updatedAt
     items              item[]
 
     @@map("item_group")
 }
 
-///-------------
-
-///ตารางเก็บข้อมูลเจ้าหนี้ M3
+/// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
-    ///รหัสเจ้าหนี้
-    vendor_id         Int      @id @default(autoincrement())
-    ///รหัสเจ้าหนี้
-    vendor_code       String   @db.VarChar(30)
-    ///ชื่อเจ้าหนี้
-    vendor_name       String   @db.VarChar(255)
-    ///เลขที่ผู้เสียภาษี
-    tax_id            String?  @db.VarChar(20)
-    /// จด VAT หรือไม่
-    is_vat_registered Boolean  @default(false)
+    /// รหัสเจ้าหนี้
+    vendor_code        String                 @db.VarChar(30)
+    /// ชื่อเจ้าหนี้
+    vendor_name        String                 @db.VarChar(255)
+    /// เลขที่ผู้เสียภาษี
+    tax_id             String?                @db.VarChar(20)
     /// เครดิตเทอม (วัน)
-    payment_term_days Int
-    ///เบอร์โทรศัพท์
-    phone             String?  @db.VarChar(20)
-    ///อีเมล
-    email             String?  @db.VarChar(255)
-    ///สถานะ
-    is_active         Boolean  @default(true)
-    created_at        DateTime @default(now())
-    updated_at        DateTime @updatedAt
-    ///รหัสประเภทเจ้าหนี้
-    vendor_type_id    Int
-    ///รหัสกลุ่มเจ้าหนี้
-    vendor_group_id   Int
-    ///สกุลเงิน
-    currency_id       Int?
-
-    vendor_type        vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
-    vendor_group       vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
-    currency           currency?              @relation(fields: [currency_id], references: [currency_id])
+    payment_term_days  Int
+    /// รหัสเจ้าหนี้
+    vendor_id          Int                    @id @default(autoincrement())
+    created_at         DateTime               @default(now())
+    /// อีเมล
+    email              String?                @db.VarChar(255)
+    /// สถานะ
+    is_active          Boolean                @default(true)
+    /// เบอร์โทรศัพท์
+    phone              String?                @db.VarChar(20)
+    updated_at         DateTime               @updatedAt
+    /// รหัสกลุ่มเจ้าหนี้
+    vendor_group_id    Int
+    /// รหัสประเภทเจ้าหนี้
+    vendor_type_id     Int
+    /// สกุลเงิน
+    currency_id        Int?
+    /// จด VAT หรือไม่
+    is_vat_registered  Boolean                @default(false)
     prLines            pr_line[]
     rfqLines           rfq_line[]
+    currency           currency?              @relation(fields: [currency_id], references: [currency_id])
+    vendor_group       vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
+    vendor_type        vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
     vendorAddresses    vendor_address[]
-    vendorContacts     vendor_contacts[]
     vendorBankAccounts vendor_bank_accounts[]
+    vendorContacts     vendor_contacts[]
     vendorDocuments    vendor_documents[]
     vendorPerformances vendor_performance[]
 
@@ -485,60 +450,50 @@ model vendor {
 }
 
 model vendor_address {
-    vendor_address_id Int @id @default(autoincrement())
+    vendor_address_id Int               @id @default(autoincrement())
     vendor_id         Int
-
     /// REGISTERED / CONTACT / BILLING / SHIPPING
-    address_type    VendorAddressType
+    address_type      VendorAddressType
     /// ที่อยู่
-    address         String            @db.Text
+    address           String
     /// อำเภอ
-    district        String?           @db.VarChar(100)
+    district          String?           @db.VarChar(100)
     /// จังหวัด
-    province        String?           @db.VarChar(100)
+    province          String?           @db.VarChar(100)
     /// รหัสไปรษณีย์
-    postal_code     String?           @db.VarChar(10)
+    postal_code       String?           @db.VarChar(10)
     /// ประเทศ
-    country         String            @db.VarChar(100)
+    country           String            @db.VarChar(100)
     /// ผู้ติดต่อ
-    contact_person  String?           @db.VarChar(255)
+    contact_person    String?           @db.VarChar(255)
     /// เบอร์โทรศัพท์
-    phone           String?           @db.VarChar(20)
+    phone             String?           @db.VarChar(20)
     /// ต่อ
-    phone_extension String?           @db.VarChar(20)
+    phone_extension   String?           @db.VarChar(20)
     /// อีเมล
-    email           String?           @db.VarChar(255)
+    email             String?           @db.VarChar(255)
     /// สถานะ
-    is_default      Boolean           @default(false)
+    is_default        Boolean           @default(false)
     /// สถานะ
-    is_active       Boolean           @default(true)
-
-    vendor vendor @relation(fields: [vendor_id], references: [vendor_id])
+    is_active         Boolean           @default(true)
+    vendor            vendor            @relation(fields: [vendor_id], references: [vendor_id])
 
     @@index([vendor_id])
     @@map("vendor_address")
 }
 
-enum VendorAddressType {
-    REGISTERED // ที่อยู่ตามเลขผู้เสียภาษี
-    CONTACT // ที่อยู่ติดต่อ
-    BILLING // วางบิล
-    SHIPPING // ส่งของ
-}
-
-//ตารางเก็บข้อมูลประเภทเจ้าหนี้
 model vendor_type {
-    ///รหัสประเภทเจ้าหนี้
+    /// รหัสประเภทเจ้าหนี้
     vendor_type_id      Int      @id @default(autoincrement())
-    ///รหัสประเภทเจ้าหนี้
+    /// รหัสประเภทเจ้าหนี้
     vendor_type_code    String   @db.VarChar(30)
-    ///ชื่อประเภทเจ้าหนี้
+    /// ชื่อประเภทเจ้าหนี้
     vendor_type_name    String   @db.VarChar(200)
-    ///ชื่อประเภทเจ้าหนี้ (อังกฤษ)
+    /// ชื่อประเภทเจ้าหนี้ (อังกฤษ)
     vendor_type_nameeng String   @db.VarChar(200)
-    ///รายละเอียดประเภทเจ้าหนี้
+    /// รายละเอียดประเภทเจ้าหนี้
     description         String
-    ///สถานะประเภทเจ้าหนี้
+    /// สถานะประเภทเจ้าหนี้
     status              String   @db.VarChar(20)
     created_at          DateTime @default(now())
     updated_at          DateTime @updatedAt
@@ -549,17 +504,17 @@ model vendor_type {
 
 /// ตารางกลุ่มเจ้าหนี้
 model vendor_group {
-    ///รหัสกลุ่มเจ้าหนี้
+    /// รหัสกลุ่มเจ้าหนี้
     vendor_group_id      Int      @id @default(autoincrement())
-    ///รหัสกลุ่มเจ้าหนี้
+    /// รหัสกลุ่มเจ้าหนี้
     vendor_group_code    String   @db.VarChar(30)
-    ///ชื่อกลุ่มเจ้าหนี้
+    /// ชื่อกลุ่มเจ้าหนี้
     vendor_group_name    String   @db.VarChar(200)
-    ///ชื่อกลุ่มเจ้าหนี้ (อังกฤษ)
+    /// ชื่อกลุ่มเจ้าหนี้ (อังกฤษ)
     vendor_group_nameeng String   @db.VarChar(200)
-    ///รายละเอียดกลุ่มเจ้าหนี้
+    /// รายละเอียดกลุ่มเจ้าหนี้
     description          String
-    ///สถานะกลุ่มเจ้าหนี้
+    /// สถานะกลุ่มเจ้าหนี้
     status               String   @db.VarChar(20)
     created_at           DateTime @default(now())
     updated_at           DateTime @updatedAt
@@ -720,62 +675,61 @@ model payment_terms {
     @@map("payment_terms")
 }
 
-///ตารางเก็บข้อมูลศูนย์ต้นทุน
+/// ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
-    ///รหัสศูนย์ต้นทุน
-    cost_center_id   Int        @id @default(autoincrement())
-    ///รหัสศูนย์ต้นทุน
+    /// รหัสศูนย์ต้นทุน
     cost_center_code String     @db.VarChar(30)
-    ///ชื่อศูนย์ต้นทุน
+    /// ชื่อศูนย์ต้นทุน
     cost_center_name String     @db.VarChar(200)
-    ///โครงการ
-    projects         project[]
+    /// รหัสศูนย์ต้นทุน
+    cost_center_id   Int        @id @default(autoincrement())
     prLines          pr_line[]
+    projects         project[]
     rfqLines         rfq_line[]
 
     @@map("cost_center")
 }
 
-///ตารางเก็บข้อมูลโครงการ
+/// ตารางเก็บข้อมูลโครงการ
 model project {
-    ///รหัสโครงการ
-    project_id     Int         @id @default(autoincrement())
-    ///รหัสโครงการ
+    /// รหัสโครงการ
     project_code   String      @db.VarChar(30)
-    ///ชื่อโครงการ
+    /// ชื่อโครงการ
     project_name   String      @db.VarChar(200)
-    ///รายละเอียดโครงการ
-    description    String
-    ///รหัสศูนย์ต้นทุน
-    cost_center_id Int
-    cost_center    cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
-    ///งบประมาณ
+    /// รหัสโครงการ
+    project_id     Int         @id @default(autoincrement())
+    /// งบประมาณ
     budget_amount  Decimal     @db.Decimal(15, 2)
-    ///วันที่เริ่มต้นโครงการ
-    start_date     DateTime
-    ///วันที่สิ้นสุดโครงการ
+    /// รหัสศูนย์ต้นทุน
+    cost_center_id Int
+    /// รายละเอียดโครงการ
+    description    String
+    /// วันที่สิ้นสุดโครงการ
     end_date       DateTime
-    ///สถานะโครงการ
+    /// วันที่เริ่มต้นโครงการ
+    start_date     DateTime
+    /// สถานะโครงการ
     status         String      @db.VarChar(20)
     prLines        pr_line[]
+    cost_center    cost_center @relation(fields: [cost_center_id], references: [cost_center_id])
     rfqLines       rfq_line[]
 
     @@map("project")
 }
 
-///ตารางเก็บข้อมูลกลุ่มภาษี
+/// ตารางเก็บข้อมูลกลุ่มภาษี
 model tax_group {
-    ///รหัสกลุ่มภาษี
+    /// รหัสกลุ่มภาษี
     tax_group_id   Int      @id @default(autoincrement())
-    ///รหัสกลุ่มภาษี
+    /// รหัสกลุ่มภาษี
     tax_group_code String   @db.VarChar(30)
-    ///รายละเอียดกลุ่มภาษี
+    /// รายละเอียดกลุ่มภาษี
     description    String
-    ///ประเภทภาษี
+    /// ประเภทภาษี
     tax_type       String   @db.VarChar(20)
-    ///อัตราภาษี
+    /// อัตราภาษี
     tax_rate       Decimal  @db.Decimal(15, 2)
-    ///สถานะกลุ่มภาษี (Y/N)
+    /// สถานะกลุ่มภาษี (Y/N)
     status         String   @db.VarChar(20)
     created_at     DateTime @default(now())
     updated_at     DateTime @updatedAt
@@ -783,19 +737,19 @@ model tax_group {
     @@map("tax_group")
 }
 
-///ตารางเก็บข้อมูลสกุลเงิน
+/// ตารางเก็บข้อมูลสกุลเงิน
 model currency {
-    ///รหัสสกุลเงิน
+    /// รหัสสกุลเงิน
     currency_id      Int      @id @default(autoincrement())
-    ///รหัสสกุลเงิน
+    /// รหัสสกุลเงิน
     currency_code    String   @db.VarChar(30)
-    ///ชื่อสกุลเงิน
+    /// ชื่อสกุลเงิน
     currency_name    String   @db.VarChar(200)
-    ///ชื่อสกุลเงิน (อังกฤษ)
+    /// ชื่อสกุลเงิน (อังกฤษ)
     currency_nameeng String   @db.VarChar(200)
-    ///อัตราแลกเปลี่ยน (THB)
+    /// อัตราแลกเปลี่ยน (THB)
     exchange_rate    Decimal  @db.Decimal(15, 2)
-    ///สถานะสกุลเงิน
+    /// สถานะสกุลเงิน
     status           String   @db.VarChar(20)
     created_at       DateTime @default(now())
     updated_at       DateTime @updatedAt
@@ -804,17 +758,17 @@ model currency {
     @@map("currency")
 }
 
-///ตารางเก็บข้อมูลประเภทสกุลเงิน
+/// ตารางเก็บข้อมูลประเภทสกุลเงิน
 model currency_type {
-    ///รหัสประเภทสกุลเงิน
+    /// รหัสประเภทสกุลเงิน
     currency_type_id      Int      @id @default(autoincrement())
-    ///รหัสประเภทสกุลเงิน
+    /// รหัสประเภทสกุลเงิน
     currency_type_code    String   @db.VarChar(30)
-    ///ชื่อประเภทสกุลเงิน
+    /// ชื่อประเภทสกุลเงิน
     currency_type_name    String   @db.VarChar(200)
-    ///ชื่อประเภทสกุลเงิน (อังกฤษ)
+    /// ชื่อประเภทสกุลเงิน (อังกฤษ)
     currency_type_nameeng String   @db.VarChar(200)
-    ///สถานะประเภทสกุลเงิน
+    /// สถานะประเภทสกุลเงิน
     created_at            DateTime @default(now())
     updated_at            DateTime @updatedAt
 
@@ -823,48 +777,42 @@ model currency_type {
 
 /// ตารางสถานที่รับ
 model receive_place {
-    ///รหัสสถานที่รับ
-    receive_place_id      Int    @id @default(autoincrement())
-    ///รหัสสถานที่รับ
-    receive_place_code    String @db.VarChar(30)
-    ///ชื่อสถานที่รับ
-    receive_place_name    String @db.VarChar(200)
-    ///ชื่อสถานที่รับ (อังกฤษ)
-    receive_place_nameeng String @db.VarChar(200)
-
-    ///สถานะสถานที่รับ
-    receive_contact String   @db.VarChar(200)
-    created_at      DateTime @default(now())
-    updated_at      DateTime @updatedAt
+    /// รหัสสถานที่รับ
+    receive_place_id      Int      @id @default(autoincrement())
+    /// รหัสสถานที่รับ
+    receive_place_code    String   @db.VarChar(30)
+    /// ชื่อสถานที่รับ
+    receive_place_name    String   @db.VarChar(200)
+    /// ชื่อสถานที่รับ (อังกฤษ)
+    receive_place_nameeng String   @db.VarChar(200)
+    created_at            DateTime @default(now())
+    updated_at            DateTime @updatedAt
+    /// สถานะสถานที่รับ
+    receive_contact       String   @db.VarChar(200)
 
     @@map("receive_place")
 }
 
-///////////////
-/// Document Running Tables
-//////////////
-
 /// ตารางเก็บข้อมูลรูปแบบเอกสาร
 model document_format {
-    ///รหัสรูปแบบเอกสาร
-    document_format_id Int @id @default(autoincrement())
-
-    ///รหัสโมดูล
+    /// รหัสรูปแบบเอกสาร
+    document_format_id Int                @id @default(autoincrement())
+    /// รหัสโมดูล
     module_code        String
-    ///รหัสประเภทเอกสาร
+    /// รหัสประเภทเอกสาร
     document_type_code String
     /// ตัวอักษรนำหน้า
     prefix             String?
-    /// รูปแบบเลขที่เอกสาร
-    pattern            String
     /// จำนวนตัวเลข
     seq_length         Int
     /// รอบเลขที่เอกสาร
     running_cycle      String
-    /// วันที่สร้าง
-    created_at         DateTime           @default(now())
     /// วันที่แก้ไขส
     updated_at         DateTime           @updatedAt
+    /// วันที่สร้าง
+    created_at         DateTime           @default(now())
+    /// รูปแบบเลขที่เอกสาร
+    pattern            String
     documentRunnings   document_running[]
 
     @@unique([module_code, document_type_code])
@@ -872,85 +820,79 @@ model document_format {
 
 /// ตารางเก็บข้อมูลเลขที่เอกสาร
 model document_running {
-    ///รหัสเลขที่เอกสาร
+    /// รหัสเลขที่เอกสาร
     id                 Int             @id @default(autoincrement())
-    ///รหัสรูปแบบเอกสาร
-    document_format    document_format @relation(fields: [document_format_id], references: [document_format_id], onDelete: Restrict)
-    ///รหัสรูปแบบเอกสาร
+    /// รหัสรูปแบบเอกสาร
     document_format_id Int
-    ///รหัสสาขา
+    /// รหัสสาขา
     branch_id          Int?
-    ///ตัวอักษรนำหน้า
+    /// ตัวอักษรนำหน้า
     prefix             String?
-    ///ปี
+    /// ปี
     year               Int?
-    ///เดือน
+    /// เดือน
     month              Int?
-    ///วัน
+    /// วัน
     day                Int?
-    ///เลขที่เอกสารสุดท้าย
+    /// เลขที่เอกสารสุดท้าย
     last_seq           Int
-    ///วันที่แก้ไข
+    /// วันที่แก้ไข
     updated_at         DateTime        @updatedAt
+    document_format    document_format @relation(fields: [document_format_id], references: [document_format_id])
 
     @@unique([document_format_id, branch_id, prefix, year, month, day])
 }
 
-//////////////
-/// Transaction Procurement Tables
-/////////////
-
-///ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
+/// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
-    ///รหัสใบขอซื้อ (PK)
-    pr_id             Int       @id @default(autoincrement())
-    ///เลขที่ใบขอซื้อ
-    pr_no             String    @db.VarChar(30)
-    ///วันที่สร้างใบขอซื้อ
-    pr_date           DateTime
-    ///รหัสสาขา (FK)
-    branch_id         Int
-    ///รหัสคลัง (FK)
-    warehouse_id      Int?
-    ///วันที่ต้องการ
-    need_by_date      DateTime?
-    ///สถานะ
-    status            String    @db.VarChar(20)
-    ///รหัสสกุลเงิน
-    currency_code     String    @db.VarChar(3)
-    ///อัตราแลกเปลี่ยน
-    exchange_rate     Decimal   @db.Decimal(18, 2)
-    ///หมายเหตุ
-    remark            String?   @db.Text
-    ///จำนวนเงินรวม ยอดประมาณการ
-    total_est_amount  Decimal   @db.Decimal(18, 2)
-    ///เครดิตเทอม (วัน)
-    payment_term_days Int?
-    ///วันที่สร้าง
-    created_at        DateTime  @default(now())
-    ///วันที่แก้ไขล่าสุด
-    updated_at        DateTime  @updatedAt
-    ///รหัสผู้ขอ (FK)
-    requester_user_id Int
+    /// รหัสใบขอซื้อ (PK)
+    pr_id               Int                    @id @default(autoincrement())
+    /// เลขที่ใบขอซื้อ
+    pr_no               String                 @db.VarChar(30)
+    /// รหัสสาขา (FK)
+    branch_id           Int
+    /// สถานะ
+    status              String                 @db.VarChar(20)
+    /// วันที่สร้าง
+    created_at          DateTime               @default(now())
+    /// รหัสสกุลเงิน
+    currency_code       String                 @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน
+    exchange_rate       Decimal                @db.Decimal(18, 2)
+    /// วันที่ต้องการ
+    need_by_date        DateTime?
+    /// เครดิตเทอม (วัน)
+    payment_term_days   Int?
+    /// วันที่สร้างใบขอซื้อ
+    pr_date             DateTime
+    /// หมายเหตุ
+    remark              String?
+    /// วันที่แก้ไขล่าสุด
+    updated_at          DateTime               @updatedAt
+    /// รหัสคลัง (FK)
+    warehouse_id        Int?
+    /// จำนวนเงินรวม ยอดประมาณการ
+    total_est_amount    Decimal                @db.Decimal(18, 2)
+    /// วันเครดิต
+    credit_days         Int?
+    /// วันที่ส่งมอบที่ต้องการ
+    delivery_date       DateTime?
     /// ======================
     /// Additional Fields
     /// ======================
-    ///ผู้ขายที่แนะนำ
-    preferred_vendor  String?   @db.VarChar(100)
-    ///วันที่ส่งมอบที่ต้องการ
-    delivery_date     DateTime?
-    ///วันเครดิต
-    credit_days       Int?
-    ///เลขที่ใบเสนอราคาจากผู้ขาย
-    vendor_quote_no   String?   @db.VarChar(50)
-    ///วิธีการจัดส่ง
-    shipping_method   String?   @db.VarChar(50)
-    ///ผู้ขอ
-    requester_name    String?   @db.VarChar(100)
-
+    /// ผู้ขายที่แนะนำ
+    preferred_vendor    String?                @db.VarChar(100)
+    /// ผู้ขอ
+    requester_name      String?                @db.VarChar(100)
+    /// รหัสผู้ขอ (FK)
+    requester_user_id   Int
+    /// วิธีการจัดส่ง
+    shipping_method     String?                @db.VarChar(50)
+    /// เลขที่ใบเสนอราคาจากผู้ขาย
+    vendor_quote_no     String?                @db.VarChar(50)
     branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
-    warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
     requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
+    warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
     prLines             pr_line[]
     quoteCompareHeaders quote_compare_header[]
     rfqHeaders          rfq_header[]
@@ -958,53 +900,43 @@ model pr_header {
 
 /// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)
 model pr_line {
-    ///รหัสใบขอซื้อ (PK)
+    /// รหัสใบขอซื้อ (PK)
     pr_line_id                    Int            @id @default(autoincrement())
-    ///ลำดับ
+    /// ลำดับ
     line_no                       Int
-    ///รหัสสินค้า (FK)
+    /// รหัสสินค้า (FK)
     item_id                       Int?
-    ///รายละเอียด
-    description                   String?        @db.Text
-    ///รหัสใบขอซื้อ (FK)
+    /// รายละเอียด
+    description                   String?
+    /// รหัสใบขอซื้อ (FK)
     pr_id                         Int
-    ///จำนวน
+    /// จำนวน
     qty                           Decimal        @db.Decimal(18, 3)
-    ///รหัสหน่วยนับ (FK)
+    /// รหัสหน่วยนับ (FK)
     uom_id                        Int
-    ///ราคาต่อหน่วยโดยประมาณ
+    /// ราคาต่อหน่วยโดยประมาณ
     est_unit_price                Decimal        @db.Decimal(18, 4)
-    ///รหัสภาษี
+    /// รหัสภาษี
     tax_code                      String?        @db.VarChar(20)
-    ///รหัสศูนย์ต้นทุน (FK)
+    /// รหัสศูนย์ต้นทุน (FK)
     cost_center_id                Int
-    ///รหัสโครงการ (FK)
+    /// รหัสโครงการ (FK)
     project_id                    Int
-    ///ประเภทการรับสินค้าที่ต้องการ
+    /// ประเภทการรับสินค้าที่ต้องการ
     required_receipt_type         String?        @db.VarChar(20)
-    ///รหัสผู้ขายที่ต้องการ (FK)
-    preferred_vendor_id           Int?
-    ///รหัสหมวดหมู่สินค้า
+    /// รหัสหมวดหมู่สินค้า
     item_categoryItem_category_id Int?
-    // ======================
-    // Relations
-    // ======================
-    ///ใบขอซื้อ
-    pr                            pr_header      @relation(fields: [pr_id], references: [pr_id])
-    ///สินค้า
-    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
-    ///หน่วยนับ
-    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
-    ///ศูนย์ต้นทุน
-    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
-    ///โครงการ
-    project                       project        @relation(fields: [project_id], references: [project_id])
-    ///ผู้ขายที่ต้องการ
-    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    ///หมวดหมู่สินค้า
-    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
-    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    /// รหัสผู้ขายที่ต้องการ (FK)
+    preferred_vendor_id           Int?
     item_brandItem_brand_id       Int?
+    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
+    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
+    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
+    pr                            pr_header      @relation(fields: [pr_id], references: [pr_id])
+    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    project                       project        @relation(fields: [project_id], references: [project_id])
+    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -1012,94 +944,82 @@ model pr_line {
 
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Header) (P3)
 model rfq_header {
-    ///รหัสใบขอซื้อ (PK)
-    rfq_id             Int       @id @default(autoincrement())
-    ///เลขที่ใบขอซื้อ
-    rfq_no             String    @db.VarChar(30)
-    ///วันที่สร้างใบขอซื้อ
+    /// รหัสใบขอซื้อ (PK)
+    rfq_id             Int                  @id @default(autoincrement())
+    /// เลขที่ใบขอซื้อ
+    rfq_no             String               @db.VarChar(30)
+    /// วันที่สร้างใบขอซื้อ
     rfq_date           DateTime
-    ///รหัสใบขอซื้อ (FK)
+    /// รหัสใบขอซื้อ (FK)
     qc_id              Int
-    ///รหัสใบขอซื้อ (FK)
+    /// รหัสใบขอซื้อ (FK)
     pr_id              Int
-    ///รหัสสาขา (FK)
+    /// รหัสสาขา (FK)
     branch_id          Int
-    ///ผู้ขอ
-    requested_by       String    @db.VarChar(50)
-    ///สถานะ
-    status             String    @db.VarChar(20)
-    ///วันที่ต้องการ
+    /// ผู้ขอ
+    requested_by       String               @db.VarChar(50)
+    /// สถานะ
+    status             String               @db.VarChar(20)
+    /// วันที่ต้องการ
     quotation_due_date DateTime?
-    ///รหัสสกุลเงิน
-    currency_code      String    @db.VarChar(3)
-    ///อัตราแลกเปลี่ยน
-    exchange_rate      Decimal   @db.Decimal(18, 2)
-    ///สถานที่รับสินค้า
-    receive_location   String?   @db.Text
-    ///เงื่อนไขการชำระเงิน
-    payment_term_hint  String?   @db.VarChar(20)
-    ///เงื่อนไขการส่งมอบ
-    incoterm           String?   @db.VarChar(20)
-    ///หมายเหตุ
-    remarks            String?   @db.Text
-    created_at         DateTime  @default(now())
-    updated_at         DateTime  @updatedAt
-
-    qc       quote_compare_header @relation(fields: [qc_id], references: [qc_id])
-    pr       pr_header            @relation(fields: [pr_id], references: [pr_id])
-    branch   org_branch           @relation(fields: [branch_id], references: [branch_id])
-    rfqLines rfq_line[]
+    /// รหัสสกุลเงิน
+    currency_code      String               @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน
+    exchange_rate      Decimal              @db.Decimal(18, 2)
+    /// สถานที่รับสินค้า
+    receive_location   String?
+    /// เงื่อนไขการชำระเงิน
+    payment_term_hint  String?              @db.VarChar(20)
+    /// เงื่อนไขการส่งมอบ
+    incoterm           String?              @db.VarChar(20)
+    /// หมายเหตุ
+    remarks            String?
+    created_at         DateTime             @default(now())
+    updated_at         DateTime             @updatedAt
+    branch             org_branch           @relation(fields: [branch_id], references: [branch_id])
+    pr                 pr_header            @relation(fields: [pr_id], references: [pr_id])
+    qc                 quote_compare_header @relation(fields: [qc_id], references: [qc_id])
+    rfqLines           rfq_line[]
 }
 
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
 model rfq_line {
-    ///รหัสใบขอซื้อ (PK)
+    /// รหัสใบขอซื้อ (PK)
     rfq_line_id                   Int            @id @default(autoincrement())
-    ///ลำดับ
+    /// ลำดับ
     line_no                       Int
-    ///รหัสสินค้า (FK)
+    /// รหัสสินค้า (FK)
     item_id                       Int?
-    ///รายละเอียด
-    description                   String?        @db.Text
-    ///รหัสใบขอซื้อ (FK)
+    /// รายละเอียด
+    description                   String?
+    /// รหัสใบขอซื้อ (FK)
     rfq_id                        Int
-    ///จำนวน
+    /// จำนวน
     qty                           Decimal        @db.Decimal(18, 3)
-    ///รหัสหน่วยนับ (FK)
+    /// รหัสหน่วยนับ (FK)
     uom_id                        Int
-    ///ราคาต่อหน่วยโดยประมาณ
-    // est_unit_price                Decimal        @db.Decimal(18, 4)
-    ///รหัสภาษี
+    /// ราคาต่อหน่วยโดยประมาณ
+    /// รหัสภาษี
     tax_code                      String?        @db.VarChar(20)
-    ///รหัสศูนย์ต้นทุน (FK)
+    /// รหัสศูนย์ต้นทุน (FK)
     cost_center_id                Int
-    ///รหัสโครงการ (FK)
+    /// รหัสโครงการ (FK)
     project_id                    Int
-    ///ประเภทการรับสินค้าที่ต้องการ
+    /// ประเภทการรับสินค้าที่ต้องการ
     required_receipt_type         String?        @db.VarChar(20)
-    ///รหัสผู้ขายที่ต้องการ (FK)
+    /// รหัสผู้ขายที่ต้องการ (FK)
     preferred_vendor_id           Int?
-    // ======================
-    // Relations
-    // ======================
-    ///ใบขอซื้อ
-    rfq                           rfq_header     @relation(fields: [rfq_id], references: [rfq_id])
-    ///สินค้า
-    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
-    ///หน่วยนับ
-    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
-    ///ศูนย์ต้นทุน
-    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
-    ///โครงการ
-    project                       project        @relation(fields: [project_id], references: [project_id])
-    ///ผู้ขายที่ต้องการ
-    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    ///หมวดหมู่สินค้า
-    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
-    ///รหัสหมวดหมู่สินค้า
+    /// รหัสหมวดหมู่สินค้า
     item_categoryItem_category_id Int?
-    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
     item_brandItem_brand_id       Int?
+    cost_center                   cost_center    @relation(fields: [cost_center_id], references: [cost_center_id])
+    itemBrand                     item_brand?    @relation(fields: [item_brandItem_brand_id], references: [item_brand_id])
+    itemCategory                  item_category? @relation(fields: [item_categoryItem_category_id], references: [item_category_id])
+    item                          item_type?     @relation(fields: [item_id], references: [item_type_id])
+    preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    project                       project        @relation(fields: [project_id], references: [project_id])
+    rfq                           rfq_header     @relation(fields: [rfq_id], references: [rfq_id])
+    uom                           uom            @relation(fields: [uom_id], references: [uom_id])
 
     @@unique([rfq_id, line_no])
     @@index([rfq_id])
@@ -1107,20 +1027,51 @@ model rfq_line {
 
 /// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)
 model quote_compare_header {
-    ///รหัสใบเปรียบเทียบราคา (PK)
-    qc_id      Int      @id @default(autoincrement())
-    ///เลขที่ใบเปรียบเทียบราคา
-    qc_no      String   @unique @db.VarChar(30)
-    ///รหัสใบขอซื้อ (FK)
+    /// รหัสใบเปรียบเทียบราคา (PK)
+    qc_id      Int          @id @default(autoincrement())
+    /// เลขที่ใบเปรียบเทียบราคา
+    qc_no      String       @unique @db.VarChar(30)
+    /// รหัสใบขอซื้อ (FK)
     pr_id      Int
-    ///สถานะ
-    status     String   @db.VarChar(20)
-    ///วันที่สร้าง
-    created_at DateTime @default(now())
-    ///วันที่แก้ไขล่าสุด
-    updated_at DateTime @updatedAt
-
-    /// ใบขอซื้อ (FK)
+    /// สถานะ
+    status     String       @db.VarChar(20)
+    /// วันที่สร้าง
+    created_at DateTime     @default(now())
+    /// วันที่แก้ไขล่าสุด
+    updated_at DateTime     @updatedAt
     pr         pr_header    @relation(fields: [pr_id], references: [pr_id])
     rfqHeaders rfq_header[]
+}
+
+enum EmployeeAddressType {
+    REGISTERED
+    CONTACT
+    BILLING
+    SHIPPING
+}
+
+enum TrackingLevel {
+    NONE
+    OPTIONAL
+    REQUIRED
+}
+
+enum IssuePolicy {
+    FIFO
+    FEFO
+    MANUAL
+}
+
+enum VendorAddressType {
+    REGISTERED
+    CONTACT
+    BILLING
+    SHIPPING
+}
+
+enum RunningCycle {
+    YEAR
+    MONTH
+    DAY
+    NONE
 }

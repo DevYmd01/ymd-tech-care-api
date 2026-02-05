@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { RunningCycle } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ async function main() {
             prefix: 'PR',
             pattern: '{PREFIX}-{YYYY}{MM}-{RUN}',
             seq_length: 4,
-            running_cycle: 'MONTH',
+            running_cycle: RunningCycle.YEAR,
         },
         {
             module_code: 'PO',
@@ -18,7 +19,7 @@ async function main() {
             prefix: 'PO',
             pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
             seq_length: 4,
-            running_cycle: 'MONTH',
+            running_cycle: RunningCycle.YEAR,
         },
         {
             module_code: 'INV',
@@ -26,7 +27,7 @@ async function main() {
             prefix: 'INV',
             pattern: '{PREFIX}-{BR}-{YYYY}-{RUN}',
             seq_length: 5,
-            running_cycle: 'YEAR',
+            running_cycle: RunningCycle.YEAR,
         },
         {
             module_code: 'SO',
@@ -34,7 +35,7 @@ async function main() {
             prefix: 'SO',
             pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
             seq_length: 4,
-            running_cycle: 'MONTH',
+            running_cycle: RunningCycle.YEAR,
         },
     ];
     console.log('🌱 Start seeding document_format...');

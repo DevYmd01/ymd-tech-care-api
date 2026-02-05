@@ -24,6 +24,7 @@ import { ItemGroupModule } from './modules/master-data/item/item-group/item-grou
 import { ItemMasterModule } from './modules/master-data/item/item-master/item-master.module';
 import { UomModule } from './modules/master-data/uom/uom.module';
 import { DocumentNumberModule } from './modules/document-number/document-number.module';
+import { DocumentFormatModule } from './modules/document-format/document-format.module';
 
 
 @Module({
@@ -50,7 +51,8 @@ import { DocumentNumberModule } from './modules/document-number/document-number.
     ItemGroupModule,
     ItemMasterModule,
     UomModule,
-    DocumentNumberModule
+    DocumentNumberModule,
+    DocumentFormatModule
   ],
   controllers: [AppController],
   providers: [AppService],
