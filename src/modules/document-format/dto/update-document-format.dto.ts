@@ -1,6 +1,5 @@
 import { IsNotEmpty, IsString, IsNumber, IsEnum } from "class-validator";
 
-
 export class UpdateDocumentFormatDto {
 
     @IsNotEmpty()
@@ -17,4 +16,3 @@ export class UpdateDocumentFormatDto {
     @IsString()
     running_cycle: string;
 }
-
