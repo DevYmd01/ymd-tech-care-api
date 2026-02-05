@@ -17,7 +17,7 @@ export class PRHeaderRepository {
                 need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
 
                 status: dto.status,
-                currency_code: dto.currency_code,
+                currency_id: dto.currency_id,
                 exchange_rate: dto.exchange_rate,
                 remark: dto.remark ?? null,
                 payment_term_days: dto.payment_term_days,

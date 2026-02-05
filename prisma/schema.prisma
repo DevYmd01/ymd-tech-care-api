@@ -741,20 +741,21 @@ model tax_group {
 /// ตารางเก็บข้อมูลสกุลเงิน
 model currency {
     /// รหัสสกุลเงิน
-    currency_id      Int      @id @default(autoincrement())
+    currency_id      Int         @id @default(autoincrement())
     /// รหัสสกุลเงิน
-    currency_code    String   @db.VarChar(30)
+    currency_code    String      @unique @db.VarChar(3)
     /// ชื่อสกุลเงิน
-    currency_name    String   @db.VarChar(200)
+    currency_name    String      @db.VarChar(100)
     /// ชื่อสกุลเงิน (อังกฤษ)
-    currency_nameeng String   @db.VarChar(200)
+    currency_nameeng String      @db.VarChar(100)
     /// อัตราแลกเปลี่ยน (THB)
-    exchange_rate    Decimal  @db.Decimal(15, 2)
+    exchange_rate    Decimal     @db.Decimal(15, 2)
     /// สถานะสกุลเงิน
-    status           String   @db.VarChar(20)
-    created_at       DateTime @default(now())
-    updated_at       DateTime @updatedAt
+    status           String      @db.VarChar(20)
+    created_at       DateTime    @default(now())
+    updated_at       DateTime    @updatedAt
     vendors          vendor[]
+    prHeaders        pr_header[]
 
     @@map("currency")
 }
@@ -857,7 +858,7 @@ model pr_header {
     /// วันที่สร้าง
     created_at        DateTime  @default(now())
     /// รหัสสกุลเงิน
-    currency_code     String    @db.VarChar(3)
+    currency_id       Int?
     /// อัตราแลกเปลี่ยน
     exchange_rate     Decimal   @db.Decimal(18, 2)
     /// วันที่ต้องการ
@@ -897,6 +898,7 @@ model pr_header {
     rfqHeaders            rfq_header[]
     warehouse             warehouse?             @relation(fields: [warehouseWarehouse_id], references: [warehouse_id])
     warehouseWarehouse_id Int?
+    currency              currency?              @relation(fields: [currency_id], references: [currency_id])
 }
 
 /// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)

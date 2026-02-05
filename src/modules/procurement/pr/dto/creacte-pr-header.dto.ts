@@ -34,8 +34,9 @@ export class CreatePRHeaderDTO {
     status: string;
 
     // สกุลเงิน (THB, USD)
-    @IsString()
-    currency_code: string;
+    @IsNumber()
+    @Type(() => Number)
+    currency_id: number;
 
     // อัตราแลกเปลี่ยน
     @IsOptional()
