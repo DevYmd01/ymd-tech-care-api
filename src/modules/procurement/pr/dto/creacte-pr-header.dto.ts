@@ -24,11 +24,6 @@ export class CreatePRHeaderDTO {
     @Type(() => Number)
     branch_id: number;
 
-    // คลัง (required)
-    @IsNumber()
-    @Type(() => Number)
-    warehouse_id: number;
-
     // วันที่ต้องการของ
     @IsOptional()
     @IsDateString()

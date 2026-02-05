@@ -125,6 +125,7 @@ model warehouse {
     updated_at     DateTime    @updatedAt
     prHeaders      pr_header[]
     branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
+    prLines        pr_line[]
 
     @@map("warehouse")
 }
@@ -846,56 +847,56 @@ model document_running {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
     /// รหัสใบขอซื้อ (PK)
-    pr_id               Int                    @id @default(autoincrement())
+    pr_id             Int       @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no               String                 @db.VarChar(30)
+    pr_no             String    @db.VarChar(30)
     /// รหัสสาขา (FK)
-    branch_id           Int
+    branch_id         Int
     /// สถานะ
-    status              String                 @db.VarChar(20)
+    status            String    @db.VarChar(20)
     /// วันที่สร้าง
-    created_at          DateTime               @default(now())
+    created_at        DateTime  @default(now())
     /// รหัสสกุลเงิน
-    currency_code       String                 @db.VarChar(3)
+    currency_code     String    @db.VarChar(3)
     /// อัตราแลกเปลี่ยน
-    exchange_rate       Decimal                @db.Decimal(18, 2)
+    exchange_rate     Decimal   @db.Decimal(18, 2)
     /// วันที่ต้องการ
-    need_by_date        DateTime?
+    need_by_date      DateTime?
     /// เครดิตเทอม (วัน)
-    payment_term_days   Int?
+    payment_term_days Int?
     /// วันที่สร้างใบขอซื้อ
-    pr_date             DateTime
+    pr_date           DateTime
     /// หมายเหตุ
-    remark              String?
+    remark            String?
     /// วันที่แก้ไขล่าสุด
-    updated_at          DateTime               @updatedAt
-    /// รหัสคลัง (FK)
-    warehouse_id        Int?
+    updated_at        DateTime  @updatedAt
+
     /// จำนวนเงินรวม ยอดประมาณการ
-    total_est_amount    Decimal                @db.Decimal(18, 2)
+    total_est_amount      Decimal                @db.Decimal(18, 2)
     /// วันเครดิต
-    credit_days         Int?
+    credit_days           Int?
     /// วันที่ส่งมอบที่ต้องการ
-    delivery_date       DateTime?
+    delivery_date         DateTime?
     /// ======================
     /// Additional Fields
     /// ======================
     /// ผู้ขายที่แนะนำ
-    preferred_vendor    String?                @db.VarChar(100)
+    preferred_vendor      String?                @db.VarChar(100)
     /// ผู้ขอ
-    requester_name      String?                @db.VarChar(100)
+    requester_name        String?                @db.VarChar(100)
     /// รหัสผู้ขอ (FK)
-    requester_user_id   Int
+    requester_user_id     Int
     /// วิธีการจัดส่ง
-    shipping_method     String?                @db.VarChar(50)
+    shipping_method       String?                @db.VarChar(50)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    vendor_quote_no     String?                @db.VarChar(50)
-    branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
-    requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
-    warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
-    prLines             pr_line[]
-    quoteCompareHeaders quote_compare_header[]
-    rfqHeaders          rfq_header[]
+    vendor_quote_no       String?                @db.VarChar(50)
+    branch                org_branch             @relation(fields: [branch_id], references: [branch_id])
+    requester_user        employees              @relation(fields: [requester_user_id], references: [employee_id])
+    prLines               pr_line[]
+    quoteCompareHeaders   quote_compare_header[]
+    rfqHeaders            rfq_header[]
+    warehouse             warehouse?             @relation(fields: [warehouseWarehouse_id], references: [warehouse_id])
+    warehouseWarehouse_id Int?
 }
 
 /// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)
@@ -908,6 +909,8 @@ model pr_line {
     item_id                       Int?
     /// รายละเอียด
     description                   String?
+    /// รหัสคลัง (FK)
+    warehouse_id                  Int?
     /// รหัสใบขอซื้อ (FK)
     pr_id                         Int
     /// จำนวน
@@ -937,6 +940,7 @@ model pr_line {
     preferred_vendor              vendor?        @relation(fields: [preferred_vendor_id], references: [vendor_id])
     project                       project        @relation(fields: [project_id], references: [project_id])
     uom                           uom            @relation(fields: [uom_id], references: [uom_id])
+    warehouse                     warehouse?     @relation(fields: [warehouse_id], references: [warehouse_id])
 
     @@unique([pr_id, line_no])
     @@index([pr_id])

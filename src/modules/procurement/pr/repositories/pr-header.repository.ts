@@ -14,7 +14,6 @@ export class PRHeaderRepository {
                 pr_date: dto.pr_date ? new Date(dto.pr_date) : new Date(),
 
                 branch_id: dto.branch_id,
-                warehouse_id: dto.warehouse_id ?? null,
                 need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
 
                 status: dto.status,
