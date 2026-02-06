@@ -11,7 +11,8 @@ export class PrService {
 
     async create(dto: CreatePRHeaderDTO) {
         return this.prisma.$transaction(async (tx) => {
-            return this.prHeaderRepo.create(tx, dto);
+            const header = await this.prHeaderRepo.create(tx, dto);
+            return header;
         });
     }
 }

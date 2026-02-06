@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  api:
+    build: .
+    restart: always
+    env_file:
+      - .env.dev
+    depends_on:
+      - db
+    networks:
+      - ymd_network
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: ymd_tech_care
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ymd_network
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+    depends_on:
+      - api
+    networks:
+      - ymd_network
+
+volumes:
+  postgres_data:
+
+networks:
+  ymd_network:
+    driver: bridge
