@@ -795,6 +795,23 @@ model receive_place {
     @@map("receive_place")
 }
 
+model exchange_rate {
+    exchange_id      Int      @id @default(autoincrement())
+    currency_id      Int
+    currency_type_id Int
+    rate_date        DateTime
+    exchange_round   Int
+    buy_rate         Decimal
+    sale_rate        Decimal
+    allow_adjust     Decimal
+    remark           String
+    created_at       DateTime @default(now())
+    updated_at       DateTime @updatedAt
+
+    @@unique([currency_id, currency_type_id, rate_date, exchange_round])
+    @@map("exchange_rate")
+}
+
 /// ตารางเก็บข้อมูลรูปแบบเอกสาร
 model document_format {
     /// รหัสรูปแบบเอกสาร
