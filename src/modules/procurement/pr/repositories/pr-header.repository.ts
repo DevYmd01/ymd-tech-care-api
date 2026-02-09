@@ -7,10 +7,11 @@ export class PRHeaderRepository {
     async create(
         tx: Prisma.TransactionClient,
         dto: CreatePRHeaderDTO,
+        document_no: string,
     ) {
         return tx.pr_header.create({
             data: {
-                pr_no: dto.pr_no,
+                pr_no: document_no,
                 pr_date: dto.pr_date ? new Date(dto.pr_date) : new Date(),
 
                 branch_id: dto.branch_id,
