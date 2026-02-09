@@ -83,15 +83,15 @@ export class CreatePRHeaderDTO {
 
     @IsOptional()
     @IsString()
-    vendor_quote_no: string;
+    vendor_quote_no: string | null;
 
     @IsOptional()
     @IsString()
-    shipping_method: string;
+    shipping_method: string | null;
 
     @IsOptional()
     @IsString()
-    requester_name: string;
+    requester_name: string | null;
 }
 
 

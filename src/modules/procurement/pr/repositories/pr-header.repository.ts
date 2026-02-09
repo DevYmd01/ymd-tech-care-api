@@ -19,14 +19,20 @@ export class PRHeaderRepository {
 
                 status: dto.status,
                 currency_id: dto.currency_id,
-                exchange_rate: dto.exchange_rate,
+                exchange_rate: dto.exchange_rate ?? null,
                 remark: dto.remark ?? null,
-                payment_term_days: dto.payment_term_days,
+                payment_term_days: dto.payment_term_days ?? null,
 
                 created_at: new Date(),
                 updated_at: new Date(),
                 total_est_amount: dto.total_amount,
                 requester_user_id: dto.requester_user_id,
+
+                delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
+                credit_days: dto.credit_days,
+                vendor_quote_no: dto.vendor_quote_no,
+                shipping_method: dto.shipping_method,
+                requester_name: dto.requester_name,
             },
         });
     }
