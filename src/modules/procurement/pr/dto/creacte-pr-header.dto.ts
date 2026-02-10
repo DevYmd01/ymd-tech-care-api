@@ -4,8 +4,11 @@ import {
     IsOptional,
     IsNumber,
     Min,
+    IsArray,
+    ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CreatePRLineDTO } from './create-pr-line.dto';
 
 export class CreatePRHeaderDTO {
 
@@ -104,6 +107,11 @@ export class CreatePRHeaderDTO {
     @IsOptional()
     @IsString()
     requester_name: string | null;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreatePRLineDTO)
+    lines: CreatePRLineDTO[];
 }
 
 

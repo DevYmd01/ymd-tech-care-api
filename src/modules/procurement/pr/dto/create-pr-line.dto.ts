@@ -1,34 +1,56 @@
 import {
     IsString,
-    IsDateString,
     IsOptional,
     IsNumber,
-    IsEnum,
-    Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreatePRLineDTO {
 
     @IsNumber()
+    @IsOptional()
     @Type(() => Number)
-    item_id: number;
+    line_no?: number;
 
     @IsNumber()
+    @IsOptional()
     @Type(() => Number)
-    quantity: number;
-
-    @IsNumber()
-    @Type(() => Number)
-    unit_price: number;
-
-    @IsNumber()
-    @Type(() => Number)
-    total_price: number;
+    item_id?: number;
 
     @IsString()
-    status: string;
+    @IsOptional()
+    description?: string;
+
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    warehouse_id?: number;
 
     @IsString()
-    remark: string;
+    @IsOptional()
+    location?: string;
+
+    @IsNumber()
+    @Type(() => Number)
+    pr_id: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    qty: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    uom_id: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    est_unit_price: number;
+
+    @IsString()
+    @IsOptional()
+    tax_code?: string;
+
+    @IsString()
+    @IsOptional()
+    required_receipt_type?: string;
 }   
