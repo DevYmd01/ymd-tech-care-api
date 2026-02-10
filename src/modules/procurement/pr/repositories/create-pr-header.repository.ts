@@ -23,9 +23,8 @@ export class PRHeaderRepository {
                 pr_quote_currency_code: dto.pr_quote_currency_code ?? null,
                 base_total_amount: dto.base_total_amount ?? null,
                 quote_total_amount: dto.quote_total_amount ?? null,
-
-                pr_exchange_rate: dto.pr_exchange_rate ?? null,
                 pr_exchange_rate_date: dto.pr_exchange_rate_date ? new Date(dto.pr_exchange_rate_date) : new Date(),
+
                 remark: dto.remark ?? null,
                 payment_term_days: dto.payment_term_days ?? null,
                 created_at: new Date(),

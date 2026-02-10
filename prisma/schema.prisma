@@ -881,12 +881,12 @@ model pr_header {
     updated_at        DateTime  @updatedAt
 
     /// วันเครดิต
-    credit_days         Int?
+    credit_days   Int?
     /// วันที่ส่งมอบที่ต้องการ
-    delivery_date       DateTime?
-    /// ======================
-    /// Additional Fields
-    /// ======================
+    delivery_date DateTime?
+
+    onhold              Boolean                @default(false)
+    cancel_flag         Boolean                @default(false)
     /// ผู้ขายที่แนะนำ
     preferred_vendor    String?                @db.VarChar(100)
     /// ผู้ขอ
