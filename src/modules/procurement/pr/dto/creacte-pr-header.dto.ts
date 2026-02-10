@@ -43,7 +43,19 @@ export class CreatePRHeaderDTO {
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    exchange_rate: number;
+    pr_exchange_rate: number;
+
+    @IsOptional()
+    @IsString()
+    pr_base_currency: string;
+
+    @IsOptional()
+    @IsString()
+    pr_quote_currency: string;
+
+    @IsOptional()
+    @IsDateString()
+    pr_exchange_rate_date: string;
 
     // หมายเหตุ
     @IsOptional()

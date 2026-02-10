@@ -793,34 +793,6 @@ model receive_place {
     @@map("receive_place")
 }
 
-model exchange_rate {
-    /// รหัสอัตราแลกเปลี่ยน
-    exchange_id      Int      @id @default(autoincrement())
-    /// รหัสสกุลเงิน
-    currency_id      Int
-    /// รหัสประเภทสกุลเงิน
-    currency_type_id Int
-    /// วันที่อัตราแลกเปลี่ยน
-    rate_date        DateTime
-    /// รอบอัตราแลกเปลี่ยน
-    exchange_round   Int
-    /// อัตราแลกเปลี่ยน (ซื้อ)
-    buy_rate         Decimal
-    /// อัตราแลกเปลี่ยน (ขาย)
-    sale_rate        Decimal
-    /// อนุญาติปรับอัตราแลกเปลี่ยน
-    allow_adjust     Decimal
-    /// หมายเหตุ
-    remark           String
-    /// วันที่สร้าง
-    created_at       DateTime @default(now())
-    /// วันที่แก้ไข
-    updated_at       DateTime @updatedAt
-
-    @@unique([currency_id, currency_type_id, rate_date, exchange_round])
-    @@map("exchange_rate")
-}
-
 /// ตารางเก็บข้อมูลรูปแบบเอกสาร
 model document_format {
     /// รหัสรูปแบบเอกสาร
@@ -874,29 +846,35 @@ model document_running {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
     /// รหัสใบขอซื้อ (PK)
-    pr_id             Int       @id @default(autoincrement())
+    pr_id                 Int       @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no             String    @db.VarChar(30)
+    pr_no                 String    @db.VarChar(30)
     /// รหัสสาขา (FK)
-    branch_id         Int
+    branch_id             Int
     /// สถานะ
-    status            String    @db.VarChar(20)
+    status                String    @db.VarChar(20)
     /// วันที่สร้าง
-    created_at        DateTime  @default(now())
+    created_at            DateTime  @default(now())
     /// รหัสสกุลเงิน
-    currency_id       Int?
+    currency_id           Int?
     /// อัตราแลกเปลี่ยน
-    exchange_rate     Decimal?  @db.Decimal(18, 2)
+    pr_base_currency      String?   @db.VarChar(3)
+    /// สกุลเงินที่ใช้ทำรายการ
+    pr_quote_currency     String?   @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน (1 quote → base)
+    pr_exchange_rate      Decimal?  @db.Decimal(18, 6)
+    /// วันที่ของเรท
+    pr_exchange_rate_date DateTime?
     /// วันที่ต้องการ
-    need_by_date      DateTime?
+    need_by_date          DateTime?
     /// เครดิตเทอม (วัน)
-    payment_term_days Int?
+    payment_term_days     Int?
     /// วันที่สร้างใบขอซื้อ
-    pr_date           DateTime
+    pr_date               DateTime
     /// หมายเหตุ
-    remark            String?
+    remark                String?
     /// วันที่แก้ไขล่าสุด
-    updated_at        DateTime  @updatedAt
+    updated_at            DateTime  @updatedAt
 
     /// จำนวนเงินรวม ยอดประมาณการ
     total_est_amount      Decimal                @db.Decimal(18, 2)

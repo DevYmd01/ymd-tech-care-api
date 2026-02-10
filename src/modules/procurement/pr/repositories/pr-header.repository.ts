@@ -19,7 +19,10 @@ export class PRHeaderRepository {
 
                 status: dto.status,
                 currency_id: dto.currency_id,
-                exchange_rate: dto.exchange_rate ?? null,
+                pr_exchange_rate: dto.pr_exchange_rate ?? null,
+                pr_base_currency: dto.pr_base_currency ?? null,
+                pr_quote_currency: dto.pr_quote_currency ?? null,
+                pr_exchange_rate_date: dto.pr_exchange_rate_date ? new Date(dto.pr_exchange_rate_date) : new Date(),
                 remark: dto.remark ?? null,
                 payment_term_days: dto.payment_term_days ?? null,
 

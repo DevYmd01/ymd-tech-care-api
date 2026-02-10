@@ -26,4 +26,8 @@ export class PrService {
         });
     }
 
+    async findAll() {
+        return this.prisma.pr_header.findMany();
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 
@@ -10,5 +10,10 @@ export class PrController {
     @Post()
     create(@Body() dto: CreatePRHeaderDTO) {
         return this.PrService.create(dto);
+    }
+
+    @Get()
+    findAll() {
+        return this.PrService.findAll();
     }
 }
