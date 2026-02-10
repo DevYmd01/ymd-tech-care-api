@@ -37,28 +37,15 @@ export class CreatePRHeaderDTO {
     status: string;
 
     // สกุลเงิน (THB, USD)
-    @IsNumber()
-    @Type(() => Number)
-    currency_id: number;
+    @IsString()
+    currency_code: string;
 
     // อัตราแลกเปลี่ยน
     @IsOptional()
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    pr_exchange_rate: number;
-
-    @IsOptional()
-    @IsString()
-    pr_base_currency: string;
-
-    @IsOptional()
-    @IsString()
-    pr_quote_currency: string;
-
-    @IsOptional()
-    @IsDateString()
-    pr_exchange_rate_date: string;
+    exchange_rate: number;
 
     // หมายเหตุ
     @IsOptional()
@@ -98,15 +85,15 @@ export class CreatePRHeaderDTO {
 
     @IsOptional()
     @IsString()
-    vendor_quote_no: string | null;
+    vendor_quote_no: string;
 
     @IsOptional()
     @IsString()
-    shipping_method: string | null;
+    shipping_method: string;
 
     @IsOptional()
     @IsString()
-    requester_name: string | null;
+    requester_name: string;
 
     @IsArray()
     @ValidateNested({ each: true })

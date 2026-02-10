@@ -115,16 +115,15 @@ model org_department {
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_code String      @unique @db.VarChar(20)
-    warehouse_name String      @db.VarChar(200)
-    warehouse_id   Int         @id @default(autoincrement())
+    warehouse_code String     @unique @db.VarChar(20)
+    warehouse_name String     @db.VarChar(200)
+    warehouse_id   Int        @id @default(autoincrement())
     branch_id      Int
     address        String
-    created_at     DateTime    @default(now())
-    is_active      Boolean     @default(true)
-    updated_at     DateTime    @updatedAt
-    prHeaders      pr_header[]
-    branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
+    created_at     DateTime   @default(now())
+    is_active      Boolean    @default(true)
+    updated_at     DateTime   @updatedAt
+    branch         org_branch @relation(fields: [branch_id], references: [branch_id])
     prLines        pr_line[]
 
     @@map("warehouse")
@@ -739,21 +738,20 @@ model tax_group {
 /// ตารางเก็บข้อมูลสกุลเงิน
 model currency {
     /// รหัสสกุลเงิน
-    currency_id      Int         @id @default(autoincrement())
+    currency_id      Int      @id @default(autoincrement())
     /// รหัสสกุลเงิน
-    currency_code    String      @unique @db.VarChar(3)
+    currency_code    String   @unique @db.VarChar(3)
     /// ชื่อสกุลเงิน
-    currency_name    String      @db.VarChar(100)
+    currency_name    String   @db.VarChar(100)
     /// ชื่อสกุลเงิน (อังกฤษ)
-    currency_nameeng String      @db.VarChar(100)
+    currency_nameeng String   @db.VarChar(100)
     /// อัตราแลกเปลี่ยน (THB)
-    exchange_rate    Decimal     @db.Decimal(15, 2)
+    exchange_rate    Decimal  @db.Decimal(15, 2)
     /// สถานะสกุลเงิน
-    status           String      @db.VarChar(20)
-    created_at       DateTime    @default(now())
-    updated_at       DateTime    @updatedAt
+    status           String   @db.VarChar(20)
+    created_at       DateTime @default(now())
+    updated_at       DateTime @updatedAt
     vendors          vendor[]
-    prHeaders        pr_header[]
 
     @@map("currency")
 }
@@ -846,66 +844,67 @@ model document_running {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
     /// รหัสใบขอซื้อ (PK)
-    pr_id                 Int       @id @default(autoincrement())
+    pr_id      Int      @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no                 String    @db.VarChar(30)
+    pr_no      String   @db.VarChar(30)
     /// รหัสสาขา (FK)
-    branch_id             Int
+    branch_id  Int
     /// สถานะ
-    status                String    @db.VarChar(20)
+    status     String   @db.VarChar(20)
     /// วันที่สร้าง
-    created_at            DateTime  @default(now())
-    /// รหัสสกุลเงิน
-    currency_id           Int?
-    /// อัตราแลกเปลี่ยน
-    pr_base_currency      String?   @db.VarChar(3)
-    /// สกุลเงินที่ใช้ทำรายการ
-    pr_quote_currency     String?   @db.VarChar(3)
-    /// อัตราแลกเปลี่ยน (1 quote → base)
-    pr_exchange_rate      Decimal?  @db.Decimal(18, 6)
-    /// วันที่ของเรท
-    pr_exchange_rate_date DateTime?
-    /// วันที่ต้องการ
-    need_by_date          DateTime?
-    /// เครดิตเทอม (วัน)
-    payment_term_days     Int?
-    /// วันที่สร้างใบขอซื้อ
-    pr_date               DateTime
-    /// หมายเหตุ
-    remark                String?
-    /// วันที่แก้ไขล่าสุด
-    updated_at            DateTime  @updatedAt
+    created_at DateTime @default(now())
 
-    /// จำนวนเงินรวม ยอดประมาณการ
-    total_est_amount      Decimal                @db.Decimal(18, 2)
+    /// สกุลเงินที่ใช้ทำรายการ (Base Currency)
+    pr_base_currency       Decimal?  @db.Decimal(18, 6)
+    pr_base_currency_code  String?   @db.VarChar(3)
+    /// สกุลเงินที่ใช้ทำรายการ (Quote Currency)
+    pr_quote_currency      Decimal?  @db.Decimal(18, 6)
+    pr_quote_currency_code String?   @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน (1 quote → base)
+    pr_exchange_rate       Decimal?  @db.Decimal(18, 6)
+    /// วันที่ของเรท
+    pr_exchange_rate_date  DateTime?
+    /// จำนวนเงินรวม (Base Currency)
+    base_total_amount      Decimal   @db.Decimal(18, 2)
+    /// จำนวนเงินรวม (Quote Currency)
+    quote_total_amount     Decimal   @db.Decimal(18, 2)
+
+    /// วันที่ต้องการ
+    need_by_date      DateTime?
+    /// เครดิตเทอม (วัน)
+    payment_term_days Int?
+    /// วันที่สร้างใบขอซื้อ
+    pr_date           DateTime
+    /// หมายเหตุ
+    remark            String?
+    /// วันที่แก้ไขล่าสุด
+    updated_at        DateTime  @updatedAt
+
     /// วันเครดิต
-    credit_days           Int?
+    credit_days         Int?
     /// วันที่ส่งมอบที่ต้องการ
-    delivery_date         DateTime?
+    delivery_date       DateTime?
     /// ======================
     /// Additional Fields
     /// ======================
     /// ผู้ขายที่แนะนำ
-    preferred_vendor      String?                @db.VarChar(100)
+    preferred_vendor    String?                @db.VarChar(100)
     /// ผู้ขอ
-    requester_name        String?                @db.VarChar(100)
+    requester_name      String?                @db.VarChar(100)
     /// รหัสผู้ขอ (FK)
-    requester_user_id     Int
+    requester_user_id   Int
     /// วิธีการจัดส่ง
-    shipping_method       String?                @db.VarChar(50)
+    shipping_method     String?                @db.VarChar(50)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    vendor_quote_no       String?                @db.VarChar(50)
+    vendor_quote_no     String?                @db.VarChar(50)
     /// รหัสผู้ขายที่แนะนำ (FK)
-    preferred_vendor_id   Int?
-    preferredVendor       vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    branch                org_branch             @relation(fields: [branch_id], references: [branch_id])
-    requester_user        employees              @relation(fields: [requester_user_id], references: [employee_id])
-    prLines               pr_line[]
-    quoteCompareHeaders   quote_compare_header[]
-    rfqHeaders            rfq_header[]
-    warehouse             warehouse?             @relation(fields: [warehouseWarehouse_id], references: [warehouse_id])
-    warehouseWarehouse_id Int?
-    currency              currency?              @relation(fields: [currency_id], references: [currency_id])
+    preferred_vendor_id Int?
+    preferredVendor     vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
+    requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
+    prLines             pr_line[]
+    quoteCompareHeaders quote_compare_header[]
+    rfqHeaders          rfq_header[]
 
     @@map("pr_header")
 }
