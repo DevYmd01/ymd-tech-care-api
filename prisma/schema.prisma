@@ -1057,6 +1057,65 @@ model quote_compare_header {
     rfqHeaders rfq_header[]
 }
 
+////////////
+//// Audit Log
+////////////
+
+model audit_log {
+    /// รหัส Audit Log (PK)
+    audit_log_id  BigInt  @id @default(autoincrement())
+    /// รหัสโมดูล
+    module_code   String  @db.VarChar(20)
+    /// ประเภทเอกสาร
+    document_type String  @db.VarChar(30)
+    /// รหัสเอกสาร
+    document_id   BigInt
+    /// เลขที่เอกสาร
+    document_no   String? @db.VarChar(50)
+
+    /// ชื่อตาราง
+    table_name String  @db.VarChar(50)
+    /// รหัสรายการ
+    record_id  BigInt
+    /// ชื่อฟิลด์
+    field_name String? @db.VarChar(100)
+
+    /// ค่าเดิม
+    old_value   String?
+    /// ค่าใหม่
+    new_value   String?
+    /// ประเภทการเปลี่ยนแปลง
+    action_type String  @db.VarChar(20)
+    /// สาเหตุ
+    reason      String? @db.VarChar(255)
+
+    /// รหัสผู้เปลี่ยนแปลง
+    changed_by BigInt
+    /// วันที่เปลี่ยนแปลง
+    changed_at DateTime @default(now())
+
+    /// รหัส Request
+    request_id String  @db.Uuid
+    /// รหัส Job
+    job_id     String? @db.VarChar(100)
+
+    /// IP Address ของผู้ใช้งาน
+    client_ip  String? @db.VarChar(45)
+    /// User Agent ของผู้ใช้งาน
+    user_agent String? @db.VarChar(255)
+
+    @@index([module_code, document_type, document_id])
+    @@index([document_no])
+    @@index([changed_at])
+    @@index([changed_by])
+    @@index([request_id])
+    @@map("audit_log")
+}
+
+////////////
+//// Enum
+////////////
+
 enum EmployeeAddressType {
     REGISTERED
     CONTACT

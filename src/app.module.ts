@@ -25,7 +25,8 @@ import { ItemMasterModule } from './modules/master-data/item/item-master/item-ma
 import { UomModule } from './modules/master-data/uom/uom.module';
 import { DocumentNumberModule } from './modules/document-number/document-number.module';
 import { DocumentFormatModule } from './modules/document-format/document-format.module';
-
+import { RequestContextMiddleware } from './common/middleware/request-context.middleware';
+import { NestModule, MiddlewareConsumer } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -57,10 +58,15 @@ import { DocumentFormatModule } from './modules/document-format/document-format.
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
 
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestContextMiddleware)
+      .forRoutes('*');
+  }
 
-
+}
 
 
 

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Request, Get } from '@nestjs/common';
 import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 
@@ -8,8 +8,8 @@ export class PrController {
 
     /// เพิ่มข้อมูล
     @Post()
-    create(@Body() dto: CreatePRHeaderDTO) {
-        return this.PrService.create(dto);
+    create(@Body() dto: CreatePRHeaderDTO, @Request() req: any) {
+        return this.PrService.create(dto, req.context);
     }
 
     @Get()
