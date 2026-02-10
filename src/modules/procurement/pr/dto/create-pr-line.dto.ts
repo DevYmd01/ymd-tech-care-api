@@ -32,10 +32,6 @@ export class CreatePRLineDTO {
 
     @IsNumber()
     @Type(() => Number)
-    pr_id: number;
-
-    @IsNumber()
-    @Type(() => Number)
     qty: number;
 
     @IsNumber()
