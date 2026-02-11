@@ -715,22 +715,47 @@ model project {
     @@map("project")
 }
 
+model tax_code {
+    /// รหัสกลุ่มภาษี
+    tax_code_id  Int        @id @default(autoincrement())
+    /// รหัสกลุ่มภาษี
+    tax_code     String     @unique @db.VarChar(30)
+    /// ชื่อกลุ่มภาษี
+    tax_name     String
+    /// รายละเอียดกลุ่มภาษี
+    description  String?
+    /// ประเภทภาษี
+    tax_type     String     @db.VarChar(20)
+    /// อัตราภาษี
+    tax_rate     Decimal    @db.Decimal(15, 2)
+    /// รหัสกลุ่มภาษี
+    tax_group_id Int?
+    tax_group    tax_group? @relation(fields: [tax_group_id], references: [tax_group_id])
+    /// สถานะกลุ่มภาษี (Y/N)
+    is_active    Boolean    @default(true)
+    created_at   DateTime   @default(now())
+    updated_at   DateTime   @updatedAt
+
+    @@map("tax_code")
+}
+
 /// ตารางเก็บข้อมูลกลุ่มภาษี
 model tax_group {
     /// รหัสกลุ่มภาษี
-    tax_group_id   Int      @id @default(autoincrement())
+    tax_group_id   Int        @id @default(autoincrement())
     /// รหัสกลุ่มภาษี
-    tax_group_code String   @db.VarChar(30)
+    tax_group_code String     @unique @db.VarChar(30)
     /// รายละเอียดกลุ่มภาษี
-    description    String
+    description    String?
     /// ประเภทภาษี
-    tax_type       String   @db.VarChar(20)
+    tax_type       String     @db.VarChar(20)
     /// อัตราภาษี
-    tax_rate       Decimal  @db.Decimal(15, 2)
+    tax_rate       Decimal    @db.Decimal(15, 2)
     /// สถานะกลุ่มภาษี (Y/N)
-    status         String   @db.VarChar(20)
-    created_at     DateTime @default(now())
-    updated_at     DateTime @updatedAt
+    is_active      Boolean    @default(true)
+    created_at     DateTime   @default(now())
+    updated_at     DateTime   @updatedAt
+    taxCodes       tax_code[]
 
     @@map("tax_group")
 }

@@ -27,6 +27,8 @@ import { DocumentNumberModule } from './modules/document-number/document-number.
 import { DocumentFormatModule } from './modules/document-format/document-format.module';
 import { RequestContextMiddleware } from './common/middleware/request-context.middleware';
 import { NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { TaxGroupModule } from './modules/master-data/tax/tax-group/tax-group.module';
+import { TaxCodeModule } from './modules/master-data/tax/tax-code/tax-code.module';
 
 @Module({
   imports: [
@@ -53,7 +55,9 @@ import { NestModule, MiddlewareConsumer } from '@nestjs/common';
     ItemMasterModule,
     UomModule,
     DocumentNumberModule,
-    DocumentFormatModule
+    DocumentFormatModule,
+    TaxGroupModule,
+    TaxCodeModule
   ],
   controllers: [AppController],
   providers: [AppService],
