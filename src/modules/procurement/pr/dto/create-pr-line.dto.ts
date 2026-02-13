@@ -42,11 +42,17 @@ export class CreatePRLineDTO {
     @Type(() => Number)
     est_unit_price: number;
 
-    @IsString()
+    @IsNumber()
     @IsOptional()
-    tax_code?: string;
+    @Type(() => Number)
+    tax_code_id?: number;
 
     @IsString()
     @IsOptional()
     required_receipt_type?: string;
+
+    @IsString()
+    @IsOptional()
+    @Type(() => String)
+    line_discount_raw?: string;
 }   

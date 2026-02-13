@@ -39,14 +39,14 @@ export class CreatePRHeaderDTO {
     // สกุลเงิน (THB, USD)
     @IsNumber()
     @Type(() => Number)
-    pr_base_currency: number;
+    pr_base_amount: number;
 
     @IsString()
     pr_base_currency_code: string;
 
     @IsNumber()
     @Type(() => Number)
-    pr_quote_currency: number;
+    pr_quote_amount: number;
 
     @IsString()
     pr_quote_currency_code: string;
@@ -57,14 +57,6 @@ export class CreatePRHeaderDTO {
 
     @IsDateString()
     pr_exchange_rate_date: string;
-
-    @IsNumber()
-    @Type(() => Number)
-    base_total_amount: number;
-
-    @IsNumber()
-    @Type(() => Number)
-    quote_total_amount: number;
 
     // หมายเหตุ
     @IsOptional()
@@ -118,6 +110,16 @@ export class CreatePRHeaderDTO {
     @ValidateNested({ each: true })
     @Type(() => CreatePRLineDTO)
     lines: CreatePRLineDTO[];
+
+    @IsNumber()
+    @Type(() => Number)
+    pr_tax_code_id: number;
+
+    // ลดท่อน 
+    @IsString()
+    @Type(() => String)
+    pr_discount_raw?: string;
+
 }
 
 

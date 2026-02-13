@@ -717,24 +717,27 @@ model project {
 
 model tax_code {
     /// รหัสกลุ่มภาษี
-    tax_code_id  Int        @id @default(autoincrement())
+    tax_code_id  Int         @id @default(autoincrement())
     /// รหัสกลุ่มภาษี
-    tax_code     String     @unique @db.VarChar(30)
+    tax_code     String      @unique @db.VarChar(30)
     /// ชื่อกลุ่มภาษี
     tax_name     String
     /// รายละเอียดกลุ่มภาษี
     description  String?
     /// ประเภทภาษี
-    tax_type     String     @db.VarChar(20)
+    tax_type     String      @db.VarChar(20)
     /// อัตราภาษี
-    tax_rate     Decimal    @db.Decimal(15, 2)
+    tax_rate     Decimal     @db.Decimal(15, 2)
     /// รหัสกลุ่มภาษี
     tax_group_id Int?
-    tax_group    tax_group? @relation(fields: [tax_group_id], references: [tax_group_id])
+    tax_group    tax_group?  @relation(fields: [tax_group_id], references: [tax_group_id])
     /// สถานะกลุ่มภาษี (Y/N)
-    is_active    Boolean    @default(true)
-    created_at   DateTime   @default(now())
-    updated_at   DateTime   @updatedAt
+    is_active    Boolean     @default(true)
+    created_at   DateTime    @default(now())
+    updated_at   DateTime    @updatedAt
+    prLines      pr_line[]
+    rfqLines     rfq_line[]
+    prHeaders    pr_header[]
 
     @@map("tax_code")
 }
@@ -880,19 +883,32 @@ model pr_header {
     created_at DateTime @default(now())
 
     /// สกุลเงินที่ใช้ทำรายการ (Base Currency)
-    pr_base_currency       Decimal?  @db.Decimal(18, 6)
+    pr_base_amount         Decimal?  @db.Decimal(18, 6)
     pr_base_currency_code  String?   @db.VarChar(3)
     /// สกุลเงินที่ใช้ทำรายการ (Quote Currency)
-    pr_quote_currency      Decimal?  @db.Decimal(18, 6)
+    pr_quote_amount        Decimal?  @db.Decimal(18, 6)
     pr_quote_currency_code String?   @db.VarChar(3)
     /// อัตราแลกเปลี่ยน (1 quote → base)
     pr_exchange_rate       Decimal?  @db.Decimal(18, 6)
     /// วันที่ของเรท
     pr_exchange_rate_date  DateTime?
     /// จำนวนเงินรวม (Base Currency)
-    base_total_amount      Decimal   @db.Decimal(18, 2)
+    pr_base_total_amount   Decimal   @db.Decimal(18, 2)
     /// จำนวนเงินรวม (Quote Currency)
-    quote_total_amount     Decimal   @db.Decimal(18, 2)
+    pr_quote_total_amount  Decimal   @db.Decimal(18, 2)
+    /// ภาษี (Base Currency)
+    pr_tax_amount          Decimal?  @db.Decimal(18, 2)
+    /// อัตราภาษี
+    pr_tax_rate            Decimal?  @db.Decimal(9, 4)
+    /// รหัสกลุ่มภาษี (FK)
+    pr_tax_code_id         Int?
+    pr_tax_code            tax_code? @relation(fields: [pr_tax_code_id], references: [tax_code_id])
+    /// ส่วนลดทั้งเอกสาร (string) จาก pr_line:line_amount
+    pr_discount_raw        String?   @db.VarChar(10)
+    /// % ส่วนลดทั้งเอกสาร (คำนวณจาก pr_discount_raw)
+    pr_discount_rate       Decimal?  @db.Decimal(9, 4)
+    /// จำนวนเงินส่วนลดทั้งเอกสาร (คำนวณจาก pr_discount_raw)
+    pr_discount_amount     Decimal?  @db.Decimal(18, 2)
 
     /// วันที่ต้องการ
     need_by_date      DateTime?
@@ -937,33 +953,52 @@ model pr_header {
 /// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)
 model pr_line {
     /// รหัสใบขอซื้อ (PK)
-    pr_line_id            Int        @id @default(autoincrement())
+    pr_line_id     Int     @id @default(autoincrement())
     /// ลำดับ
-    line_no               Int
+    line_no        Int
     /// รหัสสินค้า (FK)
-    item_id               Int?
+    item_id        Int?
     /// รายละเอียด
-    description           String?
+    description    String?
     /// รหัสคลัง (FK)
-    warehouse_id          Int?
+    warehouse_id   Int?
     /// ตำแหน่งสินค้า
-    location              String?    @db.VarChar(50)
+    location       String? @db.VarChar(50)
     /// รหัสใบขอซื้อ (FK)
-    pr_id                 Int
+    pr_id          Int
     /// จำนวน
-    qty                   Decimal    @db.Decimal(18, 3)
+    qty            Decimal @db.Decimal(18, 3)
     /// รหัสหน่วยนับ (FK)
-    uom_id                Int
+    uom_id         Int
     /// ราคาต่อหน่วยโดยประมาณ
-    est_unit_price        Decimal    @db.Decimal(18, 4)
-    /// รหัสภาษี
-    tax_code              String?    @db.VarChar(20)
+    est_unit_price Decimal @db.Decimal(18, 4)
+
+    tax_code_id Int?
+    // อัตราภาษี
+    tax_rate    Decimal @db.Decimal(9, 4)
+    // ภาษี
+    tax_amount  Decimal @db.Decimal(18, 4)
+
+    /// ส่วนลดต่อบรรทัด (string) จาก UI
+    line_discount_raw    String?  @db.VarChar(10)
+    /// % ส่วนลดต่อบรรทัด (คำนวณจาก line_discount_raw)
+    line_discount_rate   Decimal? @db.Decimal(9, 4)
+    /// จำนวนเงินส่วนลดต่อบรรทัด (คำนวณจาก line_discount_raw)
+    line_discount_amount Decimal? @db.Decimal(18, 4)
+
+    /// ยอดสุทธิต่อบรรทัด (หลังหักส่วนลด ยังไม่รวมภาษี)
+    line_net_amount Decimal @db.Decimal(18, 4)
+
+    /// จำนวนเงินต่อหน่วย (หลังหักส่วนลด รวมภาษี)
+    line_amount Decimal @db.Decimal(18, 4)
+
     /// ประเภทการรับสินค้าที่ต้องการ GOODS/SERVICE
     required_receipt_type String?    @db.VarChar(20)
     item                  item?      @relation(fields: [item_id], references: [item_id])
     pr                    pr_header  @relation(fields: [pr_id], references: [pr_id])
     uom                   uom        @relation(fields: [uom_id], references: [uom_id])
     warehouse             warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -1023,22 +1058,22 @@ model rfq_header {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
 model rfq_line {
     /// รหัสใบขอซื้อ (PK)
-    rfq_line_id                   Int            @id @default(autoincrement())
+    rfq_line_id Int     @id @default(autoincrement())
     /// ลำดับ
-    line_no                       Int
+    line_no     Int
     /// รหัสสินค้า (FK)
-    item_id                       Int?
+    item_id     Int?
     /// รายละเอียด
-    description                   String?
+    description String?
     /// รหัสใบขอซื้อ (FK)
-    rfq_id                        Int
+    rfq_id      Int
     /// จำนวน
-    qty                           Decimal        @db.Decimal(18, 3)
+    qty         Decimal @db.Decimal(18, 3)
     /// รหัสหน่วยนับ (FK)
-    uom_id                        Int
-    /// ราคาต่อหน่วยโดยประมาณ
+    uom_id      Int
     /// รหัสภาษี
-    tax_code                      String?        @db.VarChar(20)
+    tax_code_id Int?
+
     /// รหัสศูนย์ต้นทุน (FK)
     cost_center_id                Int
     /// รหัสโครงการ (FK)
@@ -1058,6 +1093,7 @@ model rfq_line {
     uom                           uom            @relation(fields: [uom_id], references: [uom_id])
     vendor                        vendor?        @relation(fields: [vendorVendor_id], references: [vendor_id])
     vendorVendor_id               Int?
+    tax_code                      tax_code?      @relation(fields: [tax_code_id], references: [tax_code_id])
 
     @@unique([rfq_id, line_no])
     @@index([rfq_id])
