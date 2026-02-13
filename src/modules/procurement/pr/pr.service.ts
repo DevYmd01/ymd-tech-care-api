@@ -10,6 +10,8 @@ import { Prisma } from '@prisma/client';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrTaxService } from './domain/pr-tax.service';
 import { PrCalculationService } from './domain/pr-calculation.service';
+import { Decimal } from '@prisma/client/runtime/library';
+
 
 @Injectable()
 export class PrService {
@@ -33,7 +35,7 @@ export class PrService {
                 const documentNo = await this.documentNumberService.generate({
                     module_code: 'PR',
                     document_type_code: 'PR',
-                    branch_id: dto.branch_id,
+                    branch_id: dto.branch_id ?? 0,
                 });
 
                 // ==============================
@@ -177,18 +179,18 @@ export class PrService {
                             connect: { uom_id: line.uom_id },
                         },
 
-                        ...(line.tax_code_id && {
+                        ...(taxConfig.tax_code_id && {
                             tax_code: {
-                                connect: { tax_code_id: line.tax_code_id },
+                                connect: { tax_code_id: taxConfig.tax_code_id },
                             },
                         }),
 
-                        tax_rate: Number(taxConfig.tax_rate),
-                        line_amount: Number(calc.total),
-                        tax_amount: Number(calc.tax),
-                        line_discount_rate: Number(calc.discount_rate),
-                        line_discount_amount: Number(calc.discount_amount),
-                        line_net_amount: Number(calc.net),
+                        tax_rate: Number(taxConfig.tax_rate) || 0,
+                        line_amount: Number(calc.total) || 0,
+                        tax_amount: Number(calc.tax) || 0,
+                        line_discount_rate: Number(calc.discount_rate) || 0,
+                        line_discount_amount: Number(calc.discount_amount) || 0,
+                        line_net_amount: Number(calc.net) || 0,
                     };
 
                     await this.prLineRepo.create(tx, lineData);
@@ -203,7 +205,7 @@ export class PrService {
             });
 
         } catch (error) {
-
+            console.error('PR CREATE ERROR:', error);
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (error.code === 'P2003') {

@@ -888,9 +888,9 @@ model pr_header {
     /// สกุลเงินที่ใช้ทำรายการ (Quote Currency)
     pr_quote_amount        Decimal?  @db.Decimal(18, 6)
     pr_quote_currency_code String?   @db.VarChar(3)
-    /// อัตราแลกเปลี่ยน (1 quote → base)
+    /// อัตราแลกเปลี่ยน (1 quote → base) ui input
     pr_exchange_rate       Decimal?  @db.Decimal(18, 6)
-    /// วันที่ของเรท
+    /// วันที่ของเรท ui input
     pr_exchange_rate_date  DateTime?
     /// จำนวนเงินรวม (Base Currency)
     pr_base_total_amount   Decimal   @db.Decimal(18, 2)
@@ -975,9 +975,9 @@ model pr_line {
 
     tax_code_id Int?
     // อัตราภาษี
-    tax_rate    Decimal @db.Decimal(9, 4)
+    tax_rate    Decimal? @db.Decimal(9, 4)
     // ภาษี
-    tax_amount  Decimal @db.Decimal(18, 4)
+    tax_amount  Decimal? @db.Decimal(18, 4)
 
     /// ส่วนลดต่อบรรทัด (string) จาก UI
     line_discount_raw    String?  @db.VarChar(10)

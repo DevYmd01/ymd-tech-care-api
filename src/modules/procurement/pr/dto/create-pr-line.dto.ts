@@ -42,10 +42,6 @@ export class CreatePRLineDTO {
     @Type(() => Number)
     est_unit_price: number;
 
-    @IsNumber()
-    @IsOptional()
-    @Type(() => Number)
-    tax_code_id?: number;
 
     @IsString()
     @IsOptional()

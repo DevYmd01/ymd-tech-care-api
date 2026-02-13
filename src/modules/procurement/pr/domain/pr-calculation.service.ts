@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CreatePRLineDTO } from "../dto/create-pr-line.dto";
 import { CreatePRHeaderDTO } from "../dto/creacte-pr-header.dto";
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class PrCalculationService {
@@ -77,16 +78,22 @@ export class PrCalculationService {
         const total = net.plus(tax);
 
         return {
+            // ค่า base
             base: base.toDecimalPlaces(4).toNumber(),
+            // ค่า discount rate
             discount_rate:
                 discountParsed.type === 'RATE'
                     ? discountParsed.rate
                     : base.gt(0)
                         ? discount.div(base).toNumber()
                         : 0,
+            // ค่า discount amount
             discount_amount: discount.toDecimalPlaces(4).toNumber(),
+            // ค่า net
             net: net.toDecimalPlaces(4).toNumber(),
+            // ค่า tax
             tax: tax.toDecimalPlaces(4).toNumber(),
+            // ค่า total
             total: total.toDecimalPlaces(4).toNumber(),
         };
     }

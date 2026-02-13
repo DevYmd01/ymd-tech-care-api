@@ -28,11 +28,11 @@ export class DocumentNumberService {
         this.validateTokens(tokens);
 
         // 🔒 Validate branch if needed
-        if (tokens.includes('BR') && !params.branch_id) {
+        if (tokens.includes('BR') && params.branch_id === undefined) {
             throw new BadRequestException('branch_id is required for this document format');
         }
 
-        const branch = tokens.includes('BR') && params.branch_id
+        const branch = tokens.includes('BR') && params.branch_id !== undefined
             ? await this.prisma.org_branch.findUnique({
                 where: { branch_id: params.branch_id },
                 select: { branch_code: true },

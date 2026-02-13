@@ -36,17 +36,10 @@ export class CreatePRHeaderDTO {
     @IsString()
     status: string;
 
-    // สกุลเงิน (THB, USD)
-    @IsNumber()
-    @Type(() => Number)
-    pr_base_amount: number;
 
     @IsString()
     pr_base_currency_code: string;
 
-    @IsNumber()
-    @Type(() => Number)
-    pr_quote_amount: number;
 
     @IsString()
     pr_quote_currency_code: string;
