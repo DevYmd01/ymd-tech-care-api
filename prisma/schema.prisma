@@ -938,6 +938,8 @@ model pr_header {
     vendor_quote_no     String?                @db.VarChar(50)
     /// รหัสผู้ขายที่แนะนำ (FK)
     preferred_vendor_id Int?
+    /// เวอร์ชั่น
+    version             Int                    @default(1)
     preferredVendor     vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
     branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
     requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
