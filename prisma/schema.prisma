@@ -676,12 +676,12 @@ model payment_terms {
 /// ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
     /// รหัสศูนย์ต้นทุน
-    cost_center_code String       @db.VarChar(30)
+    cost_center_code String       @unique @db.VarChar(30)
     /// ชื่อศูนย์ต้นทุน
     cost_center_name String       @db.VarChar(200)
     /// รหัสศูนย์ต้นทุน
     cost_center_id   Int          @id @default(autoincrement())
-    projects         project[]
+    is_active        Boolean      @default(true)
     rfqLines         rfq_line[]
     rfqHeaders       rfq_header[]
 
@@ -691,26 +691,24 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code   String       @db.VarChar(30)
+    project_code  String       @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name   String       @db.VarChar(200)
+    project_name  String       @db.VarChar(200)
     /// รหัสโครงการ
-    project_id     Int          @id @default(autoincrement())
+    project_id    Int          @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount  Decimal      @db.Decimal(15, 2)
-    /// รหัสศูนย์ต้นทุน
-    cost_center_id Int
+    budget_amount Decimal?     @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
-    description    String
+    description   String?
     /// วันที่สิ้นสุดโครงการ
-    end_date       DateTime
+    end_date      DateTime?
     /// วันที่เริ่มต้นโครงการ
-    start_date     DateTime
+    start_date    DateTime?
     /// สถานะโครงการ
-    status         String       @db.VarChar(20)
-    cost_center    cost_center  @relation(fields: [cost_center_id], references: [cost_center_id])
-    rfqLines       rfq_line[]
-    rfqHeaders     rfq_header[]
+    is_active     Boolean      @default(true)
+    rfqLines      rfq_line[]
+    rfqHeaders    rfq_header[]
+    prHeaders     pr_header[]
 
     @@map("project")
 }
@@ -876,7 +874,7 @@ model pr_header {
     /// เลขที่ใบขอซื้อ
     pr_no      String   @db.VarChar(30)
     /// รหัสสาขา (FK)
-    branch_id  Int
+    branch_id  Int?
     /// สถานะ
     status     String   @db.VarChar(20)
     /// วันที่สร้าง
@@ -938,11 +936,14 @@ model pr_header {
     vendor_quote_no     String?                @db.VarChar(50)
     /// รหัสผู้ขายที่แนะนำ (FK)
     preferred_vendor_id Int?
+    /// รหัสโครงการ (FK)
+    project_id          Int?
     /// เวอร์ชั่น
     version             Int                    @default(1)
     preferredVendor     vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    branch              org_branch             @relation(fields: [branch_id], references: [branch_id])
+    branch              org_branch?            @relation(fields: [branch_id], references: [branch_id])
     requester_user      employees              @relation(fields: [requester_user_id], references: [employee_id])
+    project             project?               @relation(fields: [project_id], references: [project_id])
     prLines             pr_line[]
     quoteCompareHeaders quote_compare_header[]
     rfqHeaders          rfq_header[]
@@ -971,7 +972,7 @@ model pr_line {
     /// รหัสหน่วยนับ (FK)
     uom_id         Int
     /// ราคาต่อหน่วยโดยประมาณ
-    est_unit_price Decimal @db.Decimal(18, 4)
+    est_unit_price Decimal @db.Decimal(18, 6)
 
     tax_code_id Int?
     // อัตราภาษี

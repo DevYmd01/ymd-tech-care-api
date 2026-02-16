@@ -117,6 +117,10 @@ export class UpdatePRHeaderDTO {
     @Type(() => Number)
     version: number;
 
+    @IsNumber()
+    @Type(() => Number)
+    project_id?: number;
+
 }
 
 

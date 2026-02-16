@@ -13,7 +13,6 @@ import { PrCalculationService } from './domain/pr-calculation.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
 import { UpdatePRLineDTO } from './dto/update-pr-line.dto';
-import { ConflictException } from '@nestjs/common';
 import { UpdatePRHeaderRepository } from './repositories/update-pr-header.ropository';
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
 
@@ -106,7 +105,7 @@ export class PrService {
                 const header = {
 
                     pr_no: documentNo,
-                    pr_date: dto.pr_date,
+                    pr_date: new Date(dto.pr_date),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
                     status: dto.status,
                     remark: dto.remark ?? null,
@@ -146,6 +145,11 @@ export class PrService {
                     requester_user: {
                         connect: { employee_id: dto.requester_user_id },
                     },
+                    ...(dto.project_id && {
+                        project: {
+                            connect: { project_id: dto.project_id },
+                        },
+                    }),
                     created_at: new Date(),
                     updated_at: new Date(),
                 };
@@ -246,8 +250,77 @@ export class PrService {
     }
 
     async findAll() {
-        return this.prisma.pr_header.findMany();
+        const result = await this.prisma.pr_header.findMany({
+            select: {
+                pr_id: true,
+                pr_no: true,
+                pr_date: true,
+                need_by_date: true,
+                pr_base_total_amount: true,
+                remark: true,
+                status: true,
+
+                branch: {
+                    select: {
+                        branch_id: true,
+                        branch_code: true,
+                        branch_name: true,
+                    },
+                },
+
+                pr_tax_code: {
+                    select: {
+                        tax_code_id: true,
+                        tax_code: true,
+                        tax_name: true,
+                    },
+                },
+
+                requester_user: {
+                    select: {
+                        employee_id: true,
+                        employee_code: true,
+                        employee_firstname_th: true,
+                        employee_lastname_th: true,
+                        department: {
+                            select: {
+                                department_id: true,
+                                department_code: true,
+                                department_name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return result.map((item) => ({
+            pr_id: item.pr_id,
+            pr_no: item.pr_no,
+            pr_date: item.pr_date?.toISOString().split('T')[0],
+            need_by_date: item.need_by_date?.toISOString().split('T')[0],
+            pr_base_total_amount: item.pr_base_total_amount,
+            remark: item.remark,
+            status: item.status,
+
+            branch_id: item.branch?.branch_id,
+            branch_code: item.branch?.branch_code,
+            branch_name: item.branch?.branch_name,
+
+            tax_code_id: item.pr_tax_code?.tax_code_id,
+            tax_code: item.pr_tax_code?.tax_code,
+            tax_name: item.pr_tax_code?.tax_name,
+
+            requester_id: item.requester_user?.employee_id,
+            requester_code: item.requester_user?.employee_code,
+            requester_name:
+                `${item.requester_user?.employee_firstname_th ?? ''} ${item.requester_user?.employee_lastname_th ?? ''}`.trim(),
+            department_id: item.requester_user?.department?.department_id,
+            department_code: item.requester_user?.department?.department_code,
+            department_name: item.requester_user?.department?.department_name,
+        }));
     }
+
 
     async findOne(pr_id: number) {
         const header = await this.prisma.pr_header.findUnique({ where: { pr_id } });
@@ -385,7 +458,13 @@ export class PrService {
                     requester_user: {
                         connect: { employee_id: dto.requester_user_id },
                     },
+                    ...(dto.project_id && {
+                        project: {
+                            connect: { project_id: dto.project_id },
+                        },
+                    }),
                     updated_at: new Date(),
+                    project_id: dto.project_id ?? null,
                     version: { increment: 1 },
                 };
 

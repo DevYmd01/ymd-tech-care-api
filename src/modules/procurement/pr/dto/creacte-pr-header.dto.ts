@@ -113,6 +113,10 @@ export class CreatePRHeaderDTO {
     @Type(() => String)
     pr_discount_raw?: string;
 
+    @IsNumber()
+    @Type(() => Number)
+    project_id?: number;
+
 }
 
 
