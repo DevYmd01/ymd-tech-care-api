@@ -883,10 +883,8 @@ model pr_header {
     created_at DateTime @default(now())
 
     /// สกุลเงินที่ใช้ทำรายการ (Base Currency)
-    pr_base_amount         Decimal?  @db.Decimal(18, 6)
     pr_base_currency_code  String?   @db.VarChar(3)
     /// สกุลเงินที่ใช้ทำรายการ (Quote Currency)
-    pr_quote_amount        Decimal?  @db.Decimal(18, 6)
     pr_quote_currency_code String?   @db.VarChar(3)
     /// อัตราแลกเปลี่ยน (1 quote → base) ui input
     pr_exchange_rate       Decimal?  @db.Decimal(18, 6)

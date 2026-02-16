@@ -42,6 +42,7 @@ export class PrService {
                 // 2️⃣ Get Tax Config
                 // ==============================
                 const taxConfig = await this.prTaxService.getTaxById(dto.pr_tax_code_id);
+                const taxRate = new Decimal(taxConfig.tax_rate).div(100);
 
                 // ==============================
                 // 3️⃣ Calculate Lines (NO INSERT YET)
@@ -62,7 +63,7 @@ export class PrService {
                         qty: line.qty,
                         unitPrice: line.est_unit_price,
                         discountInput: line.line_discount_raw,
-                        taxRate: Number(taxConfig.tax_rate),
+                        taxRate: Number(taxRate),
                     });
 
                     headerDocSubtotal = headerDocSubtotal.plus(calc.net);
@@ -81,7 +82,7 @@ export class PrService {
                     this.prCalculationService.calculateHeaderTotals({
                         subtotal: Number(headerDocSubtotal),
                         discountInput: String(dto.pr_discount_raw),
-                        taxRate: Number(taxConfig.tax_rate),
+                        taxRate: Number(taxRate),
                     });
 
                 const headerBaseTotals =
