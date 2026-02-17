@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Request, Get, Param, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Request, Get, Param, Patch, Query } from '@nestjs/common';
 import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
@@ -14,9 +14,16 @@ export class PrController {
     }
 
     @Get()
-    findAll() {
-        return this.PrService.findAll();
+    findAll(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.PrService.findAll(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
     }
+
 
     @Get(':pr_id')
     findOne(@Param('pr_id') pr_id: string) {

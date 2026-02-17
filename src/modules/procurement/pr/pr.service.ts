@@ -15,6 +15,7 @@ import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
 import { UpdatePRLineDTO } from './dto/update-pr-line.dto';
 import { UpdatePRHeaderRepository } from './repositories/update-pr-header.ropository';
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
+import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 
 @Injectable()
 export class PrService {
@@ -28,6 +29,7 @@ export class PrService {
         private createAuditLogRepo: CreateAuditLogRepository,
         private updatePRHeaderRepository: UpdatePRHeaderRepository,
         private updatePRLineRepository: UpdatePRLineRepository,
+        private showAllPRHeaderRepository: ShowAllPRHeaderRepository,
     ) { }
 
     // ==============================
@@ -249,79 +251,27 @@ export class PrService {
         }
     }
 
-    async findAll() {
-        const result = await this.prisma.pr_header.findMany({
-            select: {
-                pr_id: true,
-                pr_no: true,
-                pr_date: true,
-                need_by_date: true,
-                pr_base_total_amount: true,
-                remark: true,
-                status: true,
+    // ============================== 
+    // find all pr
+    // ============================== 
+    async findAll(page: number, pageSize: number) {
 
-                branch: {
-                    select: {
-                        branch_id: true,
-                        branch_code: true,
-                        branch_name: true,
-                    },
-                },
+        const skip = (page - 1) * pageSize;
 
-                pr_tax_code: {
-                    select: {
-                        tax_code_id: true,
-                        tax_code: true,
-                        tax_name: true,
-                    },
-                },
+        const { data, total } = await this.showAllPRHeaderRepository.findAll(skip, pageSize);
 
-                requester_user: {
-                    select: {
-                        employee_id: true,
-                        employee_code: true,
-                        employee_firstname_th: true,
-                        employee_lastname_th: true,
-                        department: {
-                            select: {
-                                department_id: true,
-                                department_code: true,
-                                department_name: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
-
-        return result.map((item) => ({
-            pr_id: item.pr_id,
-            pr_no: item.pr_no,
-            pr_date: item.pr_date?.toISOString().split('T')[0],
-            need_by_date: item.need_by_date?.toISOString().split('T')[0],
-            pr_base_total_amount: item.pr_base_total_amount,
-            remark: item.remark,
-            status: item.status,
-
-            branch_id: item.branch?.branch_id,
-            branch_code: item.branch?.branch_code,
-            branch_name: item.branch?.branch_name,
-
-            tax_code_id: item.pr_tax_code?.tax_code_id,
-            tax_code: item.pr_tax_code?.tax_code,
-            tax_name: item.pr_tax_code?.tax_name,
-
-            requester_id: item.requester_user?.employee_id,
-            requester_code: item.requester_user?.employee_code,
-            requester_name:
-                `${item.requester_user?.employee_firstname_th ?? ''} ${item.requester_user?.employee_lastname_th ?? ''}`.trim(),
-            department_id: item.requester_user?.department?.department_id,
-            department_code: item.requester_user?.department?.department_code,
-            department_name: item.requester_user?.department?.department_name,
-        }));
+        return {
+            data,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
     }
 
-
+    // ============================== 
+    // find one pr
+    // ============================== 
     async findOne(pr_id: number) {
         const header = await this.prisma.pr_header.findUnique({ where: { pr_id } });
         const lines = await this.prisma.pr_line.findMany({ where: { pr_id } });

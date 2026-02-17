@@ -9,6 +9,7 @@ import { PrTaxService } from './domain/pr-tax.service';
 import { PrCalculationService } from './domain/pr-calculation.service';
 import { UpdatePRHeaderRepository } from './repositories/update-pr-header.ropository';
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
+import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 
 @Module({
     imports: [DocumentNumberModule],
@@ -22,6 +23,7 @@ import { UpdatePRLineRepository } from './repositories/update-pr-line-repository
         PrCalculationService,
         UpdatePRHeaderRepository,
         UpdatePRLineRepository,
+        ShowAllPRHeaderRepository,
     ]
 })
 export class PrModule { }
