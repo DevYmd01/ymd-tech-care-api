@@ -7,7 +7,7 @@ import { CreatePRLineRepository } from './repositories/create-pr-line.repository
 import { CreateAuditLogRepository } from './repositories/create-audit-log.repository';
 import { CreatePRLineDTO } from './dto/create-pr-line.dto';
 import { Prisma } from '@prisma/client';
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrTaxService } from './domain/pr-tax.service';
 import { PrCalculationService } from './domain/pr-calculation.service';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -16,6 +16,7 @@ import { UpdatePRLineDTO } from './dto/update-pr-line.dto';
 import { UpdatePRHeaderRepository } from './repositories/update-pr-header.ropository';
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
+import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
 
 @Injectable()
 export class PrService {
@@ -30,6 +31,7 @@ export class PrService {
         private updatePRHeaderRepository: UpdatePRHeaderRepository,
         private updatePRLineRepository: UpdatePRLineRepository,
         private showAllPRHeaderRepository: ShowAllPRHeaderRepository,
+        private showWaitingForRFQRepository: ShowWaitingForRFQRepository,
     ) { }
 
     // ==============================
@@ -273,10 +275,19 @@ export class PrService {
     // find one pr
     // ============================== 
     async findOne(pr_id: number) {
-        const header = await this.prisma.pr_header.findUnique({ where: { pr_id } });
-        const lines = await this.prisma.pr_line.findMany({ where: { pr_id } });
+
+        const [header, lines] = await Promise.all([
+            this.prisma.pr_header.findUnique({ where: { pr_id } }),
+            this.prisma.pr_line.findMany({ where: { pr_id } })
+        ]);
+
+        if (!header) {
+            throw new NotFoundException('PR not found');
+        }
+
         return { header, lines };
     }
+
 
     // ==============================
     // update pr
@@ -573,5 +584,26 @@ export class PrService {
         }
     }
 
+    // ==============================
+    // find waiting for rfq
+    // ==============================
+
+
+    async findWaitingForRFQ(page: number, pageSize: number) {
+        const where = {
+            status: 'APPROVED'
+        };
+        const skip = (page - 1) * pageSize;
+
+        const { data, total } = await this.showWaitingForRFQRepository.findWaitingForRFQ(skip, pageSize, where);
+
+        return {
+            data,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
+    }
 
 }

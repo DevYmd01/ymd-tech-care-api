@@ -10,6 +10,7 @@ import { PrCalculationService } from './domain/pr-calculation.service';
 import { UpdatePRHeaderRepository } from './repositories/update-pr-header.ropository';
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
+import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
 
 @Module({
     imports: [DocumentNumberModule],
@@ -24,6 +25,7 @@ import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.re
         UpdatePRHeaderRepository,
         UpdatePRLineRepository,
         ShowAllPRHeaderRepository,
+        ShowWaitingForRFQRepository,
     ]
 })
 export class PrModule { }

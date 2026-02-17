@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Request, Get, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Post, Body, Request, Get, Param, Patch, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
+
 
 @Controller('procurement/pr')
 export class PrController {
@@ -24,14 +25,28 @@ export class PrController {
         );
     }
 
+    @Get('waiting-for-rfq')
+    findWaitingForRFQ(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.PrService.findWaitingForRFQ(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
+    }
 
     @Get(':pr_id')
-    findOne(@Param('pr_id') pr_id: string) {
-        return this.PrService.findOne(+pr_id);
+    findOne(@Param('pr_id', ParseIntPipe) pr_id: number) {
+        return this.PrService.findOne(pr_id);
     }
 
+
     @Patch(':pr_id')
-    update(@Param('pr_id') pr_id: string, @Body() dto: UpdatePRHeaderDTO, @Request() req: any) {
+    update(@Param('pr_id') pr_id: number, @Body() dto: UpdatePRHeaderDTO, @Request() req: any) {
         return this.PrService.update(+pr_id, dto, req.context);
     }
+
+
+
 }
