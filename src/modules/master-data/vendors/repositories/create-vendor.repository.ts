@@ -20,7 +20,6 @@ export class CreateVendorRepository {
                 vendor_type_id: dto.vendor_type_id!,
                 vendor_group_id: dto.vendor_group_id!,
                 currency_id: dto.currency_id!,
-
             },
         });
     }

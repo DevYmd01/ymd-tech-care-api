@@ -10,6 +10,8 @@ import { UpdateVendorRepository } from './repositories/update-vendor.repository'
 import { UpdateVendorAddressRepository } from './repositories/update-address.repository';
 import { UpdateVendorContactRepository } from './repositories/update-contact.reopsitory';
 import { UpdateVendorBankRepository } from './repositories/update-bank.repository';
+import { SearchVendorDto } from './dto/search-vendor.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class VendorsService {
@@ -126,6 +128,40 @@ export class VendorsService {
             },
         });
     }
+
+    /// ค้นหาเจ้าหนี้
+    search(dto: SearchVendorDto) {
+
+        const filters: Prisma.vendorWhereInput[] = [];
+
+        if (dto.vendor_code) {
+            filters.push({
+                vendor_code: { contains: dto.vendor_code, mode: 'insensitive' },
+            });
+        }
+
+        if (dto.vendor_name) {
+            filters.push({
+                vendor_name: { contains: dto.vendor_name, mode: 'insensitive' },
+            });
+        }
+
+        if (dto.vat_registration_no) {
+            filters.push({
+                vat_registration_no: { contains: dto.vat_registration_no, mode: 'insensitive' },
+            });
+        }
+
+        return this.prisma.vendor.findMany({
+            where: filters.length > 0 ? { OR: filters } : {},
+            include: {
+                vendorAddresses: true,
+                vendorContacts: true,
+                vendorBankAccounts: true,
+            },
+        });
+    }
+
 
 
 }
