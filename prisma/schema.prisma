@@ -408,41 +408,45 @@ model item_group {
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
     /// รหัสเจ้าหนี้
-    vendor_code        String                 @db.VarChar(30)
+    vendor_code         String                 @db.VarChar(30)
     /// ชื่อเจ้าหนี้
-    vendor_name        String                 @db.VarChar(255)
+    vendor_name         String                 @db.VarChar(255)
     /// เลขที่ผู้เสียภาษี
-    tax_id             String?                @db.VarChar(20)
+    vat_registration_no String?                @db.VarChar(20)
+    /// ถูกหัก ณ ที่จ่ายหรือไม่
+    subject_to_wht      Boolean                @default(false)
     /// เครดิตเทอม (วัน)
-    payment_term_days  Int
+    payment_term_days   Int
     /// รหัสเจ้าหนี้
-    vendor_id          Int                    @id @default(autoincrement())
-    created_at         DateTime               @default(now())
+    vendor_id           Int                    @id @default(autoincrement())
+    created_at          DateTime               @default(now())
     /// อีเมล
-    email              String?                @db.VarChar(255)
+    email               String?                @db.VarChar(255)
     /// สถานะ
-    is_active          Boolean                @default(true)
+    is_active           Boolean                @default(true)
     /// เบอร์โทรศัพท์
-    phone              String?                @db.VarChar(20)
-    updated_at         DateTime               @updatedAt
+    phone               String?                @db.VarChar(20)
+    updated_at          DateTime               @updatedAt
     /// รหัสกลุ่มเจ้าหนี้
-    vendor_group_id    Int
+    vendor_group_id     Int
     /// รหัสประเภทเจ้าหนี้
-    vendor_type_id     Int
+    vendor_type_id      Int
     /// สกุลเงิน
-    currency_id        Int?
+    currency_id         Int?
     /// จด VAT หรือไม่
-    is_vat_registered  Boolean                @default(false)
-    rfqLines           rfq_line[]
-    currency           currency?              @relation(fields: [currency_id], references: [currency_id])
-    vendor_group       vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
-    vendor_type        vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
-    vendorAddresses    vendor_address[]
-    vendorBankAccounts vendor_bank_accounts[]
-    vendorContacts     vendor_contacts[]
-    vendorDocuments    vendor_documents[]
-    vendorPerformances vendor_performance[]
-    prHeaders          pr_header[]
+    is_vat_registered   Boolean                @default(false)
+    /// จด VAT หรือไม่
+    is_subject_to_wht   Boolean                @default(false)
+    rfqLines            rfq_line[]
+    currency            currency?              @relation(fields: [currency_id], references: [currency_id])
+    vendor_group        vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
+    vendor_type         vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
+    vendorAddresses     vendor_address[]
+    vendorBankAccounts  vendor_bank_accounts[]
+    vendorContacts      vendor_contacts[]
+    vendorDocuments     vendor_documents[]
+    vendorPerformances  vendor_performance[]
+    prHeaders           pr_header[]
 
     @@map("vendor")
 }
@@ -954,32 +958,31 @@ model pr_header {
 /// ตารางเก็บข้อมูลรายละเอียดของใบขอซื้อ (Purchase Requisition Line) (P2)
 model pr_line {
     /// รหัสใบขอซื้อ (PK)
-    pr_line_id     Int     @id @default(autoincrement())
+    pr_line_id           Int      @id @default(autoincrement())
     /// ลำดับ
-    line_no        Int
+    line_no              Int
     /// รหัสสินค้า (FK)
-    item_id        Int?
+    item_id              Int?
     /// รายละเอียด
-    description    String?
+    description          String?
     /// รหัสคลัง (FK)
-    warehouse_id   Int?
+    warehouse_id         Int?
     /// ตำแหน่งสินค้า
-    location       String? @db.VarChar(50)
+    location             String?  @db.VarChar(50)
     /// รหัสใบขอซื้อ (FK)
-    pr_id          Int
+    pr_id                Int
     /// จำนวน
-    qty            Decimal @db.Decimal(18, 3)
+    qty                  Decimal  @db.Decimal(18, 3)
     /// รหัสหน่วยนับ (FK)
-    uom_id         Int
+    uom_id               Int
     /// ราคาต่อหน่วยโดยประมาณ
-    est_unit_price Decimal @db.Decimal(18, 6)
-
-    tax_code_id Int?
-    // อัตราภาษี
-    tax_rate    Decimal? @db.Decimal(9, 4)
-    // ภาษี
-    tax_amount  Decimal? @db.Decimal(18, 4)
-
+    est_unit_price       Decimal  @db.Decimal(18, 6)
+    /// รหัสกลุ่มภาษี (FK)
+    tax_code_id          Int?
+    /// อัตราภาษี
+    tax_rate             Decimal? @db.Decimal(9, 4)
+    /// ภาษี
+    tax_amount           Decimal? @db.Decimal(18, 4)
     /// ส่วนลดต่อบรรทัด (string) จาก UI
     line_discount_raw    String?  @db.VarChar(10)
     /// % ส่วนลดต่อบรรทัด (คำนวณจาก line_discount_raw)

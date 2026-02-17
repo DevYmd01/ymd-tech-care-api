@@ -26,11 +26,15 @@ export class CreateVendorDto {
 
     @IsOptional()
     @IsString()
-    tax_id?: string;
+    vat_registration_no?: string;
 
     @IsOptional()
     @IsBoolean()
     is_vat_registered?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    is_subject_to_wht?: boolean;
 
     @IsOptional()
     @IsNumber()

@@ -25,11 +25,15 @@ export class UpdateVendorDto {
 
     @IsString()
     @IsOptional()
-    tax_id?: string;
+    vat_registration_no?: string;
 
     @IsBoolean()
     @IsOptional()
     is_vat_registered?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    is_subject_to_wht?: boolean;
 
     @IsNumber()
     @IsOptional()

@@ -10,8 +10,9 @@ export class CreateVendorRepository {
             data: {
                 vendor_code: dto.vendor_code!,
                 vendor_name: dto.vendor_name!,
-                tax_id: dto.tax_id,
+                vat_registration_no: dto.vat_registration_no,
                 is_vat_registered: dto.is_vat_registered ?? false,
+                is_subject_to_wht: dto.is_subject_to_wht ?? false,
                 payment_term_days: dto.payment_term_days!,
                 phone: dto.phone,
                 email: dto.email,
