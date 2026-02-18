@@ -39,7 +39,8 @@ model employees {
     manager_employee      employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
     employees             employees[]        @relation("EmployeeManager")
     position              org_position       @relation(fields: [position_id], references: [position_id])
-    prHeaders             pr_header[]
+    requested_pr          pr_header[]        @relation("requester_user")
+    approved_pr           pr_header[]        @relation("approved_by_user")
 }
 
 /// ตารางเก็บข้อมูลการ login
@@ -935,27 +936,34 @@ model pr_header {
     /// วันที่ส่งมอบที่ต้องการ
     delivery_date DateTime?
 
-    onhold                 Boolean                   @default(false)
-    cancel_flag            Boolean                   @default(false)
+    onhold              Boolean   @default(false)
+    cancel_flag         Boolean   @default(false)
     /// ผู้ขายที่แนะนำ
-    preferred_vendor       String?                   @db.VarChar(100)
+    preferred_vendor    String?   @db.VarChar(100)
     /// ผู้ขอ
-    requester_name         String?                   @db.VarChar(100)
+    requester_name      String?   @db.VarChar(100)
     /// รหัสผู้ขอ (FK)
-    requester_user_id      Int
+    requester_user_id   Int
     /// วิธีการจัดส่ง
-    shipping_method        String?                   @db.VarChar(50)
+    shipping_method     String?   @db.VarChar(50)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    vendor_quote_no        String?                   @db.VarChar(50)
+    vendor_quote_no     String?   @db.VarChar(50)
     /// รหัสผู้ขายที่แนะนำ (FK)
-    preferred_vendor_id    Int?
+    preferred_vendor_id Int?
     /// รหัสโครงการ (FK)
-    project_id             Int?
+    project_id          Int?
+    /// ผู้อนุมัติ
+    approved_by_user_id Int?
+    /// วันที่อนุมัติ
+    approved_at         DateTime?
     /// เวอร์ชั่น
-    version                Int                       @default(1)
+    version             Int       @default(1)
+
+    /// ผู้อนุมัติ
+    approved_by_user       employees?                @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
     preferredVendor        vendor?                   @relation(fields: [preferred_vendor_id], references: [vendor_id])
     branch                 org_branch?               @relation(fields: [branch_id], references: [branch_id])
-    requester_user         employees                 @relation(fields: [requester_user_id], references: [employee_id])
+    requester_user         employees                 @relation("requester_user", fields: [requester_user_id], references: [employee_id])
     project                project?                  @relation(fields: [project_id], references: [project_id])
     prLines                pr_line[]
     quoteCompareHeaders    quote_compare_header[]
@@ -1135,9 +1143,9 @@ model rfq_vendor {
 
 model vendor_quotation_header {
     /// รหัสใบเสนอราคา (PK)
-    vendor_quotation_header_id Int                     @id @default(autoincrement())
+    vendor_quotation_header_id Int          @id @default(autoincrement())
     /// เลขที่ใบเสนอราคา
-    vendor_quotation_no        String                  @unique @db.VarChar(30)
+    vendor_quotation_no        String       @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
     pr_id                      Int
     /// รหัสใบขอซื้อ (FK)
@@ -1147,21 +1155,21 @@ model vendor_quotation_header {
     /// รหัสสาขา (FK)
     branch_id                  Int
     /// ผู้ขอ
-    requested_by               String                  @db.VarChar(50)
+    requested_by               String       @db.VarChar(50)
     /// สถานะ
-    status                     String                  @db.VarChar(20)
+    status                     String       @db.VarChar(20)
     /// วันที่ต้องการ
     quotation_due_date         DateTime?
     /// รหัสสกุลเงิน
-    currency_code              String                  @db.VarChar(3)
+    currency_code              String       @db.VarChar(3)
     /// อัตราแลกเปลี่ยน
-    exchange_rate              Decimal                 @db.Decimal(18, 2)
+    exchange_rate              Decimal      @db.Decimal(18, 2)
     /// สถานที่รับสินค้า
     receive_location           String?
     /// เงื่อนไขการชำระเงิน
-    payment_term_hint          String?                 @db.VarChar(20)
+    payment_term_hint          String?      @db.VarChar(20)
     /// เงื่อนไขการส่งมอบ
-    incoterm                   String?                 @db.VarChar(20)
+    incoterm                   String?      @db.VarChar(20)
     /// หมายเหตุ
     remarks                    String?
     /// ศูนย์ต้นทุน (FK)
@@ -1172,73 +1180,67 @@ model vendor_quotation_header {
     budget_id                  Int?
     /// บัญชี GL (FK)
     gl_account_id              Int?
-    created_at                 DateTime                @default(now())
-    updated_at                 DateTime                @updatedAt
-    branch                     org_branch              @relation(fields: [branch_id], references: [branch_id])
-    pr                         pr_header               @relation(fields: [pr_id], references: [pr_id])
-    rfq                        rfq_header              @relation(fields: [rfq_id], references: [rfq_id])
-    vendor                     vendor                  @relation(fields: [vendor_id], references: [vendor_id])
-    cost_center                cost_center?            @relation(fields: [cost_center_id], references: [cost_center_id])
-    project                    project?                @relation(fields: [project_id], references: [project_id])
-    vendorQuotationLines       vendor_quotation_line[]
+    created_at                 DateTime     @default(now())
+    updated_at                 DateTime     @updatedAt
+    branch                     org_branch   @relation(fields: [branch_id], references: [branch_id])
+    pr                         pr_header    @relation(fields: [pr_id], references: [pr_id])
+    rfq                        rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
+    vendor                     vendor       @relation(fields: [vendor_id], references: [vendor_id])
+    cost_center                cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
+    project                    project?     @relation(fields: [project_id], references: [project_id])
 }
 
 model vendor_quotation_line {
     /// รหัสใบเสนอราคา (PK)
-    vendor_quotation_line_id                          Int                      @id @default(autoincrement())
+    vendor_quotation_line_id Int          @id @default(autoincrement())
     /// ลำดับ
-    line_no                                           Int
+    line_no                  Int
     /// รหัสสินค้า (FK)
-    item_id                                           Int?
+    item_id                  Int?
     /// รายละเอียด
-    description                                       String?
+    description              String?
     /// รหัสใบขอซื้อ (FK)
-    pr_id                                             Int
+    pr_id                    Int
     /// รหัสใบขอซื้อ (FK)
-    rfq_id                                            Int
+    rfq_id                   Int
     /// รหัสผู้ขาย (FK)
-    vendor_id                                         Int
+    vendor_id                Int
     /// รหัสสาขา (FK)
-    branch_id                                         Int
+    branch_id                Int
     /// ผู้ขอ
-    requested_by                                      String                   @db.VarChar(50)
+    requested_by             String       @db.VarChar(50)
     /// สถานะ
-    status                                            String                   @db.VarChar(20)
+    status                   String       @db.VarChar(20)
     /// วันที่ต้องการ
-    quotation_due_date                                DateTime?
+    quotation_due_date       DateTime?
     /// รหัสสกุลเงิน
-    currency_code                                     String                   @db.VarChar(3)
+    currency_code            String       @db.VarChar(3)
     /// อัตราแลกเปลี่ยน
-    exchange_rate                                     Decimal                  @db.Decimal(18, 2)
+    exchange_rate            Decimal      @db.Decimal(18, 2)
     /// สถานที่รับสินค้า
-    receive_location                                  String?
+    receive_location         String?
     /// เงื่อนไขการชำระเงิน
-    payment_term_hint                                 String?                  @db.VarChar(20)
+    payment_term_hint        String?      @db.VarChar(20)
     /// เงื่อนไขการส่งมอบ
-    incoterm                                          String?                  @db.VarChar(20)
+    incoterm                 String?      @db.VarChar(20)
     /// หมายเหตุ
-    remarks                                           String?
+    remarks                  String?
     /// ศูนย์ต้นทุน (FK)
-    cost_center_id                                    Int?
+    cost_center_id           Int?
     /// โครงการ (FK)
-    project_id                                        Int?
+    project_id               Int?
     /// งบประมาณ (FK)
-    budget_id                                         Int?
+    budget_id                Int?
     /// บัญชี GL (FK)
-    gl_account_id                                     Int?
-    created_at                                        DateTime                 @default(now())
-    updated_at                                        DateTime                 @updatedAt
-    branch                                            org_branch               @relation(fields: [branch_id], references: [branch_id])
-    pr                                                pr_header                @relation(fields: [pr_id], references: [pr_id])
-    rfq                                               rfq_header               @relation(fields: [rfq_id], references: [rfq_id])
-    vendor                                            vendor                   @relation(fields: [vendor_id], references: [vendor_id])
-    cost_center                                       cost_center?             @relation(fields: [cost_center_id], references: [cost_center_id])
-    project                                           project?                 @relation(fields: [project_id], references: [project_id])
-    vendorQuotationLines                              vendor_quotation_line[]
-    vendorQuotationHeader                             vendor_quotation_header? @relation(fields: [vendor_quotation_headerVendor_quotation_header_id], references: [vendor_quotation_header_id])
-    vendor_quotation_headerVendor_quotation_header_id Int?
-    vendorQuotationLine                               vendor_quotation_line?   @relation(fields: [vendor_quotation_lineVendor_quotation_line_id], references: [vendor_quotation_line_id])
-    vendor_quotation_lineVendor_quotation_line_id     Int?
+    gl_account_id            Int?
+    created_at               DateTime     @default(now())
+    updated_at               DateTime     @updatedAt
+    branch                   org_branch   @relation(fields: [branch_id], references: [branch_id])
+    pr                       pr_header    @relation(fields: [pr_id], references: [pr_id])
+    rfq                      rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
+    vendor                   vendor       @relation(fields: [vendor_id], references: [vendor_id])
+    cost_center              cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
+    project                  project?     @relation(fields: [project_id], references: [project_id])
 }
 
 /// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)

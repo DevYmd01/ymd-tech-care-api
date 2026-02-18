@@ -32,11 +32,6 @@ export class UpdatePRHeaderDTO {
     @IsDateString()
     need_by_date: string;
 
-    // สถานะ PR (เช่น DRAFT, SUBMITTED, APPROVED)
-    @IsString()
-    status: string;
-
-
     @IsString()
     pr_base_currency_code: string;
 

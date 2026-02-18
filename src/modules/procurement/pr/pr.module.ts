@@ -11,6 +11,7 @@ import { UpdatePRHeaderRepository } from './repositories/update-pr-header.roposi
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
+import { StatusPRHeaderRepository } from './repositories/status-pr-header.repository';
 
 @Module({
     imports: [DocumentNumberModule],
@@ -26,6 +27,7 @@ import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq
         UpdatePRLineRepository,
         ShowAllPRHeaderRepository,
         ShowWaitingForRFQRepository,
+        StatusPRHeaderRepository,
     ]
 })
 export class PrModule { }

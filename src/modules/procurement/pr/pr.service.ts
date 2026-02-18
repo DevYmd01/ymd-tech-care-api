@@ -17,6 +17,7 @@ import { UpdatePRHeaderRepository } from './repositories/update-pr-header.roposi
 import { UpdatePRLineRepository } from './repositories/update-pr-line-repository';
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
+import { StatusPRHeaderRepository } from './repositories/status-pr-header.repository';
 
 @Injectable()
 export class PrService {
@@ -32,6 +33,7 @@ export class PrService {
         private updatePRLineRepository: UpdatePRLineRepository,
         private showAllPRHeaderRepository: ShowAllPRHeaderRepository,
         private showWaitingForRFQRepository: ShowWaitingForRFQRepository,
+        private statusPRHeaderRepository: StatusPRHeaderRepository,
     ) { }
 
     // ==============================
@@ -111,7 +113,7 @@ export class PrService {
                     pr_no: documentNo,
                     pr_date: new Date(dto.pr_date),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
-                    status: dto.status,
+                    status: 'DRAFT',
                     remark: dto.remark ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
@@ -381,7 +383,7 @@ export class PrService {
                 const header = {
                     pr_date: dto.pr_date ? new Date(dto.pr_date) : new Date(),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
-                    status: dto.status,
+                    status: 'DRAFT',
                     remark: dto.remark ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
@@ -587,8 +589,6 @@ export class PrService {
     // ==============================
     // find waiting for rfq
     // ==============================
-
-
     async findWaitingForRFQ(page: number, pageSize: number) {
         const where = {
             status: 'APPROVED'
@@ -604,6 +604,83 @@ export class PrService {
             pageSize,
             totalPages: Math.ceil(total / pageSize),
         };
+    }
+
+
+    async pending(pr_id: number) {
+        await this.prisma.$transaction(async (tx) => {
+
+            // check status
+            const pr = await this.statusPRHeaderRepository.findById(pr_id);
+            // throw error if pr not found
+            if (!pr) throw new BadRequestException('PR not found');
+            // throw error if pr status is not approved
+            if (pr.status !== 'DRAFT') {
+                throw new BadRequestException('Invalid status');
+            }
+            // update status 
+            await this.statusPRHeaderRepository.updateStatus(pr_id, 'PENDING');
+        });
+    }
+
+    // ==============================
+    // approve
+    // ==============================
+
+    async approve(pr_id: number) {
+        await this.prisma.$transaction(async (tx) => {
+
+            // check status
+            const pr = await this.statusPRHeaderRepository.findById(pr_id);
+            // throw error if pr not found
+            if (!pr) throw new BadRequestException('PR not found');
+            // throw error if pr status is not approved
+            if (pr.status !== 'PENDING') {
+                throw new BadRequestException('Invalid status');
+            }
+            // update status 
+            await this.statusPRHeaderRepository.updateStatus(pr_id, 'APPROVED');
+        });
+    }
+
+    // ==============================
+    // reject
+    // ==============================
+
+    async reject(pr_id: number) {
+        await this.prisma.$transaction(async (tx) => {
+
+            // check status
+            const pr = await this.statusPRHeaderRepository.findById(pr_id);
+            // throw error if pr not found
+            if (!pr) throw new BadRequestException('PR not found');
+            // throw error if pr status is not approved
+            if (pr.status !== 'PENDING') {
+                throw new BadRequestException('Invalid status');
+            }
+            // update status 
+            await this.statusPRHeaderRepository.updateStatus(pr_id, 'REJECTED');
+        });
+    }
+
+    // ==============================
+    // cancel
+    // ==============================
+
+    async cancel(pr_id: number) {
+        await this.prisma.$transaction(async (tx) => {
+
+            // check status
+            const pr = await this.statusPRHeaderRepository.findById(pr_id);
+            // throw error if pr not found
+            if (!pr) throw new BadRequestException('PR not found');
+            // throw error if pr status is not approved
+            if (pr.status !== 'PENDING') {
+                throw new BadRequestException('Invalid status');
+            }
+            // update status 
+            await this.statusPRHeaderRepository.updateStatus(pr_id, 'CANCELLED');
+        });
     }
 
 }
