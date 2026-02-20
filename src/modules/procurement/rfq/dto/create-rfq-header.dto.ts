@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CreateRFQLineDTO } from "./create-rfq-line.dto";
-import { CreateSFRQVendorDTO } from "./create-sfrq-vendor.dto";
+import { CreateSFRQVendorDTO } from "./create-rfq-vendor.dto";
 
 export class CreateRFQHeaderDTO {
 

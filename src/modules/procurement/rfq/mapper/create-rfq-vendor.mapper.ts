@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { CreateSFRQVendorDTO } from "../dto/create-sfrq-vendor.dto";
+import { CreateSFRQVendorDTO } from "../dto/create-rfq-vendor.dto";
 
 export class CreateRFQVendorMapper {
     static toPrismaCreateInput(
