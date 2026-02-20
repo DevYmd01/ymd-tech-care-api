@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
-import { CreateRFQHeaderRepository } from './repository/create-rfq-herder.repository';
+import { CreateRFQHeaderRepository } from './repository/create-rfq-header.repository';
 import { CreateRFQLineRepository } from './repository/create-rfq-line.repository';
 import { PrismaService } from '@/prisma/prisma.service';
 import { RFQMapper } from './mapper/create-rfq-header.mapper';
