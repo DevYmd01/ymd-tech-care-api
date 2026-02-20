@@ -1,9 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString, IsOptional, IsDate } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateRFQLineDTO {
-    @IsNotEmpty()
-    @IsNumber()
-    rfq_id: number;
 
     @IsNotEmpty()
     @IsNumber()
@@ -35,6 +33,7 @@ export class CreateRFQLineDTO {
 
     @IsOptional()
     @IsDate()
+    @Type(() => Date)
     target_delivery_date?: Date;
 
     @IsOptional()

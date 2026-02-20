@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CreateRFQLineDTO } from "./create-rfq-line.dto";
+import { CreateSFRQVendorDTO } from "./create-sfrq-vendor.dto";
 
 export class CreateRFQHeaderDTO {
 
@@ -10,6 +11,7 @@ export class CreateRFQHeaderDTO {
 
     @IsNotEmpty()
     @IsDate()
+    @Type(() => Date)
     rfq_date: Date;
 
     @IsNotEmpty()
@@ -30,6 +32,7 @@ export class CreateRFQHeaderDTO {
 
     @IsOptional()
     @IsDate()
+    @Type(() => Date)
     quotation_due_date?: Date
 
     @IsOptional()
@@ -46,6 +49,7 @@ export class CreateRFQHeaderDTO {
 
     @IsOptional()
     @IsDate()
+    @Type(() => Date)
     rfq_exchange_rate_date?: Date
 
     @IsOptional()
@@ -77,5 +81,11 @@ export class CreateRFQHeaderDTO {
     @ValidateNested({ each: true })
     @Type(() => CreateRFQLineDTO)
     rfqLines?: CreateRFQLineDTO[];
+
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateSFRQVendorDTO)
+    rfqVendors?: CreateSFRQVendorDTO[];
 
 }

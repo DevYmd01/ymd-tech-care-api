@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { RfqService } from './rfq.service';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 
@@ -9,5 +9,10 @@ export class RfqController {
     @Post()
     async createRFQ(@Body() rfqHeader: CreateRFQHeaderDTO) {
         return this.rfqService.createRFQ(rfqHeader);
+    }
+
+    @Get()
+    async findAll() {
+        return this.rfqService.findAll();
     }
 }
