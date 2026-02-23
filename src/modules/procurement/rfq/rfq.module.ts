@@ -9,9 +9,9 @@ import { CreateRFQVendorRepository } from './repository/rfq-vendor.repository';
 import { CreateRFQVendorMapper } from './mapper/create-rfq-vendor.mapper';
 import { CreateRFQLineMapper } from './mapper/create-rfq-line.mapper';
 import { RFQMapper } from './mapper/create-rfq-header.mapper';
-import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
 import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
 import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
+import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
 
 
 @Module({
@@ -26,9 +26,9 @@ import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
     CreateRFQVendorMapper,
     CreateRFQLineMapper,
     RFQMapper,
-    UpdateRFQHeaderMapper,
     UpdateRFQLineMapper,
-    UpdateRFQVendorMapper
+    UpdateRFQVendorMapper,
+    UpdateRFQHeaderMapper
   ]
 })
 export class RfqModule { }
