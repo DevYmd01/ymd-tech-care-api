@@ -11,4 +11,15 @@ export class CreateRFQHeaderRepository {
             data,
         });
     }
+
+    async update(
+        tx: Prisma.TransactionClient,
+        rfq_id: number,
+        data: Prisma.rfq_headerUncheckedUpdateInput
+    ) {
+        return tx.rfq_header.update({
+            where: { rfq_id },
+            data,
+        });
+    }
 }

@@ -32,6 +32,7 @@ import { TaxCodeModule } from './modules/master-data/tax/tax-code/tax-code.modul
 import { ProjectModule } from './modules/master-data/project/project.module';
 import { CostCentersModule } from './modules/master-data/cost-centers/cost-centers.module';
 import { RfqModule } from './modules/procurement/rfq/rfq.module';
+import { QtModule } from './modules/procurement/qt/qt.module';
 
 @Module({
   imports: [
@@ -63,7 +64,8 @@ import { RfqModule } from './modules/procurement/rfq/rfq.module';
     TaxCodeModule,
     ProjectModule,
     CostCentersModule,
-    RfqModule
+    RfqModule,
+    QtModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
-import { CreateRFQHeaderRepository } from './repository/create-rfq-header.repository';
-import { CreateRFQLineRepository } from './repository/create-rfq-line.repository';
+import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
+import { CreateRFQLineRepository } from './repository/rfq-line.repository';
 import { PrismaService } from '@/prisma/prisma.service';
 import { RFQMapper } from './mapper/create-rfq-header.mapper';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
 import { CreateRFQLineMapper } from './mapper/create-rfq-line.mapper';
 import { CreateRFQVendorMapper } from './mapper/create-rfq-vendor.mapper';
-import { CreateRFQVendorRepository } from './repository/create-rfq-vendor.repository';
+import { CreateRFQVendorRepository } from './repository/rfq-vendor.repository';
+import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
+import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
+import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
+import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
+import { diffById } from '@/common/utils';
 
 @Injectable()
 export class RfqService {
@@ -77,6 +82,125 @@ export class RfqService {
             },
         });
     }
+
+
+    async updateRFQ(dto: UpdateRFQHeaderDTO, rfq_id: number) {
+
+        return this.prisma.$transaction(async (tx) => {
+
+            // ⭐ update header
+            const headerData =
+                UpdateRFQHeaderMapper.toPrismaUpdateInput(dto, rfq_id);
+
+            const updatedHeader =
+                await this.createRFQHeaderRepository.update(tx, rfq_id, headerData);
+
+            // ⭐ guard status
+            if (updatedHeader.status === 'APPROVED') {
+                throw new Error('Cannot update approved RFQ');
+            }
+
+            // =========================
+            // ===== LINES SECTION =====
+            // =========================
+
+            const existingLines = await tx.rfq_line.findMany({
+                where: { rfq_id }
+            });
+
+            const incomingLines = dto.rfqLines ?? [];
+
+            // ⭐ diff lines
+            const lineDiff = diffById(
+                existingLines,
+                incomingLines,
+                'rfq_line_id'
+            );
+
+            const createLineData =
+                CreateRFQLineMapper.toPrismaCreateInput(
+                    lineDiff.toCreate,
+                    rfq_id
+                );
+
+
+            const updateLineData =
+                UpdateRFQLineMapper.toPrismaUpdateInput(
+                    lineDiff.toUpdate,
+                    rfq_id
+                );
+
+            // ⭐ create new
+            if (createLineData.length > 0) {
+                await this.createRFQLineRepository.createMany(tx, createLineData);
+            }
+
+            // ⭐ update existing
+            if (updateLineData.length > 0) {
+                await this.createRFQLineRepository.updateMany(tx, updateLineData);
+            }
+
+            // ⭐ delete removed
+            if (lineDiff.toDelete.length > 0) {
+                await tx.rfq_line.deleteMany({
+                    where: {
+                        rfq_line_id: {
+                            in: lineDiff.toDelete.map(l => l.rfq_line_id)
+                        }
+                    }
+                });
+            }
+
+            // =========================
+            // ==== VENDOR SECTION =====
+            // =========================
+
+            const existingVendors = await tx.rfq_vendor.findMany({
+                where: { rfq_id }
+            });
+
+            const incomingVendors = dto.rfqVendors ?? [];
+
+            const vendorDiff = diffById(
+                existingVendors,
+                incomingVendors,
+                'rfq_vendor_id'
+            );
+
+            const createVendorData =
+                CreateRFQVendorMapper.toPrismaCreateInput(
+                    vendorDiff.toCreate,
+                    rfq_id
+                );
+
+            const updateVendorData =
+                UpdateRFQVendorMapper.toPrismaUpdateInput(
+                    vendorDiff.toUpdate,
+                    rfq_id
+                );
+
+            if (createVendorData.length > 0) {
+                await this.createRFQVendorRepository.createMany(tx, createVendorData);
+            }
+
+            if (updateVendorData.length > 0) {
+                await this.createRFQVendorRepository.updateMany(tx, updateVendorData);
+            }
+
+            if (vendorDiff.toDelete.length > 0) {
+                await tx.rfq_vendor.deleteMany({
+                    where: {
+                        rfq_vendor_id: {
+                            in: vendorDiff.toDelete.map(v => v.rfq_vendor_id)
+                        }
+                    }
+                });
+            }
+
+            return updatedHeader;
+        });
+    }
+
 }
 
 

@@ -2,13 +2,17 @@ import { Module } from '@nestjs/common';
 import { RfqController } from './rfq.controller';
 import { RfqService } from './rfq.service';
 import { DocumentNumberModule } from '@/modules/document-number/document-number.module';
-import { CreateRFQHeaderRepository } from './repository/create-rfq-header.repository';
-import { CreateRFQLineRepository } from './repository/create-rfq-line.repository';
+import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
+import { CreateRFQLineRepository } from './repository/rfq-line.repository';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CreateRFQVendorRepository } from './repository/create-rfq-vendor.repository';
+import { CreateRFQVendorRepository } from './repository/rfq-vendor.repository';
 import { CreateRFQVendorMapper } from './mapper/create-rfq-vendor.mapper';
 import { CreateRFQLineMapper } from './mapper/create-rfq-line.mapper';
 import { RFQMapper } from './mapper/create-rfq-header.mapper';
+import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
+import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
+import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
+
 
 @Module({
   imports: [DocumentNumberModule],
@@ -21,7 +25,10 @@ import { RFQMapper } from './mapper/create-rfq-header.mapper';
     CreateRFQVendorRepository,
     CreateRFQVendorMapper,
     CreateRFQLineMapper,
-    RFQMapper
+    RFQMapper,
+    UpdateRFQHeaderMapper,
+    UpdateRFQLineMapper,
+    UpdateRFQVendorMapper
   ]
 })
 export class RfqModule { }

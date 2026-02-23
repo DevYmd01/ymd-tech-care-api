@@ -1,7 +1,11 @@
 import { IsNotEmpty, IsNumber, IsString, IsOptional, IsDate } from "class-validator";
 import { Type } from "class-transformer";
 
-export class CreateRFQLineDTO {
+export class UpdateRFQLineDTO {
+
+    @IsNotEmpty()
+    @IsNumber()
+    rfq_line_id: number;
 
     @IsNotEmpty()
     @IsNumber()
