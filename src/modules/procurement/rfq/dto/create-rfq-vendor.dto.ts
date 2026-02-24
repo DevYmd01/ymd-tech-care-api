@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsOptional, IsDate, IsBoolean } from "class-validator";
-import { Type } from "class-transformer";
+import { IsNotEmpty, IsNumber, IsString, IsOptional, IsBoolean } from "class-validator";
 
 export class CreateSFRQVendorDTO {
 
@@ -12,22 +11,8 @@ export class CreateSFRQVendorDTO {
     status?: string;
 
     @IsOptional()
-    @IsDate()
-    @Type(() => Date)
-    sent_at?: Date;
-
-    @IsOptional()
-    @IsDate()
-    @Type(() => Date)
-    responded_at?: Date;
-
-    @IsOptional()
     @IsString()
     contact_email?: string;
-
-    @IsOptional()
-    @IsString()
-    contact_person?: string;
 
     @IsOptional()
     @IsString()

@@ -1129,6 +1129,10 @@ model rfq_vendor {
     //วันที่ตอบกลับใบเสนอราคา
     responded_at  DateTime?
     contact_email String?    @db.VarChar(255)
+    //วันที่สร้าง
+    created_at    DateTime   @default(now())
+    //วันที่อัปเดต
+    updated_at    DateTime   @updatedAt
     note          String?    @db.Text
     rfq           rfq_header @relation(fields: [rfq_id], references: [rfq_id])
     vendor        vendor     @relation(fields: [vendor_id], references: [vendor_id])

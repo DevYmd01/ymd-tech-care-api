@@ -11,13 +11,7 @@ export class UpdateRFQVendorMapper {
 
             status: vendor.status || 'NEW',
 
-            sent_at: vendor.sent_at || new Date(),
-
-            responded_at: vendor.responded_at || null,
-
             contact_email: vendor.contact_email || null,
-
-            contact_person: vendor.contact_person || null,
 
             note: vendor.note || null,
 

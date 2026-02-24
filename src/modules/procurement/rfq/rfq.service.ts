@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
 import { CreateRFQLineRepository } from './repository/rfq-line.repository';
@@ -137,19 +137,28 @@ export class RfqService {
         }
     }
 
-    async findAll() {
-        return this.prisma.rfq_header.findMany({
+    async findAll(page: number, pageSize: number) {
+
+        const data = await this.prisma.rfq_header.findMany({
             include: {
                 rfqLines: true,
             },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
         });
+
+        const total = await this.prisma.rfq_header.count();
+        const skip = (page - 1) * pageSize;
+        return { data, total, skip };
     }
+
 
     async findOne(rfq_id: number) {
         return this.prisma.rfq_header.findUnique({
             where: { rfq_id },
             include: {
                 rfqLines: true,
+                rfqVendors: { where: { is_active: true } },
             },
         });
     }
@@ -345,9 +354,9 @@ export class RfqService {
 
                 for (const vendor of createVendorData) {
 
-                    const created = await tx.rfq_vendor.create({
-                        data: vendor
-                    });
+                    const oldVendor = existingVendors.find(
+                        l => l.rfq_vendor_id === vendor.rfq_vendor_id
+                    );
 
                     await this.auditService.logChanges(tx, {
                         module: 'PROCUREMENT',
@@ -355,9 +364,9 @@ export class RfqService {
                         documentType: 'RFQ',
                         documentId: BigInt(updatedHeader.rfq_id),
                         tableName: 'rfq_vendor',
-                        recordId: BigInt(created.rfq_vendor_id),
+                        recordId: BigInt(updatedHeader.requested_by_user_id),
                         oldData: null,
-                        newData: created,
+                        newData: oldVendor,
                         actionType: 'CREATE',
                         userId: BigInt(updatedHeader.requested_by_user_id),
                         requestId: context.request_id,
@@ -406,10 +415,20 @@ export class RfqService {
     }
 
     async findVendors(rfq_id: number) {
-        return this.prisma.rfq_vendor.findMany({
-            where: { rfq_id }
+
+        const data = await this.prisma.rfq_vendor.findMany({
+            where: { rfq_id },
+            include: {
+                vendor: true
+            }
         });
+
+        return data.map(({ vendor, ...rest }) => ({
+            ...rest,
+            ...vendor
+        }));
     }
+
 
 }
 

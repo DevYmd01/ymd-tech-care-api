@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Request, Query } from '@nestjs/common';
 import { RfqService } from './rfq.service';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
@@ -13,8 +13,14 @@ export class RfqController {
     }
 
     @Get()
-    async findAll() {
-        return this.rfqService.findAll();
+    async findAll(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.rfqService.findAll(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
     }
 
     @Get(':rfq_id')
