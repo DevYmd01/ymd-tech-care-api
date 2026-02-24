@@ -2,12 +2,9 @@ import { Prisma } from "@prisma/client";
 import { UpdateSFRQVendorDTO } from "../dto/update-rfq-vendor.dto";
 
 export class UpdateRFQVendorMapper {
-    static toPrismaUpdateInput(
-        vendors: UpdateSFRQVendorDTO[],
-        rfq_id: number
-    ): Prisma.rfq_vendorUncheckedUpdateInput[] {
+    static toData(vendor: UpdateSFRQVendorDTO, rfq_id: number) {
 
-        return vendors.map(vendor => ({
+        return {
             rfq_id: rfq_id,
 
             vendor_id: vendor.vendor_id,
@@ -25,6 +22,8 @@ export class UpdateRFQVendorMapper {
             note: vendor.note || null,
 
             is_active: vendor.is_active || true,
-        }));
+        };
+
     }
+
 }

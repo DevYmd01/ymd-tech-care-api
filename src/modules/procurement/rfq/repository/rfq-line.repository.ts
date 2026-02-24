@@ -7,24 +7,30 @@ export class CreateRFQLineRepository {
         tx: Prisma.TransactionClient,
         data: Prisma.rfq_lineCreateManyInput[]
     ) {
-        return tx.rfq_line.createMany({ data });
+        return tx.rfq_line.createMany({
+            data,
+            skipDuplicates: true
+        });
     }
 
     async updateMany(
         tx: Prisma.TransactionClient,
         data: Prisma.rfq_lineUncheckedUpdateInput[]
     ) {
-        const updates = data.map(line =>
-            tx.rfq_line.update({
-                where: {
-                    rfq_line_id: line.rfq_line_id as number
-                },
-                data: line
-            })
-        );
+        const updates = data
+            .filter(line => line.rfq_line_id != null)
+            .map(line =>
+                tx.rfq_line.update({
+                    where: {
+                        rfq_line_id: line.rfq_line_id as number
+                    },
+                    data: line
+                })
+            );
 
         return Promise.all(updates);
     }
+
 
     async deleteMany(
         tx: Prisma.TransactionClient,

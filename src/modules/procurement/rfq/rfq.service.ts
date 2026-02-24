@@ -13,6 +13,7 @@ import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
 import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
 import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
 import { diffById } from '@/common/utils';
+import { AuditService } from '@/modules/audit/audit.service';
 
 @Injectable()
 export class RfqService {
@@ -22,10 +23,11 @@ export class RfqService {
         private readonly documentNumberService: DocumentNumberService,
         private readonly createRFQHeaderRepository: CreateRFQHeaderRepository,
         private readonly createRFQLineRepository: CreateRFQLineRepository,
-        private readonly createRFQVendorRepository: CreateRFQVendorRepository
+        private readonly createRFQVendorRepository: CreateRFQVendorRepository,
+        private readonly auditService: AuditService
     ) { }
 
-    async createRFQ(rfqHeader: CreateRFQHeaderDTO) {
+    async createRFQ(rfqHeader: CreateRFQHeaderDTO, context: any) {
         try {
             const documentNo =
                 await this.documentNumberService.generate({
@@ -43,6 +45,22 @@ export class RfqService {
                 const createdHeader =
                     await this.createRFQHeaderRepository.create(tx, rfqHeaderData);
 
+                await this.auditService.logChanges(tx, {
+                    module: 'PROCUREMENT',
+                    documentNo: documentNo,
+                    documentType: 'RFQ',
+                    documentId: BigInt(createdHeader.rfq_id),
+                    tableName: 'rfq_header',
+                    recordId: BigInt(createdHeader.rfq_id),
+                    oldData: null,
+                    newData: createdHeader,
+                    actionType: 'CREATE',
+                    userId: BigInt(createdHeader.requested_by_user_id),
+                    requestId: context.request_id,
+                    clientIp: context.client_ip,
+                    userAgent: context.user_agent,
+                });
+
                 // ⭐ map lines
                 const rfqLineData =
                     CreateRFQLineMapper.toPrismaCreateInput(
@@ -53,6 +71,28 @@ export class RfqService {
                 // ⭐ create many
                 if (rfqLineData.length > 0) {
                     await this.createRFQLineRepository.createMany(tx, rfqLineData);
+
+
+                    for (const line of rfqLineData) {
+                        const created = await tx.rfq_line.create({
+                            data: line
+                        });
+                        await this.auditService.logChanges(tx, {
+                            module: 'PROCUREMENT',
+                            documentNo: documentNo,
+                            documentType: 'RFQ',
+                            documentId: BigInt(createdHeader.rfq_id),
+                            tableName: 'rfq_line',
+                            recordId: BigInt(created.rfq_line_id),
+                            oldData: null,
+                            newData: line,
+                            actionType: 'CREATE',
+                            userId: BigInt(createdHeader.requested_by_user_id),
+                            requestId: context.request_id,
+                            clientIp: context.client_ip,
+                            userAgent: context.user_agent,
+                        });
+                    }
                 }
 
                 // ⭐ map vendors
@@ -65,6 +105,28 @@ export class RfqService {
                 // ⭐ create many
                 if (rfqVendorData.length > 0) {
                     await this.createRFQVendorRepository.createMany(tx, rfqVendorData);
+
+
+                    for (const vendor of rfqVendorData) {
+                        const created = await tx.rfq_vendor.create({
+                            data: vendor
+                        });
+                        await this.auditService.logChanges(tx, {
+                            module: 'PROCUREMENT',
+                            documentNo: documentNo,
+                            documentType: 'RFQ',
+                            documentId: BigInt(createdHeader.rfq_id),
+                            tableName: 'rfq_vendor',
+                            recordId: BigInt(created.rfq_vendor_id),
+                            oldData: null,
+                            newData: vendor,
+                            actionType: 'CREATE',
+                            userId: BigInt(createdHeader.requested_by_user_id),
+                            requestId: context.request_id,
+                            clientIp: context.client_ip,
+                            userAgent: context.user_agent,
+                        });
+                    }
                 }
 
                 return { createdHeader, rfqLineData, rfqVendorData };
@@ -83,26 +145,54 @@ export class RfqService {
         });
     }
 
+    async findOne(rfq_id: number) {
+        return this.prisma.rfq_header.findUnique({
+            where: { rfq_id },
+            include: {
+                rfqLines: true,
+            },
+        });
+    }
 
-    async updateRFQ(dto: UpdateRFQHeaderDTO, rfq_id: number) {
+
+    async updateRFQ(dto: UpdateRFQHeaderDTO, rfq_id: number, context: any) {
 
         return this.prisma.$transaction(async (tx) => {
 
-            // ⭐ update header
+            // ================= HEADER =================
+
             const headerData =
                 UpdateRFQHeaderMapper.toPrismaUpdateInput(dto, rfq_id);
+
+            const oldHeader = await tx.rfq_header.findUnique({
+                where: { rfq_id }
+            });
 
             const updatedHeader =
                 await this.createRFQHeaderRepository.update(tx, rfq_id, headerData);
 
-            // ⭐ guard status
             if (updatedHeader.status === 'APPROVED') {
                 throw new Error('Cannot update approved RFQ');
             }
 
-            // =========================
-            // ===== LINES SECTION =====
-            // =========================
+            await this.auditService.logChanges(tx, {
+                module: 'PROCUREMENT',
+                documentNo: updatedHeader.rfq_no,
+                documentType: 'RFQ',
+                documentId: BigInt(updatedHeader.rfq_id),
+                tableName: 'rfq_header',
+                recordId: BigInt(updatedHeader.rfq_id),
+                oldData: oldHeader,
+                newData: updatedHeader,
+                actionType: 'UPDATE',
+                userId: BigInt(updatedHeader.requested_by_user_id),
+                requestId: context.request_id,
+                clientIp: context.client_ip,
+                userAgent: context.user_agent,
+            });
+
+
+            // ================= LINES =================
 
             const existingLines = await tx.rfq_line.findMany({
                 where: { rfq_id }
@@ -110,38 +200,15 @@ export class RfqService {
 
             const incomingLines = dto.rfqLines ?? [];
 
-            // ⭐ diff lines
             const lineDiff = diffById(
                 existingLines,
                 incomingLines,
                 'rfq_line_id'
             );
 
-            const createLineData =
-                CreateRFQLineMapper.toPrismaCreateInput(
-                    lineDiff.toCreate,
-                    rfq_id
-                );
-
-
-            const updateLineData =
-                UpdateRFQLineMapper.toPrismaUpdateInput(
-                    lineDiff.toUpdate,
-                    rfq_id
-                );
-
-            // ⭐ create new
-            if (createLineData.length > 0) {
-                await this.createRFQLineRepository.createMany(tx, createLineData);
-            }
-
-            // ⭐ update existing
-            if (updateLineData.length > 0) {
-                await this.createRFQLineRepository.updateMany(tx, updateLineData);
-            }
-
-            // ⭐ delete removed
+            // 🔴 DELETE
             if (lineDiff.toDelete.length > 0) {
+
                 await tx.rfq_line.deleteMany({
                     where: {
                         rfq_line_id: {
@@ -149,11 +216,96 @@ export class RfqService {
                         }
                     }
                 });
+
+                for (const line of lineDiff.toDelete) {
+
+                    await this.auditService.logChanges(tx, {
+                        module: 'PROCUREMENT',
+                        documentNo: updatedHeader.rfq_no,
+                        documentType: 'RFQ',
+                        documentId: BigInt(updatedHeader.rfq_id),
+                        tableName: 'rfq_line',
+                        recordId: BigInt(line.rfq_line_id),
+                        oldData: line,
+                        newData: null,
+                        actionType: 'DELETE',
+                        userId: BigInt(updatedHeader.requested_by_user_id),
+                        requestId: context.request_id,
+                        clientIp: context.client_ip,
+                        userAgent: context.user_agent,
+                    });
+                }
             }
 
-            // =========================
-            // ==== VENDOR SECTION =====
-            // =========================
+            // 🟢 CREATE
+            // 🟢 CREATE
+            if (lineDiff.toCreate.length > 0) {
+
+                const createData =
+                    CreateRFQLineMapper.toPrismaCreateInput(
+                        lineDiff.toCreate,
+                        rfq_id
+                    );
+
+                for (const data of createData) {
+
+                    const created = await tx.rfq_line.create({
+                        data
+                    });
+
+                    await this.auditService.logChanges(tx, {
+                        module: 'PROCUREMENT',
+                        documentNo: updatedHeader.rfq_no,
+                        documentType: 'RFQ',
+                        documentId: BigInt(updatedHeader.rfq_id),
+                        tableName: 'rfq_line',
+                        recordId: BigInt(created.rfq_line_id),
+                        oldData: null,
+                        newData: created,
+                        actionType: 'CREATE',
+                        userId: BigInt(updatedHeader.requested_by_user_id),
+                        requestId: context.request_id,
+                        clientIp: context.client_ip,
+                        userAgent: context.user_agent,
+                    });
+                }
+            }
+
+
+            // 🔵 UPDATE
+            if (lineDiff.toUpdate.length > 0) {
+
+                for (const line of lineDiff.toUpdate) {
+
+                    const oldLine = existingLines.find(
+                        l => l.rfq_line_id === line.rfq_line_id
+                    );
+
+                    const updated = await tx.rfq_line.update({
+                        where: { rfq_line_id: line.rfq_line_id },
+                        data: UpdateRFQLineMapper.toData(line, rfq_id)
+                    });
+
+                    await this.auditService.logChanges(tx, {
+                        module: 'PROCUREMENT',
+                        documentNo: updatedHeader.rfq_no,
+                        documentType: 'RFQ',
+                        documentId: BigInt(updatedHeader.rfq_id),
+                        tableName: 'rfq_line',
+                        recordId: BigInt(updated.rfq_line_id),
+                        oldData: oldLine,
+                        newData: updated,
+                        actionType: 'UPDATE',
+                        userId: BigInt(updatedHeader.requested_by_user_id),
+                        requestId: context.request_id,
+                        clientIp: context.client_ip,
+                        userAgent: context.user_agent,
+                    });
+                }
+            }
+
+
+            // ================= VENDORS =================
 
             const existingVendors = await tx.rfq_vendor.findMany({
                 where: { rfq_id }
@@ -167,37 +319,95 @@ export class RfqService {
                 'rfq_vendor_id'
             );
 
-            const createVendorData =
-                CreateRFQVendorMapper.toPrismaCreateInput(
-                    vendorDiff.toCreate,
-                    rfq_id
-                );
-
-            const updateVendorData =
-                UpdateRFQVendorMapper.toPrismaUpdateInput(
-                    vendorDiff.toUpdate,
-                    rfq_id
-                );
-
-            if (createVendorData.length > 0) {
-                await this.createRFQVendorRepository.createMany(tx, createVendorData);
-            }
-
-            if (updateVendorData.length > 0) {
-                await this.createRFQVendorRepository.updateMany(tx, updateVendorData);
-            }
-
+            // DELETE
             if (vendorDiff.toDelete.length > 0) {
-                await tx.rfq_vendor.deleteMany({
+
+                await tx.rfq_vendor.updateMany({
                     where: {
                         rfq_vendor_id: {
                             in: vendorDiff.toDelete.map(v => v.rfq_vendor_id)
                         }
-                    }
+                    },
+                    data: { is_active: false }
                 });
             }
 
+            // CREATE
+            if (vendorDiff.toCreate.length > 0) {
+
+                const createVendorData =
+                    CreateRFQVendorMapper.toPrismaCreateInput(
+                        vendorDiff.toCreate,
+                        rfq_id
+                    );
+
+                await tx.rfq_vendor.createMany({ data: createVendorData });
+
+                for (const vendor of createVendorData) {
+
+                    const created = await tx.rfq_vendor.create({
+                        data: vendor
+                    });
+
+                    await this.auditService.logChanges(tx, {
+                        module: 'PROCUREMENT',
+                        documentNo: updatedHeader.rfq_no,
+                        documentType: 'RFQ',
+                        documentId: BigInt(updatedHeader.rfq_id),
+                        tableName: 'rfq_vendor',
+                        recordId: BigInt(created.rfq_vendor_id),
+                        oldData: null,
+                        newData: created,
+                        actionType: 'CREATE',
+                        userId: BigInt(updatedHeader.requested_by_user_id),
+                        requestId: context.request_id,
+                        clientIp: context.client_ip,
+                        userAgent: context.user_agent,
+                    });
+                }
+            }
+
+            // UPDATE
+            if (vendorDiff.toUpdate.length > 0) {
+
+                for (const vendor of vendorDiff.toUpdate) {
+
+                    const oldVendor = existingVendors.find(
+                        v => v.rfq_vendor_id === vendor.rfq_vendor_id
+                    );
+
+                    const updatedVendor = await tx.rfq_vendor.update({
+                        where: { rfq_vendor_id: vendor.rfq_vendor_id },
+                        data: UpdateRFQVendorMapper.toData(vendor, rfq_id)
+                    });
+
+                    await this.auditService.logChanges(tx, {
+                        module: 'PROCUREMENT',
+                        documentNo: updatedHeader.rfq_no,
+                        documentType: 'RFQ',
+                        documentId: BigInt(updatedHeader.rfq_id),
+                        tableName: 'rfq_vendor',
+                        recordId: BigInt(updatedVendor.rfq_vendor_id),
+                        oldData: oldVendor,
+                        newData: updatedVendor,
+                        actionType: 'UPDATE',
+                        userId: BigInt(updatedHeader.requested_by_user_id),
+                        requestId: context.request_id,
+                        clientIp: context.client_ip,
+                        userAgent: context.user_agent,
+                    });
+                }
+            }
+
             return updatedHeader;
+
+        });
+
+    }
+
+    async findVendors(rfq_id: number) {
+        return this.prisma.rfq_vendor.findMany({
+            where: { rfq_id }
         });
     }
 

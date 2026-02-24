@@ -1,23 +1,32 @@
 export function diffById<
     TExisting extends Record<string, any>,
     TIncoming extends Record<string, any>,
-    K extends keyof any
+    K extends keyof TExisting & keyof TIncoming
 >(
     existing: TExisting[],
     incoming: TIncoming[],
     idKey: K
-) {
-    const incomingIds = new Set(
-        incoming
-            .map(i => (i as any)[idKey])
-            .filter(id => id !== undefined && id !== null)
+): {
+    toCreate: TIncoming[];
+    toUpdate: TIncoming[];
+    toDelete: TExisting[];
+} {
+
+    const safeIncoming = (incoming ?? []).filter(Boolean);
+
+    const incomingIds = new Set<number>(
+        safeIncoming
+            .map(i => i[idKey])
+            .filter(id => id != null)
+            .map(id => Number(id))
     );
 
-    const toCreate = incoming.filter(i => !(i as any)[idKey]);
-    const toUpdate = incoming.filter(i => (i as any)[idKey]);
+    const toCreate = safeIncoming.filter(i => i[idKey] == null);
 
-    const toDelete = existing.filter(
-        e => !incomingIds.has((e as any)[idKey])
+    const toUpdate = safeIncoming.filter(i => i[idKey] != null);
+
+    const toDelete = (existing ?? []).filter(
+        e => !incomingIds.has(Number(e[idKey]))
     );
 
     return { toCreate, toUpdate, toDelete };

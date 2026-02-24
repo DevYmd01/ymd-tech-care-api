@@ -1086,7 +1086,7 @@ model rfq_line {
     /// รหัสใบขอซื้อ (FK)
     rfq_id      Int
     /// ลำดับ
-    line_no     Int     @unique
+    line_no     Int
     /// รหัสสินค้า (FK)
     pr_line_id  Int
     /// รหัสสินค้า (FK)
@@ -1120,8 +1120,13 @@ model rfq_vendor {
     rfq_vendor_id Int        @id @default(autoincrement())
     rfq_id        Int
     vendor_id     Int
-    status        String     @db.VarChar(20)
+    status        String?    @db.VarChar(20)
+    is_active     Boolean?   @default(true)
+    //วันที่เชิญ
+    invited_at    DateTime?
+    //วันที่ส่งใบเสนอราคา
     sent_at       DateTime?
+    //วันที่ตอบกลับใบเสนอราคา
     responded_at  DateTime?
     contact_email String?    @db.VarChar(255)
     note          String?    @db.Text

@@ -2,13 +2,11 @@ import { Prisma } from "@prisma/client";
 import { UpdateRFQLineDTO } from "../dto/update-rfq-line.dto";
 
 export class UpdateRFQLineMapper {
-    static toPrismaUpdateInput(
-        lines: UpdateRFQLineDTO[],
-        rfq_id: number,
-    ): Prisma.rfq_lineUncheckedUpdateInput[] {
 
-        return lines.map(line => ({
-            rfq_id: rfq_id,
+    static toData(line: UpdateRFQLineDTO, rfq_id: number) {
+
+        return {
+            rfq_id,
 
             line_no: line.line_no,
             pr_line_id: line.pr_line_id,
@@ -22,6 +20,8 @@ export class UpdateRFQLineMapper {
             required_receipt_type: line.required_receipt_type ?? null,
             target_delivery_date: line.target_delivery_date ?? null,
             note_to_vendor: line.note_to_vendor ?? null,
-        }));
+        };
+
     }
+
 }

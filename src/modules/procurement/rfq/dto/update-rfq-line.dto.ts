@@ -3,9 +3,10 @@ import { Type } from "class-transformer";
 
 export class UpdateRFQLineDTO {
 
-    @IsNotEmpty()
+    @IsOptional()
+    @Type(() => Number)
     @IsNumber()
-    rfq_line_id: number;
+    rfq_line_id?: number;
 
     @IsNotEmpty()
     @IsNumber()

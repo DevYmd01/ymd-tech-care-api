@@ -33,6 +33,7 @@ import { ProjectModule } from './modules/master-data/project/project.module';
 import { CostCentersModule } from './modules/master-data/cost-centers/cost-centers.module';
 import { RfqModule } from './modules/procurement/rfq/rfq.module';
 import { QtModule } from './modules/procurement/qt/qt.module';
+import { AuditModule } from './modules/audit/audit.module';
 
 @Module({
   imports: [
@@ -65,7 +66,8 @@ import { QtModule } from './modules/procurement/qt/qt.module';
     ProjectModule,
     CostCentersModule,
     RfqModule,
-    QtModule
+    QtModule,
+    AuditModule
   ],
   controllers: [AppController],
   providers: [AppService],

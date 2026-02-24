@@ -12,6 +12,7 @@ import { RFQMapper } from './mapper/create-rfq-header.mapper';
 import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
 import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
 import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
+import { AuditService } from '@/modules/audit/audit.service';
 
 
 @Module({
@@ -28,7 +29,8 @@ import { UpdateRFQHeaderMapper } from './mapper/update-rfq-header.mapper';
     RFQMapper,
     UpdateRFQLineMapper,
     UpdateRFQVendorMapper,
-    UpdateRFQHeaderMapper
+    UpdateRFQHeaderMapper,
+    AuditService
   ]
 })
 export class RfqModule { }
