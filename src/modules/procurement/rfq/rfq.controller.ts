@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Get, Patch, Param, Request, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Request, Query, Res } from '@nestjs/common';
 import { RfqService } from './rfq.service';
+import express from 'express'; // ⭐ เพิ่มบรรทัดนี้
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
+import { SendToVendorDTO } from './dto/send-to-vendor.dto';
 
 @Controller('rfq')
 export class RfqController {
@@ -37,4 +39,25 @@ export class RfqController {
     async findVendors(@Param('rfq_id') rfq_id: number) {
         return this.rfqService.findVendors(rfq_id);
     }
+
+    @Patch(':rfq_id/send-to-vendor')
+    async sendToVendor(@Param('rfq_id') rfq_id: number, @Body() sendToVendorDTO: SendToVendorDTO, @Request() req: any) {
+        return this.rfqService.sendToVendor(rfq_id, sendToVendorDTO, req.context);
+    }
+
+    @Get('vendor/:id/pdf')
+    async getVendorPDF(
+        @Param('id') id: number,
+        @Res() res: express.Response
+    ) {
+
+        const pdfBuffer = await this.rfqService.getRFQVendorPDF(+id);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename=rfq.pdf');
+
+        return res.send(pdfBuffer);
+    }
+
+
 }

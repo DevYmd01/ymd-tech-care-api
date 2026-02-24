@@ -1,4 +1,4 @@
-import { Injectable, Query } from '@nestjs/common';
+import { Injectable, Query, NotFoundException } from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
 import { CreateRFQLineRepository } from './repository/rfq-line.repository';
@@ -14,6 +14,8 @@ import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
 import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
 import { diffById } from '@/common/utils';
 import { AuditService } from '@/modules/audit/audit.service';
+import { SendToVendorDTO } from './dto/send-to-vendor.dto';
+import { PdfService } from '@/modules/pdf/pdf.service';
 
 @Injectable()
 export class RfqService {
@@ -24,7 +26,8 @@ export class RfqService {
         private readonly createRFQHeaderRepository: CreateRFQHeaderRepository,
         private readonly createRFQLineRepository: CreateRFQLineRepository,
         private readonly createRFQVendorRepository: CreateRFQVendorRepository,
-        private readonly auditService: AuditService
+        private readonly auditService: AuditService,
+        private readonly pdfService: PdfService
     ) { }
 
     async createRFQ(rfqHeader: CreateRFQHeaderDTO, context: any) {
@@ -429,8 +432,67 @@ export class RfqService {
         }));
     }
 
+    //-------------- send to vendor ----------------
+    async sendToVendor(rfq_id: number, dto: SendToVendorDTO, context: any) {
+
+        const rfq = await this.prisma.rfq_header.findUnique({
+            where: { rfq_id }
+        });
+
+        if (!rfq) {
+            throw new NotFoundException('RFQ not found');
+        }
+
+        const rfqVendors = await this.prisma.rfq_vendor.findMany({
+            where: { rfq_id }
+        });
+
+        for (const rfqVendor of rfqVendors) {
+            const pdfBuffer = await this.getRFQVendorPDF(rfqVendor.rfq_vendor_id);
+
+            await this.emailService.sendEmail({
+                to: rfqVendor.vendor.email,
+                subject: `RFQ ${rfq.rfq_no}`,
+                text: `Please find the attached RFQ ${rfq.rfq_no}`,
+                attachments: [
+                    {
+                        filename: `rfq-${rfq.rfq_no}.pdf`,
+                        content: pdfBuffer,
+                        contentType: 'application/pdf',
+                    },
+                ],
+            });
+        }
+    }
+
+    async getRFQVendorPDF(rfq_vendor_id: number) {
+
+        const data = await this.prisma.rfq_vendor.findUnique({
+            where: { rfq_vendor_id },
+            include: {
+                rfq: {
+                    include: {
+                        rfqLines: {
+                            include: { item: true }
+                        }
+                    }
+                },
+                vendor: true
+            }
+        });
+
+        if (!data) {
+            throw new NotFoundException('RFQ Vendor not found');
+        }
+
+        // ⭐⭐ จุดสำคัญ ⭐⭐
+        const pdfBuffer = await this.pdfService.generateRFQ(data);
+        // console.log(data);
+        return pdfBuffer;
+    }
+
+
+
 
 }
-
-
 

@@ -34,6 +34,9 @@ import { CostCentersModule } from './modules/master-data/cost-centers/cost-cente
 import { RfqModule } from './modules/procurement/rfq/rfq.module';
 import { QtModule } from './modules/procurement/qt/qt.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { PdfService } from './modules/pdf/pdf.service';
+import { PdfModule } from './modules/pdf/pdf.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -67,10 +70,12 @@ import { AuditModule } from './modules/audit/audit.module';
     CostCentersModule,
     RfqModule,
     QtModule,
-    AuditModule
+    AuditModule,
+    PdfModule,
+    MailModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PdfService],
 })
 
 export class AppModule implements NestModule {
