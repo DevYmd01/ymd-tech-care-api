@@ -18,6 +18,7 @@ import { UpdatePRLineRepository } from './repositories/update-pr-line-repository
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
 import { StatusPRHeaderRepository } from './repositories/status-pr-header.repository';
+import { formatDate } from '@/common/utils/date.util';
 
 @Injectable()
 export class PrService {
@@ -264,8 +265,17 @@ export class PrService {
 
         const { data, total } = await this.showAllPRHeaderRepository.findAll(skip, pageSize);
 
+        const formattedData = data.map(item => ({
+            ...item,
+            pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
+            pr_date: formatDate(item.pr_date),
+            need_by_date: formatDate(item.need_by_date),
+            created_at: formatDate(item.created_at),
+            updated_at: formatDate(item.updated_at),
+        }));
+
         return {
-            data,
+            data: formattedData,
             total,
             page,
             pageSize,

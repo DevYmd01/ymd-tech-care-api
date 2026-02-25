@@ -4,7 +4,7 @@ import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
 
 
-@Controller('procurement/pr')
+@Controller('pr')
 export class PrController {
     constructor(private readonly PrService: PrService) { }
 

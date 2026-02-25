@@ -129,8 +129,23 @@ model warehouse {
     updated_at     DateTime   @updatedAt
     branch         org_branch @relation(fields: [branch_id], references: [branch_id])
     prLines        pr_line[]
+    locations      location[]
 
     @@map("warehouse")
+}
+
+model location {
+    location_id      Int       @id @default(autoincrement())
+    warehouse_id     Int
+    location_code    String    @unique @db.VarChar(20)
+    location_name    String    @db.VarChar(200)
+    location_nameeng String    @db.VarChar(200)
+    is_active        Boolean   @default(true)
+    created_at       DateTime  @default(now())
+    updated_at       DateTime  @updatedAt
+    warehouse        warehouse @relation(fields: [warehouse_id], references: [warehouse_id])
+
+    @@map("location")
 }
 
 /// ไม่
@@ -414,6 +429,8 @@ model vendor {
     /// ชื่อเจ้าหนี้
     vendor_name            String                    @db.VarChar(255)
     /// เลขที่ผู้เสียภาษี
+    tax_id                 String?                   @db.VarChar(20)
+    /// เลขที่ผู้เสียภาษี
     vat_registration_no    String?                   @db.VarChar(20)
     /// ถูกหัก ณ ที่จ่ายหรือไม่
     subject_to_wht         Boolean                   @default(false)
@@ -439,6 +456,8 @@ model vendor {
     is_vat_registered      Boolean                   @default(false)
     /// จด VAT หรือไม่
     is_subject_to_wht      Boolean                   @default(false)
+    /// สถานะ
+    status                 String                    @default("ACTIVE") @db.VarChar(20)
     currency               currency?                 @relation(fields: [currency_id], references: [currency_id])
     vendor_group           vendor_group              @relation(fields: [vendor_group_id], references: [vendor_group_id])
     vendor_type            vendor_type               @relation(fields: [vendor_type_id], references: [vendor_type_id])
@@ -1133,6 +1152,7 @@ model rfq_vendor {
     created_at    DateTime   @default(now())
     //วันที่อัปเดต
     updated_at    DateTime   @updatedAt
+    //หมายเหตุ
     note          String?    @db.Text
     rfq           rfq_header @relation(fields: [rfq_id], references: [rfq_id])
     vendor        vendor     @relation(fields: [vendor_id], references: [vendor_id])

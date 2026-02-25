@@ -37,6 +37,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { PdfService } from './modules/pdf/pdf.service';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { MailModule } from './modules/mail/mail.module';
+import { LocationModule } from './modules/master-data/location/location.module';
 
 @Module({
   imports: [
@@ -72,7 +73,8 @@ import { MailModule } from './modules/mail/mail.module';
     QtModule,
     AuditModule,
     PdfModule,
-    MailModule
+    MailModule,
+    LocationModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
