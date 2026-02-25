@@ -16,10 +16,19 @@ async function bootstrap() {
     }),
   );
 
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
+
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: (origin: any, callback: any) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
+
 
   app.setGlobalPrefix('api');
 
