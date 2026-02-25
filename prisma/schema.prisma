@@ -139,7 +139,7 @@ model location {
     warehouse_id     Int
     location_code    String    @unique @db.VarChar(20)
     location_name    String    @db.VarChar(200)
-    location_nameeng String    @db.VarChar(200)
+    location_nameeng String?   @db.VarChar(200)
     is_active        Boolean   @default(true)
     created_at       DateTime  @default(now())
     updated_at       DateTime  @updatedAt
