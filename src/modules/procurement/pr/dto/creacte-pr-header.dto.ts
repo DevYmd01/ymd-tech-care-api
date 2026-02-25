@@ -112,6 +112,10 @@ export class CreatePRHeaderDTO {
     @Type(() => Number)
     project_id?: number;
 
+    @IsString()
+    @Type(() => String)
+    status?: string;
+
 }
 
 

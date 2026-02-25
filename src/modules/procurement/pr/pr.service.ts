@@ -114,7 +114,7 @@ export class PrService {
                     pr_no: documentNo,
                     pr_date: new Date(dto.pr_date),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
-                    status: 'DRAFT',
+                    status: dto.status ?? 'DRAFT',
                     remark: dto.remark ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
@@ -179,6 +179,7 @@ export class PrService {
                         est_unit_price: Number(line.est_unit_price),
                         required_receipt_type: line.required_receipt_type,
                         line_discount_raw: line.line_discount_raw,
+
 
                         pr: {
                             connect: { pr_id: createdHeader.pr_id },
