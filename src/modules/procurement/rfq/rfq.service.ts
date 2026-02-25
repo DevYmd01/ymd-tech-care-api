@@ -16,6 +16,7 @@ import { diffById } from '@/common/utils';
 import { AuditService } from '@/modules/audit/audit.service';
 import { SendToVendorDTO } from './dto/send-to-vendor.dto';
 import { PdfService } from '@/modules/pdf/pdf.service';
+import { MailService } from '@/modules/mail/mail.service';
 
 @Injectable()
 export class RfqService {
@@ -27,7 +28,8 @@ export class RfqService {
         private readonly createRFQLineRepository: CreateRFQLineRepository,
         private readonly createRFQVendorRepository: CreateRFQVendorRepository,
         private readonly auditService: AuditService,
-        private readonly pdfService: PdfService
+        private readonly pdfService: PdfService,
+        private readonly mailService: MailService
     ) { }
 
     async createRFQ(rfqHeader: CreateRFQHeaderDTO, context: any) {
@@ -433,36 +435,40 @@ export class RfqService {
     }
 
     //-------------- send to vendor ----------------
-    async sendToVendor(rfq_id: number, dto: SendToVendorDTO, context: any) {
+    async sendToVendor(rfq_vendor_id: number, dto: SendToVendorDTO, context: any) {
 
-        const rfq = await this.prisma.rfq_header.findUnique({
-            where: { rfq_id }
+        const rfqVendor = await this.prisma.rfq_vendor.findUnique({
+            where: { rfq_vendor_id },
+            include: {
+                rfq: {
+                    include: {
+                        rfqLines: {
+                            include: { item: true }
+                        }
+                    }
+                },
+                vendor: true
+            }
         });
 
-        if (!rfq) {
-            throw new NotFoundException('RFQ not found');
+        if (!rfqVendor) {
+            throw new NotFoundException('RFQ Vendor not found');
         }
 
-        const rfqVendors = await this.prisma.rfq_vendor.findMany({
-            where: { rfq_id }
-        });
+        const pdfBuffer = await this.pdfService.generateRFQ(rfqVendor);
 
-        for (const rfqVendor of rfqVendors) {
-            const pdfBuffer = await this.getRFQVendorPDF(rfqVendor.rfq_vendor_id);
+        await this.mailService.sendMail(
+            "candycake96@gmail.com",
+            'RFQ',
+            'RFQ',
+            [
+                {
+                    filename: 'rfq.pdf',
+                    content: pdfBuffer
+                }
+            ]
+        );
 
-            await this.emailService.sendEmail({
-                to: rfqVendor.vendor.email,
-                subject: `RFQ ${rfq.rfq_no}`,
-                text: `Please find the attached RFQ ${rfq.rfq_no}`,
-                attachments: [
-                    {
-                        filename: `rfq-${rfq.rfq_no}.pdf`,
-                        content: pdfBuffer,
-                        contentType: 'application/pdf',
-                    },
-                ],
-            });
-        }
     }
 
     async getRFQVendorPDF(rfq_vendor_id: number) {

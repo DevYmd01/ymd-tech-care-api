@@ -5,11 +5,12 @@ import { MailerService } from '@nestjs-modules/mailer';
 export class MailService {
     constructor(private mailerService: MailerService) { }
 
-    async sendMail(to: string, subject: string, html: string) {
+    async sendMail(to: string, subject: string, html: string, attachments?: any[]) {
         await this.mailerService.sendMail({
             to,
             subject,
             html,
+            attachments,
         });
     }
 }
