@@ -30,9 +30,11 @@ export const multerOptions: MulterOptions = {
 
         filename: (req, file, cb) => {
 
+            // 1️⃣ generate unique filename
             const uniqueSuffix =
                 Date.now() + '-' + Math.round(Math.random() * 1e9);
 
+            // 2️⃣ generate filename
             cb(
                 null,
                 `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
@@ -47,6 +49,7 @@ export const multerOptions: MulterOptions = {
 
     fileFilter: (req, file, cb) => {
 
+        // 1️⃣ define allowed file types
         const allowedTypes = [
             'image/png',
             'image/jpeg',
@@ -54,6 +57,7 @@ export const multerOptions: MulterOptions = {
             'application/pdf',
         ];
 
+        // 2️⃣ check file type
         if (!allowedTypes.includes(file.mimetype)) {
             return cb(new Error('Invalid file type'), false);
         }
