@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { winstonLogger } from './logger/winston.config';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: winstonLogger, // 👈 เพิ่มแค่นี้
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: winstonLogger,
   });
 
   app.useGlobalPipes(
@@ -29,10 +31,14 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['/uploads/(.*)'],
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-

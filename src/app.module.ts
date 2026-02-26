@@ -38,9 +38,14 @@ import { PdfService } from './modules/pdf/pdf.service';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { MailModule } from './modules/mail/mail.module';
 import { LocationModule } from './modules/master-data/location/location.module';
+import { CompanyModule } from './modules/master-data/company/company.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     OrgBranchModule,
     PrismaModule,
     VendorsModule,
@@ -74,7 +79,8 @@ import { LocationModule } from './modules/master-data/location/location.module';
     AuditModule,
     PdfModule,
     MailModule,
-    LocationModule
+    LocationModule,
+    CompanyModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

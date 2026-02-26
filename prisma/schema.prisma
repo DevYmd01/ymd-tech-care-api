@@ -44,6 +44,28 @@ model employees {
     rfqHeaders            rfq_header[]       @relation("requested_by_user")
 }
 
+/// ตารางเก็บข้อมูลบริษัท
+model company {
+    company_id         Int      @id @default(autoincrement())
+    company_code       String   @unique @db.VarChar(20)
+    company_name       String   @db.VarChar(200)
+    company_nameeng    String?  @db.VarChar(200)
+    company_address    String?  @db.VarChar(255)
+    company_addresseng String?  @db.VarChar(255)
+    company_phone      String?  @db.VarChar(20)
+    company_email      String?  @db.VarChar(200)
+    company_fax        String?  @db.VarChar(20)
+    company_tax_id     String?  @db.VarChar(20)
+    company_vat_id     String?  @db.VarChar(20)
+    company_type       String?  @db.VarChar(50)
+    company_status     String?  @db.VarChar(50)
+    company_logo       String?  @db.VarChar(255)
+    company_stamp      String?  @db.VarChar(255)
+    is_active          Boolean  @default(true)
+    created_at         DateTime @default(now())
+    updated_at         DateTime @updatedAt
+}
+
 /// ตารางเก็บข้อมูลการ login
 model employee_auth {
     employee_id Int       @id
