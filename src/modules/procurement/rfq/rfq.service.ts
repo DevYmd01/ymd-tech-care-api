@@ -435,8 +435,8 @@ export class RfqService {
     }
 
     //-------------- send to vendor ----------------
-    async sendToVendor(rfq_vendor_id: number, dto: SendToVendorDTO, context: any) {
-
+    async sendToVendor(rfq_vendor_id: number, context: any) {
+        console.log("rfq_vendor_id", rfq_vendor_id);
         const rfqVendor = await this.prisma.rfq_vendor.findUnique({
             where: { rfq_vendor_id },
             include: {
@@ -461,12 +461,7 @@ export class RfqService {
             "candycake96@gmail.com",
             'RFQ',
             'RFQ',
-            [
-                {
-                    filename: 'rfq.pdf',
-                    content: pdfBuffer
-                }
-            ]
+
         );
 
     }

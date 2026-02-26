@@ -92,18 +92,17 @@ model employee_address {
 
 /// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_code            String                    @unique @db.VarChar(20)
-    branch_name            String                    @db.VarChar(200)
-    is_active              Boolean                   @default(true)
-    branch_id              Int                       @id @default(autoincrement())
-    created_at             DateTime                  @default(now())
-    updated_at             DateTime                  @updatedAt
-    employees              employees[]
-    prHeaders              pr_header[]
-    rfqHeaders             rfq_header[]
-    warehouses             warehouse[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
+    branch_code String       @unique @db.VarChar(20)
+    branch_name String       @db.VarChar(200)
+    is_active   Boolean      @default(true)
+    branch_id   Int          @id @default(autoincrement())
+    created_at  DateTime     @default(now())
+    updated_at  DateTime     @updatedAt
+    employees   employees[]
+    prHeaders   pr_header[]
+    rfqHeaders  rfq_header[]
+    warehouses  warehouse[]
+    vqHeaders   vq_header[]
 
     @@map("org_branch")
 }
@@ -217,6 +216,7 @@ model item {
     itemUoms              item_uom[]
     prLines               pr_line[]
     rfqLines              rfq_line[]
+    vqLines               vq_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -447,51 +447,51 @@ model item_group {
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
     /// รหัสเจ้าหนี้
-    vendor_code            String                    @db.VarChar(30)
+    vendor_code         String                 @db.VarChar(30)
     /// ชื่อเจ้าหนี้
-    vendor_name            String                    @db.VarChar(255)
+    vendor_name         String                 @db.VarChar(255)
     /// เลขที่ผู้เสียภาษี
-    tax_id                 String?                   @db.VarChar(20)
+    tax_id              String?                @db.VarChar(20)
     /// เลขที่ผู้เสียภาษี
-    vat_registration_no    String?                   @db.VarChar(20)
+    vat_registration_no String?                @db.VarChar(20)
     /// ถูกหัก ณ ที่จ่ายหรือไม่
-    subject_to_wht         Boolean                   @default(false)
+    subject_to_wht      Boolean                @default(false)
     /// เครดิตเทอม (วัน)
-    payment_term_days      Int
+    payment_term_days   Int
     /// รหัสเจ้าหนี้
-    vendor_id              Int                       @id @default(autoincrement())
-    created_at             DateTime                  @default(now())
+    vendor_id           Int                    @id @default(autoincrement())
+    created_at          DateTime               @default(now())
     /// อีเมล
-    email                  String?                   @db.VarChar(255)
+    email               String?                @db.VarChar(255)
     /// สถานะ
-    is_active              Boolean                   @default(true)
+    is_active           Boolean                @default(true)
     /// เบอร์โทรศัพท์
-    phone                  String?                   @db.VarChar(20)
-    updated_at             DateTime                  @updatedAt
+    phone               String?                @db.VarChar(20)
+    updated_at          DateTime               @updatedAt
     /// รหัสกลุ่มเจ้าหนี้
-    vendor_group_id        Int
+    vendor_group_id     Int
     /// รหัสประเภทเจ้าหนี้
-    vendor_type_id         Int
+    vendor_type_id      Int
     /// สกุลเงิน
-    currency_id            Int?
+    currency_id         Int?
     /// จด VAT หรือไม่
-    is_vat_registered      Boolean                   @default(false)
+    is_vat_registered   Boolean                @default(false)
     /// จด VAT หรือไม่
-    is_subject_to_wht      Boolean                   @default(false)
+    is_subject_to_wht   Boolean                @default(false)
     /// สถานะ
-    status                 String                    @default("ACTIVE") @db.VarChar(20)
-    currency               currency?                 @relation(fields: [currency_id], references: [currency_id])
-    vendor_group           vendor_group              @relation(fields: [vendor_group_id], references: [vendor_group_id])
-    vendor_type            vendor_type               @relation(fields: [vendor_type_id], references: [vendor_type_id])
-    vendorAddresses        vendor_address[]
-    vendorBankAccounts     vendor_bank_accounts[]
-    vendorContacts         vendor_contacts[]
-    vendorDocuments        vendor_documents[]
-    vendorPerformances     vendor_performance[]
-    prHeaders              pr_header[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
-    rfqVendors             rfq_vendor[]
+    status              String                 @default("ACTIVE") @db.VarChar(20)
+    currency            currency?              @relation(fields: [currency_id], references: [currency_id])
+    vendor_group        vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
+    vendor_type         vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
+    vendorAddresses     vendor_address[]
+    vendorBankAccounts  vendor_bank_accounts[]
+    vendorContacts      vendor_contacts[]
+    vendorDocuments     vendor_documents[]
+    vendorPerformances  vendor_performance[]
+    prHeaders           pr_header[]
+    rfqVendors          rfq_vendor[]
+    vqHeaders           vq_header[]
+    vqLines             vq_line[]
 
     @@map("vendor")
 }
@@ -725,15 +725,14 @@ model payment_terms {
 /// ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
     /// รหัสศูนย์ต้นทุน
-    cost_center_code       String                    @unique @db.VarChar(30)
+    cost_center_code String       @unique @db.VarChar(30)
     /// ชื่อศูนย์ต้นทุน
-    cost_center_name       String                    @db.VarChar(200)
+    cost_center_name String       @db.VarChar(200)
     /// รหัสศูนย์ต้นทุน
-    cost_center_id         Int                       @id @default(autoincrement())
-    is_active              Boolean                   @default(true)
-    rfqHeaders             rfq_header[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
+    cost_center_id   Int          @id @default(autoincrement())
+    is_active        Boolean      @default(true)
+    rfqHeaders       rfq_header[]
+    vqHeaders        vq_header[]
 
     @@map("cost_center")
 }
@@ -741,25 +740,24 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code           String                    @unique @db.VarChar(30)
+    project_code  String       @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name           String                    @db.VarChar(200)
+    project_name  String       @db.VarChar(200)
     /// รหัสโครงการ
-    project_id             Int                       @id @default(autoincrement())
+    project_id    Int          @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount          Decimal?                  @db.Decimal(15, 2)
+    budget_amount Decimal?     @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
-    description            String?
+    description   String?
     /// วันที่สิ้นสุดโครงการ
-    end_date               DateTime?
+    end_date      DateTime?
     /// วันที่เริ่มต้นโครงการ
-    start_date             DateTime?
+    start_date    DateTime?
     /// สถานะโครงการ
-    is_active              Boolean                   @default(true)
-    rfqHeaders             rfq_header[]
-    prHeaders              pr_header[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
+    is_active     Boolean      @default(true)
+    rfqHeaders    rfq_header[]
+    prHeaders     pr_header[]
+    vqHeaders     vq_header[]
 
     @@map("project")
 }
@@ -996,16 +994,15 @@ model pr_header {
     version             Int       @default(1)
 
     /// ผู้อนุมัติ
-    approved_by_user       employees?                @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
-    preferredVendor        vendor?                   @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    branch                 org_branch?               @relation(fields: [branch_id], references: [branch_id])
-    requester_user         employees                 @relation("requester_user", fields: [requester_user_id], references: [employee_id])
-    project                project?                  @relation(fields: [project_id], references: [project_id])
-    prLines                pr_line[]
-    quoteCompareHeaders    quote_compare_header[]
-    rfqHeaders             rfq_header[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
+    approved_by_user    employees?             @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
+    preferredVendor     vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    branch              org_branch?            @relation(fields: [branch_id], references: [branch_id])
+    requester_user      employees              @relation("requester_user", fields: [requester_user_id], references: [employee_id])
+    project             project?               @relation(fields: [project_id], references: [project_id])
+    prLines             pr_line[]
+    quoteCompareHeaders quote_compare_header[]
+    rfqHeaders          rfq_header[]
+    vqHeaders           vq_header[]
 
     @@map("pr_header")
 }
@@ -1059,6 +1056,7 @@ model pr_line {
     warehouse             warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
     tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
     rfqLines              rfq_line[]
+    vqLines               vq_line[]
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -1104,20 +1102,19 @@ model rfq_header {
     remarks           String?
 
     /// ศูนย์ต้นทุน (FK)
-    cost_center_id         Int?
+    cost_center_id    Int?
     /// โครงการ (FK)
-    project_id             Int?
-    created_at             DateTime                  @default(now())
-    updated_at             DateTime                  @updatedAt
-    branch                 org_branch?               @relation(fields: [branch_id], references: [branch_id])
-    requested_by_user      employees                 @relation("requested_by_user", fields: [requested_by_user_id], references: [employee_id])
-    pr                     pr_header                 @relation(fields: [pr_id], references: [pr_id])
-    cost_center            cost_center?              @relation(fields: [cost_center_id], references: [cost_center_id])
-    project                project?                  @relation(fields: [project_id], references: [project_id])
-    rfqLines               rfq_line[]
-    vendorQuotationHeaders vendor_quotation_header[]
-    vendorQuotationLines   vendor_quotation_line[]
-    rfqVendors             rfq_vendor[]
+    project_id        Int?
+    created_at        DateTime     @default(now())
+    updated_at        DateTime     @updatedAt
+    branch            org_branch?  @relation(fields: [branch_id], references: [branch_id])
+    requested_by_user employees    @relation("requested_by_user", fields: [requested_by_user_id], references: [employee_id])
+    pr                pr_header    @relation(fields: [pr_id], references: [pr_id])
+    cost_center       cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
+    project           project?     @relation(fields: [project_id], references: [project_id])
+    rfqLines          rfq_line[]
+    rfqVendors        rfq_vendor[]
+    vqHeaders         vq_header[]
 }
 
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
@@ -1183,106 +1180,104 @@ model rfq_vendor {
     @@index([rfq_id])
 }
 
-model vendor_quotation_header {
+model vq_header {
     /// รหัสใบเสนอราคา (PK)
-    vendor_quotation_header_id Int          @id @default(autoincrement())
+    vq_header_id       Int          @id @default(autoincrement())
     /// เลขที่ใบเสนอราคา
-    vendor_quotation_no        String       @unique @db.VarChar(30)
+    vq_no              String       @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
-    pr_id                      Int
+    pr_id              Int
     /// รหัสใบขอซื้อ (FK)
-    rfq_id                     Int
+    rfq_id             Int
     /// รหัสผู้ขาย (FK)
-    vendor_id                  Int
+    vendor_id          Int
     /// รหัสสาขา (FK)
-    branch_id                  Int
+    branch_id          Int
     /// ผู้ขอ
-    requested_by               String       @db.VarChar(50)
+    requested_by       String       @db.VarChar(50)
     /// สถานะ
-    status                     String       @db.VarChar(20)
+    status             String       @db.VarChar(20)
     /// วันที่ต้องการ
-    quotation_due_date         DateTime?
+    quotation_due_date DateTime?
     /// รหัสสกุลเงิน
-    currency_code              String       @db.VarChar(3)
+    currency_code      String       @db.VarChar(3)
     /// อัตราแลกเปลี่ยน
-    exchange_rate              Decimal      @db.Decimal(18, 2)
+    exchange_rate      Decimal      @db.Decimal(18, 2)
     /// สถานที่รับสินค้า
-    receive_location           String?
+    receive_location   String?
     /// เงื่อนไขการชำระเงิน
-    payment_term_hint          String?      @db.VarChar(20)
+    payment_term_hint  String?      @db.VarChar(20)
     /// เงื่อนไขการส่งมอบ
-    incoterm                   String?      @db.VarChar(20)
+    incoterm           String?      @db.VarChar(20)
     /// หมายเหตุ
-    remarks                    String?
+    remarks            String?
     /// ศูนย์ต้นทุน (FK)
-    cost_center_id             Int?
+    cost_center_id     Int?
     /// โครงการ (FK)
-    project_id                 Int?
+    project_id         Int?
     /// งบประมาณ (FK)
-    budget_id                  Int?
+    budget_id          Int?
     /// บัญชี GL (FK)
-    gl_account_id              Int?
-    created_at                 DateTime     @default(now())
-    updated_at                 DateTime     @updatedAt
-    branch                     org_branch   @relation(fields: [branch_id], references: [branch_id])
-    pr                         pr_header    @relation(fields: [pr_id], references: [pr_id])
-    rfq                        rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
-    vendor                     vendor       @relation(fields: [vendor_id], references: [vendor_id])
-    cost_center                cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
-    project                    project?     @relation(fields: [project_id], references: [project_id])
+    gl_account_id      Int?
+    created_at         DateTime     @default(now())
+    updated_at         DateTime     @updatedAt
+    branch             org_branch   @relation(fields: [branch_id], references: [branch_id])
+    pr                 pr_header    @relation(fields: [pr_id], references: [pr_id])
+    rfq                rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
+    vendor             vendor       @relation(fields: [vendor_id], references: [vendor_id])
+    cost_center        cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
+    project            project?     @relation(fields: [project_id], references: [project_id])
+    vqLines            vq_line[]
 }
 
-model vendor_quotation_line {
+model vq_line {
     /// รหัสใบเสนอราคา (PK)
-    vendor_quotation_line_id Int          @id @default(autoincrement())
+    vq_line_id         Int       @id @default(autoincrement())
+    vq_header_id       Int
     /// ลำดับ
-    line_no                  Int
+    line_no            Int
     /// รหัสสินค้า (FK)
-    item_id                  Int?
+    item_id            Int?
     /// รายละเอียด
-    description              String?
+    description        String?
     /// รหัสใบขอซื้อ (FK)
-    pr_id                    Int
+    pr_line_id         Int
     /// รหัสใบขอซื้อ (FK)
-    rfq_id                   Int
+    rfq_id             Int
     /// รหัสผู้ขาย (FK)
-    vendor_id                Int
-    /// รหัสสาขา (FK)
-    branch_id                Int
+    vendor_id          Int
     /// ผู้ขอ
-    requested_by             String       @db.VarChar(50)
+    requested_by       String    @db.VarChar(50)
     /// สถานะ
-    status                   String       @db.VarChar(20)
+    status             String    @db.VarChar(20)
     /// วันที่ต้องการ
-    quotation_due_date       DateTime?
+    quotation_due_date DateTime?
     /// รหัสสกุลเงิน
-    currency_code            String       @db.VarChar(3)
+    currency_code      String    @db.VarChar(3)
     /// อัตราแลกเปลี่ยน
-    exchange_rate            Decimal      @db.Decimal(18, 2)
+    exchange_rate      Decimal   @db.Decimal(18, 2)
     /// สถานที่รับสินค้า
-    receive_location         String?
+    receive_location   String?
     /// เงื่อนไขการชำระเงิน
-    payment_term_hint        String?      @db.VarChar(20)
+    payment_term_hint  String?   @db.VarChar(20)
     /// เงื่อนไขการส่งมอบ
-    incoterm                 String?      @db.VarChar(20)
+    incoterm           String?   @db.VarChar(20)
     /// หมายเหตุ
-    remarks                  String?
+    remarks            String?
     /// ศูนย์ต้นทุน (FK)
-    cost_center_id           Int?
+    cost_center_id     Int?
     /// โครงการ (FK)
-    project_id               Int?
+    project_id         Int?
     /// งบประมาณ (FK)
-    budget_id                Int?
+    budget_id          Int?
     /// บัญชี GL (FK)
-    gl_account_id            Int?
-    created_at               DateTime     @default(now())
-    updated_at               DateTime     @updatedAt
-    branch                   org_branch   @relation(fields: [branch_id], references: [branch_id])
-    pr                       pr_header    @relation(fields: [pr_id], references: [pr_id])
-    rfq                      rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
-    vendor                   vendor       @relation(fields: [vendor_id], references: [vendor_id])
-    cost_center              cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
-    project                  project?     @relation(fields: [project_id], references: [project_id])
+    gl_account_id      Int?
+    created_at         DateTime  @default(now())
+    updated_at         DateTime  @updatedAt
+    vendor             vendor    @relation(fields: [vendor_id], references: [vendor_id])
+    vq                 vq_header @relation(fields: [vq_header_id], references: [vq_header_id])
+    item               item?     @relation(fields: [item_id], references: [item_id])
+    prLine             pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
 }
 
 /// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)

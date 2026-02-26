@@ -40,6 +40,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { LocationModule } from './modules/master-data/location/location.module';
 import { CompanyModule } from './modules/master-data/company/company.module';
 import { ConfigModule } from '@nestjs/config';
+import { VqModule } from './modules/procurement/vq/vq.module';
 
 @Module({
   imports: [
@@ -80,7 +81,8 @@ import { ConfigModule } from '@nestjs/config';
     PdfModule,
     MailModule,
     LocationModule,
-    CompanyModule
+    CompanyModule,
+    VqModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

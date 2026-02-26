@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, Request, Query, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Request, Query, Res, ParseIntPipe } from '@nestjs/common';
 import { RfqService } from './rfq.service';
 import express from 'express'; // ⭐ เพิ่มบรรทัดนี้
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
@@ -40,10 +40,17 @@ export class RfqController {
         return this.rfqService.findVendors(rfq_id);
     }
 
-    @Post(':rfq_id/send-to-vendor')
-    async sendToVendor(@Param('rfq_id') rfq_id: number, @Body() sendToVendorDTO: SendToVendorDTO, @Request() req: any) {
-        return this.rfqService.sendToVendor(rfq_id, sendToVendorDTO, req.context);
+    @Post(':rfq_vendor_id/send-to-vendor')
+    async sendToVendor(
+        @Param('rfq_vendor_id', ParseIntPipe) rfq_vendor_id: number,
+        @Request() req: any
+    ) {
+        return this.rfqService.sendToVendor(
+            rfq_vendor_id,
+            req.context
+        );
     }
+
 
     @Get('vendor/:id/pdf')
     async getVendorPDF(
