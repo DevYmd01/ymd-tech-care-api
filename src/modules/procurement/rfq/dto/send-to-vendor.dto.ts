@@ -1,13 +1,18 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsNumber } from "class-validator";
 
-export class SendToVendorDTO {
+import { Injectable } from '@nestjs/common';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-    @IsNotEmpty()
-    @IsEmail()
-    email: string;
+@Injectable()
+export class SendMailRFQDTO {
+    @IsString()
+    @IsOptional()
+    to: string;
 
-    @IsNotEmpty()
-    @IsBoolean()
-    send_email: boolean;
+    @IsString()
+    @IsOptional()
+    cc: string;
 
+    @IsString()
+    @IsOptional()
+    subject: string;
 }

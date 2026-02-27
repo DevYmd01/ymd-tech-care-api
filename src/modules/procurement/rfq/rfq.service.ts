@@ -14,7 +14,7 @@ import { UpdateRFQLineMapper } from './mapper/update-rfq-line.mapper';
 import { UpdateRFQVendorMapper } from './mapper/update-rfq-vendor-mapper';
 import { diffById } from '@/common/utils';
 import { AuditService } from '@/modules/audit/audit.service';
-import { SendToVendorDTO } from './dto/send-to-vendor.dto';
+import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
 import { PdfService } from '@/modules/pdf/pdf.service';
 import { MailService } from '@/modules/mail/mail.service';
 import { buildRFQEmailTemplate } from './templates/rfq-email.template';
@@ -436,7 +436,7 @@ export class RfqService {
     }
 
     //-------------- send to vendor ----------------
-    async sendToVendor(rfq_vendor_id: number, context: any) {
+    async sendToVendor(rfq_vendor_id: number, dto: SendMailRFQDTO, context: any) {
         console.log("rfq_vendor_id", rfq_vendor_id);
         const rfqVendor = await this.prisma.rfq_vendor.findUnique({
             where: { rfq_vendor_id },
@@ -461,8 +461,9 @@ export class RfqService {
         const html = buildRFQEmailTemplate(rfqVendor.rfq, rfqVendor.vendor);
 
         await this.mailService.send({
-            to: 'candycake96@gmail.com',
-            subject: `RFQ ${rfqVendor.rfq.rfq_no}`,
+            to: `${rfqVendor.vendor.email}`,
+            subject: dto.subject || `RFQ ${rfqVendor.rfq.rfq_no}`,
+            cc: dto.cc || [],
             html: html,
             attachments: [
                 {

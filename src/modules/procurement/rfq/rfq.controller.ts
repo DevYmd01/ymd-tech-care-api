@@ -3,7 +3,7 @@ import { RfqService } from './rfq.service';
 import express from 'express'; // ⭐ เพิ่มบรรทัดนี้
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
-import { SendToVendorDTO } from './dto/send-to-vendor.dto';
+import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
 
 @Controller('rfq')
 export class RfqController {
@@ -42,11 +42,13 @@ export class RfqController {
 
     @Post(':rfq_vendor_id/send-to-vendor')
     async sendToVendor(
+        @Body() dto: SendMailRFQDTO,
         @Param('rfq_vendor_id', ParseIntPipe) rfq_vendor_id: number,
         @Request() req: any
     ) {
         return this.rfqService.sendToVendor(
             rfq_vendor_id,
+            dto,
             req.context
         );
     }
