@@ -17,6 +17,7 @@ import { AuditService } from '@/modules/audit/audit.service';
 import { SendToVendorDTO } from './dto/send-to-vendor.dto';
 import { PdfService } from '@/modules/pdf/pdf.service';
 import { MailService } from '@/modules/mail/mail.service';
+import { buildRFQEmailTemplate } from './templates/rfq-email.template';
 
 @Injectable()
 export class RfqService {
@@ -456,13 +457,21 @@ export class RfqService {
         }
 
         const pdfBuffer = await this.pdfService.generateRFQ(rfqVendor);
+        
+        const html = buildRFQEmailTemplate(rfqVendor.rfq, rfqVendor.vendor);
 
-        await this.mailService.sendMail(
-            "candycake96@gmail.com",
-            'RFQ',
-            'RFQ',
-
-        );
+        await this.mailService.send({
+            to: 'candycake96@gmail.com',
+            subject: `RFQ ${rfqVendor.rfq.rfq_no}`,
+            html: html,
+            attachments: [
+                {
+                    filename: 'rfq.pdf',
+                    content: pdfBuffer,
+                    contentType: 'application/pdf',
+                },
+            ], 
+        });
 
     }
 
@@ -491,9 +500,6 @@ export class RfqService {
         // console.log(data);
         return pdfBuffer;
     }
-
-
-
 
 }
 
