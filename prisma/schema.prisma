@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model employees {
@@ -42,6 +42,8 @@ model employees {
     requested_pr          pr_header[]        @relation("requester_user")
     approved_pr           pr_header[]        @relation("approved_by_user")
     rfqHeaders            rfq_header[]       @relation("requested_by_user")
+    createdVqHeaders      vq_header[]        @relation("VQCreatedBy")
+    updatedVqHeaders      vq_header[]        @relation("VQUpdatedBy")
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -102,7 +104,6 @@ model org_branch {
     prHeaders   pr_header[]
     rfqHeaders  rfq_header[]
     warehouses  warehouse[]
-    vqHeaders   vq_header[]
 
     @@map("org_branch")
 }
@@ -241,6 +242,7 @@ model uom {
     toItemUoms    item_uom[]     @relation("ItemUomTo")
     prLines       pr_line[]
     rfqLines      rfq_line[]
+    vqLines       vq_line[]
 
     @@map("uom")
 }
@@ -491,7 +493,6 @@ model vendor {
     prHeaders           pr_header[]
     rfqVendors          rfq_vendor[]
     vqHeaders           vq_header[]
-    vqLines             vq_line[]
 
     @@map("vendor")
 }
@@ -732,7 +733,6 @@ model cost_center {
     cost_center_id   Int          @id @default(autoincrement())
     is_active        Boolean      @default(true)
     rfqHeaders       rfq_header[]
-    vqHeaders        vq_header[]
 
     @@map("cost_center")
 }
@@ -757,7 +757,6 @@ model project {
     is_active     Boolean      @default(true)
     rfqHeaders    rfq_header[]
     prHeaders     pr_header[]
-    vqHeaders     vq_header[]
 
     @@map("project")
 }
@@ -784,7 +783,9 @@ model tax_code {
     updated_at   DateTime    @updatedAt
     prLines      pr_line[]
     prHeaders    pr_header[]
+    vqHeaders    vq_header[]
 
+    @@index([tax_group_id])
     @@map("tax_code")
 }
 
@@ -1182,52 +1183,64 @@ model rfq_vendor {
 
 model vq_header {
     /// รหัสใบเสนอราคา (PK)
-    vq_header_id       Int          @id @default(autoincrement())
+    vq_header_id          Int       @id @default(autoincrement())
     /// เลขที่ใบเสนอราคา
-    vq_no              String       @unique @db.VarChar(30)
+    vq_no                 String    @unique @db.VarChar(30)
+    /// เลขที่ใบเสนอราคาจากผู้ขาย
+    quotation_no          String?   @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
-    pr_id              Int
+    pr_id                 Int
     /// รหัสใบขอซื้อ (FK)
-    rfq_id             Int
+    rfq_id                Int
     /// รหัสผู้ขาย (FK)
-    vendor_id          Int
-    /// รหัสสาขา (FK)
-    branch_id          Int
-    /// ผู้ขอ
-    requested_by       String       @db.VarChar(50)
+    vendor_id             Int
+    /// วันที่เสนอราคา
+    quotation_date        DateTime  @default(now())
+    /// วันที่หมดอายุของใบเสนอราคา
+    quotation_expiry_date DateTime?
+    /// ระยะเวลาส่งมอบ (จำนวนวัน)
+    lead_time_days        Int?
     /// สถานะ
-    status             String       @db.VarChar(20)
-    /// วันที่ต้องการ
-    quotation_due_date DateTime?
-    /// รหัสสกุลเงิน
-    currency_code      String       @db.VarChar(3)
-    /// อัตราแลกเปลี่ยน
-    exchange_rate      Decimal      @db.Decimal(18, 2)
-    /// สถานที่รับสินค้า
-    receive_location   String?
+    status                String    @db.VarChar(20)
     /// เงื่อนไขการชำระเงิน
-    payment_term_hint  String?      @db.VarChar(20)
-    /// เงื่อนไขการส่งมอบ
-    incoterm           String?      @db.VarChar(20)
-    /// หมายเหตุ
-    remarks            String?
-    /// ศูนย์ต้นทุน (FK)
-    cost_center_id     Int?
-    /// โครงการ (FK)
-    project_id         Int?
-    /// งบประมาณ (FK)
-    budget_id          Int?
-    /// บัญชี GL (FK)
-    gl_account_id      Int?
-    created_at         DateTime     @default(now())
-    updated_at         DateTime     @updatedAt
-    branch             org_branch   @relation(fields: [branch_id], references: [branch_id])
-    pr                 pr_header    @relation(fields: [pr_id], references: [pr_id])
-    rfq                rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
-    vendor             vendor       @relation(fields: [vendor_id], references: [vendor_id])
-    cost_center        cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
-    project            project?     @relation(fields: [project_id], references: [project_id])
-    vqLines            vq_line[]
+    payment_term_days     Int?
+
+    /// สกุลเงินหลักของระบบ (Functional Currency)
+    base_currency_code  String?   @db.VarChar(3)
+    /// สกุลเงินตามใบเสนอราคา (Vendor Currency)
+    quote_currency_code String?   @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน (1 quote → base) ui input
+    exchange_rate       Decimal?  @db.Decimal(18, 6)
+    /// วันที่ของเรท ui input
+    exchange_rate_date  DateTime?
+
+    /// จำนวนเงินรวม (Base Currency)
+    base_total_amount  Decimal @db.Decimal(18, 2)
+    /// จำนวนเงินรวม (Quote Currency)
+    quote_total_amount Decimal @db.Decimal(18, 2)
+
+    /// TAX
+    tax_code_id      Int?
+    tax_rate         Decimal? @db.Decimal(9, 4)
+    base_tax_amount  Decimal? @db.Decimal(18, 2)
+    quote_tax_amount Decimal? @db.Decimal(18, 2)
+
+    /// DOCUMENT DISCOUNT
+    discount_expression   String?    @db.VarChar(20)
+    discount_rate         Decimal?   @db.Decimal(9, 4)
+    base_discount_amount  Decimal?   @db.Decimal(18, 2)
+    quote_discount_amount Decimal?   @db.Decimal(18, 2)
+    created_by            Int?
+    updated_by            Int?
+    created_at            DateTime   @default(now())
+    updated_at            DateTime   @updatedAt
+    pr                    pr_header  @relation(fields: [pr_id], references: [pr_id])
+    rfq                   rfq_header @relation(fields: [rfq_id], references: [rfq_id])
+    vendor                vendor     @relation(fields: [vendor_id], references: [vendor_id])
+    tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
+    createdVqHeaders               employees?  @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
+    updatedVqHeaders               employees? @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
+    vqLines               vq_line[]
 }
 
 model vq_line {
@@ -1238,46 +1251,29 @@ model vq_line {
     line_no            Int
     /// รหัสสินค้า (FK)
     item_id            Int?
-    /// รายละเอียด
-    description        String?
     /// รหัสใบขอซื้อ (FK)
     pr_line_id         Int
-    /// รหัสใบขอซื้อ (FK)
-    rfq_id             Int
-    /// รหัสผู้ขาย (FK)
-    vendor_id          Int
-    /// ผู้ขอ
-    requested_by       String    @db.VarChar(50)
     /// สถานะ
     status             String    @db.VarChar(20)
-    /// วันที่ต้องการ
-    quotation_due_date DateTime?
-    /// รหัสสกุลเงิน
-    currency_code      String    @db.VarChar(3)
-    /// อัตราแลกเปลี่ยน
-    exchange_rate      Decimal   @db.Decimal(18, 2)
-    /// สถานที่รับสินค้า
-    receive_location   String?
-    /// เงื่อนไขการชำระเงิน
-    payment_term_hint  String?   @db.VarChar(20)
-    /// เงื่อนไขการส่งมอบ
-    incoterm           String?   @db.VarChar(20)
-    /// หมายเหตุ
-    remarks            String?
-    /// ศูนย์ต้นทุน (FK)
-    cost_center_id     Int?
-    /// โครงการ (FK)
-    project_id         Int?
-    /// งบประมาณ (FK)
-    budget_id          Int?
-    /// บัญชี GL (FK)
-    gl_account_id      Int?
+    /// จำนวน
+    qty                Decimal   @db.Decimal(18, 6)
+    /// รหัสหน่วยนับ (FK)
+    uom_id             Int
+    /// ราคาต่อหน่วย
+    unit_price         Decimal   @db.Decimal(18, 2)
+    /// ส่วนลดต่อบรรทัด 
+    discount_amount    Decimal?  @db.Decimal(9, 4)
+    /// % ส่วนลด(string) 
+    discount_rate      Decimal?    @db.Decimal(9, 4)
+    /// % ส่วนลด(คำนวณจาก discount_rate)จาก UI
+    discount_expression   String?    @db.VarChar(20)
+    net_amount         Decimal   @db.Decimal(18, 2)
     created_at         DateTime  @default(now())
     updated_at         DateTime  @updatedAt
-    vendor             vendor    @relation(fields: [vendor_id], references: [vendor_id])
     vq                 vq_header @relation(fields: [vq_header_id], references: [vq_header_id])
     item               item?     @relation(fields: [item_id], references: [item_id])
     prLine             pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
+    uom                uom       @relation(fields: [uom_id], references: [uom_id])
 }
 
 /// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)

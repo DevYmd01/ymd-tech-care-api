@@ -2,12 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 @Injectable()
-export class CreateVQHeaderRepository {
+export class CreateVQLineRepository {
     async create(
         tx: Prisma.TransactionClient,
-        data: Prisma.vq_headerCreateInput
+        data: Prisma.vq_lineCreateInput
     ) {
-        return tx.vq_header.create({
+        return tx.vq_line.create({
             data,
         });
     }
