@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM mcr.microsoft.com/windows/node:lts-nanoserver-ltsc2022
 
 WORKDIR /app
 
