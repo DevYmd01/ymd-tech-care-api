@@ -10,6 +10,9 @@ async function bootstrap() {
     logger: winstonLogger,
   });
 
+  // -----------------------------
+  // Global Validation
+  // -----------------------------
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,27 +21,47 @@ async function bootstrap() {
     }),
   );
 
-  const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
+  // -----------------------------
+  // CORS CONFIG (FIXED VERSION)
+  // -----------------------------
+  const allowedOrigins =
+    process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [];
 
   app.enableCors({
-    origin: (origin: any, callback: any) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: (origin, callback) => {
+      // allow server-to-server / curl
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.length === 0 || // ถ้าไม่ได้ตั้งค่า .env ให้ผ่านหมด (dev)
+        allowedOrigins.includes(origin)
+      ) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error(`CORS blocked for origin: ${origin}`));
       }
     },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
+  // -----------------------------
+  // Static Files
+  // -----------------------------
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });
 
+  // -----------------------------
+  // Global Prefix
+  // -----------------------------
   app.setGlobalPrefix('api', {
     exclude: ['/uploads/(.*)'],
   });
 
+  // -----------------------------
+  // START SERVER (IMPORTANT)
+  // -----------------------------
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
