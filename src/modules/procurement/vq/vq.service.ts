@@ -3,37 +3,49 @@ import { CreateVQHeaderDTO } from './dto/create-vq-header.bto';
 import { CreateVQLineDTO } from './dto/create-vq-line.dto';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
 import { CreateVQHeaderRepository } from './repository/create-vq-header.repository';
-import { CreateVQLineRepository } from './repository/creat-vq-line.repository';
+import { CreateVQLineRepository } from './repository/create-vq-line.repository';
 import { VqTaxService } from './domain/vq-tax.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import { VqCalculationDomainService } from './domain/vq-calculation.domain.service';
 import { VQHeaderMapper } from './mapper/create-vq-header.mapper';
 import { VQLineMapper } from './mapper/create-vq-line.mapper';
 import { PrismaService } from '@/prisma/prisma.service';
-
-
+import { AuditLogRepository } from './repository/audit-log.repository';
+import { UpdateVQHeaderDTO } from './dto/update-vq-header.dto';
+import { UpdateVQLineDTO } from './dto/update-vq-line.dto';
+import { diffById } from '@/common/utils';
+import { UpdateVQHeaderMapper } from './mapper/update-vq-header.mapper';
+import { UpdateVQLineMapper } from './mapper/update-vq-line.mapper';
+import { UpdateVQHeaderRepository } from './repository/update-vq-header.repository';
+import { UpdateVQLineRepository } from './repository/update-vq-line.repository';
 
 @Injectable()
 export class VqService {
     constructor(
+
+        private readonly auditLogRepository: AuditLogRepository,
         private readonly prisma: PrismaService,
         private readonly vqCalculationDomainService: VqCalculationDomainService,
         private readonly createVQHeaderRepository: CreateVQHeaderRepository,
         private readonly createVQLineRepository: CreateVQLineRepository,
+        private readonly updateVQHeaderRepository: UpdateVQHeaderRepository,
+        private readonly updateVQLineRepository: UpdateVQLineRepository,
         private readonly DocumentNumberService: DocumentNumberService,
         private readonly vqTaxService: VqTaxService,
     ) { }
 
-    async create(createVQHeaderDto: CreateVQHeaderDTO) {
+    async create(createVQHeaderDto: CreateVQHeaderDTO, context: any) {
 
-        const documentNo =
-            await this.DocumentNumberService.generate({
-                module_code: 'VQ',
-                document_type_code: 'VQ',
-                branch_id: 0,
-            });
+
 
         return this.prisma.$transaction(async (tx) => {
+
+            const documentNo =
+                await this.DocumentNumberService.generate({
+                    module_code: 'VQ',
+                    document_type_code: 'VQ',
+                    branch_id: 0,
+                });
 
             const taxConfig = await this.vqTaxService.getTaxById(createVQHeaderDto.tax_code_id!);
             const taxRate = new Decimal(taxConfig.tax_rate).div(100);
@@ -52,7 +64,7 @@ export class VqService {
                 const lineAmount = this.vqCalculationDomainService.calculateLine({
                     qty: line.qty,
                     unit_price: line.unit_price,
-                    discount_expression: line.discount_expression? String(line.discount_expression) : undefined,
+                    discount_expression: line.discount_expression ? String(line.discount_expression) : undefined,
                 });
 
                 subtotal = subtotal.plus(lineAmount.subtotal);
@@ -82,7 +94,7 @@ export class VqService {
                 const createVQLineData =
                     VQLineMapper.toPrismaCreateInput(
                         line,
-                        calc,                              
+                        calc,
                         createdHeader.vq_header_id
                     );
                 await this.createVQLineRepository.create(
@@ -91,8 +103,170 @@ export class VqService {
                 );
             }
 
+            await this.auditLogRepository.create(tx, createdHeader, context);
+
+            return this.prisma.vq_header.findUnique({
+                where: { vq_header_id: createdHeader.vq_header_id },
+                include: {
+                    vqLines: true,
+                },
+            });
+
         });
 
+    }
+
+    findAll() {
+        return this.prisma.vq_header.findMany({
+            include: {
+                vqLines: true,
+            },
+        });
+    }
+
+    findOne(id: number) {
+        return this.prisma.vq_header.findUnique({
+            where: { vq_header_id: id },
+            include: {
+                vqLines: true,
+            },
+        });
+    }
+
+
+    async update(
+        id: number,
+        updateVqDto: UpdateVQHeaderDTO,
+        context: any,
+    ) {
+        return this.prisma.$transaction(async (tx) => {
+
+            // 1️⃣ หา header เดิม
+            const existingHeader = await tx.vq_header.findUnique({
+                where: { vq_header_id: id },
+                include: { vqLines: true },
+            });
+
+            if (!existingHeader) {
+                throw new Error('VQ not found');
+            }
+
+            // 2️⃣ tax config
+            const taxConfig = await this.vqTaxService.getTaxById(updateVqDto.tax_code_id!);
+            const taxRate = new Decimal(taxConfig.tax_rate).div(100);
+
+            let subtotal = new Decimal(0);
+            let discountAmount = new Decimal(0);
+            let netAmount = new Decimal(0);
+
+            const calculatedLines: {
+                line: UpdateVQLineDTO;
+                calc: any;
+            }[] = [];
+
+            // 3️⃣ คำนวณ line ใหม่ทั้งหมด
+            for (const line of updateVqDto.vq_lines) {
+                const lineAmount = this.vqCalculationDomainService.calculateLine({
+                    qty: line.qty,
+                    unit_price: line.unit_price,
+                    discount_expression: line.discount_expression
+                        ? String(line.discount_expression)
+                        : undefined,
+                });
+
+                subtotal = subtotal.plus(lineAmount.subtotal);
+                discountAmount = discountAmount.plus(lineAmount.discountAmount);
+                netAmount = netAmount.plus(lineAmount.netAmount);
+
+                calculatedLines.push({
+                    line,
+                    calc: lineAmount,
+                });
+            }
+
+            // 4️⃣ คำนวณ header total ใหม่
+            const headerTotals =
+                this.vqCalculationDomainService.calculateHeaderTotal({
+                    subtotal: netAmount.toNumber(),
+                    exchange_rate: updateVqDto.exchange_rate,
+                    discount_expression: String(updateVqDto.discount_expression),
+                    tax_rate: taxRate.toNumber(),
+                });
+
+            // 5️⃣ update header
+            const updateHeaderData =
+                UpdateVQHeaderMapper.toPrismaUpdateInput(updateVqDto, headerTotals);
+
+            const updatedHeader =
+                await this.updateVQHeaderRepository.update(
+                    tx,
+                    id,
+                    updateHeaderData,
+                );
+
+            // 6️⃣ diff lines
+            const diff = diffById(
+                existingHeader.vqLines,
+                updateVqDto.vq_lines,
+                'vq_line_id',
+            );
+
+            // 7️⃣ delete
+            for (const line of diff.toDelete) {
+                await tx.vq_line.delete({
+                    where: { vq_line_id: line.vq_line_id },
+                });
+            }
+
+            // 8️⃣ update
+            for (const line of diff.toUpdate) {
+                const calc = calculatedLines.find(
+                    (l) => l.line.vq_line_id === line.vq_line_id,
+                )?.calc;
+
+                const updateLineData =
+                    UpdateVQLineMapper.toPrismaUpdateInput(line, calc, updatedHeader.vq_header_id);
+
+                if (!line.vq_line_id) {
+                    throw new Error('vq_line_id is required for update');
+                }
+
+                await this.updateVQLineRepository.update(
+                    tx,
+                    line.vq_line_id,
+                    updateLineData,
+                );
+            }
+
+            // 9️⃣ create
+            for (const line of diff.toCreate) {
+                const calc = calculatedLines.find(
+                    (l) => !l.line.vq_line_id && l.line === line,
+                )?.calc;
+
+                const createLineData =
+                    VQLineMapper.toPrismaCreateInput(
+                        line,
+                        calc,
+                        updatedHeader.vq_header_id,
+                    );
+
+                await this.createVQLineRepository.create(
+                    tx,
+                    createLineData,
+                );
+            }
+
+            // 🔟 audit
+            await this.auditLogRepository.create(tx, updatedHeader, context);
+
+            return tx.vq_header.findUnique({
+                where: { vq_header_id: id },
+                include: {
+                    vqLines: true,
+                },
+            });
+        });
     }
 
 
