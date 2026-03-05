@@ -47,22 +47,22 @@ export class PrController {
         return this.PrService.update(+pr_id, dto, req.context);
     }
 
-    @Patch(':pr_id/submit')
-    pending(@Param('pr_id') pr_id: number) {
-        return this.PrService.pending(+pr_id);
+    @Post(':pr_id/submit')
+    submit(@Param('pr_id') pr_id: number) {
+        return this.PrService.submit(+pr_id);
     }
 
-    @Patch(':pr_id/approve')
+    @Post(':pr_id/approve')
     approve(@Param('pr_id') pr_id: number) {
         return this.PrService.approve(+pr_id);
     }
 
-    @Patch(':pr_id/reject')
+    @Post(':pr_id/reject')
     reject(@Param('pr_id') pr_id: number) {
         return this.PrService.reject(+pr_id);
     }
 
-    @Patch(':pr_id/cancel')
+    @Post(':pr_id/cancel')
     cancel(@Param('pr_id') pr_id: number) {
         return this.PrService.cancel(+pr_id);
     }
