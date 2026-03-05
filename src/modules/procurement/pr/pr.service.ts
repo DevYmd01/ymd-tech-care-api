@@ -629,7 +629,7 @@ export class PrService {
             if (pr.status !== 'DRAFT') {
                 throw new BadRequestException('Invalid status');
             }
-            // update status  
+            // update status 
             await this.statusPRHeaderRepository.updateStatus(pr_id, 'PENDING');
         });
     }
