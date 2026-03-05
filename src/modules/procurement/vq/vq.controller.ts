@@ -6,8 +6,8 @@ import { VqService } from './vq.service';
 
 @Controller('vq')
 export class VqController {
-    
-  constructor(private readonly vqService: VqService) {}
+
+  constructor(private readonly vqService: VqService) { }
 
   @Post()
   create(@Body() createVQHeaderDto: CreateVQHeaderDTO, @Request() req: any) {
@@ -27,6 +27,11 @@ export class VqController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() UpdateVQHeaderDTO: UpdateVQHeaderDTO, @Request() req: any) {
     return this.vqService.update(+id, UpdateVQHeaderDTO, req.context);
+  }
+
+  @Get()
+  findAllByVendor() {
+    return this.vqService.findAllByVendor();
   }
 
 }

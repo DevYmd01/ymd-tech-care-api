@@ -47,7 +47,7 @@ export class PrController {
         return this.PrService.update(+pr_id, dto, req.context);
     }
 
-    @Patch(':pr_id/pending')
+    @Patch(':pr_id/submit')
     pending(@Param('pr_id') pr_id: number) {
         return this.PrService.pending(+pr_id);
     }

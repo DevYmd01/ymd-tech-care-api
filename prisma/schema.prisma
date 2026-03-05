@@ -1238,42 +1238,42 @@ model vq_header {
     rfq                   rfq_header @relation(fields: [rfq_id], references: [rfq_id])
     vendor                vendor     @relation(fields: [vendor_id], references: [vendor_id])
     tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
-    createdVqHeaders               employees?  @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
-    updatedVqHeaders               employees? @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
+    createdVqHeaders      employees? @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
+    updatedVqHeaders      employees? @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
     vqLines               vq_line[]
 }
 
 model vq_line {
     /// รหัสใบเสนอราคา (PK)
-    vq_line_id         Int       @id @default(autoincrement())
-    vq_header_id       Int
+    vq_line_id          Int       @id @default(autoincrement())
+    vq_header_id        Int
     /// ลำดับ
-    line_no            Int
+    line_no             Int
     /// รหัสสินค้า (FK)
-    item_id            Int?
+    item_id             Int?
     /// รหัสใบขอซื้อ (FK)
-    pr_line_id         Int
+    pr_line_id          Int
     /// สถานะ
-    status             String    @db.VarChar(20)
+    status              String    @db.VarChar(20)
     /// จำนวน
-    qty                Decimal   @db.Decimal(18, 6)
+    qty                 Decimal   @db.Decimal(18, 6)
     /// รหัสหน่วยนับ (FK)
-    uom_id             Int
+    uom_id              Int
     /// ราคาต่อหน่วย
-    unit_price         Decimal   @db.Decimal(18, 2)
+    unit_price          Decimal   @db.Decimal(18, 2)
     /// ส่วนลดต่อบรรทัด 
-    discount_amount    Decimal?  @db.Decimal(9, 4)
+    discount_amount     Decimal?  @db.Decimal(9, 4)
     /// % ส่วนลด(string) 
-    discount_rate      Decimal?    @db.Decimal(9, 4)
+    discount_rate       Decimal?  @db.Decimal(9, 4)
     /// % ส่วนลด(คำนวณจาก discount_rate)จาก UI
-    discount_expression   String?    @db.VarChar(20)
-    net_amount         Decimal   @db.Decimal(18, 2)
-    created_at         DateTime  @default(now())
-    updated_at         DateTime  @updatedAt
-    vq                 vq_header @relation(fields: [vq_header_id], references: [vq_header_id])
-    item               item?     @relation(fields: [item_id], references: [item_id])
-    prLine             pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
-    uom                uom       @relation(fields: [uom_id], references: [uom_id])
+    discount_expression String?   @db.VarChar(20)
+    net_amount          Decimal   @db.Decimal(18, 2)
+    created_at          DateTime  @default(now())
+    updated_at          DateTime  @updatedAt
+    vq                  vq_header @relation(fields: [vq_header_id], references: [vq_header_id])
+    item                item?     @relation(fields: [item_id], references: [item_id])
+    prLine              pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
+    uom                 uom       @relation(fields: [uom_id], references: [uom_id])
 }
 
 /// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)

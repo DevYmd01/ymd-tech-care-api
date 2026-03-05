@@ -269,6 +269,14 @@ export class VqService {
         });
     }
 
+    async findAllByVendor() {
+        return this.prisma.vq_header.findMany({
+            include: {
+                vqLines: true,
+            },
+        });
+    }
+
 
 }
 
