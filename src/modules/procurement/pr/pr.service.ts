@@ -114,7 +114,7 @@ export class PrService {
                     pr_no: documentNo,
                     pr_date: new Date(dto.pr_date),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
-                    status: dto.status ?? 'PENDING',
+                    status: dto.status ?? 'DRAFT',
                     remark: dto.remark ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
@@ -618,7 +618,7 @@ export class PrService {
     }
 
 
-    async submit(pr_id: number) {
+    async pending(pr_id: number) {
         await this.prisma.$transaction(async (tx) => {
 
             // check status
