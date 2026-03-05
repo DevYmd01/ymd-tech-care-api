@@ -457,7 +457,7 @@ export class RfqService {
         }
 
         const pdfBuffer = await this.pdfService.generateRFQ(rfqVendor);
-        
+
         const html = buildRFQEmailTemplate(rfqVendor.rfq, rfqVendor.vendor);
 
         await this.mailService.send({
@@ -471,7 +471,7 @@ export class RfqService {
                     content: pdfBuffer,
                     contentType: 'application/pdf',
                 },
-            ], 
+            ],
         });
 
     }
@@ -500,6 +500,28 @@ export class RfqService {
         const pdfBuffer = await this.pdfService.generateRFQ(data);
         // console.log(data);
         return pdfBuffer;
+    }
+
+    async findPRWithoutRFQ(page: number, pageSize: number) {
+
+        const data = await this.prisma.pr_header.findMany({
+            where: {
+                status: 'APPROVED',
+            },
+            include: {
+                prLines: true,
+            },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+        });
+
+        const count = await this.prisma.pr_header.count({
+            where: {
+                status: 'APPROVED',
+            },
+        });
+
+        return { data, count };
     }
 
 }

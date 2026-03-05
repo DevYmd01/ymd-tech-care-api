@@ -68,5 +68,16 @@ export class RfqController {
         return res.send(pdfBuffer);
     }
 
+    @Get('pr/without-rfq')
+    async findPRWithoutRFQ(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.rfqService.findPRWithoutRFQ(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
+    }
+
 
 }
