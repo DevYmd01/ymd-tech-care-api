@@ -13,4 +13,15 @@ export class CreateQcHeaderRepository {
             data,
         });
     }
+
+    async update(
+        tx: Prisma.TransactionClient,
+        data: Prisma.qc_headerUpdateInput,
+        where: Prisma.qc_headerWhereUniqueInput
+    ) {
+        return tx.qc_header.update({
+            data,
+            where,
+        });
+    }
 }

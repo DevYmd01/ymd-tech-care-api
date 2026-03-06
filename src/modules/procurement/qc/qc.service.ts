@@ -4,6 +4,9 @@ import { CreateQcHeaderDTO } from './dto/create-qc-header.dto';
 import { CreateQcHeaderRepository } from './repository/create-qc-header.repository';
 import { QCHeaderMapper } from './mapper/create-qc-header.mapper';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
+import { AuditLogRepository } from './repository/audit-log.repository';
+import { UpdateQcHeaderDTO } from './dto/update-qc-header.dto';
+import { UpdateQcHeaderMapper } from './mapper/update-qc-header.mapper';
 
 @Injectable()
 export class QcService {
@@ -12,6 +15,7 @@ export class QcService {
         private prisma: PrismaService,
         private createQcHeaderRepository: CreateQcHeaderRepository,
         private documentNumberService: DocumentNumberService,
+        private auditLogRepository: AuditLogRepository,
     ) { }
 
     // แสดง PR ที่ยังไม่มี QC
@@ -127,8 +131,56 @@ export class QcService {
             });
 
             const data = QCHeaderMapper.toPrismaCreateInput(createQcDto, qc_no);
-            return this.createQcHeaderRepository.create(tx, data);
+            const header = await this.createQcHeaderRepository.create(tx, data);
+
+            await this.auditLogRepository.create(tx, header, user);
+
+            return header;
         })
+    }
+
+    // อัปเดต QC
+    async update(qc_header_id: number, updateQcDto: UpdateQcHeaderDTO, user: any) {
+        return this.prisma.$transaction(async (tx) => {
+            const data = UpdateQcHeaderMapper.toPrismaUpdateInput(updateQcDto);
+
+            const existing = await tx.qc_header.findUnique({
+                where: { qc_id: qc_header_id }
+            });
+
+            if (!existing) {
+                throw new Error("QC Header not found")
+            }
+            const header = await this.createQcHeaderRepository.update(tx, data, existing);
+
+            await this.auditLogRepository.update(tx, header, user);
+
+            return header;
+        })
+    }
+
+    // แสดง QC ทั้งหมด
+    async findAll(page: number, pageSize: number) {
+        const skip = (page - 1) * pageSize;
+        const take = pageSize;
+
+        const qcHeaders = await this.prisma.qc_header.findMany({
+            include: {
+                pr: {
+                    include: {
+
+                    },
+                },
+
+
+            },
+            skip,
+            take,
+        });
+
+        const total = await this.prisma.qc_header.count();
+
+        return { data: qcHeaders, total, page, pageSize };
     }
 
 }

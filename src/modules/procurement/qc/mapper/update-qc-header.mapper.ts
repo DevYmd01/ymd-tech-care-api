@@ -1,13 +1,11 @@
-import { CreateQcHeaderDTO } from "../dto/create-qc-header.dto";
+import { UpdateQcHeaderDTO } from "../dto/update-qc-header.dto";
 import { Prisma } from "@prisma/client";
 
-export class QCHeaderMapper {
-    static toPrismaCreateInput(
-        dto: CreateQcHeaderDTO,
-        qc_no: string,
-    ): Prisma.qc_headerCreateInput {
+export class UpdateQcHeaderMapper {
+    static toPrismaUpdateInput(
+        dto: UpdateQcHeaderDTO,
+    ): Prisma.qc_headerUpdateInput {
         return {
-            qc_no: qc_no,
             pr: { connect: { pr_id: dto.pr_id } },
             rfq: { connect: { rfq_id: dto.rfq_id } },
             department: { connect: { department_id: dto.department_id } },

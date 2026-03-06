@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Post, Param, Request, Patch, Query } from '@nestjs/common';
 import { QcService } from './qc.service';
 import { CreateQcHeaderDTO } from './dto/create-qc-header.dto';
-// import { UpdateQcDTO } from './dto/update-qc.dto';
+import { UpdateQcHeaderDTO } from './dto/update-qc-header.dto';
 
 @Controller('qc')
 export class QcController {
@@ -45,5 +45,20 @@ export class QcController {
         return this.qcService.create(createQcDto, req.user);
     }
 
+    @Patch('update/:qc_header_id')
+    update(@Param('qc_header_id') qc_header_id: string, @Body() updateQcDto: UpdateQcHeaderDTO, @Request() req) {
+        return this.qcService.update(Number(qc_header_id), updateQcDto, req.user);
+    }
+
+    @Get('qc-all')
+    findAll(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.qcService.findAll(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
+    }
 
 }

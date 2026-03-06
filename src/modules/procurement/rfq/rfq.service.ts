@@ -76,20 +76,17 @@ export class RfqService {
 
                 // ⭐ create many
                 if (rfqLineData.length > 0) {
+
                     await this.createRFQLineRepository.createMany(tx, rfqLineData);
 
-
                     for (const line of rfqLineData) {
-                        const created = await tx.rfq_line.create({
-                            data: line
-                        });
                         await this.auditService.logChanges(tx, {
                             module: 'PROCUREMENT',
                             documentNo: documentNo,
                             documentType: 'RFQ',
                             documentId: BigInt(createdHeader.rfq_id),
                             tableName: 'rfq_line',
-                            recordId: BigInt(created.rfq_line_id),
+                            recordId: BigInt(0), // createMany ไม่มี id
                             oldData: null,
                             newData: line,
                             actionType: 'CREATE',
@@ -99,6 +96,7 @@ export class RfqService {
                             userAgent: context.user_agent,
                         });
                     }
+
                 }
 
                 // ⭐ map vendors

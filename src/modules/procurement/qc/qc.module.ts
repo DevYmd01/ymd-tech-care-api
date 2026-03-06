@@ -5,6 +5,7 @@ import { CreateQcHeaderRepository } from './repository/create-qc-header.reposito
 import { QCHeaderMapper } from './mapper/create-qc-header.mapper';
 import { DocumentNumberModule } from '@/modules/document-number/document-number.module';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
+import { AuditLogRepository } from './repository/audit-log.repository';
 
 @Module({
   imports: [DocumentNumberModule],
@@ -13,7 +14,8 @@ import { DocumentNumberService } from '@/modules/document-number/document-number
     QcService,
     CreateQcHeaderRepository,
     QCHeaderMapper,
-    DocumentNumberService
+    DocumentNumberService,
+    AuditLogRepository,
   ]
 })
 export class QcModule { }

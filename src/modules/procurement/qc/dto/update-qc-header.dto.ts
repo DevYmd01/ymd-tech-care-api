@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsOptional, IsEnum } from 'class-validator';
 import { Decimal } from '@prisma/client/runtime/library';
 
-export class CreateQcHeaderDTO {
+export class UpdateQcHeaderDTO {
 
     @IsNotEmpty()
     @IsNumber()
