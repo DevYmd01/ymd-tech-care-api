@@ -1,6 +1,6 @@
 import { Controller, Get, Body, Post, Param, Request, Patch, Query } from '@nestjs/common';
 import { QcService } from './qc.service';
-// import { CreateQcDTO } from './dto/create-qc.dto';
+import { CreateQcHeaderDTO } from './dto/create-qc-header.dto';
 // import { UpdateQcDTO } from './dto/update-qc.dto';
 
 @Controller('qc')
@@ -29,5 +29,21 @@ export class QcController {
             Number(pageSize) || 20,
         );
     }
+
+    // แสดงเพื่อเลือก vender
+    @Get('vendor/:rfq_id/waiting-for-qc')
+    findVendorWithoutQCByRFQId(
+        @Param('rfq_id') rfq_id: string,
+    ) {
+        return this.qcService.findVendorWithoutQCByRFQId(
+            Number(rfq_id),
+        );
+    }
+
+    @Post('create')
+    create(@Body() createQcDto: CreateQcHeaderDTO, @Request() req) {
+        return this.qcService.create(createQcDto, req.user);
+    }
+
 
 }

@@ -139,6 +139,7 @@ model org_department {
     /// วันที่แก้ไข
     updated_at         DateTime    @updatedAt
     employees          employees[]
+    qcHeaders          qc_header[]
 }
 
 /// ตารางเก็บข้อมูลคลัง 
@@ -1289,28 +1290,31 @@ model vq_line {
 
 model qc_header {
     /// รหัสใบเปรียบเทียบราคา (PK)
-    qc_id            Int        @id @default(autoincrement())
+    qc_id            Int            @id @default(autoincrement())
     /// เลขที่ใบเปรียบเทียบราคา
-    qc_no            String     @unique @db.VarChar(30)
+    qc_no            String         @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
     pr_id            Int
     /// รหัสใบขอซื้อ (FK)
     rfq_id           Int
+    /// แผนกที่ขอ
+    department_id    Int
     /// รหัสใบขอซื้อ (FK) ผู้ชนะ
     winning_vq_id    Int?
     /// สถานะ
-    status           String     @db.VarChar(20)
+    status           String         @db.VarChar(20)
     /// วันที่สร้าง
-    created_at       DateTime   @default(now())
+    created_at       DateTime       @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at       DateTime   @updatedAt
+    updated_at       DateTime       @updatedAt
     created_by       Int?
     updated_by       Int?
-    pr               pr_header  @relation(fields: [pr_id], references: [pr_id])
-    rfq              rfq_header @relation(fields: [rfq_id], references: [rfq_id])
-    createdQcHeaders employees? @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
-    updatedQcHeaders employees? @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
-    winningVq        vq_header? @relation(fields: [winning_vq_id], references: [vq_header_id])
+    pr               pr_header      @relation(fields: [pr_id], references: [pr_id])
+    rfq              rfq_header     @relation(fields: [rfq_id], references: [rfq_id])
+    createdQcHeaders employees?     @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
+    updatedQcHeaders employees?     @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
+    winningVq        vq_header?     @relation(fields: [winning_vq_id], references: [vq_header_id])
+    department       org_department @relation(fields: [department_id], references: [department_id])
 }
 
 ////////////
