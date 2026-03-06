@@ -69,14 +69,6 @@ export class UpdateRFQHeaderDTO {
     remarks?: string
 
     @IsOptional()
-    @IsNumber()
-    cost_center_id?: number
-
-    @IsOptional()
-    @IsNumber()
-    project_id?: number
-
-    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => UpdateRFQLineDTO)

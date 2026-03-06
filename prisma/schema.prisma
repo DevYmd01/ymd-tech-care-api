@@ -729,13 +729,12 @@ model payment_terms {
 /// ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
     /// รหัสศูนย์ต้นทุน
-    cost_center_code String       @unique @db.VarChar(30)
+    cost_center_code String  @unique @db.VarChar(30)
     /// ชื่อศูนย์ต้นทุน
-    cost_center_name String       @db.VarChar(200)
+    cost_center_name String  @db.VarChar(200)
     /// รหัสศูนย์ต้นทุน
-    cost_center_id   Int          @id @default(autoincrement())
-    is_active        Boolean      @default(true)
-    rfqHeaders       rfq_header[]
+    cost_center_id   Int     @id @default(autoincrement())
+    is_active        Boolean @default(true)
 
     @@map("cost_center")
 }
@@ -743,13 +742,13 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code  String       @unique @db.VarChar(30)
+    project_code  String      @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name  String       @db.VarChar(200)
+    project_name  String      @db.VarChar(200)
     /// รหัสโครงการ
-    project_id    Int          @id @default(autoincrement())
+    project_id    Int         @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount Decimal?     @db.Decimal(15, 2)
+    budget_amount Decimal?    @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
     description   String?
     /// วันที่สิ้นสุดโครงการ
@@ -757,8 +756,7 @@ model project {
     /// วันที่เริ่มต้นโครงการ
     start_date    DateTime?
     /// สถานะโครงการ
-    is_active     Boolean      @default(true)
-    rfqHeaders    rfq_header[]
+    is_active     Boolean     @default(true)
     prHeaders     pr_header[]
 
     @@map("project")
@@ -1105,18 +1103,11 @@ model rfq_header {
     /// หมายเหตุ
     remarks           String?
 
-    /// ศูนย์ต้นทุน (FK)
-    cost_center_id Int?
-    /// โครงการ (FK)
-    project_id     Int?
-
     created_at        DateTime     @default(now())
     updated_at        DateTime     @updatedAt
     branch            org_branch?  @relation(fields: [branch_id], references: [branch_id])
     requested_by_user employees    @relation("requested_by_user", fields: [requested_by_user_id], references: [employee_id])
     pr                pr_header    @relation(fields: [pr_id], references: [pr_id])
-    cost_center       cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
-    project           project?     @relation(fields: [project_id], references: [project_id])
     rfqLines          rfq_line[]
     rfqVendors        rfq_vendor[]
     vqHeaders         vq_header[]

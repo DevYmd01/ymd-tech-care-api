@@ -167,20 +167,46 @@ export class QcService {
         const qcHeaders = await this.prisma.qc_header.findMany({
             include: {
                 pr: {
-                    include: {
-
-                    },
+                    select: {
+                        pr_no: true
+                    }
                 },
-
+                rfq: {
+                    select: {
+                        rfq_no: true
+                    }
+                },
+                winningVq: {
+                    select: {
+                        vq_no: true,
+                        vendor: {
+                            select: {
+                                vendor_name: true
+                            }
+                        }
+                    }
+                },
 
             },
             skip,
             take,
         });
 
+        const data = qcHeaders.map((qc) => {
+            return {
+                qc_id: qc.qc_id,
+                qc_no: qc.qc_no,
+                pr_no: qc.pr?.pr_no,
+                rfq_no: qc.rfq?.rfq_no,
+                vq_no: qc.winningVq?.vq_no,
+                vendor_name: qc.winningVq?.vendor?.vendor_name,
+                status: qc.status,
+                created_at: qc.created_at
+            }
+        })
         const total = await this.prisma.qc_header.count();
 
-        return { data: qcHeaders, total, page, pageSize };
+        return { data, total, page, pageSize };
     }
 
 }

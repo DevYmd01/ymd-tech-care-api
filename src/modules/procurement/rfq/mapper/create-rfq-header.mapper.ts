@@ -23,8 +23,6 @@ export class RFQMapper {
             payment_term_hint: dto.payment_term_hint,
             incoterm: dto.incoterm,
             remarks: dto.remarks,
-            cost_center: { connect: { cost_center_id: dto.cost_center_id } },
-            project: { connect: { project_id: dto.project_id } },
         }
     }
 }
