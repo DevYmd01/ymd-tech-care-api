@@ -41,6 +41,7 @@ import { LocationModule } from './modules/master-data/location/location.module';
 import { CompanyModule } from './modules/master-data/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { VqModule } from './modules/procurement/vq/vq.module';
+import { QcModule } from './modules/procurement/qc/qc.module';
 
 @Module({
   imports: [
@@ -82,7 +83,8 @@ import { VqModule } from './modules/procurement/vq/vq.module';
     MailModule,
     LocationModule,
     CompanyModule,
-    VqModule
+    VqModule,
+    QcModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

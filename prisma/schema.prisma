@@ -44,6 +44,8 @@ model employees {
     rfqHeaders            rfq_header[]       @relation("requested_by_user")
     createdVqHeaders      vq_header[]        @relation("VQCreatedBy")
     updatedVqHeaders      vq_header[]        @relation("VQUpdatedBy")
+    createdQcHeaders      qc_header[]        @relation("QCCreatedBy")
+    updatedQcHeaders      qc_header[]        @relation("QCUpdatedBy")
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -995,15 +997,15 @@ model pr_header {
     version             Int       @default(1)
 
     /// ผู้อนุมัติ
-    approved_by_user    employees?             @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
-    preferredVendor     vendor?                @relation(fields: [preferred_vendor_id], references: [vendor_id])
-    branch              org_branch?            @relation(fields: [branch_id], references: [branch_id])
-    requester_user      employees              @relation("requester_user", fields: [requester_user_id], references: [employee_id])
-    project             project?               @relation(fields: [project_id], references: [project_id])
-    prLines             pr_line[]
-    quoteCompareHeaders quote_compare_header[]
-    rfqHeaders          rfq_header[]
-    vqHeaders           vq_header[]
+    approved_by_user employees?   @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
+    preferredVendor  vendor?      @relation(fields: [preferred_vendor_id], references: [vendor_id])
+    branch           org_branch?  @relation(fields: [branch_id], references: [branch_id])
+    requester_user   employees    @relation("requester_user", fields: [requester_user_id], references: [employee_id])
+    project          project?     @relation(fields: [project_id], references: [project_id])
+    prLines          pr_line[]
+    rfqHeaders       rfq_header[]
+    vqHeaders        vq_header[]
+    qcHeaders        qc_header[]
 
     @@map("pr_header")
 }
@@ -1103,9 +1105,10 @@ model rfq_header {
     remarks           String?
 
     /// ศูนย์ต้นทุน (FK)
-    cost_center_id    Int?
+    cost_center_id Int?
     /// โครงการ (FK)
-    project_id        Int?
+    project_id     Int?
+
     created_at        DateTime     @default(now())
     updated_at        DateTime     @updatedAt
     branch            org_branch?  @relation(fields: [branch_id], references: [branch_id])
@@ -1116,6 +1119,7 @@ model rfq_header {
     rfqLines          rfq_line[]
     rfqVendors        rfq_vendor[]
     vqHeaders         vq_header[]
+    qcHeaders         qc_header[]
 }
 
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
@@ -1156,26 +1160,27 @@ model rfq_line {
 
 /// ตารางเก็บข้อมูลผู้ขายที่ถูกเชิญให้เสนอราคา (RFQ Vendor) (P5) 
 model rfq_vendor {
-    rfq_vendor_id Int        @id @default(autoincrement())
+    rfq_vendor_id Int         @id @default(autoincrement())
     rfq_id        Int
     vendor_id     Int
-    status        String?    @db.VarChar(20)
-    is_active     Boolean?   @default(true)
+    status        String?     @db.VarChar(20)
+    is_active     Boolean?    @default(true)
     //วันที่เชิญ
     invited_at    DateTime?
     //วันที่ส่งใบเสนอราคา
     sent_at       DateTime?
     //วันที่ตอบกลับใบเสนอราคา
     responded_at  DateTime?
-    contact_email String?    @db.VarChar(255)
+    contact_email String?     @db.VarChar(255)
     //วันที่สร้าง
-    created_at    DateTime   @default(now())
+    created_at    DateTime    @default(now())
     //วันที่อัปเดต
-    updated_at    DateTime   @updatedAt
+    updated_at    DateTime    @updatedAt
     //หมายเหตุ
-    note          String?    @db.Text
-    rfq           rfq_header @relation(fields: [rfq_id], references: [rfq_id])
-    vendor        vendor     @relation(fields: [vendor_id], references: [vendor_id])
+    note          String?     @db.Text
+    rfq           rfq_header  @relation(fields: [rfq_id], references: [rfq_id])
+    vendor        vendor      @relation(fields: [vendor_id], references: [vendor_id])
+    vq_header     vq_header[]
 
     @@unique([rfq_id, vendor_id])
     @@index([rfq_id])
@@ -1183,15 +1188,17 @@ model rfq_vendor {
 
 model vq_header {
     /// รหัสใบเสนอราคา (PK)
-    vq_header_id          Int       @id @default(autoincrement())
+    vq_header_id Int     @id @default(autoincrement())
     /// เลขที่ใบเสนอราคา
-    vq_no                 String    @unique @db.VarChar(30)
+    vq_no        String  @unique @db.VarChar(30)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    quotation_no          String?   @db.VarChar(30)
+    quotation_no String? @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
-    pr_id                 Int
+    pr_id        Int
     /// รหัสใบขอซื้อ (FK)
-    rfq_id                Int
+    rfq_id       Int
+
+    rfq_vendor_id         Int?
     /// รหัสผู้ขาย (FK)
     vendor_id             Int
     /// วันที่เสนอราคา
@@ -1226,21 +1233,25 @@ model vq_header {
     quote_tax_amount Decimal? @db.Decimal(18, 2)
 
     /// DOCUMENT DISCOUNT
-    discount_expression   String?    @db.VarChar(20)
-    discount_rate         Decimal?   @db.Decimal(9, 4)
-    base_discount_amount  Decimal?   @db.Decimal(18, 2)
-    quote_discount_amount Decimal?   @db.Decimal(18, 2)
+    discount_expression   String?     @db.VarChar(20)
+    discount_rate         Decimal?    @db.Decimal(9, 4)
+    base_discount_amount  Decimal?    @db.Decimal(18, 2)
+    quote_discount_amount Decimal?    @db.Decimal(18, 2)
     created_by            Int?
     updated_by            Int?
-    created_at            DateTime   @default(now())
-    updated_at            DateTime   @updatedAt
-    pr                    pr_header  @relation(fields: [pr_id], references: [pr_id])
-    rfq                   rfq_header @relation(fields: [rfq_id], references: [rfq_id])
-    vendor                vendor     @relation(fields: [vendor_id], references: [vendor_id])
-    tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
-    createdVqHeaders      employees? @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
-    updatedVqHeaders      employees? @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
+    created_at            DateTime    @default(now())
+    updated_at            DateTime    @updatedAt
+    //ใช้ตอน qc
+    is_awarded            Boolean     @default(false)
+    pr                    pr_header   @relation(fields: [pr_id], references: [pr_id])
+    rfq                   rfq_header  @relation(fields: [rfq_id], references: [rfq_id])
+    rfq_vendor            rfq_vendor? @relation(fields: [rfq_vendor_id], references: [rfq_vendor_id])
+    vendor                vendor      @relation(fields: [vendor_id], references: [vendor_id])
+    tax_code              tax_code?   @relation(fields: [tax_code_id], references: [tax_code_id])
+    createdVqHeaders      employees?  @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
+    updatedVqHeaders      employees?  @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
     vqLines               vq_line[]
+    qcHeaders             qc_header[]
 }
 
 model vq_line {
@@ -1276,21 +1287,30 @@ model vq_line {
     uom                 uom       @relation(fields: [uom_id], references: [uom_id])
 }
 
-/// ตารางเก็บข้อมูลหลักของใบเปรียบเทียบราคา (Purchase Requisition Header) (P5)
-model quote_compare_header {
+model qc_header {
     /// รหัสใบเปรียบเทียบราคา (PK)
-    qc_id      Int       @id @default(autoincrement())
+    qc_id            Int        @id @default(autoincrement())
     /// เลขที่ใบเปรียบเทียบราคา
-    qc_no      String    @unique @db.VarChar(30)
+    qc_no            String     @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
-    pr_id      Int
+    pr_id            Int
+    /// รหัสใบขอซื้อ (FK)
+    rfq_id           Int
+    /// รหัสใบขอซื้อ (FK) ผู้ชนะ
+    winning_vq_id    Int?
     /// สถานะ
-    status     String    @db.VarChar(20)
+    status           String     @db.VarChar(20)
     /// วันที่สร้าง
-    created_at DateTime  @default(now())
+    created_at       DateTime   @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at DateTime  @updatedAt
-    pr         pr_header @relation(fields: [pr_id], references: [pr_id])
+    updated_at       DateTime   @updatedAt
+    created_by       Int?
+    updated_by       Int?
+    pr               pr_header  @relation(fields: [pr_id], references: [pr_id])
+    rfq              rfq_header @relation(fields: [rfq_id], references: [rfq_id])
+    createdQcHeaders employees? @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
+    updatedQcHeaders employees? @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
+    winningVq        vq_header? @relation(fields: [winning_vq_id], references: [vq_header_id])
 }
 
 ////////////

@@ -18,6 +18,7 @@ import { UpdateVQHeaderMapper } from './mapper/update-vq-header.mapper';
 import { UpdateVQLineMapper } from './mapper/update-vq-line.mapper';
 import { UpdateVQHeaderRepository } from './repository/update-vq-header.repository';
 import { UpdateVQLineRepository } from './repository/update-vq-line.repository';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class VqService {
@@ -118,9 +119,7 @@ export class VqService {
 
     findAll() {
         return this.prisma.vq_header.findMany({
-            include: {
-                vqLines: true,
-            },
+
         });
     }
 
@@ -270,9 +269,127 @@ export class VqService {
     }
 
     async findAllByVendor() {
-        return this.prisma.vq_header.findMany({
+        return this.prisma.rfq_vendor.findMany({
             include: {
-                vqLines: true,
+                rfq: true,
+                vendor: true,
+
+            },
+        });
+    }
+
+    async findPRWithoutRFQ(page: number, pageSize: number) {
+        const skip = (page - 1) * pageSize;
+
+        const rows = await this.prisma.rfq_vendor.findMany({
+            where: {
+                is_active: true,
+                rfq: {
+                    status: 'WAITING_FOR_RFQ',
+                },
+            },
+            include: {
+                rfq: {
+                    include: {
+                        pr: true,   // 👈 include PR
+                    },
+                },
+                vendor: true,
+                vq_header: true,
+            },
+            skip,
+            take: pageSize,
+        });
+
+        const data = rows.map((row) => ({
+            rfq_vendor_id: row.rfq_vendor_id,
+
+            pr_id: row.rfq?.pr?.pr_id,
+            pr_no: row.rfq?.pr?.pr_no,
+
+            rfq_id: row.rfq?.rfq_id,
+            rfq_no: row.rfq?.rfq_no,
+            rfq_date: row.rfq?.rfq_date,
+
+            vendor_id: row.vendor?.vendor_id,
+            vendor_code: row.vendor?.vendor_code,
+            vendor_name: row.vendor?.vendor_name,
+            vendor_email: row.vendor?.email,
+
+            quotation_count: row.vq_header?.length || 0,
+            status: row.status,
+            created_at: row.created_at,
+        }));
+
+        return {
+            data,
+            page,
+            pageSize,
+        };
+    }
+
+    async findPRWithoutVQ(page: number, pageSize: number) {
+        const skip = (page - 1) * pageSize;
+
+        const rows = await this.prisma.rfq_vendor.findMany({
+            where: {
+                is_active: true,
+                rfq: {
+                    status: 'WAITING_FOR_VQ',
+                },
+                vq_header: {
+                    none: {}, // 👈 ไม่มี quotation
+                },
+            },
+            include: {
+                rfq: {
+                    include: {
+                        pr: true,
+                    },
+                },
+                vendor: true,
+                vq_header: true,
+            },
+            skip,
+            take: pageSize,
+        });
+
+        const data = rows.map((row) => ({
+            rfq_vendor_id: row.rfq_vendor_id,
+
+            pr_id: row.rfq?.pr?.pr_id,
+            pr_no: row.rfq?.pr?.pr_no,
+
+            rfq_id: row.rfq?.rfq_id,
+            rfq_no: row.rfq?.rfq_no,
+            rfq_date: row.rfq?.rfq_date,
+
+            vendor_id: row.vendor?.vendor_id,
+            vendor_code: row.vendor?.vendor_code,
+            vendor_name: row.vendor?.vendor_name,
+            vendor_email: row.vendor?.email,
+
+            quotation_count: row.vq_header?.length || 0,
+
+            status: row.status,
+            created_at: row.created_at,
+        }));
+
+        return {
+            data,
+            page,
+            pageSize,
+        };
+    }
+
+    async findVQLines(vq_id: number) {
+        return this.prisma.vq_line.findMany({
+            where: {
+                vq_header_id: vq_id,
+            },
+            include: {
+                item: true,
+
             },
         });
     }
