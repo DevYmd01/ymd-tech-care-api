@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString, IsInt, IsDate, IsOptional, IsBoolean, IsNumber, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreatePOLineDTO } from './create-po-line.dto';
+import { UpdatePOLineDTO } from './update-po-line.dto';
 
-export class CreatePOHeaderDTO {
-    @IsOptional()
+export class UpdatePOHeaderDTO {
+    @IsNotEmpty()
     @IsInt()
-    pr_id?: number;
+    pr_id: number;
 
     @IsNotEmpty()
     @IsInt()
@@ -59,7 +59,7 @@ export class CreatePOHeaderDTO {
 
     @IsNotEmpty()
     @IsInt()
-    created_by: number;
+    updated_by: number;
 
     @IsNotEmpty()
     @IsInt()
@@ -68,6 +68,6 @@ export class CreatePOHeaderDTO {
     @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => CreatePOLineDTO)
-    po_lines: CreatePOLineDTO[];
+    @Type(() => UpdatePOLineDTO)
+    po_lines: UpdatePOLineDTO[];
 }

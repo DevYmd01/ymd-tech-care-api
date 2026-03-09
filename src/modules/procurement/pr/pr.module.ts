@@ -12,6 +12,8 @@ import { UpdatePRLineRepository } from './repositories/update-pr-line-repository
 import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.repository';
 import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
 import { StatusPRHeaderRepository } from './repositories/status-pr-header.repository';
+import { CreatePOHeaderMapper } from '../po/mapper/create-po-header.mapper';
+import { CreatePOHeaderDTO } from '../po/dto/create-po-header.dto';
 
 @Module({
     imports: [DocumentNumberModule],
@@ -28,6 +30,8 @@ import { StatusPRHeaderRepository } from './repositories/status-pr-header.reposi
         ShowAllPRHeaderRepository,
         ShowWaitingForRFQRepository,
         StatusPRHeaderRepository,
+        CreatePOHeaderMapper,
+        CreatePOHeaderDTO,
     ]
 })
 export class PrModule { }
