@@ -1,11 +1,10 @@
-import { Injectable } from "@nestjs/common";
+
 import { CreatePOHeaderDTO } from "../dto/create-po-header.dto";
 import { Prisma } from "@prisma/client";
 
-@Injectable()
+
 export class CreatePOHeaderMapper {
-    toPrisma(
-        tx: Prisma.TransactionClient,
+  static  toPrismaCreateInput(
         data: CreatePOHeaderDTO,
         po_no: string,
         headerDocTotals: {

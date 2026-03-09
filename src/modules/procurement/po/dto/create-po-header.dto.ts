@@ -4,10 +4,6 @@ import { CreatePOLineDTO } from './create-po-line.dto';
 
 export class CreatePOHeaderDTO {
     @IsNotEmpty()
-    @IsString()
-    po_no: string;
-
-    @IsNotEmpty()
     @IsInt()
     pr_id: number;
 

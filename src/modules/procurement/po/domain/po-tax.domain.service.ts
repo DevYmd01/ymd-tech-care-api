@@ -3,7 +3,7 @@ import { PrismaService } from "@/prisma/prisma.service";
 import Decimal from "decimal.js";
 
 @Injectable()
-export class VqTaxService {
+export class TaxService {
     constructor(private prisma: PrismaService) { }
 
     async getTaxById(taxCodeId: number) {
