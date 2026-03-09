@@ -162,48 +162,60 @@ export class QcService {
     // แสดง QC ทั้งหมด
     async findAll(page: number, pageSize: number) {
         const skip = (page - 1) * pageSize;
-        const take = pageSize;
 
         const qcHeaders = await this.prisma.qc_header.findMany({
             include: {
                 pr: {
                     select: {
+                        pr_id: true,
                         pr_no: true
                     }
                 },
                 rfq: {
                     select: {
-                        rfq_no: true
-                    }
-                },
-                winningVq: {
-                    select: {
-                        vq_no: true,
-                        vendor: {
+                        rfq_id: true,
+                        rfq_no: true,
+                        _count: {
                             select: {
-                                vendor_name: true
+                                vqHeaders: true,
                             }
                         }
                     }
                 },
-
+                winningVq: {
+                    select: {
+                        vq_header_id: true,
+                        vq_no: true,
+                        base_total_amount: true,
+                        vendor: {
+                            select: {
+                                vendor_id: true,
+                                vendor_name: true,
+                            }
+                        }
+                    }
+                }
             },
             skip,
-            take,
+            take: pageSize,
         });
 
-        const data = qcHeaders.map((qc) => {
-            return {
-                qc_id: qc.qc_id,
-                qc_no: qc.qc_no,
-                pr_no: qc.pr?.pr_no,
-                rfq_no: qc.rfq?.rfq_no,
-                vq_no: qc.winningVq?.vq_no,
-                vendor_name: qc.winningVq?.vendor?.vendor_name,
-                status: qc.status,
-                created_at: qc.created_at
-            }
-        })
+        const data = qcHeaders.map((qc) => ({
+            qc_id: qc.qc_id,
+            qc_no: qc.qc_no,
+            pr_header_id: qc.pr_id,
+            rfq_header_id: qc.rfq_id,
+            vq_header_id: qc.winningVq?.vq_header_id,
+            pr_no: qc.pr?.pr_no,
+            rfq_no: qc.rfq?.rfq_no,
+            vq_no: qc.winningVq?.vq_no,
+            vq_total_amount: qc.winningVq?.base_total_amount,
+            vendor_name: qc.winningVq?.vendor?.vendor_name,
+            vendor_count: qc.rfq?._count?.vqHeaders ?? 0,
+            status: qc.status,
+            created_at: qc.created_at
+        }));
+
         const total = await this.prisma.qc_header.count();
 
         return { data, total, page, pageSize };

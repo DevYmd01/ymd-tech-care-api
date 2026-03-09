@@ -46,6 +46,8 @@ model employees {
     updatedVqHeaders      vq_header[]        @relation("VQUpdatedBy")
     createdQcHeaders      qc_header[]        @relation("QCCreatedBy")
     updatedQcHeaders      qc_header[]        @relation("QCUpdatedBy")
+    createdPoHeaders      po_header[]        @relation("poCreatedBy")
+    updatedPoHeaders      po_header[]        @relation("poUpdatedBy")
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -106,6 +108,7 @@ model org_branch {
     prHeaders   pr_header[]
     rfqHeaders  rfq_header[]
     warehouses  warehouse[]
+    poHeaders   po_header[]
 
     @@map("org_branch")
 }
@@ -144,17 +147,18 @@ model org_department {
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_code String     @unique @db.VarChar(20)
-    warehouse_name String     @db.VarChar(200)
-    warehouse_id   Int        @id @default(autoincrement())
+    warehouse_code String      @unique @db.VarChar(20)
+    warehouse_name String      @db.VarChar(200)
+    warehouse_id   Int         @id @default(autoincrement())
     branch_id      Int
     address        String
-    created_at     DateTime   @default(now())
-    is_active      Boolean    @default(true)
-    updated_at     DateTime   @updatedAt
-    branch         org_branch @relation(fields: [branch_id], references: [branch_id])
+    created_at     DateTime    @default(now())
+    is_active      Boolean     @default(true)
+    updated_at     DateTime    @updatedAt
+    branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
     prLines        pr_line[]
     locations      location[]
+    poHeaders      po_header[]
 
     @@map("warehouse")
 }
@@ -221,6 +225,7 @@ model item {
     prLines               pr_line[]
     rfqLines              rfq_line[]
     vqLines               vq_line[]
+    poLines               po_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -246,6 +251,7 @@ model uom {
     prLines       pr_line[]
     rfqLines      rfq_line[]
     vqLines       vq_line[]
+    poLines       po_line[]
 
     @@map("uom")
 }
@@ -496,6 +502,7 @@ model vendor {
     prHeaders           pr_header[]
     rfqVendors          rfq_vendor[]
     vqHeaders           vq_header[]
+    poHeaders           po_header[]
 
     @@map("vendor")
 }
@@ -785,6 +792,8 @@ model tax_code {
     prLines      pr_line[]
     prHeaders    pr_header[]
     vqHeaders    vq_header[]
+    poLines      po_line[]
+    poHeaders    po_header[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -1005,6 +1014,7 @@ model pr_header {
     rfqHeaders       rfq_header[]
     vqHeaders        vq_header[]
     qcHeaders        qc_header[]
+    poHeaders        po_header[]
 
     @@map("pr_header")
 }
@@ -1059,6 +1069,7 @@ model pr_line {
     tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
     rfqLines              rfq_line[]
     vqLines               vq_line[]
+    poLines               po_line[]
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -1306,6 +1317,112 @@ model qc_header {
     updatedQcHeaders employees?     @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
     winningVq        vq_header?     @relation(fields: [winning_vq_id], references: [vq_header_id])
     department       org_department @relation(fields: [department_id], references: [department_id])
+}
+
+model po_header {
+    /// รหัสใบสั่งซื้อ (PK)
+    po_header_id Int      @id @default(autoincrement())
+    /// เลขที่ใบสั่งซื้อ
+    po_no        String   @unique @db.VarChar(30)
+    /// วันที่ใบสั่งซื้อ
+    po_date      DateTime @default(now())
+    /// รหัสใบขอซื้อ (FK)
+    pr_id        Int
+    /// รหัสผู้ขาย (FK)
+    vendor_id    Int
+    /// รหัสสาขา (FK)
+    branch_id    Int
+    /// รหัสคลังสินค้า (FK)
+    warehouse_id Int?
+    /// สถานะ
+    status       String   @db.VarChar(20)
+    /// วันที่สร้าง
+    created_at   DateTime @default(now())
+    /// วันที่แก้ไขล่าสุด
+    updated_at   DateTime @updatedAt
+    created_by   Int?
+    updated_by   Int?
+
+    /// สกุลเงินหลักของระบบ (Functional Currency)
+    base_currency_code  String?   @db.VarChar(3)
+    /// สกุลเงินตามใบเสนอราคา (Vendor Currency)
+    quote_currency_code String?   @db.VarChar(3)
+    /// อัตราแลกเปลี่ยน (1 quote → base) ui input
+    exchange_rate       Decimal?  @db.Decimal(18, 6)
+    /// วันที่ของเรท ui input
+    exchange_rate_date  DateTime?
+
+    /// จำนวนเงินรวม (Base Currency)
+    base_total_amount  Decimal @db.Decimal(18, 2)
+    /// จำนวนเงินรวม (Quote Currency)
+    quote_total_amount Decimal @db.Decimal(18, 2)
+
+    /// TAX
+    tax_code_id      Int?
+    tax_rate         Decimal? @db.Decimal(9, 4)
+    base_tax_amount  Decimal? @db.Decimal(18, 2)
+    quote_tax_amount Decimal? @db.Decimal(18, 2)
+
+    /// DOCUMENT DISCOUNT
+    discount_expression   String?  @db.VarChar(20)
+    discount_rate         Decimal? @db.Decimal(9, 4)
+    base_discount_amount  Decimal? @db.Decimal(18, 2)
+    quote_discount_amount Decimal? @db.Decimal(18, 2)
+
+    pr               pr_header  @relation(fields: [pr_id], references: [pr_id])
+    createdPoHeaders employees? @relation("poCreatedBy", fields: [created_by], references: [employee_id])
+    updatedPoHeaders employees? @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
+    vendor           vendor     @relation(fields: [vendor_id], references: [vendor_id])
+    branch           org_branch @relation(fields: [branch_id], references: [branch_id])
+    warehouse        warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    poLines          po_line[]
+    tax_code         tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
+}
+
+model po_line {
+    /// รหัสใบสั่งซื้อ (PK)
+    po_line_id   Int     @id @default(autoincrement())
+    /// เลขที่ใบสั่งซื้อ
+    po_header_id Int
+    /// ลำดับบรรทัด
+    line_no      Int
+    /// รหัสใบขอซื้อ (FK)
+    pr_line_id   Int
+    /// รหัสสินค้า (FK)
+    item_id      Int?
+    description  String? @db.VarChar(255)
+
+    /// สถานะ
+    status                String   @db.VarChar(20)
+    /// วันที่สร้าง
+    created_at            DateTime @default(now())
+    /// วันที่แก้ไขล่าสุด
+    updated_at            DateTime @updatedAt
+    /// จำนวนที่สั่งซื้อ
+    qty                   Decimal  @db.Decimal(18, 2)
+    /// หน่วยนับ
+    uom_id                Int
+    /// ราคาต่อหน่วย
+    unit_price            Decimal  @db.Decimal(18, 2)
+    /// ส่วนลด
+    discount_amount       Decimal  @db.Decimal(18, 2)
+    /// ประเภทการรับ GOODS/SERVICE
+    required_receipt_type String   @db.VarChar(20)
+    /// TAX
+    tax_code_id           Int?
+    tax_rate              Decimal? @db.Decimal(9, 4)
+
+    /// DOCUMENT DISCOUNT
+    discount_expression String?  @db.VarChar(20)
+    discount_rate       Decimal? @db.Decimal(9, 4)
+
+    net_amount Decimal @db.Decimal(18, 2)
+
+    poHeader po_header @relation(fields: [po_header_id], references: [po_header_id])
+    prLine   pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
+    uom      uom       @relation(fields: [uom_id], references: [uom_id])
+    taxCode  tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
+    item     item?     @relation(fields: [item_id], references: [item_id])
 }
 
 ////////////

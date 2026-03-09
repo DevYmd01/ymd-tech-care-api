@@ -42,6 +42,7 @@ import { CompanyModule } from './modules/master-data/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { VqModule } from './modules/procurement/vq/vq.module';
 import { QcModule } from './modules/procurement/qc/qc.module';
+import { PoModule } from './modules/procurement/po/po.module';
 
 @Module({
   imports: [
@@ -84,7 +85,8 @@ import { QcModule } from './modules/procurement/qc/qc.module';
     LocationModule,
     CompanyModule,
     VqModule,
-    QcModule
+    QcModule,
+    PoModule
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
