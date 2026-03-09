@@ -39,146 +39,146 @@ export class PoService {
 
     ) { }
 
- async createPOHeader(createPOHeaderDTO: CreatePOHeaderDTO, context: any) {
+    async createPOHeader(createPOHeaderDTO: CreatePOHeaderDTO, context: any) {
 
-    return this.prismaService.$transaction(async (tx) => {
+        return this.prismaService.$transaction(async (tx) => {
 
-      // สร้าง PO document number
-      const documentNo = await this.DocumentNumberService.generate({
-        module_code: 'PO',
-        document_type_code: 'PO',
-        branch_id: 0,
-      });
+            // สร้าง PO document number
+            const documentNo = await this.DocumentNumberService.generate({
+                module_code: 'PO',
+                document_type_code: 'PO',
+                branch_id: 0,
+            });
 
-      const taxConfig = await this.taxService.getTaxById(
-        createPOHeaderDTO.tax_code_id!
-      );
+            const taxConfig = await this.taxService.getTaxById(
+                createPOHeaderDTO.tax_code_id!
+            );
 
-      const taxRate = new Decimal(taxConfig.tax_rate).div(100);
+            const taxRate = new Decimal(taxConfig.tax_rate).div(100);
 
-      let discountAmount = new Decimal(0);
-      let netAmount = new Decimal(0);
-      let subtotal = new Decimal(0);
+            let discountAmount = new Decimal(0);
+            let netAmount = new Decimal(0);
+            let subtotal = new Decimal(0);
 
-      const calculatedLines: any[] = [];
+            const calculatedLines: any[] = [];
 
-      // คำนวณ line
-      for (const line of createPOHeaderDTO.po_lines) {
+            // คำนวณ line
+            for (const line of createPOHeaderDTO.po_lines) {
 
-        const lineAmount =
-          this.vqCalculationDomainService.calculateLine({
-            qty: line.qty,
-            unit_price: line.unit_price,
-            discount_expression: line.discount_expression
-              ? String(line.discount_expression)
-              : undefined,
-          });
+                const lineAmount =
+                    this.vqCalculationDomainService.calculateLine({
+                        qty: line.qty,
+                        unit_price: line.unit_price,
+                        discount_expression: line.discount_expression
+                            ? String(line.discount_expression)
+                            : undefined,
+                    });
 
-        subtotal = subtotal.plus(lineAmount.subtotal);
-        discountAmount = discountAmount.plus(lineAmount.discountAmount);
-        netAmount = netAmount.plus(lineAmount.netAmount);
+                subtotal = subtotal.plus(lineAmount.subtotal);
+                discountAmount = discountAmount.plus(lineAmount.discountAmount);
+                netAmount = netAmount.plus(lineAmount.netAmount);
 
-        calculatedLines.push({
-          line,
-          calc: lineAmount,
+                calculatedLines.push({
+                    line,
+                    calc: lineAmount,
+                });
+            }
+
+            // คำนวณ header
+            const headerDocTotals =
+                this.vqCalculationDomainService.calculateHeaderTotal({
+                    subtotal: netAmount.toNumber(),
+                    exchange_rate: createPOHeaderDTO.exchange_rate,
+                    discount_expression: String(createPOHeaderDTO.discount_expression),
+                    tax_rate: taxRate.toNumber(),
+                });
+
+            /**
+             * ตรวจสอบ PR
+             */
+            let prId = createPOHeaderDTO.pr_id;
+
+            if (!prId) {
+
+                const prDocumentNo = await this.DocumentNumberService.generate({
+                    module_code: 'PR',
+                    document_type_code: 'PR',
+                    branch_id: 0,
+                });
+
+                const prHeaderData =
+                    PrCreatePOHeaderMapper.toPrismaCreateInput(
+                        createPOHeaderDTO,
+                        prDocumentNo,
+                        headerDocTotals
+                    );
+
+                const createdPR = await this.PRHeaderRepository.create(
+                    tx,
+                    prHeaderData
+                );
+
+                prId = createdPR.pr_id;
+            }
+
+            /**
+             * สร้าง PO Header
+             */
+            const createPOHeaderData =
+                CreatePOHeaderMapper.toPrismaCreateInput(
+                    createPOHeaderDTO,
+                    documentNo,
+                    headerDocTotals,
+                    prId
+                );
+
+            const createdHeader =
+                await this.createPOHeaderRepository.create(
+                    tx,
+                    createPOHeaderData
+                );
+
+            /**
+             * สร้าง PO Lines
+             */
+            for (const { line, calc } of calculatedLines) {
+
+                const createPOLineData =
+                    POLineMapper.toPrismaCreateInput(
+                        line,
+                        calc,
+                        createdHeader.po_header_id
+                    );
+
+                await this.createPOLineRepository.create(
+                    tx,
+                    createPOLineData
+                );
+
+            }
+
+            /**
+             * Audit Log
+             */
+            await this.auditLogRepository.create(
+                tx,
+                createdHeader,
+                context
+            );
+
+            return tx.po_header.findUnique({
+                where: { po_header_id: createdHeader.po_header_id },
+                include: {
+                    poLines: true,
+                },
+            });
+
         });
-      }
 
-      // คำนวณ header
-      const headerDocTotals =
-        this.vqCalculationDomainService.calculateHeaderTotal({
-          subtotal: netAmount.toNumber(),
-          exchange_rate: createPOHeaderDTO.exchange_rate,
-          discount_expression: String(createPOHeaderDTO.discount_expression),
-          tax_rate: taxRate.toNumber(),
-        });
-
-      /**
-       * ตรวจสอบ PR
-       */
-      let prId = createPOHeaderDTO.pr_id;
-
-      if (!prId) {
-
-        const prDocumentNo = await this.DocumentNumberService.generate({
-          module_code: 'PR',
-          document_type_code: 'PR',
-          branch_id: 0,
-        });
-
-        const prHeaderData =
-          PrCreatePOHeaderMapper.toPrismaCreateInput(
-            createPOHeaderDTO,
-            prDocumentNo,
-            headerDocTotals
-          );
-
-        const createdPR = await this.PRHeaderRepository.create(
-          tx,
-          prHeaderData
-        );
-
-        prId = createdPR.pr_id;
-      }
-
-      /**
-       * สร้าง PO Header
-       */
-      const createPOHeaderData =
-        CreatePOHeaderMapper.toPrismaCreateInput(
-          createPOHeaderDTO,
-          documentNo,
-          headerDocTotals,
-          prId
-        );
-
-      const createdHeader =
-        await this.createPOHeaderRepository.create(
-          tx,
-          createPOHeaderData
-        );
-
-      /**
-       * สร้าง PO Lines
-       */
-      for (const { line, calc } of calculatedLines) {
-
-        const createPOLineData =
-          POLineMapper.toPrismaCreateInput(
-            line,
-            calc,
-            createdHeader.po_header_id
-          );
-
-        await this.createPOLineRepository.create(
-          tx,
-          createPOLineData
-        );
-
-      }
-
-      /**
-       * Audit Log
-       */
-      await this.auditLogRepository.create(
-        tx,
-        createdHeader,
-        context
-      );
-
-      return tx.po_header.findUnique({
-        where: { po_header_id: createdHeader.po_header_id },
-        include: {
-          poLines: true,
-        },
-      });
-
-    });
-
-  }
+    }
 
 
- async updatePO(
+    async updatePO(
         id: number,
         updatePOHeaderDto: UpdatePOHeaderDTO,
         context: any,
@@ -312,12 +312,13 @@ export class PoService {
             });
         });
     }
-    
+
     findAll() {
         return this.prismaService.po_header.findMany({
 
         });
     }
+
     findOne(id: number) {
         return this.prismaService.po_header.findUnique({
             where: { po_header_id: id },
@@ -326,4 +327,24 @@ export class PoService {
             },
         });
     }
+
+
+    findPRWithoutQC() {
+        return this.prismaService.pr_header.findMany({
+            where: {
+                poHeaders: {
+                    none: {},
+                },
+                qcHeaders: {
+                    some: {},
+                },
+                status: 'APPROVED',
+            },
+            include: {
+                poHeaders: true,
+                qcHeaders: true,
+            }
+        });
+    }
+
 }

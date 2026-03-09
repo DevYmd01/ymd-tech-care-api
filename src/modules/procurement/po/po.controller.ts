@@ -27,6 +27,10 @@ export class PoController {
       return this.poService.findOne(+id);
     }
 
-
+    // แสดง QC ทั้งหมดเพื่อแสดงให้เห็นว่ามีการส่ง QC แล้ว ใช้ใน table frontend แล้วใช้ในหน้า PO เพื่อแสดงว่ามีการส่ง QC รอทำการสร้าง PO หรือยังถ้ายังให้แสดงปุ่ม Create PO ถ้ามีแล้วให้แสดงปุ่ม View QC แทน
+    @Get('pr/waiting-for-qc')
+    findPRWithoutQC() {
+      return this.poService.findPRWithoutQC();
+    }
 
 }

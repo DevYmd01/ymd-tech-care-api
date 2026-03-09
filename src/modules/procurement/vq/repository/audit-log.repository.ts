@@ -3,31 +3,40 @@ import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class AuditLogRepository {
-    async create(tx: Prisma.TransactionClient, header: any, context: any) {
-        return tx.audit_log.create({
-            data: {
-                module_code: 'VQ',
-                document_type: 'VQ',
-                document_id: BigInt(header.vq_header_id),
-                document_no: header.vq_no,
+async create(tx: Prisma.TransactionClient, header: any, context: any) {
 
-                table_name: 'vq_header',
-                record_id: BigInt(header.vq_header_id),
+    const requesterUserId =
+        header?.requester_user_id ??
+        context?.user_id ??
+        0;
 
-                action_type: 'CREATE',
-                changed_by: BigInt(header.requester_user_id),
+    return tx.audit_log.create({
+        data: {
+            module_code: 'Procurement',
+            document_type: 'VQ',
 
-                request_id: context.request_id,
-                client_ip: context.client_ip,
-                user_agent: context.user_agent,
-            },
-        });
-    }
+            document_id: BigInt(header.vq_header_id),
+            document_no: header.vq_no,
+
+            table_name: 'vq_header',
+            record_id: BigInt(header.vq_header_id),
+
+            action_type: 'CREATE',
+
+            changed_by: BigInt(requesterUserId),
+
+            request_id: context?.request_id ?? null,
+            client_ip: context?.client_ip ?? null,
+            user_agent: context?.user_agent ?? null,
+        },
+    });
+
+}
 
     async update(tx: Prisma.TransactionClient, header: any, context: any) {
         return tx.audit_log.create({
             data: {
-                module_code: 'VQ',
+                module_code: 'Procurement',
                 document_type: 'VQ',
                 document_id: BigInt(header.vq_header_id),
                 document_no: header.vq_no,

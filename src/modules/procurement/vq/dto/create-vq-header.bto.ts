@@ -42,6 +42,8 @@ export class CreateVQHeaderDTO {
     @IsDate()
     @Type(() => Date)
     exchange_rate_date?: Date;
+    @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     tax_code_id?: number;
     @IsOptional()

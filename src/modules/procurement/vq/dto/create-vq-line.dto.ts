@@ -30,10 +30,6 @@ export class CreateVQLineDTO {
     @IsNumber()
     unit_price: number;
 
-    @IsOptional()
-    @IsNumber()
-    tax_code_id: number;
-
     @IsOptional() 
     @IsString()
     discount_expression?: string;
