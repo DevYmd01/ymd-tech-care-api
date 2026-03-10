@@ -48,7 +48,7 @@ model employees {
     updatedQcHeaders      qc_header[]        @relation("QCUpdatedBy")
     createdPoHeaders      po_header[]        @relation("poCreatedBy")
     updatedPoHeaders      po_header[]        @relation("poUpdatedBy")
-    regnHeaders           grn_header[]       
+    regnHeaders           grn_header[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -148,19 +148,19 @@ model org_department {
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_code String      @unique @db.VarChar(20)
-    warehouse_name String      @db.VarChar(200)
-    warehouse_id   Int         @id @default(autoincrement())
+    warehouse_code String       @unique @db.VarChar(20)
+    warehouse_name String       @db.VarChar(200)
+    warehouse_id   Int          @id @default(autoincrement())
     branch_id      Int
     address        String
-    created_at     DateTime    @default(now())
-    is_active      Boolean     @default(true)
-    updated_at     DateTime    @updatedAt
-    branch         org_branch  @relation(fields: [branch_id], references: [branch_id])
+    created_at     DateTime     @default(now())
+    is_active      Boolean      @default(true)
+    updated_at     DateTime     @updatedAt
+    branch         org_branch   @relation(fields: [branch_id], references: [branch_id])
     prLines        pr_line[]
     locations      location[]
     poHeaders      po_header[]
-    regnHeaders     grn_header[]
+    regnHeaders    grn_header[]
 
     @@map("warehouse")
 }
@@ -285,6 +285,7 @@ model item_type {
     item_type_name    String   @db.VarChar(200)
     /// ชื่อประเภทสินค้า (อังกฤษ)
     item_type_nameeng String   @db.VarChar(200)
+    is_active          Boolean  @default(true)
     created_at        DateTime @default(now())
     updated_at        DateTime @updatedAt
     items             item[]
@@ -1371,16 +1372,15 @@ model po_header {
     base_discount_amount  Decimal? @db.Decimal(18, 2)
     quote_discount_amount Decimal? @db.Decimal(18, 2)
 
-    pr               pr_header  @relation(fields: [pr_id], references: [pr_id])
-    createdPoHeaders employees? @relation("poCreatedBy", fields: [created_by], references: [employee_id])
-    updatedPoHeaders employees? @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
-    vendor           vendor     @relation(fields: [vendor_id], references: [vendor_id])
-    branch           org_branch @relation(fields: [branch_id], references: [branch_id])
-    warehouse        warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    pr               pr_header    @relation(fields: [pr_id], references: [pr_id])
+    createdPoHeaders employees?   @relation("poCreatedBy", fields: [created_by], references: [employee_id])
+    updatedPoHeaders employees?   @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
+    vendor           vendor       @relation(fields: [vendor_id], references: [vendor_id])
+    branch           org_branch   @relation(fields: [branch_id], references: [branch_id])
+    warehouse        warehouse?   @relation(fields: [warehouse_id], references: [warehouse_id])
     poLines          po_line[]
-    tax_code         tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
-    regnHeaders       grn_header[]
-    
+    tax_code         tax_code?    @relation(fields: [tax_code_id], references: [tax_code_id])
+    regnHeaders      grn_header[]
 }
 
 model po_line {
@@ -1431,35 +1431,52 @@ model po_line {
 
 model grn_header {
     /// รหัสใบรับสินค้า (PK)
-    grn_id Int      @id @default(autoincrement())
+    grn_id       Int        @id @default(autoincrement())
     /// เลขที่ใบรับสินค้า
-    grn_no String   @unique @db.VarChar(30)
+    grn_no       String     @unique @db.VarChar(30)
     /// รหัสใบสั่งซื้อ (FK)
     po_header_id Int
     /// วันที่ใบรับสินค้า
-    grn_date      DateTime @default(now())
+    grn_date     DateTime   @default(now())
     /// สถานะ
-    status        String   @db.VarChar(20)
+    status       String     @db.VarChar(20)
     /// รหัสผู้รับสินค้า (FK)
-    received_by   Int?
+    received_by  Int?
     /// รหัสสาขา (FK)
-    branch_id     Int?
+    branch_id    Int?
     /// รหัสคลังสินค้า (FK)
-    warehouse_id  Int?
+    warehouse_id Int?
     /// หมายเหตุ
-    remarks       String?  @db.Text
+    remarks      String?    @db.Text
     /// วันที่สร้าง
-    created_at    DateTime @default(now())
+    created_at   DateTime   @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at    DateTime @updatedAt
-    poHeader      po_header @relation(fields: [po_header_id], references: [po_header_id])
-    receivedBy    employees? @relation(fields: [received_by], references: [employee_id])
-    warehouse     warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    updated_at   DateTime   @updatedAt
+    poHeader     po_header  @relation(fields: [po_header_id], references: [po_header_id])
+    receivedBy   employees? @relation(fields: [received_by], references: [employee_id])
+    warehouse    warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
 }
 
 model grn_line {
     /// รหัสใบรับสินค้า (PK)
-    grn_line_id Int
+    grn_line_id Int     @id @default(autoincrement())
+    /// รหัสใบรับสินค้า (FK)
+    grn_id      Int
+    /// ลำดับ
+    line_no     Int
+    /// รหัสสินค้า (FK)
+    item_id     Int?
+    /// รหัสสินค้า (FK)
+    pr_line_id  Int
+    /// รายละเอียด
+    description String? @db.VarChar(255)
+    /// จำนวน
+    qty_received Decimal @db.Decimal(18, 6)
+    /// รหัสหน่วยนับ (FK)
+    uom_id      Int
+    
+
+}
 
 ////////////
 //// Audit Log

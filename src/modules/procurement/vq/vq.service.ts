@@ -284,9 +284,6 @@ export class VqService {
         const rows = await this.prisma.rfq_vendor.findMany({
             where: {
                 is_active: true,
-                rfq: {
-                    status: 'WAITING_FOR_RFQ',
-                },
             },
             include: {
                 rfq: {
@@ -317,6 +314,7 @@ export class VqService {
             vendor_email: row.vendor?.email,
 
             quotation_count: row.vq_header?.length || 0,
+            vq_no: row.vq_header?.[0]?.vq_no || null, // สมมติเอาแค่เลขที่ VQ แรกถ้ามี
             status: row.status,
             created_at: row.created_at,
         }));
@@ -334,9 +332,7 @@ export class VqService {
         const rows = await this.prisma.rfq_vendor.findMany({
             where: {
                 is_active: true,
-                rfq: {
-                    status: 'WAITING_FOR_VQ',
-                },
+                status: 'SENT',
                 vq_header: {
                     none: {}, // 👈 ไม่มี quotation
                 },
@@ -389,7 +385,6 @@ export class VqService {
             },
             include: {
                 item: true,
-
             },
         });
     }

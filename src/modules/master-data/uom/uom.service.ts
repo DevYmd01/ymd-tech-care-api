@@ -27,7 +27,7 @@ async createUom(uom: CreateUomDto) {
 
 
     async getAllUom() {
-        return this.prisma.uom.findMany();
+        return this.prisma.uom.findMany({ orderBy: { uom_id: 'asc' },});
     }
 
     async getUomById(uom_id: number) {

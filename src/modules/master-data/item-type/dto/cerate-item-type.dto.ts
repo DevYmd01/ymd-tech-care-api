@@ -10,4 +10,7 @@ export class CreateItemTypeDTO {
     @IsString()
     @IsOptional()
     item_type_nameeng: string;
+    
+    @IsOptional()
+    is_active: boolean;
 }
