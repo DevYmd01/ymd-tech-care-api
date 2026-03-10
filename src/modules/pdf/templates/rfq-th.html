@@ -1,0 +1,164 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            margin: 40px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1f2937;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #111827;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .company-info {
+            text-align: left;
+        }
+
+        .document-info {
+            text-align: right;
+        }
+
+        .document-box {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f9fafb;
+        }
+
+        .info-grid {
+            margin-top: 10px;
+        }
+
+        .info-grid p {
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        th,
+        td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+        }
+
+        td {
+            background: #ffffff;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .remark-box {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header-container">
+
+        <div class="company-info">
+            <h1>REQUEST FOR QUOTATION</h1>
+            <p style="color:#6b7280">Official Procurement Document</p>
+        </div>
+
+        <div class="document-box">
+            <p><b>RFQ No:</b> {{rfq.rfq_no}}</p>
+            <p><b>RFQ Date:</b> {{rfq.rfq_date}}</p>
+            <p><b>Due Date:</b> {{rfq.quotation_due_date}}</p>
+        </div>
+
+    </div>
+
+    <!-- REQUEST INFO -->
+    <h2>Request Information</h2>
+
+    <div class="info-grid">
+        <p><b>Requested By:</b> {{rfq.requested_by}}</p>
+    </div>
+
+    <!-- VENDOR -->
+    <h2>Vendor Information</h2>
+
+    <div class="document-box">
+        <p><b>Vendor Name:</b> {{vendor.vendor_name}}</p>
+        <p><b>Email:</b> {{vendor.email}}</p>
+        <p><b>Phone:</b> {{vendor.phone}}</p>
+    </div>
+
+    <!-- ITEMS -->
+    <h2>Items</h2>
+
+    <table>
+
+        <tr>
+            <th style="width:50px">#</th>
+            <th>Description</th>
+            <th style="width:80px">Qty</th>
+            <th style="width:120px">Currency</th>
+        </tr>
+
+        {{#each rfq.rfqLines}}
+        <tr>
+            <td>{{@index}}</td>
+            <td>{{description}}</td>
+            <td>{{qty}}</td>
+            <td>{{../rfq.rfq_quote_currency_code}}</td>
+        </tr>
+        {{/each}}
+
+    </table>
+
+    <!-- REMARK -->
+    <h2>Remarks</h2>
+
+    <div class="remark-box">
+        {{rfq.remarks}}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>This is a system generated document. No signature required.</p>
+    </div>
+
+</body>
+
+</html>
