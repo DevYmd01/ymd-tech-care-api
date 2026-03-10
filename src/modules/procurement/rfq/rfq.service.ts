@@ -1,4 +1,4 @@
-import { Injectable, Query, NotFoundException } from '@nestjs/common';
+import { Injectable, Query, NotFoundException, BadRequestException} from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
 import { CreateRFQLineRepository } from './repository/rfq-line.repository';
@@ -18,6 +18,7 @@ import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
 import { PdfService } from '@/modules/pdf/pdf.service';
 import { MailService } from '@/modules/mail/mail.service';
 import { buildRFQEmailTemplate } from './templates/rfq-email.template';
+
 
 @Injectable()
 export class RfqService {
@@ -143,17 +144,69 @@ export class RfqService {
 
     async findAll(page: number, pageSize: number) {
 
-        const data = await this.prisma.rfq_header.findMany({
-            include: {
-                rfqLines: true,
-            },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-        });
-
-        const total = await this.prisma.rfq_header.count();
         const skip = (page - 1) * pageSize;
-        return { data, total, skip };
+
+        const [data, total] = await Promise.all([
+            this.prisma.rfq_header.findMany({
+                skip,
+                take: pageSize,
+                select: {
+                    rfq_id: true,
+                    rfq_no: true,
+                    rfq_date: true,
+                    status: true,
+                    quotation_due_date: true,
+                    remarks: true,
+                    created_at: true,
+
+                    // ✅ ชื่อผู้สร้าง
+                    requested_by_user: {
+                        select: {
+                            employee_id: true,
+                            employee_firstname_th: true,
+                            employee_lastname_th: true,
+                        }
+                    }, 
+
+                    // ✅ จำนวน vendor ทั้งหมด และที่ส่งแล้ว
+                    rfqVendors: {
+                        select: {
+                            rfq_vendor_id: true,
+                            status: true,
+                            sent_at: true,
+                            vendor: {
+                                select: {
+                                    vendor_id: true,
+                                    vendor_name: true,
+                                }
+                            }
+                        }
+                    },
+
+                    // ✅ จำนวน line
+                    _count: {
+                        select: { rfqLines: true }
+                    },
+                },
+                orderBy: { created_at: 'desc' },
+            }),
+            this.prisma.rfq_header.count(),
+        ]);
+
+        // ✅ คำนวณ vendor stats ใน application layer
+        const result = data.map((rfq) => ({
+            ...rfq,
+            vendor_total: rfq.rfqVendors.length,
+            vendor_sent: rfq.rfqVendors.filter(v => v.status === 'SENT').length,
+            line_count: rfq._count.rfqLines,
+        }));
+
+        return {
+            data: result,
+            total,
+            page,
+            pageSize,
+        };
     }
 
 
@@ -435,7 +488,8 @@ export class RfqService {
 
     //-------------- send to vendor ----------------
     async sendToVendor(rfq_vendor_id: number, dto: SendMailRFQDTO, context: any) {
-        console.log("rfq_vendor_id", rfq_vendor_id);
+
+        // 1️⃣ ดึงข้อมูล
         const rfqVendor = await this.prisma.rfq_vendor.findUnique({
             where: { rfq_vendor_id },
             include: {
@@ -450,30 +504,51 @@ export class RfqService {
             }
         });
 
+        // 2️⃣ guard — ตรวจสอบก่อนทำงาน
         if (!rfqVendor) {
-            throw new NotFoundException('RFQ Vendor not found');
+            throw new NotFoundException(`ไม่พบ RFQ Vendor ID: ${rfq_vendor_id}`);
         }
 
-        const pdfBuffer = await this.pdfService.generateRFQ(rfqVendor);
+        // if (rfqVendor.status === 'SENT') {
+        //     throw new BadRequestException('ส่งใบขอเสนอราคานี้ไปแล้ว');
+        // }
 
+        if (!rfqVendor.vendor.email) {
+            throw new BadRequestException('Vendor ไม่มี email กรุณาตรวจสอบข้อมูล');
+        }
+
+        // 3️⃣ สร้าง PDF และ email template
+        const pdfBuffer = await this.pdfService.generateRFQ(rfqVendor);
         const html = buildRFQEmailTemplate(rfqVendor.rfq, rfqVendor.vendor);
 
+        // 4️⃣ รวม email จาก dto.to + vendor email (ไม่ทิ้งของเดิม)
+        const toList = dto.to?.length
+            ? dto.to
+            : [rfqVendor.vendor.email];
+
+        // 5️⃣ ส่ง email
         await this.mailService.send({
-            to: `${rfqVendor.vendor.email}`,
+            to: toList,
+            cc: dto.cc ?? [],
             subject: dto.subject || `RFQ ${rfqVendor.rfq.rfq_no}`,
-            cc: dto.cc || [],
-            html: html,
-            attachments: [
-                {
-                    filename: 'rfq.pdf',
-                    content: pdfBuffer,
-                    contentType: 'application/pdf',
-                },
-            ],
+            html,
+            attachments: [{
+                filename: `RFQ_${rfqVendor.rfq.rfq_no}.pdf`,  // ชื่อไฟล์ชัดเจนขึ้น
+                content: pdfBuffer,
+                contentType: 'application/pdf',
+            }],
         });
 
+        // 6️⃣ อัปเดตสถานะ — ของเดิมลืม step นี้!
+        return this.prisma.rfq_vendor.update({
+            where: { rfq_vendor_id },
+            data: {
+                status: 'SENT',
+                sent_at: new Date(),
+                 contact_email: Array.isArray(toList) ? toList.join(',') : toList,// บันทึกว่าส่งไปที่ไหน
+            },
+        });
     }
-
     async getRFQVendorPDF(rfq_vendor_id: number) {
 
         const data = await this.prisma.rfq_vendor.findUnique({
