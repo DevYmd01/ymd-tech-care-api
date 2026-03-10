@@ -342,9 +342,54 @@ export class PoService {
             },
             include: {
                 poHeaders: true,
-                qcHeaders: true,
+                qcHeaders: {
+                    include: {
+                        winningVq: {
+                            include: {
+                                vendor: true,
+                                vqLines: true,
+                            },
+                        },
+                    },
+                }
             }
         });
     }
+
+    findAllForTable(page: number, pageSize: number) {
+        const skip = (page - 1) * pageSize;
+        const rows = this.prismaService.po_header.findMany({
+            include: {
+                pr: {
+                    select: {
+                        pr_id: true,
+                        pr_no: true,
+                    },
+                
+                },
+                poLines: true,
+            },
+            skip,
+            take: pageSize, 
+        });
+
+        const total = this.prismaService.po_header.count();
+
+        return Promise.all([rows, total]).then(([prs, total]) => {
+            return { data: prs, total, page, pageSize };
+        });    }
+
+
+    async approve(po_id: number) {
+        return this.prismaService.$transaction(async (tx) => {
+            const updated = await tx.po_header.update({
+                where: { po_header_id: po_id },
+                data: {
+                    status: 'APPROVED',
+                },
+            });
+        });
+    }
+    
 
 }

@@ -15,7 +15,7 @@ export class AuditLogRepository {
                 record_id: BigInt(header.qc_header_id),
 
                 action_type: 'CREATE',
-                changed_by: BigInt(header.requester_user_id),
+                changed_by: BigInt(header.created_by),
 
                 request_id: context.request_id,
                 client_ip: context.client_ip,
