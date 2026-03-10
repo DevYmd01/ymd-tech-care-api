@@ -40,7 +40,7 @@ export class RfqController {
         return this.rfqService.findVendors(rfq_id);
     }
 
-    @Post(':rfq_vendor_id/send-to-vendor')
+    @Patch(':rfq_vendor_id/send-to-vendor')
     async sendToVendor(
         @Body() dto: SendMailRFQDTO,
         @Param('rfq_vendor_id', ParseIntPipe) rfq_vendor_id: number,

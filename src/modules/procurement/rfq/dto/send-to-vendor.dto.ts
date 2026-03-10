@@ -1,16 +1,17 @@
+import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
 
-import { Injectable } from '@nestjs/common';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-
-@Injectable()
+// ❌ ลบ @Injectable() ออก — DTO ไม่ใช่ NestJS Provider
 export class SendMailRFQDTO {
-    @IsString()
-    @IsOptional()
-    to: string;
 
-    @IsString()
+    @IsArray()
+    @IsEmail({}, { each: true })  // { each: true } = validate ทีละ element
     @IsOptional()
-    cc: string;
+    to: string[];
+
+    @IsArray()
+    @IsEmail({}, { each: true })
+    @IsOptional()
+    cc: string[];
 
     @IsString()
     @IsOptional()
