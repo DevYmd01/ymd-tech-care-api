@@ -48,6 +48,7 @@ model employees {
     updatedQcHeaders      qc_header[]        @relation("QCUpdatedBy")
     createdPoHeaders      po_header[]        @relation("poCreatedBy")
     updatedPoHeaders      po_header[]        @relation("poUpdatedBy")
+    regnHeaders           grn_header[]       
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -159,6 +160,7 @@ model warehouse {
     prLines        pr_line[]
     locations      location[]
     poHeaders      po_header[]
+    regnHeaders     grn_header[]
 
     @@map("warehouse")
 }
@@ -1377,6 +1379,8 @@ model po_header {
     warehouse        warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
     poLines          po_line[]
     tax_code         tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
+    regnHeaders       grn_header[]
+    
 }
 
 model po_line {
@@ -1424,6 +1428,38 @@ model po_line {
     taxCode  tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
     item     item?     @relation(fields: [item_id], references: [item_id])
 }
+
+model grn_header {
+    /// รหัสใบรับสินค้า (PK)
+    grn_id Int      @id @default(autoincrement())
+    /// เลขที่ใบรับสินค้า
+    grn_no String   @unique @db.VarChar(30)
+    /// รหัสใบสั่งซื้อ (FK)
+    po_header_id Int
+    /// วันที่ใบรับสินค้า
+    grn_date      DateTime @default(now())
+    /// สถานะ
+    status        String   @db.VarChar(20)
+    /// รหัสผู้รับสินค้า (FK)
+    received_by   Int?
+    /// รหัสสาขา (FK)
+    branch_id     Int?
+    /// รหัสคลังสินค้า (FK)
+    warehouse_id  Int?
+    /// หมายเหตุ
+    remarks       String?  @db.Text
+    /// วันที่สร้าง
+    created_at    DateTime @default(now())
+    /// วันที่แก้ไขล่าสุด
+    updated_at    DateTime @updatedAt
+    poHeader      po_header @relation(fields: [po_header_id], references: [po_header_id])
+    receivedBy    employees? @relation(fields: [received_by], references: [employee_id])
+    warehouse     warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+}
+
+model grn_line {
+    /// รหัสใบรับสินค้า (PK)
+    grn_line_id Int
 
 ////////////
 //// Audit Log
