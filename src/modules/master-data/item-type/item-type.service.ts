@@ -17,7 +17,7 @@ async findAll() {
     }
 
     async create(createItemTypeDTO: CreateItemTypeDTO) {
-        return this.prisma.item_type.create({
+        const created = await this.prisma.item_type.create({
             data: {
                 item_type_code: createItemTypeDTO.item_type_code,
                 item_type_name: createItemTypeDTO.item_type_name,
@@ -25,10 +25,15 @@ async findAll() {
                 is_active: createItemTypeDTO.is_active ?? true, // กำหนดค่าเริ่มต้นเป็น true หากไม่ได้ส่งมา
             }
         });
+        return {
+            success: true,
+            data: created,
+            message: 'สร้างประเภทสินค้าเรียบร้อย',
+        };
     }
 
     async update(item_type_id: number, updateItemTypeDTO: CreateItemTypeDTO) {
-        return this.prisma.item_type.update({
+        const updated = await this.prisma.item_type.update({
             where: { item_type_id },
             data: {
                 item_type_code: updateItemTypeDTO.item_type_code,
@@ -37,5 +42,12 @@ async findAll() {
                 is_active: updateItemTypeDTO.is_active ?? false, // กำหนดค่าเริ่มต้นเป็น true หากไม่ได้ส่งมา
             }
         });
+
+        return {
+            success: true,
+            data: updated,
+            message: 'แก้ไขประเภทสินค้าเรียบร้อย',
+        };
+        
     }
 }
