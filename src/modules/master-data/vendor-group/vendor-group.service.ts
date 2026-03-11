@@ -63,6 +63,7 @@ export class VendorGroupService {
                 vendor_group_name: updateVendorGroupDTO.vendor_group_name,
                 vendor_group_nameeng: updateVendorGroupDTO.vendor_group_nameeng,
                 description: updateVendorGroupDTO.description,
+                is_active: updateVendorGroupDTO.is_active ?? false, // กำหนดค่าเริ่มต้นเป็น true หากไม่ได้ส่งมา
                 status: updateVendorGroupDTO.status || "ACTIVE",
             },
             select: {

@@ -14,9 +14,9 @@ export class ItemCategoryService {
 
     async findAll() {
         return this.prisma.item_category.findMany({
-            where: {
-                is_active: true,
-            },
+            orderBy: {
+            created_at: 'desc'
+        }
         });
     }
 

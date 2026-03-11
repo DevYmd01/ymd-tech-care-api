@@ -576,6 +576,8 @@ model vendor_group {
     /// รายละเอียดกลุ่มเจ้าหนี้
     description          String
     /// สถานะกลุ่มเจ้าหนี้
+    is_active            Boolean  @default(true)
+    /// สถานะกลุ่มเจ้าหนี้
     status               String   @db.VarChar(20)
     created_at           DateTime @default(now())
     updated_at           DateTime @updatedAt

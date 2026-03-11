@@ -9,9 +9,9 @@ export class ItemBrandService {
     async create(createBrandDto: CreateBrandDto) {
         return await this.prisma.item_brand.create({
             data: {
-                item_brand_code: createBrandDto.brand_code,
-                item_brand_name: createBrandDto.brand_name,
-                item_brand_nameeng: createBrandDto.brand_nameeng || '',
+                item_brand_code: createBrandDto.item_brand_code,
+                item_brand_name: createBrandDto.item_brand_name,
+                item_brand_nameeng: createBrandDto.item_brand_nameeng || '',
                 is_active: createBrandDto.is_active || true
             }
         });
@@ -19,9 +19,6 @@ export class ItemBrandService {
 
     async findAll() {
         return await this.prisma.item_brand.findMany({
-            where: {
-                is_active: true
-            },
             orderBy: {
                 item_brand_id: 'desc'
             }
@@ -42,10 +39,10 @@ export class ItemBrandService {
                 item_brand_id: item_brand_id
             },
             data: {
-                item_brand_code: updateBrandDto.brand_code,
-                item_brand_name: updateBrandDto.brand_name,
-                item_brand_nameeng: updateBrandDto.brand_nameeng || '',
-                is_active: updateBrandDto.is_active || true
+                item_brand_code: updateBrandDto.item_brand_code,
+                item_brand_name: updateBrandDto.item_brand_name,
+                item_brand_nameeng: updateBrandDto.item_brand_nameeng || '',
+                is_active: updateBrandDto.is_active
             }
         });
     }

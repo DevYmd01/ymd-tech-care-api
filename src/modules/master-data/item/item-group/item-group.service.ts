@@ -19,9 +19,9 @@ export class ItemGroupService {
 
     async getAllItemGroup() {
         return this.prismaService.item_group.findMany({
-            where: {
-                is_active: true,
-            },
+            orderBy: {
+            created_at: 'desc'
+        }
         });
     }
 
@@ -42,7 +42,7 @@ export class ItemGroupService {
                 item_group_code: updateItemGroupDto.item_group_code,
                 item_group_name: updateItemGroupDto.item_group_name,
                 item_group_nameeng: updateItemGroupDto.item_group_nameeng,
-                is_active: updateItemGroupDto.is_active || true,
+                is_active: updateItemGroupDto.is_active,
             },
         });
     }

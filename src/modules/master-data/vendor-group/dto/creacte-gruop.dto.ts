@@ -13,6 +13,8 @@ export class CreateVendorGroupDTO {
     @IsString()
     @IsOptional()
     description: string;
+    @IsOptional()
+    is_active?: boolean;
     @IsString()
     @IsOptional()
     status: string;

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Patch,  Put } from '@nestjs/common';
 import { ItemBrandService } from './item-brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 
@@ -21,7 +21,7 @@ export class ItemBrandController {
         return this.itemBrandService.findOne(+item_brand_id);
     }
 
-    @Put(':item_brand_id')
+    @Patch(':item_brand_id')
     update(@Param('item_brand_id') item_brand_id: string, @Body() updateBrandDto: CreateBrandDto) {
         return this.itemBrandService.update(+item_brand_id, updateBrandDto);
     }
