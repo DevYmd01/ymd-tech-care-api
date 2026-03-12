@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Get, Param, Put } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Get, Param, Put, Delete, Patch } from '@nestjs/common';
 import { TaxGroupService } from './tax-group.service';
 import { CreateTaxGroupDTO } from './dto/create-tax-group.dto';
 
@@ -24,9 +24,15 @@ export class TaxGroupController {
         return this.taxGroupService.findById(tax_group_id);
     }
 
-    @Put(':tax_group_id')
+    @Patch(':tax_group_id')
     @HttpCode(HttpStatus.OK)
     async update(@Param('tax_group_id') tax_group_id: string, @Body() updateTaxGroupDTO: CreateTaxGroupDTO) {
         return this.taxGroupService.update(tax_group_id, updateTaxGroupDTO);
+    }
+
+    @Delete(':tax_group_id')
+    @HttpCode(HttpStatus.OK)
+    async delete(@Param('tax_group_id') tax_group_id: string) {
+        return this.taxGroupService.delete(tax_group_id);
     }
 }

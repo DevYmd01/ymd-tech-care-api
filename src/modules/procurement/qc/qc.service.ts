@@ -133,7 +133,7 @@ export class QcService {
             const data = QCHeaderMapper.toPrismaCreateInput(createQcDto, qc_no);
             const header = await this.createQcHeaderRepository.create(tx, data);
 
-            await this.auditLogRepository.create(tx, header, user);
+            // await this.auditLogRepository.create(tx, header, user);
 
             return header;
         })
