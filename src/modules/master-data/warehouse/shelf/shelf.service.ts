@@ -11,6 +11,7 @@ export class ShelfService {
             data: {
                 shelf_code: createShelfDto.shelf_code,
                 shelf_name: createShelfDto.shelf_name,
+                shelf_nameeng: createShelfDto.shelf_nameeng || '',
                 is_active: createShelfDto.is_active,
             },
         });
@@ -36,6 +37,7 @@ export class ShelfService {
             data: {
                 shelf_code: updateShelfDto.shelf_code,
                 shelf_name: updateShelfDto.shelf_name,
+                shelf_nameeng: updateShelfDto.shelf_nameeng || '',
                 is_active: updateShelfDto.is_active ,
             },
         });
