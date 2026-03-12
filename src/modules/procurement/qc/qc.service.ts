@@ -153,7 +153,7 @@ export class QcService {
             }
             const header = await this.createQcHeaderRepository.update(tx, data, existing);
 
-            await this.auditLogRepository.update(tx, header, user);
+            // await this.auditLogRepository.update(tx, header, user);
 
             return header;
         })
