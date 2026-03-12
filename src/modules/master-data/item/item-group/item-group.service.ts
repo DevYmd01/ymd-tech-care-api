@@ -12,7 +12,7 @@ export class ItemGroupService {
                 item_group_code: createItemGroupDto.item_group_code,
                 item_group_name: createItemGroupDto.item_group_name,
                 item_group_nameeng: createItemGroupDto.item_group_nameeng,
-                is_active: createItemGroupDto.is_active || true,
+                is_active: createItemGroupDto.is_active,
             }
         });
     }

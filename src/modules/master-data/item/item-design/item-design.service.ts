@@ -12,13 +12,15 @@ export class ItemDesignService {
                 item_design_code: createDesignDto.item_design_code,
                 item_design_name: createDesignDto.item_design_name,
                 item_design_nameeng: createDesignDto.item_design_nameeng || '',
-                is_active: createDesignDto.is_active || true,
+                is_active: createDesignDto.is_active ,
             },
         });
     }
 
     async findAll() {
-        return this.prisma.item_design.findMany();
+        return this.prisma.item_design.findMany({
+            orderBy: { item_design_id: 'asc' }
+        });
     }
 
     async findOne(item_design_id: number) {
@@ -34,7 +36,7 @@ export class ItemDesignService {
                 item_design_code: updateDesignDto.item_design_code,
                 item_design_name: updateDesignDto.item_design_name,
                 item_design_nameeng: updateDesignDto.item_design_nameeng || '',
-                is_active: updateDesignDto.is_active || true,
+                is_active: updateDesignDto.is_active,
             },
         });
     }

@@ -18,7 +18,11 @@ export class ItemPatternService {
     }
 
     async findAll() {
-        return this.prisma.item_pattern.findMany();
+        return this.prisma.item_pattern.findMany(
+            {
+                orderBy: { item_pattern_id: 'asc' }
+            }
+        );
     }
 
     async findOne(item_pattern_id: number) {

@@ -13,7 +13,9 @@ export class ItemSizeService {
     }
 
     async findAll() {
-        return await this.prisma.item_size.findMany();
+        return await this.prisma.item_size.findMany({
+            orderBy: { item_size_id: 'asc' }
+        });
     }
 
     async findOne(item_size_id: number) {

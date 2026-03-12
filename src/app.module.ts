@@ -12,7 +12,7 @@ import { DepartmentModule } from './modules/master-data/department/department.mo
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AuthModule } from './modules/system/auth/auth.module';
 import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
-import { WarehouseModule } from './modules/master-data/warehouse/warehouse.module';
+import { WarehouseModule } from './modules/master-data/warehouse/warehouse/warehouse.module';
 import { ItemCategoryModule } from './modules/master-data/item-category/item-category.module';
 import { ItemTypeModule } from './modules/master-data/item-type/item-type.module';
 import { ItemSizeModule } from './modules/master-data/item/item-size/item-size.module';
@@ -37,12 +37,16 @@ import { AuditModule } from './modules/audit/audit.module';
 import { PdfService } from './modules/pdf/pdf.service';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { MailModule } from './modules/mail/mail.module';
-import { LocationModule } from './modules/master-data/location/location.module';
+import { LocationModule } from './modules/master-data/warehouse/location/location.module';
 import { CompanyModule } from './modules/master-data/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { VqModule } from './modules/procurement/vq/vq.module';
 import { QcModule } from './modules/procurement/qc/qc.module';
 import { PoModule } from './modules/procurement/po/po.module';
+import { ItemColorModule } from './modules/master-data/item/item-color/item-color.module';
+import { ItemGradeModule } from './modules/master-data/item/item-grade/item-grade.module';
+import { ShelfModule } from './modules/master-data/warehouse/shelf/shelf.module';
+
 
 @Module({
   imports: [
@@ -86,7 +90,11 @@ import { PoModule } from './modules/procurement/po/po.module';
     CompanyModule,
     VqModule,
     QcModule,
-    PoModule
+    PoModule,
+    ItemColorModule,
+    ItemGradeModule,
+    ShelfModule,
+
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

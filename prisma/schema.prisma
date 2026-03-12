@@ -168,6 +168,7 @@ model warehouse {
 model location {
     location_id      Int       @id @default(autoincrement())
     warehouse_id     Int
+    shelf_id         Int?
     location_code    String    @unique @db.VarChar(20)
     location_name    String    @db.VarChar(200)
     location_nameeng String?   @db.VarChar(200)
@@ -175,9 +176,26 @@ model location {
     created_at       DateTime  @default(now())
     updated_at       DateTime  @updatedAt
     warehouse        warehouse @relation(fields: [warehouse_id], references: [warehouse_id])
+    shelf            shelf?    @relation(fields: [shelf_id], references: [shelf_id])
+
 
     @@map("location")
 }
+
+/// ตารางเก็บข้อมูลชั้นวางสินค้า
+model shelf {
+    shelf_id      Int       @id @default(autoincrement())
+    shelf_code    String    @unique @db.VarChar(20)
+    shelf_name    String    @db.VarChar(200)
+    shelf_nameeng String?   @db.VarChar(200)
+    is_active     Boolean   @default(true)
+    created_at    DateTime  @default(now())
+    updated_at    DateTime  @updatedAt
+        locations     location[]
+
+    @@map("shelf")
+}
+
 
 /// ไม่
 /// ตารางเก็บข้อมูลสินค้า 
@@ -204,6 +222,10 @@ model item {
     item_size_id          Int?
     item_type_code        String?        @db.VarChar(20)
     item_type_id          Int?
+    item_color_code       String?        @db.VarChar(20)
+    item_color_id         Int?
+    item_grade_code       String?        @db.VarChar(20)
+    item_grade_id         Int?
     purchase_uom_id       Int?
     sale_uom_id           Int?
     updated_at            DateTime       @updatedAt
@@ -222,6 +244,8 @@ model item {
     itemType              item_type?     @relation(fields: [item_type_id], references: [item_type_id])
     purchaseUom           uom?           @relation("PurchaseUom", fields: [purchase_uom_id], references: [uom_id])
     saleUom               uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    itemColor             item_color?    @relation(fields: [item_color_id], references: [item_color_id])
+    itemGrade             item_grade?    @relation(fields: [item_grade_id], references: [item_grade_id])
     itemBarcodes          item_barcode[]
     itemUoms              item_uom[]
     prLines               pr_line[]
@@ -457,6 +481,47 @@ model item_group {
 
     @@map("item_group")
 }
+
+model item_color {
+    /// รหัสสีสินค้า
+    item_color_id      Int      @id @default(autoincrement())
+    /// รหัสสีสินค้า
+    item_color_code    String   @db.VarChar(30)
+    /// ชื่อสีสินค้า
+    item_color_name    String   @db.VarChar(200)        
+    /// ชื่อสีสินค้า (อังกฤษ)
+    item_color_nameeng String?  @db.VarChar(200)
+    /// สถานะการใช้งาน
+    is_active          Boolean? @default(true)
+    /// วันที่สร้าง
+    created_at         DateTime @default(now()) 
+    /// วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_color")
+}
+
+model item_grade {
+    /// รหัสเกรดสินค้า
+    item_grade_id      Int      @id @default(autoincrement())       
+    /// รหัสเกรดสินค้า
+    item_grade_code    String   @db.VarChar(30)
+    /// ชื่อเกรดสินค้า
+    item_grade_name    String   @db.VarChar(200)
+    /// ชื่อเกรดสินค้า (อังกฤษ)
+    item_grade_nameeng String?  @db.VarChar(200)
+    /// สถานะการใช้งาน
+    is_active          Boolean? @default(true)
+    /// วันที่สร้าง
+    created_at         DateTime @default(now())
+    /// วันที่แก้ไขล่าสุด
+    updated_at         DateTime @updatedAt
+    items              item[]
+
+    @@map("item_grade")
+}
+
 
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {

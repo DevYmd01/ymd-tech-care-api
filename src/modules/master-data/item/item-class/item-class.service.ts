@@ -12,13 +12,15 @@ export class ItemClassService {
                 item_class_code: createClassDto.item_class_code,
                 item_class_name: createClassDto.item_class_name,
                 item_class_nameeng: createClassDto.item_class_nameeng || '',
-                is_active: createClassDto.is_active || true,
+                is_active: createClassDto.is_active ,
             },
         });
     }
 
     async findAll() {
-        return this.prisma.item_class.findMany();
+        return this.prisma.item_class.findMany({
+            orderBy: { item_class_id: 'asc' }
+        });
     }
 
     async findOne(item_class_id: number) {
