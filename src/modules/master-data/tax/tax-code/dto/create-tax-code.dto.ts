@@ -23,7 +23,7 @@ export class CreateTaxCodeDTO {
 
     @IsNumber()
     @IsOptional()
-    tax_group_id: number;
+    tax_group_id?: number;
 
     @IsBoolean()
     @IsOptional()

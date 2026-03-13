@@ -178,80 +178,74 @@ model location {
     warehouse        warehouse @relation(fields: [warehouse_id], references: [warehouse_id])
     shelf            shelf?    @relation(fields: [shelf_id], references: [shelf_id])
 
-
     @@map("location")
 }
 
 /// ตารางเก็บข้อมูลชั้นวางสินค้า
 model shelf {
-    shelf_id      Int       @id @default(autoincrement())
-    shelf_code    String    @unique @db.VarChar(20)
-    shelf_name    String    @db.VarChar(200)
-    shelf_nameeng String?   @db.VarChar(200)
-    is_active     Boolean   @default(true)
-    created_at    DateTime  @default(now())
-    updated_at    DateTime  @updatedAt
-        locations     location[]
+    shelf_id      Int        @id @default(autoincrement())
+    shelf_code    String     @unique @db.VarChar(20)
+    shelf_name    String     @db.VarChar(200)
+    shelf_nameeng String?    @db.VarChar(200)
+    is_active     Boolean    @default(true)
+    created_at    DateTime   @default(now())
+    updated_at    DateTime   @updatedAt
+    locations     location[]
 
     @@map("shelf")
 }
 
-
 /// ไม่
 /// ตารางเก็บข้อมูลสินค้า 
 model item {
-    item_code             String         @unique @db.VarChar(50)
-    item_name             String         @db.VarChar(255)
-    item_id               Int            @id @default(autoincrement())
-    base_uom_id           Int
-    created_at            DateTime       @default(now())
-    default_tax_code      String?        @db.VarChar(20)
-    item_brand_code       String?        @db.VarChar(20)
-    item_brand_id         Int?
-    item_category_code    String?        @db.VarChar(20)
-    item_category_id      Int?
-    item_class_code       String?        @db.VarChar(20)
-    item_class_id         Int?
-    item_design_code      String?        @db.VarChar(20)
-    item_design_id        Int?
-    item_group_code       String?        @db.VarChar(20)
-    item_group_id         Int?
-    item_pattern_code     String?        @db.VarChar(20)
-    item_pattern_id       Int?
-    item_size_code        String?        @db.VarChar(20)
-    item_size_id          Int?
-    item_type_code        String?        @db.VarChar(20)
+    item_id               Int           @id @default(autoincrement())
+    item_code             String        @unique @db.VarChar(50)
+    item_name             String        @db.VarChar(255)
     item_type_id          Int?
-    item_color_code       String?        @db.VarChar(20)
-    item_color_id         Int?
-    item_grade_code       String?        @db.VarChar(20)
-    item_grade_id         Int?
-    purchase_uom_id       Int?
+    item_group_id         Int?
+    item_category_id      Int?
+    base_uom_id           Int?
     sale_uom_id           Int?
-    updated_at            DateTime       @updatedAt
-    default_issue_policy  IssuePolicy    @default(FEFO)
-    lot_tracking_level    TrackingLevel  @default(NONE)
-    serial_tracking_level TrackingLevel  @default(NONE)
+    tax_code_id           Int?
+    barcode_default       String?       @db.VarChar(80)
+    is_batch_control      Boolean       @default(false)
+    is_expiry_control     Boolean       @default(false)
+    is_serial_control     Boolean       @default(false)
+    standard_cost         Decimal?      @db.Decimal(18, 6)
     shelf_life_days       Int?
-    baseUom               uom            @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
-    itemBrand             item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
-    itemCategory          item_category? @relation(fields: [item_category_id], references: [item_category_id])
-    itemClass             item_class?    @relation(fields: [item_class_id], references: [item_class_id])
-    itemDesign            item_design?   @relation(fields: [item_design_id], references: [item_design_id])
-    itemGroup             item_group?    @relation(fields: [item_group_id], references: [item_group_id])
-    itemPattern           item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
-    itemSize              item_size?     @relation(fields: [item_size_id], references: [item_size_id])
-    itemType              item_type?     @relation(fields: [item_type_id], references: [item_type_id])
-    purchaseUom           uom?           @relation("PurchaseUom", fields: [purchase_uom_id], references: [uom_id])
-    saleUom               uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
-    itemColor             item_color?    @relation(fields: [item_color_id], references: [item_color_id])
-    itemGrade             item_grade?    @relation(fields: [item_grade_id], references: [item_grade_id])
-    itemBarcodes          item_barcode[]
-    itemUoms              item_uom[]
-    prLines               pr_line[]
-    rfqLines              rfq_line[]
-    vqLines               vq_line[]
-    poLines               po_line[]
+    default_issue_policy  IssuePolicy
+    lot_tracking_level    TrackingLevel
+    serial_tracking_level TrackingLevel
+    is_active             Boolean       @default(true)
+    created_at            DateTime      @default(now())
+    updated_at            DateTime      @updatedAt
+    item_brand_id         Int?
+    item_pattern_id       Int?
+    item_design_id        Int?
+    item_class_id         Int?
+    item_size_id          Int?
+    item_color_id         Int?
+    item_grade_id         Int?
+
+    itemBrand    item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
+    itemCategory item_category? @relation(fields: [item_category_id], references: [item_category_id])
+    itemClass    item_class?    @relation(fields: [item_class_id], references: [item_class_id])
+    itemDesign   item_design?   @relation(fields: [item_design_id], references: [item_design_id])
+    itemGroup    item_group?    @relation(fields: [item_group_id], references: [item_group_id])
+    itemPattern  item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    itemSize     item_size?     @relation(fields: [item_size_id], references: [item_size_id])
+    itemType     item_type?     @relation(fields: [item_type_id], references: [item_type_id])
+    baseUom      uom?           @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    saleUom      uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    itemColor    item_color?    @relation(fields: [item_color_id], references: [item_color_id])
+    itemGrade    item_grade?    @relation(fields: [item_grade_id], references: [item_grade_id])
+    taxCode      tax_code?      @relation(fields: [tax_code_id], references: [tax_code_id])
+    itemBarcodes item_barcode[]
+    itemUoms     item_uom[]
+    prLines      pr_line[]
+    rfqLines     rfq_line[]
+    vqLines      vq_line[]
+    poLines      po_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -261,23 +255,22 @@ model item {
 
 /// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id        Int            @id @default(autoincrement())
-    uom_code      String         @db.VarChar(20)
-    uom_name      String         @db.VarChar(100)
-    is_active     Boolean?       @default(true)
-    created_at    DateTime       @default(now())
-    uom_nameeng   String?        @db.VarChar(100)
-    updated_at    DateTime       @updatedAt
-    baseItems     item[]         @relation("BaseUom")
-    purchaseItems item[]         @relation("PurchaseUom")
-    saleItems     item[]         @relation("SaleUom")
-    itemBarcodes  item_barcode[]
-    fromItemUoms  item_uom[]     @relation("ItemUomFrom")
-    toItemUoms    item_uom[]     @relation("ItemUomTo")
-    prLines       pr_line[]
-    rfqLines      rfq_line[]
-    vqLines       vq_line[]
-    poLines       po_line[]
+    uom_id       Int            @id @default(autoincrement())
+    uom_code     String         @db.VarChar(20)
+    uom_name     String         @db.VarChar(100)
+    is_active    Boolean?       @default(true)
+    created_at   DateTime       @default(now())
+    uom_nameeng  String?        @db.VarChar(100)
+    updated_at   DateTime       @updatedAt
+    baseItems    item[]         @relation("BaseUom")
+    saleItems    item[]         @relation("SaleUom")
+    itemBarcodes item_barcode[]
+    fromItemUoms item_uom[]     @relation("ItemUomFrom")
+    toItemUoms   item_uom[]     @relation("ItemUomTo")
+    prLines      pr_line[]
+    rfqLines     rfq_line[]
+    vqLines      vq_line[]
+    poLines      po_line[]
 
     @@map("uom")
 }
@@ -309,7 +302,7 @@ model item_type {
     item_type_name    String   @db.VarChar(200)
     /// ชื่อประเภทสินค้า (อังกฤษ)
     item_type_nameeng String   @db.VarChar(200)
-    is_active          Boolean  @default(true)
+    is_active         Boolean  @default(true)
     created_at        DateTime @default(now())
     updated_at        DateTime @updatedAt
     items             item[]
@@ -488,13 +481,13 @@ model item_color {
     /// รหัสสีสินค้า
     item_color_code    String   @db.VarChar(30)
     /// ชื่อสีสินค้า
-    item_color_name    String   @db.VarChar(200)        
+    item_color_name    String   @db.VarChar(200)
     /// ชื่อสีสินค้า (อังกฤษ)
     item_color_nameeng String?  @db.VarChar(200)
     /// สถานะการใช้งาน
     is_active          Boolean? @default(true)
     /// วันที่สร้าง
-    created_at         DateTime @default(now()) 
+    created_at         DateTime @default(now())
     /// วันที่แก้ไขล่าสุด
     updated_at         DateTime @updatedAt
     items              item[]
@@ -504,7 +497,7 @@ model item_color {
 
 model item_grade {
     /// รหัสเกรดสินค้า
-    item_grade_id      Int      @id @default(autoincrement())       
+    item_grade_id      Int      @id @default(autoincrement())
     /// รหัสเกรดสินค้า
     item_grade_code    String   @db.VarChar(30)
     /// ชื่อเกรดสินค้า
@@ -521,7 +514,6 @@ model item_grade {
 
     @@map("item_grade")
 }
-
 
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
@@ -864,6 +856,7 @@ model tax_code {
     vqHeaders    vq_header[]
     poLines      po_line[]
     poHeaders    po_header[]
+    items        item[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -1526,23 +1519,21 @@ model grn_header {
 
 model grn_line {
     /// รหัสใบรับสินค้า (PK)
-    grn_line_id Int     @id @default(autoincrement())
+    grn_line_id  Int     @id @default(autoincrement())
     /// รหัสใบรับสินค้า (FK)
-    grn_id      Int
+    grn_id       Int
     /// ลำดับ
-    line_no     Int
+    line_no      Int
     /// รหัสสินค้า (FK)
-    item_id     Int?
+    item_id      Int?
     /// รหัสสินค้า (FK)
-    pr_line_id  Int
+    pr_line_id   Int
     /// รายละเอียด
-    description String? @db.VarChar(255)
+    description  String? @db.VarChar(255)
     /// จำนวน
     qty_received Decimal @db.Decimal(18, 6)
     /// รหัสหน่วยนับ (FK)
-    uom_id      Int
-    
-
+    uom_id       Int
 }
 
 ////////////
@@ -1620,6 +1611,7 @@ enum TrackingLevel {
 enum IssuePolicy {
     FIFO
     FEFO
+    LIFO
     MANUAL
 }
 

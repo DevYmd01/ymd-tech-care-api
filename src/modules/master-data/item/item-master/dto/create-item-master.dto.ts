@@ -1,83 +1,107 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum } from "class-validator";
-import { TrackingLevel, IssuePolicy } from '@prisma/client'
+import { IssuePolicy, TrackingLevel } from '@prisma/client';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateItemMasterDto {
     @IsNotEmpty()
     @IsString()
+    @MaxLength(50)
     item_code: string;
+
     @IsNotEmpty()
     @IsString()
+    @MaxLength(255)
     item_name: string;
+
     @IsOptional()
-    @IsNumber()
-    base_uom_id: number;
-    @IsOptional()
-    @IsNumber()
-    purchase_uom_id?: number;
-    @IsOptional()
-    @IsNumber()
-    sale_uom_id?: number;
-    @IsOptional()
-    @IsString()
-    default_tax_code?: string;
-    @IsOptional()
-    @IsNumber()
+    @IsInt()
     item_type_id?: number;
+
     @IsOptional()
-    @IsString()
-    item_type_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_category_id?: number;
-    @IsOptional()
-    @IsString()
-    item_category_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_brand_id?: number;
-    @IsOptional()
-    @IsString()
-    item_brand_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_pattern_id?: number;
-    @IsOptional()
-    @IsString()
-    item_pattern_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_design_id?: number;
-    @IsOptional()
-    @IsString()
-    item_design_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_class_id?: number;
-    @IsOptional()
-    @IsString()
-    item_class_code?: string;
-    @IsOptional()
-    @IsNumber()
-    item_size_id?: number;
-    @IsOptional()
-    @IsString()
-    item_size_code?: string;
-    @IsOptional()
-    @IsNumber()
+    @IsInt()
     item_group_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_category_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    base_uom_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    sale_uom_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    tax_code_id?: number;
+
     @IsOptional()
     @IsString()
-    item_group_code?: string;
+    @MaxLength(80)
+    barcode_default?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    is_batch_control?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    is_expiry_control?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    is_serial_control?: boolean;
+
+    @IsOptional()
+    @IsNumber()
+    standard_cost?: number;
+
+    @IsOptional()
+    @IsInt()
+    shelf_life_days?: number;
+
     @IsOptional()
     @IsEnum(IssuePolicy)
     default_issue_policy?: IssuePolicy;
+
     @IsOptional()
     @IsEnum(TrackingLevel)
     lot_tracking_level?: TrackingLevel;
+
     @IsOptional()
     @IsEnum(TrackingLevel)
     serial_tracking_level?: TrackingLevel;
+
     @IsOptional()
-    @IsNumber()
-    shelf_life_days?: number;
+    @IsBoolean()
+    is_active?: boolean;
+
+    @IsOptional()
+    @IsInt()
+    item_brand_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_pattern_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_design_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_class_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_size_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_color_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    item_grade_id?: number;
 }
