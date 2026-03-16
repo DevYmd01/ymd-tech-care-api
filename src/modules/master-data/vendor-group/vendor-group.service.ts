@@ -9,11 +9,7 @@ export class VendorGroupService {
 
     async findAll() {
         return this.prismaService.vendor_group.findMany({
-            select: {
-                vendor_group_id: true,
-                vendor_group_code: true,
-                vendor_group_name: true,
-            }
+            orderBy: { vendor_group_id: 'asc' },
         });
     }
 
@@ -22,14 +18,6 @@ export class VendorGroupService {
             where: {
                 vendor_group_id: vendor_group_id,
             },
-            select: {
-                vendor_group_id: true,
-                vendor_group_code: true,
-                vendor_group_name: true,
-                vendor_group_nameeng: true,
-                description: true,
-                status: true,
-            }
         });
     }
 
@@ -39,8 +27,7 @@ export class VendorGroupService {
                 vendor_group_code: createVendorGroupDTO.vendor_group_code,
                 vendor_group_name: createVendorGroupDTO.vendor_group_name,
                 vendor_group_nameeng: createVendorGroupDTO.vendor_group_nameeng,
-                description: createVendorGroupDTO.description,
-                status: createVendorGroupDTO.status || "ACTIVE",
+                is_active: createVendorGroupDTO.is_active ?? false,
             },
             select: {
                 vendor_group_id: true,
@@ -49,6 +36,7 @@ export class VendorGroupService {
                 vendor_group_nameeng: true,
                 description: true,
                 status: true,
+                is_active: true,
             }
         });
     }
@@ -62,18 +50,23 @@ export class VendorGroupService {
                 vendor_group_code: updateVendorGroupDTO.vendor_group_code,
                 vendor_group_name: updateVendorGroupDTO.vendor_group_name,
                 vendor_group_nameeng: updateVendorGroupDTO.vendor_group_nameeng,
-                description: updateVendorGroupDTO.description,
                 is_active: updateVendorGroupDTO.is_active ?? false, // กำหนดค่าเริ่มต้นเป็น true หากไม่ได้ส่งมา
-                status: updateVendorGroupDTO.status || "ACTIVE",
             },
             select: {
                 vendor_group_id: true,
                 vendor_group_code: true,
                 vendor_group_name: true,
                 vendor_group_nameeng: true,
-                description: true,
-                status: true,
+                is_active: true,
             }
+        });
+    }
+
+    async remove(vendor_group_id: number) {
+        return this.prismaService.vendor_group.delete({
+            where: {
+                vendor_group_id: vendor_group_id,
+            },
         });
     }
 }

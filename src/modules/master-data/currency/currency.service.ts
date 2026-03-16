@@ -8,13 +8,7 @@ export class CurrencyService {
 
     async findAll() {
         return this.prismaService.currency.findMany({
-            select: {
-                currency_id: true,
-                currency_code: true,
-                currency_name: true,
-                exchange_rate: true,
-                status: true,
-            }
+            orderBy: { currency_id: 'asc' },
         });
     }
 
@@ -38,6 +32,14 @@ export class CurrencyService {
                 currency_id: id,
             },
             data: dto,
+        });
+    }
+
+    async remove(id: number) {
+        return this.prismaService.currency.delete({
+            where: {
+                currency_id: id,
+            },
         });
     }
 }

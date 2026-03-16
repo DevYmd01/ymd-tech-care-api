@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Delete } from '@nestjs/common';
 import { Get } from '@nestjs/common';
 import { VendorTypeService } from './vendor-type.service';
 import { CreateVendorTypeDTO } from './dto/create-vendor-type.dto';
@@ -31,5 +31,10 @@ export class VendorTypeController {
     @Put(':vendor_type_id')
     update(@Param('vendor_type_id') vendor_type_id: string, @Body() updateVendorTypeDTO: CreateVendorTypeDTO) {
         return this.vendorTypeService.update(+vendor_type_id, updateVendorTypeDTO);
+    }
+
+    @Delete(':vendor_type_id')
+    remove(@Param('vendor_type_id') vendor_type_id: string) {   
+        return this.vendorTypeService.remove(+vendor_type_id);
     }
 }

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Delete } from '@nestjs/common';
 import { CurrencyService } from './currency.service';
 import { Post, Body, Get, Param, Put } from '@nestjs/common';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
@@ -25,5 +25,10 @@ export class CurrencyController {
     @Put(':currency_id')
     update(@Param('currency_id') currency_id: string, @Body() updateCurrencyDto: CreateCurrencyDto) {
         return this.currencyService.update(+currency_id, updateCurrencyDto);
+    }
+
+    @Delete(':currency_id')
+    remove(@Param('currency_id') currency_id: string) {
+        return this.currencyService.remove(+currency_id);
     }
 }

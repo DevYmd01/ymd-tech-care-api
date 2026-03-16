@@ -518,51 +518,56 @@ model item_grade {
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
     /// รหัสเจ้าหนี้
-    vendor_code         String                 @db.VarChar(30)
+    vendor_code         String   @db.VarChar(30)
     /// ชื่อเจ้าหนี้
-    vendor_name         String                 @db.VarChar(255)
+    vendor_name         String   @db.VarChar(255)
+    /// ชื่อเจ้าหนี้ (อังกฤษ)
+    vendor_nameeng      String?  @db.VarChar(255)
     /// เลขที่ผู้เสียภาษี
-    tax_id              String?                @db.VarChar(20)
+    tax_id              String?  @db.VarChar(20)
     /// เลขที่ผู้เสียภาษี
-    vat_registration_no String?                @db.VarChar(20)
+    vat_registration_no String?  @db.VarChar(20)
     /// ถูกหัก ณ ที่จ่ายหรือไม่
-    subject_to_wht      Boolean                @default(false)
+    subject_to_wht      Boolean  @default(false)
     /// เครดิตเทอม (วัน)
     payment_term_days   Int
     /// รหัสเจ้าหนี้
-    vendor_id           Int                    @id @default(autoincrement())
-    created_at          DateTime               @default(now())
+    vendor_id           Int      @id @default(autoincrement())
+    created_at          DateTime @default(now())
     /// อีเมล
-    email               String?                @db.VarChar(255)
+    email               String?  @db.VarChar(255)
     /// สถานะ
-    is_active           Boolean                @default(true)
+    is_active           Boolean  @default(true)
     /// เบอร์โทรศัพท์
-    phone               String?                @db.VarChar(20)
-    updated_at          DateTime               @updatedAt
+    phone               String?  @db.VarChar(20)
+    updated_at          DateTime @updatedAt
     /// รหัสกลุ่มเจ้าหนี้
     vendor_group_id     Int
     /// รหัสประเภทเจ้าหนี้
     vendor_type_id      Int
+
+    tax_code_id        Int?
     /// สกุลเงิน
-    currency_id         Int?
+    currency_id        Int?
     /// จด VAT หรือไม่
-    is_vat_registered   Boolean                @default(false)
+    is_vat_registered  Boolean                @default(false)
     /// จด VAT หรือไม่
-    is_subject_to_wht   Boolean                @default(false)
+    is_subject_to_wht  Boolean                @default(false)
     /// สถานะ
-    status              String                 @default("ACTIVE") @db.VarChar(20)
-    currency            currency?              @relation(fields: [currency_id], references: [currency_id])
-    vendor_group        vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
-    vendor_type         vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
-    vendorAddresses     vendor_address[]
-    vendorBankAccounts  vendor_bank_accounts[]
-    vendorContacts      vendor_contacts[]
-    vendorDocuments     vendor_documents[]
-    vendorPerformances  vendor_performance[]
-    prHeaders           pr_header[]
-    rfqVendors          rfq_vendor[]
-    vqHeaders           vq_header[]
-    poHeaders           po_header[]
+    status             String                 @default("ACTIVE") @db.VarChar(20)
+    currency           currency?              @relation(fields: [currency_id], references: [currency_id])
+    vendor_group       vendor_group           @relation(fields: [vendor_group_id], references: [vendor_group_id])
+    vendor_type        vendor_type            @relation(fields: [vendor_type_id], references: [vendor_type_id])
+    taxCode            tax_code?              @relation(fields: [tax_code_id], references: [tax_code_id])
+    vendorAddresses    vendor_address[]
+    vendorBankAccounts vendor_bank_accounts[]
+    vendorContacts     vendor_contacts[]
+    vendorDocuments    vendor_documents[]
+    vendorPerformances vendor_performance[]
+    prHeaders          pr_header[]
+    rfqVendors         rfq_vendor[]
+    vqHeaders          vq_header[]
+    poHeaders          po_header[]
 
     @@map("vendor")
 }
@@ -574,6 +579,8 @@ model vendor_address {
     address_type      VendorAddressType
     /// ที่อยู่
     address           String
+    /// ตำบล
+    sub_district      String?           @db.VarChar(100)
     /// อำเภอ
     district          String?           @db.VarChar(100)
     /// จังหวัด
@@ -608,11 +615,13 @@ model vendor_type {
     /// ชื่อประเภทเจ้าหนี้
     vendor_type_name    String   @db.VarChar(200)
     /// ชื่อประเภทเจ้าหนี้ (อังกฤษ)
-    vendor_type_nameeng String   @db.VarChar(200)
+    vendor_type_nameeng String?  @db.VarChar(200)
     /// รายละเอียดประเภทเจ้าหนี้
-    description         String
+    description         String?
+    /// สถานะการใช้งาน
+    is_active           Boolean  @default(true)
     /// สถานะประเภทเจ้าหนี้
-    status              String   @db.VarChar(20)
+    status              String?  @db.VarChar(20)
     created_at          DateTime @default(now())
     updated_at          DateTime @updatedAt
     vendors             vendor[]
@@ -629,13 +638,13 @@ model vendor_group {
     /// ชื่อกลุ่มเจ้าหนี้
     vendor_group_name    String   @db.VarChar(200)
     /// ชื่อกลุ่มเจ้าหนี้ (อังกฤษ)
-    vendor_group_nameeng String   @db.VarChar(200)
+    vendor_group_nameeng String?  @db.VarChar(200)
     /// รายละเอียดกลุ่มเจ้าหนี้
-    description          String
+    description          String?
     /// สถานะกลุ่มเจ้าหนี้
     is_active            Boolean  @default(true)
     /// สถานะกลุ่มเจ้าหนี้
-    status               String   @db.VarChar(20)
+    status               String?  @db.VarChar(20)
     created_at           DateTime @default(now())
     updated_at           DateTime @updatedAt
     vendors              vendor[]
@@ -857,6 +866,7 @@ model tax_code {
     poLines      po_line[]
     poHeaders    po_header[]
     items        item[]
+    vendors      vendor[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -896,7 +906,7 @@ model currency {
     /// อัตราแลกเปลี่ยน (THB)
     exchange_rate    Decimal  @db.Decimal(15, 2)
     /// สถานะสกุลเงิน
-    status           String   @db.VarChar(20)
+    is_active        Boolean  @default(true)
     created_at       DateTime @default(now())
     updated_at       DateTime @updatedAt
     vendors          vendor[]

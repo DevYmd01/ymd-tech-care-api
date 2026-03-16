@@ -10,6 +10,7 @@ import {
     IsArray,         // ตรวจว่าเป็น array
     ValidateNested,  // ใช้ตรวจ object ซ้อน (เช่น array ของ DTO)
     IsIn,
+    IsNotEmpty,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
@@ -23,6 +24,10 @@ export class CreateVendorDto {
     @IsOptional()
     @IsString()
     vendor_name?: string;
+
+    @IsOptional()
+    @IsString()
+    vendor_nameeng?: string;
 
     @IsOptional()
     @IsString()
@@ -63,19 +68,23 @@ export class CreateVendorDto {
     /// FK 
     ///////////////
     /// ประเภทเจ้าหนี้
-    @IsOptional()
+    @IsNotEmpty()
     @IsNumber()
-    vendor_type_id?: number
+    vendor_type_id: number
 
     /// กลุ่มเจ้าหนี้
-    @IsOptional()
+    @IsNotEmpty()
     @IsNumber()
-    vendor_group_id?: number
+    vendor_group_id: number
 
     /// ค่าเงิน
     @IsOptional()
     @IsNumber()
     currency_id?: number
+
+    @IsOptional()
+    @IsNumber()
+    tax_code_id?: number;
 
     /// เพิ่มผู้ติดต่อ
     @IsOptional()
@@ -105,6 +114,11 @@ export class CreateVendorAddressDto {
 
     @IsString()
     address?: string;
+
+    @IsString()
+    @IsOptional()
+    sub_district?: string;
+
 
     @IsString()
     district: string;

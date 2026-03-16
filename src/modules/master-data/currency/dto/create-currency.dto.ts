@@ -21,7 +21,7 @@ export class CreateCurrencyDto {
     @IsNotEmpty()
     exchange_rate: number;
 
-    @IsString()
     @IsNotEmpty()
-    status: string;
+    is_active: boolean;
+
 }

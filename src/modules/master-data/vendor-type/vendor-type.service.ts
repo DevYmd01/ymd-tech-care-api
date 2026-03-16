@@ -9,13 +9,7 @@ export class VendorTypeService {
 
     async findAll() {
         return this.prisma.vendor_type.findMany({
-            select: {
-                vendor_type_id: true,
-                vendor_type_code: true,
-                vendor_type_name: true,
-                vendor_type_nameeng: true,
-                description: true,
-            }
+                orderBy: { vendor_type_id: 'asc' },
         });
     }
 
@@ -29,8 +23,7 @@ export class VendorTypeService {
                 vendor_type_code: true,
                 vendor_type_name: true,
                 vendor_type_nameeng: true,
-                description: true,
-                status: true,
+                is_active: true,
             }
         });
     }
@@ -41,16 +34,14 @@ export class VendorTypeService {
                 vendor_type_code: createVendorTypeDTO.vendor_type_code,
                 vendor_type_name: createVendorTypeDTO.vendor_type_name,
                 vendor_type_nameeng: createVendorTypeDTO.vendor_type_nameeng,
-                description: createVendorTypeDTO.description,
-                status: createVendorTypeDTO.status || "ACTIVE",
+                is_active: createVendorTypeDTO.is_active ?? true,
             },
             select: { // คืนค่าเฉพาะที่ใช้
                 vendor_type_id: true,
                 vendor_type_code: true,
                 vendor_type_name: true,
                 vendor_type_nameeng: true,
-                description: true,
-                status: true,
+                is_active: true,
             }
         });
     }
@@ -64,17 +55,23 @@ export class VendorTypeService {
                 vendor_type_code: updateVendorTypeDTO.vendor_type_code,
                 vendor_type_name: updateVendorTypeDTO.vendor_type_name,
                 vendor_type_nameeng: updateVendorTypeDTO.vendor_type_nameeng,
-                description: updateVendorTypeDTO.description,
-                status: updateVendorTypeDTO.status || "ACTIVE",
+                is_active: updateVendorTypeDTO.is_active,
             },
             select: { // คืนค่าเฉพาะที่ใช้
                 vendor_type_id: true,
                 vendor_type_code: true,
                 vendor_type_name: true,
                 vendor_type_nameeng: true,
-                description: true,
-                status: true,
+                is_active: true,
             }
+        });        
+    }
+
+    async remove(vendor_type_id: number) {
+        return this.prisma.vendor_type.delete({
+            where: {
+                vendor_type_id: vendor_type_id,
+            },
         });
     }
 }

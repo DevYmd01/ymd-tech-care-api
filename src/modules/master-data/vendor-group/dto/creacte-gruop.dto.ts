@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateVendorGroupDTO {
     @IsString()
@@ -13,7 +13,7 @@ export class CreateVendorGroupDTO {
     @IsString()
     @IsOptional()
     description: string;
-    @IsOptional()
+    @IsNotEmpty()
     is_active?: boolean;
     @IsString()
     @IsOptional()

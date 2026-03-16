@@ -1,10 +1,7 @@
 import {
     IsString,
-    IsDateString,
     IsOptional,
-    IsNumber,
-    IsEnum,
-    Min,
+    IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -13,13 +10,11 @@ export class UpdateVendorTypeDTO {
     @IsOptional()
     vendor_type_code: string;
     @IsString()
+    @IsNotEmpty()
     vendor_type_name: string;
     @IsString()
+    @IsOptional()
     vendor_type_nameeng: string;
-    @IsString()
-    @IsOptional()
-    description: string;
-    @IsString()
-    @IsOptional()
-    status: string;
+    @IsNotEmpty()
+    is_active?: boolean;
 }

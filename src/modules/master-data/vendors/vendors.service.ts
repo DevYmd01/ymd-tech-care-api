@@ -30,6 +30,7 @@ export class VendorsService {
     create(dto: CreateVendorDto) {
         return this.prisma.$transaction(async (tx) => {
             const vendor = await this.createVendorRepository.create(tx, dto);
+ console.log(vendor);
 
             if (dto.addresses && dto.addresses.length > 0) {
                 await this.createAddressRepository.createMany({

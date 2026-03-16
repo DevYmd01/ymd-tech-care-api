@@ -23,6 +23,10 @@ export class UpdateVendorDto {
     @IsOptional()
     vendor_name?: string;
 
+    @IsOptional()
+    @IsString()
+    vendor_nameeng?: string;
+    
     @IsString()
     @IsOptional()
     vat_registration_no?: string;
@@ -90,6 +94,10 @@ export class UpdateVendorAddressDto {
     @IsString()
     @IsOptional()
     address?: string;
+
+    @IsString()
+    @IsOptional()
+    sub_district?: string;
 
     @IsString()
     @IsOptional()

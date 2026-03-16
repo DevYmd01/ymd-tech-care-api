@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Param, Delete } from '@nestjs/common';
 import { VendorGroupService } from './vendor-group.service';
 import { CreateVendorGroupDTO } from './dto/creacte-gruop.dto';
 
@@ -25,4 +25,12 @@ export class VendorGroupController {
     update(@Param('vendor_group_id') vendor_group_id: string, @Body() updateVendorGroupDTO: CreateVendorGroupDTO) {
         return this.vendorGroupService.update(+vendor_group_id, updateVendorGroupDTO);
     }
+
+    @Delete(':vendor_group_id')
+    remove(@Param('vendor_group_id') vendor_group_id: string) {
+        return this.vendorGroupService.remove(+vendor_group_id);
+    }
+
+    
+
 }
