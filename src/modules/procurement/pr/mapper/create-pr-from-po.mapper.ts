@@ -38,7 +38,9 @@ export class CreatePRFromPOHeaderMapper {
             pr_discount_raw: data.discount_expression,
             pr_discount_rate: headerDocTotals.baseDiscountAmount?.toNumber() ?? 0,
             pr_discount_amount: headerDocTotals.discountAmount.toNumber(),
-            requester_user: { connect: { employee_id: data.created_by } }
+            requester_user: { connect: { employee_id: data.created_by } },
+            ...((data as any).project_id ? { project: { connect: { project_id: (data as any).project_id } } } : {}),
+            ...((data as any).cost_center_id ? { cost_center: { connect: { cost_center_id: (data as any).cost_center_id } } } : {}),
         };
     }
 }

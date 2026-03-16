@@ -807,12 +807,13 @@ model payment_terms {
 /// ตารางเก็บข้อมูลศูนย์ต้นทุน
 model cost_center {
     /// รหัสศูนย์ต้นทุน
-    cost_center_code String  @unique @db.VarChar(30)
+    cost_center_code String      @unique @db.VarChar(30)
     /// ชื่อศูนย์ต้นทุน
-    cost_center_name String  @db.VarChar(200)
+    cost_center_name String      @db.VarChar(200)
     /// รหัสศูนย์ต้นทุน
-    cost_center_id   Int     @id @default(autoincrement())
-    is_active        Boolean @default(true)
+    cost_center_id   Int         @id @default(autoincrement())
+    is_active        Boolean     @default(true)
+    prHeaders        pr_header[]
 
     @@map("cost_center")
 }
@@ -1004,11 +1005,11 @@ model pr_header {
     /// รหัสใบขอซื้อ (PK)
     pr_id      Int      @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no      String   @db.VarChar(30)
+    pr_no      String   @db.VarChar(50)
     /// รหัสสาขา (FK)
     branch_id  Int?
     /// สถานะ
-    status     String   @db.VarChar(20)
+    status     String   @db.VarChar(30)
     /// วันที่สร้าง
     created_at DateTime @default(now())
 
@@ -1032,7 +1033,7 @@ model pr_header {
     pr_tax_code_id         Int?
     pr_tax_code            tax_code? @relation(fields: [pr_tax_code_id], references: [tax_code_id])
     /// ส่วนลดทั้งเอกสาร (string) จาก pr_line:line_amount
-    pr_discount_raw        String?   @db.VarChar(10)
+    pr_discount_raw        String?   @db.VarChar(30)
     /// % ส่วนลดทั้งเอกสาร (คำนวณจาก pr_discount_raw)
     pr_discount_rate       Decimal?  @db.Decimal(9, 4)
     /// จำนวนเงินส่วนลดทั้งเอกสาร (คำนวณจาก pr_discount_raw)
@@ -1054,28 +1055,31 @@ model pr_header {
     /// วันที่ส่งมอบที่ต้องการ
     delivery_date DateTime?
 
-    onhold              Boolean   @default(false)
-    cancel_flag         Boolean   @default(false)
+    onhold              Boolean @default(false)
+    cancel_flag         Boolean @default(false)
     /// ผู้ขายที่แนะนำ
-    preferred_vendor    String?   @db.VarChar(100)
+    preferred_vendor    String? @db.VarChar(100)
     /// ผู้ขอ
-    requester_name      String?   @db.VarChar(100)
+    requester_name      String? @db.VarChar(100)
     /// รหัสผู้ขอ (FK)
     requester_user_id   Int
     /// วิธีการจัดส่ง
-    shipping_method     String?   @db.VarChar(50)
+    shipping_method     String? @db.VarChar(100)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    vendor_quote_no     String?   @db.VarChar(50)
+    vendor_quote_no     String? @db.VarChar(100)
     /// รหัสผู้ขายที่แนะนำ (FK)
     preferred_vendor_id Int?
     /// รหัสโครงการ (FK)
     project_id          Int?
     /// ผู้อนุมัติ
     approved_by_user_id Int?
+
+    cost_center_id Int?
+    
     /// วันที่อนุมัติ
-    approved_at         DateTime?
+    approved_at    DateTime?
     /// เวอร์ชั่น
-    version             Int       @default(1)
+    version        Int          @default(1)
 
     /// ผู้อนุมัติ
     approved_by_user employees?   @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
@@ -1083,6 +1087,7 @@ model pr_header {
     branch           org_branch?  @relation(fields: [branch_id], references: [branch_id])
     requester_user   employees    @relation("requester_user", fields: [requester_user_id], references: [employee_id])
     project          project?     @relation(fields: [project_id], references: [project_id])
+    cost_center    cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
     prLines          pr_line[]
     rfqHeaders       rfq_header[]
     vqHeaders        vq_header[]

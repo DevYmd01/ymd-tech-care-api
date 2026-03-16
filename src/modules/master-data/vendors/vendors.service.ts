@@ -70,6 +70,8 @@ export class VendorsService {
     update(vendor_id: number, dto: UpdateVendorDto) {
         return this.prisma.$transaction(async (tx) => {
             await this.updateVendorRepository.update(tx, vendor_id, dto);
+console.log(dto);
+
 
             if (dto.addresses?.length) {
                 await this.updateVendorAddressRepository.sync(
@@ -110,6 +112,9 @@ export class VendorsService {
     /// ดึงข้อมูลเจ้าหนี้ทั้งหมด
     findAll() {
         return this.prisma.vendor.findMany({
+              orderBy: {
+                vendor_id: 'desc',
+            },
             include: {
                 vendorAddresses: true,
                 vendorContacts: true,

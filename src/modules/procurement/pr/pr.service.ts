@@ -157,6 +157,12 @@ export class PrService {
                             connect: { project_id: dto.project_id },
                         },
                     }),
+                    ...(dto.cost_center_id && {
+                        cost_center: {
+                            connect: { cost_center_id: dto.cost_center_id },
+                        },
+
+                    }),
                     created_at: new Date(),
                     updated_at: new Date(),
                 };
@@ -394,7 +400,7 @@ export class PrService {
                 const header = {
                     pr_date: dto.pr_date ? new Date(dto.pr_date) : new Date(),
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
-                    status: 'DRAFT',
+                    status: dto.status ?? 'DRAFT',
                     remark: dto.remark ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
@@ -437,8 +443,13 @@ export class PrService {
                             connect: { project_id: dto.project_id },
                         },
                     }),
+
+                    ...(dto.cost_center_id && {
+                        cost_center: {
+                            connect: { cost_center_id: dto.cost_center_id },
+                        },
+                    }),
                     updated_at: new Date(),
-                    project_id: dto.project_id ?? null,
                     version: { increment: 1 },
                 };
 
