@@ -49,7 +49,7 @@ export class CreateVendorDto {
     @IsString()
     phone?: string;
     
-  @IsString()
+    @IsString()
     @IsOptional()
     phone_extension?: string;
 

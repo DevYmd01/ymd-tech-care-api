@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateLocationDto {
     @IsNotEmpty()
@@ -13,7 +13,7 @@ export class CreateLocationDto {
     location_name: string;
 
     @IsOptional()
-    @IsString()
+    @IsNumber()
     shelf_id?: number;
 
     @IsOptional()
