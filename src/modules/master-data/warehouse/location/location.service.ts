@@ -10,6 +10,7 @@ export class LocationService {
         return this.prisma.location.create({
             data: {
                 warehouse_id: createLocationDto.warehouse_id,
+                shelf_id: createLocationDto.shelf_id,
                 location_code: createLocationDto.location_code,
                 location_name: createLocationDto.location_name,
                 location_nameeng: createLocationDto.location_nameeng,
