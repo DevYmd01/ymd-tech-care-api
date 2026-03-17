@@ -97,7 +97,6 @@ export class RfqService {
                             userAgent: context.user_agent,
                         });
                     }
-
                 }
 
                 // ⭐ map vendors
@@ -110,8 +109,6 @@ export class RfqService {
                 // ⭐ create many
                 if (rfqVendorData.length > 0) {
                     // await this.createRFQVendorRepository.createMany(tx, rfqVendorData);
-
-
                     for (const vendor of rfqVendorData) {
                         const created = await tx.rfq_vendor.create({
                             data: vendor
@@ -433,6 +430,7 @@ export class RfqService {
                 }
             }
 
+            
             // UPDATE
             if (vendorDiff.toUpdate.length > 0) {
 
