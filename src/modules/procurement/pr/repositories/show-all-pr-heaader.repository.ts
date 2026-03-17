@@ -13,7 +13,7 @@ export class ShowAllPRHeaderRepository {
             this.prisma.pr_header.findMany({
                 skip,
                 take,
-                orderBy: { pr_date: 'desc' },
+                orderBy: { pr_id: 'asc' },
                 select: {
                     pr_id: true,
                     pr_no: true,
