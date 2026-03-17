@@ -21,9 +21,13 @@ export class LocationService {
         });
     }
 
-    async findAll() {
-        return this.prisma.location.findMany();
-    }
+async findAll() {
+    return this.prisma.location.findMany({
+        orderBy: [
+            { location_id: 'desc' }
+        ],
+    });
+}
 
     async findOne(id: number) {
         return this.prisma.location.findUnique({ where: { location_id: id } });
@@ -34,6 +38,7 @@ export class LocationService {
             where: { location_id: id },
             data: {
                 warehouse_id: updateLocationDto.warehouse_id,
+                shelf_id: updateLocationDto.shelf_id,
                 location_code: updateLocationDto.location_code,
                 location_name: updateLocationDto.location_name,
                 location_nameeng: updateLocationDto.location_nameeng,

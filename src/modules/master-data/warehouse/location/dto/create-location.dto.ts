@@ -12,9 +12,9 @@ export class CreateLocationDto {
     @IsString()
     location_name: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsNumber()
-    shelf_id?: number;
+    shelf_id: number;
 
     @IsOptional()
     @IsString()
