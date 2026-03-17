@@ -6,6 +6,7 @@ import {
     Min,
     IsArray,
     ValidateNested,
+    IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreatePRLineDTO } from './create-pr-line.dto';
@@ -49,7 +50,7 @@ export class CreatePRHeaderDTO {
     // หมายเหตุ
     @IsOptional()
     @IsString()
-    remark: string;
+    remark?: string;
 
     // เครดิตวัน
     @IsNumber()
@@ -99,9 +100,9 @@ export class CreatePRHeaderDTO {
     @Type(() => CreatePRLineDTO)
     lines: CreatePRLineDTO[];
 
-    @IsNumber()
+    @IsOptional()
     @Type(() => Number)
-    pr_tax_code_id: number;
+    pr_tax_code_id?: number;
 
     // ลดท่อน 
     @IsString()

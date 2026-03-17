@@ -45,6 +45,10 @@ export class UpdateVendorRepository {
         phone: dto.phone
       }),
 
+      ...(dto.phone_extension !== undefined && {
+        phone_extension: dto.phone_extension
+      }),
+
       ...(dto.email !== undefined && {
         email: dto.email
       }),

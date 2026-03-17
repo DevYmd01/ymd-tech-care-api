@@ -48,6 +48,10 @@ export class CreateVendorDto {
     @IsOptional()
     @IsString()
     phone?: string;
+    
+  @IsString()
+    @IsOptional()
+    phone_extension?: string;
 
     @IsOptional()
     @IsString()

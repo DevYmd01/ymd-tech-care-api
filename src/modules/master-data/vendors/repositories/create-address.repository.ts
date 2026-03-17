@@ -19,6 +19,7 @@ export class CreateAddressRepository {
                 address_type: addr.address_type,
                 address: addr.address ?? '',
                 district: addr.district ?? '',
+                sub_district: addr.sub_district ?? '',
                 province: addr.province ?? '',
                 postal_code: addr.postal_code ?? '',
                 country: addr.country ?? '',
@@ -31,6 +32,4 @@ export class CreateAddressRepository {
             })),
         });
     }
-
-
 }

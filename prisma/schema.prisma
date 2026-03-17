@@ -256,7 +256,7 @@ model item {
 /// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
     uom_id       Int            @id @default(autoincrement())
-    uom_code     String         @db.VarChar(20)
+    uom_code     String        @unique @db.VarChar(20)
     uom_name     String         @db.VarChar(100)
     is_active    Boolean?       @default(true)
     created_at   DateTime       @default(now())
@@ -315,7 +315,7 @@ model item_barcode {
     /// รหัสบาร์โค้ด
     item_barcode_id   Int      @id @default(autoincrement())
     /// รหัสบาร์โค้ด
-    item_barcode_code String   @db.VarChar(30)
+    item_barcode_code String   @unique @db.VarChar(30)
     /// รหัสสินค้า
     item_id           Int
     /// รหัสหน่วยนับ
@@ -337,7 +337,7 @@ model item_category {
     /// รหัสหมวดหมู่สินค้า
     item_category_id      Int      @id @default(autoincrement())
     /// รหัสหมวดหมู่สินค้า
-    item_category_code    String   @db.VarChar(30)
+    item_category_code    String   @unique @db.VarChar(30)
     /// ชื่อหมวดหมู่สินค้า
     item_category_name    String   @db.VarChar(200)
     /// ชื่อหมวดหมู่สินค้า (อังกฤษ)
@@ -358,7 +358,7 @@ model item_brand {
     /// รหัสยี่ห้อสินค้า
     item_brand_id      Int      @id @default(autoincrement())
     /// รหัสยี่ห้อสินค้า
-    item_brand_code    String   @db.VarChar(30)
+    item_brand_code    String   @unique @db.VarChar(30)
     /// ชื่อยี่ห้อสินค้า
     item_brand_name    String   @db.VarChar(200)
     /// ชื่อยี่ห้อสินค้า (อังกฤษ)
@@ -379,7 +379,7 @@ model item_pattern {
     /// รหัสลายสินค้า
     item_pattern_id      Int      @id @default(autoincrement())
     /// รหัสลายสินค้า
-    item_pattern_code    String   @db.VarChar(30)
+    item_pattern_code    String  @unique @db.VarChar(30)
     /// ชื่อลายสินค้า
     item_pattern_name    String   @db.VarChar(200)
     /// ชื่อลายสินค้า (อังกฤษ)
@@ -399,7 +399,7 @@ model item_design {
     /// รหัสลายสินค้า
     item_design_id      Int      @id @default(autoincrement())
     /// รหัสลายสินค้า
-    item_design_code    String   @db.VarChar(30)
+    item_design_code    String   @unique @db.VarChar(30)
     /// ชื่อลายสินค้า
     item_design_name    String   @db.VarChar(200)
     /// ชื่อลายสินค้า (อังกฤษ)
@@ -419,7 +419,7 @@ model item_class {
     /// รหัสคลาสสินค้า
     item_class_id      Int      @id @default(autoincrement())
     /// รหัสคลาสสินค้า
-    item_class_code    String   @db.VarChar(30)
+    item_class_code    String   @unique @db.VarChar(30)
     /// ชื่อคลาสสินค้า
     item_class_name    String   @db.VarChar(200)
     /// ชื่อคลาสสินค้า (อังกฤษ)
@@ -439,7 +439,7 @@ model item_size {
     /// รหัสขนาดสินค้า
     item_size_id      Int      @id @default(autoincrement())
     /// รหัสขนาดสินค้า
-    item_size_code    String   @db.VarChar(30)
+    item_size_code    String   @unique @db.VarChar(30)
     /// ชื่อขนาดสินค้า
     item_size_name    String   @db.VarChar(200)
     /// ชื่อขนาดสินค้า (อังกฤษ)
@@ -459,7 +459,7 @@ model item_group {
     /// รหัสกลุ่มสินค้า
     item_group_id      Int      @id @default(autoincrement())
     /// รหัสกลุ่มสินค้า
-    item_group_code    String   @db.VarChar(30)
+    item_group_code    String  @unique @db.VarChar(30)
     /// ชื่อกลุ่มสินค้า
     item_group_name    String   @db.VarChar(200)
     /// ชื่อกลุ่มสินค้า (อังกฤษ)
@@ -479,7 +479,7 @@ model item_color {
     /// รหัสสีสินค้า
     item_color_id      Int      @id @default(autoincrement())
     /// รหัสสีสินค้า
-    item_color_code    String   @db.VarChar(30)
+    item_color_code    String   @unique @db.VarChar(30)
     /// ชื่อสีสินค้า
     item_color_name    String   @db.VarChar(200)
     /// ชื่อสีสินค้า (อังกฤษ)
@@ -499,7 +499,7 @@ model item_grade {
     /// รหัสเกรดสินค้า
     item_grade_id      Int      @id @default(autoincrement())
     /// รหัสเกรดสินค้า
-    item_grade_code    String   @db.VarChar(30)
+    item_grade_code    String   @unique @db.VarChar(30)
     /// ชื่อเกรดสินค้า
     item_grade_name    String   @db.VarChar(200)
     /// ชื่อเกรดสินค้า (อังกฤษ)
@@ -518,7 +518,7 @@ model item_grade {
 /// ตารางเก็บข้อมูลเจ้าหนี้ M3
 model vendor {
     /// รหัสเจ้าหนี้
-    vendor_code         String   @db.VarChar(30)
+    vendor_code         String   @unique @db.VarChar(30)
     /// ชื่อเจ้าหนี้
     vendor_name         String   @db.VarChar(255)
     /// ชื่อเจ้าหนี้ (อังกฤษ)
@@ -538,6 +538,8 @@ model vendor {
     email               String?  @db.VarChar(255)
     /// สถานะ
     is_active           Boolean  @default(true)
+    /// เบอร์โทรศัพท์
+    phone_extension     String?  @db.VarChar(20)
     /// เบอร์โทรศัพท์
     phone               String?  @db.VarChar(20)
     updated_at          DateTime @updatedAt
@@ -611,7 +613,7 @@ model vendor_type {
     /// รหัสประเภทเจ้าหนี้
     vendor_type_id      Int      @id @default(autoincrement())
     /// รหัสประเภทเจ้าหนี้
-    vendor_type_code    String   @db.VarChar(30)
+    vendor_type_code    String   @unique @db.VarChar(30)
     /// ชื่อประเภทเจ้าหนี้
     vendor_type_name    String   @db.VarChar(200)
     /// ชื่อประเภทเจ้าหนี้ (อังกฤษ)
@@ -634,7 +636,7 @@ model vendor_group {
     /// รหัสกลุ่มเจ้าหนี้
     vendor_group_id      Int      @id @default(autoincrement())
     /// รหัสกลุ่มเจ้าหนี้
-    vendor_group_code    String   @db.VarChar(30)
+    vendor_group_code    String  @unique  @db.VarChar(30)
     /// ชื่อกลุ่มเจ้าหนี้
     vendor_group_name    String   @db.VarChar(200)
     /// ชื่อกลุ่มเจ้าหนี้ (อังกฤษ)
@@ -777,7 +779,7 @@ model vendor_categories {
     /// รหัสหมวดหมู่ (PK)
     category_id        Int      @id @default(autoincrement())
     /// รหัสหมวดหมู่
-    category_code      String?  @db.VarChar(20)
+    category_code      String? @unique @db.VarChar(20)
     /// ชื่อหมวดหมู่
     category_name      String?  @db.VarChar(100)
     /// รหัสหมวดหมู่แม่
@@ -793,7 +795,7 @@ model payment_terms {
     /// รหัสเงื่อนไขการชำระ (PK)
     payment_term_id Int      @id @default(autoincrement())
     /// รหัสเงื่อนไข
-    term_code       String?  @db.VarChar(20)
+    term_code       String?  @unique @db.VarChar(20)
     /// ชื่อเงื่อนไข
     term_name       String?  @db.VarChar(100)
     /// จำนวนวัน
@@ -920,7 +922,7 @@ model currency_type {
     /// รหัสประเภทสกุลเงิน
     currency_type_id      Int      @id @default(autoincrement())
     /// รหัสประเภทสกุลเงิน
-    currency_type_code    String   @db.VarChar(30)
+    currency_type_code    String   @unique @db.VarChar(30)
     /// ชื่อประเภทสกุลเงิน
     currency_type_name    String   @db.VarChar(200)
     /// ชื่อประเภทสกุลเงิน (อังกฤษ)
@@ -937,7 +939,7 @@ model receive_place {
     /// รหัสสถานที่รับ
     receive_place_id      Int      @id @default(autoincrement())
     /// รหัสสถานที่รับ
-    receive_place_code    String   @db.VarChar(30)
+    receive_place_code    String   @unique @db.VarChar(30)
     /// ชื่อสถานที่รับ
     receive_place_name    String   @db.VarChar(200)
     /// ชื่อสถานที่รับ (อังกฤษ)
@@ -955,7 +957,7 @@ model document_format {
     /// รหัสรูปแบบเอกสาร
     document_format_id Int                @id @default(autoincrement())
     /// รหัสโมดูล
-    module_code        String
+    module_code        String              @db.VarChar(30)
     /// รหัสประเภทเอกสาร
     document_type_code String
     /// ตัวอักษรนำหน้า
@@ -1005,7 +1007,7 @@ model pr_header {
     /// รหัสใบขอซื้อ (PK)
     pr_id      Int      @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no      String   @db.VarChar(50)
+    pr_no      String   @unique @db.VarChar(50)
     /// รหัสสาขา (FK)
     branch_id  Int?
     /// สถานะ
@@ -1102,7 +1104,7 @@ model pr_line {
     /// รหัสใบขอซื้อ (PK)
     pr_line_id           Int      @id @default(autoincrement())
     /// ลำดับ
-    line_no              Int
+    line_no              Int 
     /// รหัสสินค้า (FK)
     item_id              Int?
     /// รายละเอียด
@@ -1158,7 +1160,7 @@ model rfq_header {
     /// รหัสใบขอซื้อ (PK)
     rfq_id               Int       @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    rfq_no               String    @db.VarChar(30)
+    rfq_no               String    @unique @db.VarChar(30)
     /// วันที่สร้างใบขอซื้อ
     rfq_date             DateTime
     /// รหัสผู้ขอ
@@ -1556,10 +1558,10 @@ model grn_line {
 ////////////
 
 model audit_log {
-    /// รหัส Audit Log (PK)
+    /// รหัส Audit Log (PK) 
     audit_log_id  BigInt  @id @default(autoincrement())
     /// รหัสโมดูล
-    module_code   String  @db.VarChar(20)
+    module_code   String @db.VarChar(20) 
     /// ประเภทเอกสาร
     document_type String  @db.VarChar(30)
     /// รหัสเอกสาร

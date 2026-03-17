@@ -7,7 +7,7 @@ import { CreatePRLineRepository } from './repositories/create-pr-line.repository
 import { CreateAuditLogRepository } from './repositories/create-audit-log.repository';
 import { CreatePRLineDTO } from './dto/create-pr-line.dto';
 import { Prisma } from '@prisma/client';
-import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException, HttpException } from '@nestjs/common';
 import { PrTaxService } from './domain/pr-tax.service';
 import { PrCalculationService } from './domain/pr-calculation.service';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -56,9 +56,13 @@ export class PrService {
                 // ==============================
                 // 2️⃣ Get Tax Config
                 // ==============================
-                const taxConfig = await this.prTaxService.getTaxById(dto.pr_tax_code_id);
-                const taxRate = new Decimal(taxConfig.tax_rate).div(100);
+                let taxConfig: any = { tax_rate: 0, tax_code_id: null };
+                let taxRate = new Decimal(0);
 
+                if (dto.pr_tax_code_id) {
+                    taxConfig = await this.prTaxService.getTaxById(dto.pr_tax_code_id);
+                    taxRate = new Decimal(taxConfig.tax_rate).div(100);
+                }
                 // ==============================
                 // 3️⃣ Calculate Lines (NO INSERT YET)
                 // ==============================
@@ -146,9 +150,9 @@ export class PrService {
                     branch: {
                         connect: { branch_id: dto.branch_id },
                     },
-                    pr_tax_code: {
-                        connect: { tax_code_id: dto.pr_tax_code_id },
-                    },
+                    ...(dto.pr_tax_code_id && {
+                        pr_tax_code: { connect: { tax_code_id: dto.pr_tax_code_id } }
+                    }),
                     requester_user: {
                         connect: { employee_id: dto.requester_user_id },
                     },
@@ -253,7 +257,7 @@ export class PrService {
                 );
             }
 
-            if (error instanceof BadRequestException) {
+            if (error instanceof HttpException) {
                 throw error;
             }
 
@@ -343,8 +347,13 @@ export class PrService {
                 // ==============================
                 // 3️⃣ Get Tax Config
                 // ==============================
-                const taxConfig = await this.prTaxService.getTaxById(dto.pr_tax_code_id);
-                const taxRate = new Decimal(taxConfig.tax_rate).div(100);
+                let taxConfig: any = { tax_rate: 0, tax_code_id: null };
+                let taxRate = new Decimal(0);
+
+                if (dto.pr_tax_code_id) {
+                    taxConfig = await this.prTaxService.getTaxById(dto.pr_tax_code_id);
+                    taxRate = new Decimal(taxConfig.tax_rate).div(100);
+                }
 
                 // ==============================
                 // 4️⃣ Recalculate lines
@@ -432,9 +441,9 @@ export class PrService {
                     branch: {
                         connect: { branch_id: dto.branch_id },
                     },
-                    pr_tax_code: {
-                        connect: { tax_code_id: dto.pr_tax_code_id },
-                    },
+                    ...(dto.pr_tax_code_id && {
+                        pr_tax_code: { connect: { tax_code_id: dto.pr_tax_code_id } }
+                    }),
                     requester_user: {
                         connect: { employee_id: dto.requester_user_id },
                     },
@@ -597,7 +606,7 @@ export class PrService {
 
             console.error('PR UPDATE ERROR:', error);
 
-            if (error instanceof BadRequestException) {
+            if (error instanceof HttpException) {
                 throw error;
             }
 

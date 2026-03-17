@@ -47,6 +47,10 @@ export class UpdateVendorDto {
     @IsOptional()
     phone?: string;
 
+      @IsString()
+    @IsOptional()
+    phone_extension?: string;
+
     @IsString()
     @IsOptional()
     email?: string;

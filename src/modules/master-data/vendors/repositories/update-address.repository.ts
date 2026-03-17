@@ -40,6 +40,7 @@ export class UpdateVendorAddressRepository {
                     data: {
                         address: addr.address,
                         district: addr.district,
+                        sub_district: addr.sub_district,
                         province: addr.province,
                         postal_code: addr.postal_code,
                         country: addr.country,
@@ -59,6 +60,7 @@ export class UpdateVendorAddressRepository {
                         address_type: addr.address_type!,
                         address: addr.address!,
                         district: addr.district!,
+                        sub_district: addr.sub_district!,
                         province: addr.province!,
                         postal_code: addr.postal_code!,
                         country: addr.country!,
@@ -67,7 +69,7 @@ export class UpdateVendorAddressRepository {
                         phone_extension: addr.phone_extension!,
                         email: addr.email!,
                         is_default: addr.is_default ?? false,
-                        is_active: addr.is_active ?? true,
+                        is_active: addr.is_active,
                     },
                 });
             }

@@ -99,9 +99,10 @@ export class UpdatePRHeaderDTO {
     @Type(() => UpdatePRLineDTO)
     lines: UpdatePRLineDTO[];
 
+    @IsOptional()
     @IsNumber()
     @Type(() => Number)
-    pr_tax_code_id: number;
+    pr_tax_code_id?: number;
 
     // ลดท่อน 
     @IsString()
@@ -127,6 +128,3 @@ export class UpdatePRHeaderDTO {
     @Type(() => String)
     status?: string;
 }
-
-
-

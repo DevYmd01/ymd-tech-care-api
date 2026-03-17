@@ -22,6 +22,11 @@ export class CreateAddressDto {
     address?: string;
 
     @IsString()
+    @IsOptional()
+    sub_district?: string;
+
+
+    @IsString()
     district: string;
 
     @IsString()
