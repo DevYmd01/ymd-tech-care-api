@@ -905,7 +905,7 @@ model currency {
     /// ชื่อสกุลเงิน
     currency_name    String   @db.VarChar(100)
     /// ชื่อสกุลเงิน (อังกฤษ)
-    currency_nameeng String   @db.VarChar(100)
+    currency_nameeng String?   @db.VarChar(100)
     /// อัตราแลกเปลี่ยน (THB)
     exchange_rate    Decimal  @db.Decimal(15, 2)
     /// สถานะสกุลเงิน
@@ -1237,7 +1237,6 @@ model rfq_line {
     uom     uom        @relation(fields: [uom_id], references: [uom_id])
     pr_line pr_line    @relation(fields: [pr_line_id], references: [pr_line_id])
 
-    @@unique([rfq_id, line_no])
     @@index([rfq_id])
 }
 
@@ -1265,7 +1264,6 @@ model rfq_vendor {
     vendor        vendor      @relation(fields: [vendor_id], references: [vendor_id])
     vq_header     vq_header[]
 
-    @@unique([rfq_id, vendor_id])
     @@index([rfq_id])
 }
 

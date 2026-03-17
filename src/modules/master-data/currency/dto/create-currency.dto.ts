@@ -2,6 +2,7 @@ import {
     IsString,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
 } from 'class-validator';
 
 export class CreateCurrencyDto {
@@ -14,8 +15,8 @@ export class CreateCurrencyDto {
     currency_name: string;
 
     @IsString()
-    @IsNotEmpty()
-    currency_nameeng: string;
+    @IsOptional()
+    currency_nameeng?: string;
 
     @IsNumber()
     @IsNotEmpty()
