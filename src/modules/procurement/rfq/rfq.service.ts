@@ -109,7 +109,7 @@ export class RfqService {
 
                 // ⭐ create many
                 if (rfqVendorData.length > 0) {
-                    await this.createRFQVendorRepository.createMany(tx, rfqVendorData);
+                    // await this.createRFQVendorRepository.createMany(tx, rfqVendorData);
 
 
                     for (const vendor of rfqVendorData) {
