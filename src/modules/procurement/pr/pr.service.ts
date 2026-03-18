@@ -283,29 +283,29 @@ preferred_vendor: dto.preferred_vendor ?? '',
     // ============================== 
     // find all pr
     // ============================== 
-    async findAll(page: number, pageSize: number) {
+    // async findAll(page: number, pageSize: number) {
 
-        const skip = (page - 1) * pageSize;
+    //     const skip = (page - 1) * pageSize;
 
-        const { data, total } = await this.showAllPRHeaderRepository.findAll(skip, pageSize);
+    //     const { data, total } = await this.showAllPRHeaderRepository.findAll(skip, pageSize);
 
-        const formattedData = data.map(item => ({
-            ...item,
-            pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
-            pr_date: formatDate(item.pr_date),
-            need_by_date: formatDate(item.need_by_date),
-            created_at: formatDate(item.created_at),
-            updated_at: formatDate(item.updated_at),
-        }));
+    //     const formattedData = data.map(item => ({
+    //         ...item,
+    //         pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
+    //         pr_date: formatDate(item.pr_date),
+    //         need_by_date: formatDate(item.need_by_date),
+    //         created_at: formatDate(item.created_at),
+    //         updated_at: formatDate(item.updated_at),
+    //     }));
 
-        return {
-            data: formattedData,
-            total,
-            page,
-            pageSize,
-            totalPages: Math.ceil(total / pageSize),
-        };
-    }
+    //     return {
+    //         data: formattedData,
+    //         total,
+    //         page,
+    //         pageSize,
+    //         totalPages: Math.ceil(total / pageSize),
+    //     };
+    // }
 
     // ============================== 
     // find one pr
@@ -748,12 +748,12 @@ preferred_vendor: dto.preferred_vendor ?? '',
     // search
     // ================================
 
-async search(query: SearchPrDto) {
+async findAll(query: SearchPrDto) {
   const {
     page = 1,
     limit = 20,
     pr_no,
-    user_name,
+    requester_name,
     project_name,
     vendor_code,
     vendor_name,
@@ -773,8 +773,8 @@ async search(query: SearchPrDto) {
     filters.push({ pr_no: { contains: clean(pr_no), mode: 'insensitive' } });
   }
 
-  if (clean(user_name)) {
-    filters.push({ requester_name: { contains: clean(user_name), mode: 'insensitive' } });
+  if (clean(requester_name)) {
+    filters.push({ requester_name: { contains: clean(requester_name), mode: 'insensitive' } });
   }
 
   if (clean(project_name)) {

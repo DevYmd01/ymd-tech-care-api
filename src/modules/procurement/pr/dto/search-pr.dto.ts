@@ -20,7 +20,7 @@ export class SearchPrDto {
 
   @IsOptional()
   @IsString()
-  user_name?: string;
+  requester_name?: string;
 
   @IsOptional()
   @IsString()
