@@ -15,13 +15,13 @@ model employees {
     employee_title_en     String             @db.VarChar(20)
     employee_firstname_th String             @db.VarChar(200)
     employee_lastname_th  String             @db.VarChar(200)
-    employee_firstname_en String?             @db.VarChar(200)
-    employee_lastname_en  String?             @db.VarChar(200)
+    employee_firstname_en String?            @db.VarChar(200)
+    employee_lastname_en  String?            @db.VarChar(200)
     employee_fullname     String             @db.VarChar(400)
     employee_startdate    DateTime
     employee_resigndate   DateTime?
     employee_status       String             @db.VarChar(20)
-    phone                 String?             @db.VarChar(20)
+    phone                 String?            @db.VarChar(20)
     email                 String             @db.VarChar(255)
     remark                String?
     tax_id                String?            @db.VarChar(20)
@@ -34,11 +34,11 @@ model employees {
     updated_at            DateTime           @default(now()) @updatedAt
     employeeAddresses     employee_address[]
     employeeAuths         employee_auth?
-    branch                org_branch?         @relation(fields: [branch_id], references: [branch_id])
-    department            org_department?     @relation(fields: [department_id], references: [department_id])
+    branch                org_branch?        @relation(fields: [branch_id], references: [branch_id])
+    department            org_department?    @relation(fields: [department_id], references: [department_id])
     manager_employee      employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
     employees             employees[]        @relation("EmployeeManager")
-    position              org_position?       @relation(fields: [position_id], references: [position_id])
+    position              org_position?      @relation(fields: [position_id], references: [position_id])
     requested_pr          pr_header[]        @relation("requester_user")
     approved_pr           pr_header[]        @relation("approved_by_user")
     rfqHeaders            rfq_header[]       @relation("requested_by_user")
@@ -177,6 +177,7 @@ model location {
     updated_at       DateTime  @updatedAt
     warehouse        warehouse @relation(fields: [warehouse_id], references: [warehouse_id])
     shelf            shelf?    @relation(fields: [shelf_id], references: [shelf_id])
+    prLines          pr_line[]
 
     @@map("location")
 }
@@ -256,7 +257,7 @@ model item {
 /// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
     uom_id       Int            @id @default(autoincrement())
-    uom_code     String        @unique @db.VarChar(20)
+    uom_code     String         @unique @db.VarChar(20)
     uom_name     String         @db.VarChar(100)
     is_active    Boolean?       @default(true)
     created_at   DateTime       @default(now())
@@ -379,7 +380,7 @@ model item_pattern {
     /// รหัสลายสินค้า
     item_pattern_id      Int      @id @default(autoincrement())
     /// รหัสลายสินค้า
-    item_pattern_code    String  @unique @db.VarChar(30)
+    item_pattern_code    String   @unique @db.VarChar(30)
     /// ชื่อลายสินค้า
     item_pattern_name    String   @db.VarChar(200)
     /// ชื่อลายสินค้า (อังกฤษ)
@@ -459,7 +460,7 @@ model item_group {
     /// รหัสกลุ่มสินค้า
     item_group_id      Int      @id @default(autoincrement())
     /// รหัสกลุ่มสินค้า
-    item_group_code    String  @unique @db.VarChar(30)
+    item_group_code    String   @unique @db.VarChar(30)
     /// ชื่อกลุ่มสินค้า
     item_group_name    String   @db.VarChar(200)
     /// ชื่อกลุ่มสินค้า (อังกฤษ)
@@ -636,7 +637,7 @@ model vendor_group {
     /// รหัสกลุ่มเจ้าหนี้
     vendor_group_id      Int      @id @default(autoincrement())
     /// รหัสกลุ่มเจ้าหนี้
-    vendor_group_code    String  @unique  @db.VarChar(30)
+    vendor_group_code    String   @unique @db.VarChar(30)
     /// ชื่อกลุ่มเจ้าหนี้
     vendor_group_name    String   @db.VarChar(200)
     /// ชื่อกลุ่มเจ้าหนี้ (อังกฤษ)
@@ -779,7 +780,7 @@ model vendor_categories {
     /// รหัสหมวดหมู่ (PK)
     category_id        Int      @id @default(autoincrement())
     /// รหัสหมวดหมู่
-    category_code      String? @unique @db.VarChar(20)
+    category_code      String?  @unique @db.VarChar(20)
     /// ชื่อหมวดหมู่
     category_name      String?  @db.VarChar(100)
     /// รหัสหมวดหมู่แม่
@@ -905,7 +906,7 @@ model currency {
     /// ชื่อสกุลเงิน
     currency_name    String   @db.VarChar(100)
     /// ชื่อสกุลเงิน (อังกฤษ)
-    currency_nameeng String?   @db.VarChar(100)
+    currency_nameeng String?  @db.VarChar(100)
     /// อัตราแลกเปลี่ยน (THB)
     exchange_rate    Decimal  @db.Decimal(15, 2)
     /// สถานะสกุลเงิน
@@ -957,7 +958,7 @@ model document_format {
     /// รหัสรูปแบบเอกสาร
     document_format_id Int                @id @default(autoincrement())
     /// รหัสโมดูล
-    module_code        String              @db.VarChar(30)
+    module_code        String             @db.VarChar(30)
     /// รหัสประเภทเอกสาร
     document_type_code String
     /// ตัวอักษรนำหน้า
@@ -1077,11 +1078,11 @@ model pr_header {
     approved_by_user_id Int?
 
     cost_center_id Int?
-    
+
     /// วันที่อนุมัติ
-    approved_at    DateTime?
+    approved_at DateTime?
     /// เวอร์ชั่น
-    version        Int          @default(1)
+    version     Int       @default(1)
 
     /// ผู้อนุมัติ
     approved_by_user employees?   @relation("approved_by_user", fields: [approved_by_user_id], references: [employee_id])
@@ -1089,7 +1090,7 @@ model pr_header {
     branch           org_branch?  @relation(fields: [branch_id], references: [branch_id])
     requester_user   employees    @relation("requester_user", fields: [requester_user_id], references: [employee_id])
     project          project?     @relation(fields: [project_id], references: [project_id])
-    cost_center    cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
+    cost_center      cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
     prLines          pr_line[]
     rfqHeaders       rfq_header[]
     vqHeaders        vq_header[]
@@ -1104,7 +1105,7 @@ model pr_line {
     /// รหัสใบขอซื้อ (PK)
     pr_line_id           Int      @id @default(autoincrement())
     /// ลำดับ
-    line_no              Int 
+    line_no              Int
     /// รหัสสินค้า (FK)
     item_id              Int?
     /// รายละเอียด
@@ -1113,6 +1114,8 @@ model pr_line {
     warehouse_id         Int?
     /// ตำแหน่งสินค้า
     location             String?  @db.VarChar(50)
+    /// รหัสตำแหน่งที่เก็บคลังสินค้า
+    location_id          Int?
     /// รหัสใบขอซื้อ (FK)
     pr_id                Int
     /// จำนวน
@@ -1146,6 +1149,7 @@ model pr_line {
     pr                    pr_header  @relation(fields: [pr_id], references: [pr_id])
     uom                   uom        @relation(fields: [uom_id], references: [uom_id])
     warehouse             warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    locationId            location?  @relation(fields: [location_id], references: [location_id])
     tax_code              tax_code?  @relation(fields: [tax_code_id], references: [tax_code_id])
     rfqLines              rfq_line[]
     vqLines               vq_line[]
@@ -1559,7 +1563,7 @@ model audit_log {
     /// รหัส Audit Log (PK) 
     audit_log_id  BigInt  @id @default(autoincrement())
     /// รหัสโมดูล
-    module_code   String @db.VarChar(20) 
+    module_code   String  @db.VarChar(20)
     /// ประเภทเอกสาร
     document_type String  @db.VarChar(30)
     /// รหัสเอกสาร

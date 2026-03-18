@@ -35,6 +35,10 @@ export class UpdatePRLineDTO {
     location?: string;
 
     @IsNumber()
+    @IsOptional()
+    location_id?: Number;
+
+    @IsNumber()
     @Type(() => Number)
     qty: number;
 

@@ -31,6 +31,10 @@ export class CreatePRLineDTO {
     location?: string;
 
     @IsNumber()
+    @IsOptional()
+    location_id?: Number;
+
+    @IsNumber()
     @Type(() => Number)
     qty: number;
 

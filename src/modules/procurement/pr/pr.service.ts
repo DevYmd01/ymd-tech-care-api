@@ -207,6 +207,12 @@ export class PrService {
                             },
                         }),
 
+                        ...(line.location_id && {
+                            locationId: {
+                                connect: { location_id: line.location_id },
+                            },
+                        }),
+
                         uom: {
                             connect: { uom_id: line.uom_id },
                         },
@@ -517,6 +523,12 @@ export class PrService {
                             },
                         }),
 
+                        ...(line.location_id && {
+                            locationId: {
+                                connect: { location_id: line.location_id },
+                            },
+                        }),
+
                         uom: {
                             connect: { uom_id: line.uom_id },
                         },
@@ -557,6 +569,12 @@ export class PrService {
                         ...(line.warehouse_id && {
                             warehouse: {
                                 connect: { warehouse_id: line.warehouse_id },
+                            },
+                        }),
+
+                        ...(line.location_id && {
+                            locationId: {
+                                connect: { location_id: line.location_id },
                             },
                         }),
 
