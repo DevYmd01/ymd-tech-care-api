@@ -19,6 +19,7 @@ import { ShowAllPRHeaderRepository } from './repositories/show-all-pr-heaader.re
 import { ShowWaitingForRFQRepository } from './repositories/show-waiting-for-rfq.repository';
 import { StatusPRHeaderRepository } from './repositories/status-pr-header.repository';
 import { formatDate } from '@/common/utils/date.util';
+import { SearchPrDto } from './dto/search-pr.dto';
 
 @Injectable()
 export class PrService {
@@ -142,7 +143,7 @@ export class PrService {
                     pr_discount_amount: headerDocTotals.discount_amount ?? 0,
                     pr_discount_rate: headerDocTotals.total ?? 0,
                     pr_discount_raw: dto.pr_discount_raw ?? '',
-
+preferred_vendor: dto.preferred_vendor ?? '',
                     // ===== Tax =====
                     pr_tax_rate: taxConfig.tax_rate ?? 0,
 
@@ -167,6 +168,12 @@ export class PrService {
                         },
 
                     }),
+                    ...(dto.preferred_vendor_id && {
+                        preferredVendor: {
+                            connect: { vendor_id: dto.preferred_vendor_id },
+                        },
+                    }),
+                    
                     created_at: new Date(),
                     updated_at: new Date(),
                 };
@@ -439,7 +446,7 @@ export class PrService {
                     pr_discount_amount: headerDocTotals.discount_amount ?? 0,
                     pr_discount_rate: headerDocTotals.total ?? 0,
                     pr_discount_raw: dto.pr_discount_raw ?? '',
-
+preferred_vendor: dto.preferred_vendor ?? '',
                     // ===== Tax =====
                     pr_tax_rate: taxConfig.tax_rate ?? 0,
 
@@ -462,6 +469,11 @@ export class PrService {
                     ...(dto.cost_center_id && {
                         cost_center: {
                             connect: { cost_center_id: dto.cost_center_id },
+                        },
+                    }),
+                                        ...(dto.preferred_vendor_id && {
+                        preferredVendor: {
+                            connect: { vendor_id: dto.preferred_vendor_id },
                         },
                     }),
                     updated_at: new Date(),
@@ -731,5 +743,116 @@ export class PrService {
             await this.statusPRHeaderRepository.updateStatus(pr_id, 'CANCELLED');
         });
     }
+
+    // ================================
+    // search
+    // ================================
+
+async search(query: SearchPrDto) {
+  const {
+    page = 1,
+    limit = 20,
+    pr_no,
+    user_name,
+    project_name,
+    vendor_code,
+    vendor_name,
+    status,
+    date_start,
+    date_end
+  } = query;
+
+  const safeLimit = Math.min(limit, 100);
+  const skip = (page - 1) * safeLimit;
+
+  const clean = (val?: string) => val?.trim();
+
+  const filters: Prisma.pr_headerWhereInput[] = [];
+
+  if (clean(pr_no)) {
+    filters.push({ pr_no: { contains: clean(pr_no), mode: 'insensitive' } });
+  }
+
+  if (clean(user_name)) {
+    filters.push({ requester_name: { contains: clean(user_name), mode: 'insensitive' } });
+  }
+
+  if (clean(project_name)) {
+    filters.push({
+      project: {
+        project_name: { contains: clean(project_name), mode: 'insensitive' }
+      }
+    });
+  }
+
+  if (clean(vendor_code)) {
+    filters.push({
+      preferredVendor: {
+        vendor_code: { contains: clean(vendor_code), mode: 'insensitive' },
+      },
+    });
+  }
+
+  if (clean(vendor_name)) {
+    filters.push({
+      OR: [
+        { preferred_vendor: { contains: clean(vendor_name), mode: 'insensitive' } },
+        {
+          preferredVendor: {
+            vendor_name: { contains: clean(vendor_name), mode: 'insensitive' },
+          },
+        },
+      ],
+    });
+  }
+
+  if (status) {
+    filters.push({ status });
+  }
+
+  const startDate = date_start ? new Date(date_start) : null;
+  const endDate = date_end ? new Date(date_end) : null;
+
+  if (startDate || endDate) {
+    filters.push({
+      created_at: {
+        ...(startDate && { gte: startDate }),
+        ...(endDate && {
+          lte: new Date(endDate.setHours(23, 59, 59, 999)),
+        }),
+      },
+    });
+  }
+
+  const where = filters.length > 0 ? { AND: filters } : {};
+
+  const [data, total] = await Promise.all([
+    this.prisma.pr_header.findMany({
+      where,
+      skip,
+      take: safeLimit,
+      orderBy: { pr_id: 'desc' },
+    }),
+    this.prisma.pr_header.count({ where }),
+  ]);
+
+  return {
+    data: data.map(item => ({
+      ...item,
+      pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
+      pr_date: formatDate(item.pr_date),
+      need_by_date: formatDate(item.need_by_date),
+      created_at: formatDate(item.created_at),
+      updated_at: formatDate(item.updated_at),
+    })),
+    total,
+    page,
+    limit: safeLimit,
+    totalPages: Math.ceil(total / safeLimit),
+  };
+}
+        
+                
+
 
 }

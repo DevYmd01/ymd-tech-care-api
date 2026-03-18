@@ -67,6 +67,10 @@ export class UpdatePRHeaderDTO {
     @IsString()
     preferred_vendor!: string;
 
+    @IsOptional()
+    @Type(() => Number)
+    preferred_vendor_id?: number;
+
     // วันที่ส่งมอบ
     @IsOptional()
     @IsDateString()

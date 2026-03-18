@@ -2,6 +2,7 @@ import { Controller, Post, Body, Request, Get, Param, Patch, Query, ParseIntPipe
 import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
+import { SearchPrDto } from './dto/search-pr.dto';
 
 
 @Controller('pr')
@@ -12,6 +13,11 @@ export class PrController {
     @Post()
     create(@Body() dto: CreatePRHeaderDTO, @Request() req: any) {
         return this.PrService.create(dto, req.context);
+    }
+    
+    @Get('search')
+    search(@Query() query: SearchPrDto) {
+        return this.PrService.search(query);
     }
 
     @Get()

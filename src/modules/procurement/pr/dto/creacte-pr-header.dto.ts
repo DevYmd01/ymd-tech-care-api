@@ -13,10 +13,7 @@ import { CreatePRLineDTO } from './create-pr-line.dto';
 
 export class CreatePRHeaderDTO {
 
-    // ปกติให้ backend generate
-    @IsOptional()
-    @IsString()
-    pr_n!: string;
+
 
     // วันที่สร้าง PR
     @IsOptional()
@@ -67,6 +64,11 @@ export class CreatePRHeaderDTO {
     @IsOptional()
     @IsString()
     preferred_vendor!: string;
+
+    @IsOptional()
+    @Type(() => Number)
+    preferred_vendor_id?: number;
+
 
     // วันที่ส่งมอบ
     @IsOptional()
