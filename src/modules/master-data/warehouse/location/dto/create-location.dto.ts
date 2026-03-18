@@ -2,19 +2,19 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-val
 
 export class CreateLocationDto {
     @IsNotEmpty()
-    warehouse_id: number;
+    warehouse_id!: number;
 
     @IsNotEmpty()
     @IsString()
-    location_code: string;
+    location_code!: string;
 
     @IsNotEmpty()
     @IsString()
-    location_name: string;
+    location_name!: string;
 
     @IsNotEmpty()
     @IsNumber()
-    shelf_id: number;
+    shelf_id!: number;
 
     @IsOptional()
     @IsString()
@@ -22,5 +22,5 @@ export class CreateLocationDto {
 
     @IsNotEmpty()
     @IsBoolean()
-    is_active: boolean;
+    is_active!: boolean;
 }

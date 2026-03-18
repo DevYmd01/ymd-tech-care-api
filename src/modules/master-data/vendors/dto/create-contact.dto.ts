@@ -14,7 +14,7 @@ import {
 
 export class CreateVendorContactDto {
     @IsString()
-    contact_name: string;
+    contact_name!: string;
 
     @IsString()
     @IsOptional()

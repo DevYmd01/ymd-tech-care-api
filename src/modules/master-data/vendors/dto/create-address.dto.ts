@@ -16,7 +16,7 @@ import { Type } from 'class-transformer';
 
 export class CreateAddressDto {
     @IsIn(['REGISTERED', 'CONTACT', 'BILLING', 'SHIPPING'])
-    address_type: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
+    address_type!: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
 
     @IsString()
     address?: string;
@@ -27,29 +27,29 @@ export class CreateAddressDto {
 
 
     @IsString()
-    district: string;
+    district!: string;
 
     @IsString()
-    province: string;
+    province!: string;
 
     @IsString()
-    postal_code: string;
+    postal_code!: string;
 
     @IsOptional()
     @IsString()
     country?: string;
 
     @IsString()
-    contact_person: string;
+    contact_person!: string;
 
     @IsString()
-    phone: string;
+    phone!: string;
 
     @IsString()
-    phone_extension: string;
+    phone_extension!: string;
 
     @IsString()
-    email: string;
+    email!: string;
 
     @IsBoolean()
     is_default?: boolean;

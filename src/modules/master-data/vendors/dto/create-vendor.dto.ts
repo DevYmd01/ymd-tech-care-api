@@ -74,12 +74,12 @@ export class CreateVendorDto {
     /// ประเภทเจ้าหนี้
     @IsNotEmpty()
     @IsNumber()
-    vendor_type_id: number
+    vendor_type_id!: number
 
     /// กลุ่มเจ้าหนี้
     @IsNotEmpty()
     @IsNumber()
-    vendor_group_id: number
+    vendor_group_id!: number
 
     /// ค่าเงิน
     @IsOptional()
@@ -114,7 +114,7 @@ export class CreateVendorDto {
 /// เพิ่มที่อยู่ให้กับเจ้าหนี้
 export class CreateVendorAddressDto {
     @IsIn(['REGISTERED', 'CONTACT', 'BILLING', 'SHIPPING'])
-    address_type: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
+    address_type!: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
 
     @IsString()
     address?: string;
@@ -125,29 +125,29 @@ export class CreateVendorAddressDto {
 
 
     @IsString()
-    district: string;
+    district!: string;
 
     @IsString()
-    province: string;
+    province!: string;
 
     @IsString()
-    postal_code: string;
+    postal_code!: string;
 
     @IsOptional()
     @IsString()
     country?: string;
 
     @IsString()
-    contact_person: string;
+    contact_person!: string;
 
     @IsString()
-    phone: string;
+    phone!: string;
 
     @IsString()
-    phone_extension: string;
+    phone_extension!: string;
 
     @IsString()
-    email: string;
+    email!: string;
 
     @IsBoolean()
     is_default?: boolean;
@@ -159,16 +159,16 @@ export class CreateVendorAddressDto {
 /// เพิ่มผู้ติดต่อให้กับเจ้าหนี้
 export class CreateVendorContactDto {
     @IsString()
-    contact_name: string;
+    contact_name!: string;
 
     @IsString()
-    email: string;
+    email!: string;
 
     @IsString()
-    phone: string;
+    phone!: string;
 
     @IsString()
-    position: string;
+    position!: string;
 
     @IsString()
     mobile?: string;
@@ -182,25 +182,25 @@ export class CreateVendorContactDto {
 /// เพิ่มบัญชีธนาคารให้กับเจ้าหนี้
 export class CreateVendorBankAccountDto {
     @IsString()
-    bank_name: string;
+    bank_name!: string;
 
     @IsString()
-    bank_branch: string;
+    bank_branch!: string;
 
     @IsString()
-    account_no: string;
+    account_no!: string;
 
     @IsString()
-    account_name: string;
+    account_name!: string;
 
     @IsString()
-    account_type: string;
+    account_type!: string;
 
     @IsString()
-    swift_code: string;
+    swift_code!: string;
 
     @IsBoolean()
-    is_default: boolean;
+    is_default!: boolean;
 }
 
 /// อัปเดตสถานะเจ้าหนี้

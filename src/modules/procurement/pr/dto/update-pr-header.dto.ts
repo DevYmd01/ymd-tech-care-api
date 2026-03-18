@@ -15,89 +15,89 @@ export class UpdatePRHeaderDTO {
     // ปกติให้ backend generate
     @IsOptional()
     @IsString()
-    pr_no: string;
+    pr_no!: string;
 
     // วันที่สร้าง PR
     @IsOptional()
     @IsDateString()
-    pr_date: string;
+    pr_date!: string;
 
     // สาขา (required)
     @IsNumber()
     @Type(() => Number)
-    branch_id: number;
+    branch_id!: number;
 
     // วันที่ต้องการของ
     @IsOptional()
     @IsDateString()
-    need_by_date: string;
+    need_by_date!: string;
 
     @IsString()
-    pr_base_currency_code: string;
+    pr_base_currency_code!: string;
 
 
     @IsString()
-    pr_quote_currency_code: string;
+    pr_quote_currency_code!: string;
 
     @IsNumber()
     @Type(() => Number)
-    pr_exchange_rate: number;
+    pr_exchange_rate!: number;
 
     @IsDateString()
-    pr_exchange_rate_date: string;
+    pr_exchange_rate_date!: string;
 
     // หมายเหตุ
     @IsOptional()
     @IsString()
-    remark: string;
+    remark!: string;
 
     // เครดิตวัน
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    payment_term_days: number;
+    payment_term_days!: number;
 
     // ผู้ขอซื้อ
     @IsNumber()
     @Type(() => Number)
-    requester_user_id: number;
+    requester_user_id!: number;
 
     // ผู้ขาย
     @IsOptional()
     @IsString()
-    preferred_vendor: string;
+    preferred_vendor!: string;
 
     // วันที่ส่งมอบ
     @IsOptional()
     @IsDateString()
-    delivery_date: string;
+    delivery_date!: string;
 
     // เครดิตวัน
     @IsOptional()
     @IsNumber()
     @Min(0)
     @Type(() => Number)
-    credit_days: number;
+    credit_days!: number;
 
     // ใบเสนอราคาผู้ขาย
     @IsOptional()
     @IsString()
-    vendor_quote_no: string;
+    vendor_quote_no!: string;
 
     // วิธีการจัดส่ง
     @IsOptional()
     @IsString()
-    shipping_method: string;
+    shipping_method!: string;
 
     // ชื่อผู้ขอซื้อ
     @IsOptional()
     @IsString()
-    requester_name: string;
+    requester_name!: string;
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => UpdatePRLineDTO)
-    lines: UpdatePRLineDTO[];
+    lines!: UpdatePRLineDTO[];
 
     @IsOptional()
     @IsNumber()
@@ -111,7 +111,7 @@ export class UpdatePRHeaderDTO {
 
     @IsNumber()
     @Type(() => Number)
-    version: number;
+    version!: number;
 
     @IsNumber()
     @Type(() => Number)

@@ -8,21 +8,21 @@ import {
 export class CreateCurrencyDto {
     @IsString()
     @IsNotEmpty()
-    currency_code: string;
+    currency_code!: string;
 
     @IsString()
     @IsNotEmpty()
-    currency_name: string;
+    currency_name!: string;
 
     @IsString()
     @IsOptional()
-    currency_nameeng: string;
+    currency_nameeng!: string;
 
     @IsNumber()
     @IsNotEmpty()
-    exchange_rate: number;
+    exchange_rate!: number;
 
     @IsNotEmpty()
-    is_active: boolean;
+    is_active!: boolean;
 
 }

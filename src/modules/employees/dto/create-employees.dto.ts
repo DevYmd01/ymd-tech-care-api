@@ -13,57 +13,58 @@ import { CreateAddressDto } from './creact-address.dto';
 
 export class CreateEmployeesDto {
     @IsNumber()
-    branch_id: number;
+    branch_id!: number;
 
     @IsString()
     @MaxLength(20)
-    employee_code: string;
+    employee_code!: string;
 
     @IsString()
     @MaxLength(20)
-    employee_title_th: string;
+    employee_title_th!: string;
 
     @IsString()
     @MaxLength(20)
-    employee_title_en: string;
+    employee_title_en!: string;
 
     @IsString()
     @MaxLength(200)
-    employee_firstname_th: string;
+    employee_firstname_th!: string;
 
     @IsString()
     @MaxLength(200)
-    employee_lastname_th: string;
+    employee_lastname_th!: string;
+
+    @IsString()
+    @IsOptional()
+    @MaxLength(200)
+    employee_firstname_en!: string;
 
     @IsString()
     @MaxLength(200)
-    employee_firstname_en: string;
-
-    @IsString()
-    @MaxLength(200)
-    employee_lastname_en: string;
+    employee_lastname_en!: string;
 
     @IsString()
     @MaxLength(400)
-    employee_fullname: string;
+    employee_fullname!: string;
 
     @IsDateString()
-    employee_startdate: string;
+    employee_startdate!: string;
 
     @IsOptional()
     @IsDateString()
     employee_resigndate?: string;
 
     @IsString()
-    employee_status: string;
+    employee_status!: string;
 
     @IsString()
     @MaxLength(20)
-    phone: string;
+    phone!: string;
 
     @IsEmail()
     @MaxLength(255)
-    email: string;
+    email!: string;
 
     @IsOptional()
     @IsString()
@@ -74,13 +75,13 @@ export class CreateEmployeesDto {
     tax_id?: string;
 
     @IsBoolean()
-    emp_type: boolean;
+    emp_type!: boolean;
 
     @IsNumber()
-    position_id: number;
+    position_id!: number;
 
     @IsNumber()
-    department_id: number;
+    department_id!: number;
 
     @IsOptional()
     @IsBoolean()

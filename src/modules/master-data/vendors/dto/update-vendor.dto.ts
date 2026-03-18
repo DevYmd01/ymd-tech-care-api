@@ -93,7 +93,7 @@ export class UpdateVendorAddressDto {
     vendor_address_id?: number;
 
     @IsIn(['REGISTERED', 'CONTACT', 'BILLING', 'SHIPPING'])
-    address_type: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
+    address_type!: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
 
     @IsString()
     @IsOptional()
