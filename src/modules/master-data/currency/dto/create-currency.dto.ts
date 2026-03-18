@@ -16,7 +16,7 @@ export class CreateCurrencyDto {
 
     @IsString()
     @IsOptional()
-    currency_nameeng?: string;
+    currency_nameeng: string;
 
     @IsNumber()
     @IsNotEmpty()
