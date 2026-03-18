@@ -18,9 +18,15 @@ export class LocationController {
         return this.locationService.findAll();
     }
 
+    // แสดงข้อมูล location ตาม location_id
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return this.locationService.findOne(+id);
+    }
+
+    @Get('warehouse/:warehouse_id')
+    async findByWarehouse(@Param('warehouse_id') warehouse_id: string) {
+        return this.locationService.findByWarehouse(+warehouse_id);
     }
 
     @Patch(':id')

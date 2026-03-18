@@ -57,4 +57,13 @@ async findAll() {
             },
         });
     }
+
+    async findByWarehouse(warehouse_id: number) {
+        return this.prisma.location.findMany({
+            where: { warehouse_id: warehouse_id, is_active: true },
+            orderBy: [
+                { location_id: 'desc' }
+            ],
+        });
+    }
 }
