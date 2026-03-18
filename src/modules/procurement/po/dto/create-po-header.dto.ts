@@ -9,65 +9,65 @@ export class CreatePOHeaderDTO {
 
     @IsNotEmpty()
     @IsInt()
-    rfq_id: number;
+    rfq_id!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    vendor_id: number;
+    vendor_id!: number;
 
     @IsNotEmpty()
     @IsInt()
-    branch_id: number;
+    branch_id!: number;
 
     @IsNotEmpty()
     @IsInt()
-    warehouse_id: number;
+    warehouse_id!: number;
 
     @IsNotEmpty()
     @IsString()
-    base_currency_code: string;
+    base_currency_code!: string;
 
     @IsNotEmpty()
     @IsString()
-    quote_currency_code: string;
+    quote_currency_code!: string;
 
     @IsNotEmpty()
     @IsNumber()
-    exchange_rate: number;
+    exchange_rate!: number;
 
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
-    exchange_rate_date: Date;
+    exchange_rate_date!: Date;
 
     @IsNotEmpty()
     @IsInt()
-    tax_code_id: number;
+    tax_code_id!: number;
 
     @IsOptional()
     @IsString()
-    discount_expression: string;
+    discount_expression!: string;
 
     @IsNotEmpty()
     @IsString()
-    status: string;
+    status!: string;
 
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
-    created_at: Date;
+    created_at!: Date;
 
     @IsNotEmpty()
     @IsInt()
-    created_by: number;
+    created_by!: number;
 
     @IsNotEmpty()
     @IsInt()
-    winning_vq_id: number;
+    winning_vq_id!: number;
 
     @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreatePOLineDTO)
-    po_lines: CreatePOLineDTO[];
+    po_lines!: CreatePOLineDTO[];
 }

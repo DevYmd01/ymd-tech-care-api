@@ -3,35 +3,35 @@ import { IsNotEmpty, IsString, IsInt, IsDate, IsOptional, IsBoolean, IsNumber } 
 export class CreatePOLineDTO {
     @IsNotEmpty()
     @IsNumber()
-    line_no: number;
+    line_no!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    item_id: number;
+    item_id!: number;
 
     @IsOptional()
     @IsNumber()
-    pr_line_id: number;
+    pr_line_id!: number;
 
     @IsNotEmpty()
     @IsString()
-    status: string;
+    status!: string;
 
     @IsNotEmpty()
     @IsNumber()
-    qty: number;
+    qty!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    uom_id: number;
+    uom_id!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    unit_price: number;
+    unit_price!: number;
 
     @IsOptional()
     @IsNumber()
-    tax_code_id: number;
+    tax_code_id!: number;
 
     @IsOptional()
     @IsString()
@@ -39,9 +39,9 @@ export class CreatePOLineDTO {
 
     @IsNotEmpty()
     @IsString()
-    required_receipt_type: string;
+    required_receipt_type!: string;
 
     @IsNotEmpty()
     @IsString()
-    description: string;
+    description!: string;
 }
