@@ -167,6 +167,9 @@ export class RfqService {
 
                     // ✅ จำนวน vendor ทั้งหมด และที่ส่งแล้ว
                     rfqVendors: {
+                        where:{
+                            is_active: true
+                        },
                         select: {
                             rfq_vendor_id: true,
                             status: true,
