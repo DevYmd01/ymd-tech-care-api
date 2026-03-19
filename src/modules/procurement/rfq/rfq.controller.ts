@@ -4,6 +4,7 @@ import express from 'express'; // ⭐ เพิ่มบรรทัดนี้
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
 import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
+import { SearchRfqDto } from './dto/search-rfq.dto';
 
 @Controller('rfq')
 export class RfqController {
@@ -16,12 +17,10 @@ export class RfqController {
 
     @Get()
     async findAll(
-        @Query('page') page: string,
-        @Query('pageSize') pageSize: string,
+        @Query() query: SearchRfqDto,
     ) {
         return this.rfqService.findAll(
-            Number(page) || 1,
-            Number(pageSize) || 20,
+       query
         );
     }
 
@@ -68,6 +67,7 @@ export class RfqController {
         return res.send(pdfBuffer);
     }
 
+    // แสดง pr ที่ยังไม่มีการทำ rfq
     @Get('pr/without-rfq')
     async findPRWithoutRFQ(
         @Query('page') page: string,

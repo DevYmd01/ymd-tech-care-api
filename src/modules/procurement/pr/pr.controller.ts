@@ -15,21 +15,21 @@ export class PrController {
         return this.PrService.create(dto, req.context);
     }
     
-    @Get('search')
-    search(@Query() query: SearchPrDto) {
-        return this.PrService.search(query);
+    @Get()
+    findAll(@Query() query: SearchPrDto) {
+        return this.PrService.findAll(query);
     }
 
-    @Get()
-    findAll(
-        @Query('page') page: string,
-        @Query('pageSize') pageSize: string,
-    ) {
-        return this.PrService.findAll(
-            Number(page) || 1,
-            Number(pageSize) || 20,
-        );
-    }
+    // @Get()
+    // findAll(
+    //     @Query('page') page: string,
+    //     @Query('pageSize') pageSize: string,
+    // ) {
+    //     return this.PrService.findAll(
+    //         Number(page) || 1,
+    //         Number(pageSize) || 20,
+    //     );
+    // }
 
     @Get('waiting-for-rfq')
     findWaitingForRFQ(

@@ -18,7 +18,8 @@ import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
 import { PdfService } from '@/modules/pdf/pdf.service';
 import { MailService } from '@/modules/mail/mail.service';
 import { buildRFQEmailTemplate } from './templates/rfq-email.template';
-
+import { SearchRfqDto } from './dto/search-rfq.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RfqService {
@@ -139,14 +140,55 @@ export class RfqService {
         }
     }
 
-    async findAll(page: number, pageSize: number) {
+    async findAll(query: SearchRfqDto) {
+        const {
+            page = 1,
+            limit = 20,
+            pr_no,
+            rfq_no,
+            creator_name,
+            status,
+            date_start,
+            date_end
+        } = query;
 
-        const skip = (page - 1) * pageSize;
+        const skip = (page - 1) * limit;
+        const filters: Prisma.rfq_headerWhereInput[] = [];
+
+        if (rfq_no) {
+            filters.push({ rfq_no: { contains: rfq_no, mode: 'insensitive' } });
+        }
+
+        if (pr_no) {
+            filters.push({
+                pr: { pr_no: { contains: pr_no, mode: 'insensitive' } }
+            });
+        }
+
+        if (creator_name) {
+            filters.push({ requested_by: { contains: creator_name, mode: 'insensitive' } });
+        }
+
+        if (status) {
+            filters.push({ status });
+        }
+
+        if (date_start || date_end) {
+            filters.push({
+                rfq_date: {
+                    ...(date_start && { gte: new Date(date_start) }),
+                    ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
+                }
+            });
+        }
+
+        const where = filters.length > 0 ? { AND: filters } : {};
 
         const [data, total] = await Promise.all([
             this.prisma.rfq_header.findMany({
+                where,
                 skip,
-                take: pageSize,
+                take: limit,
                 select: {
                     rfq_id: true,
                     rfq_no: true,
@@ -190,7 +232,7 @@ export class RfqService {
                 },
                 orderBy: { created_at: 'desc' },
             }),
-            this.prisma.rfq_header.count(),
+            this.prisma.rfq_header.count({ where }),
         ]);
 
         // ✅ คำนวณ vendor stats ใน application layer
@@ -205,7 +247,8 @@ export class RfqService {
             data: result,
             total,
             page,
-            pageSize,
+            limit,
+            totalPages: Math.ceil(total / limit),
         };
     }
 
@@ -576,27 +619,36 @@ export class RfqService {
         return pdfBuffer;
     }
 
-    async findPRWithoutRFQ(page: number, pageSize: number) {
+async findPRWithoutRFQ(page: number = 1, limit: number = 20) {
+    const safeLimit = Math.min(limit, 100);
+    const skip = (page - 1) * safeLimit;
 
-        const data = await this.prisma.pr_header.findMany({
-            where: {
-                status: 'APPROVED',
-            },
+    const where: Prisma.pr_headerWhereInput = {
+        status: 'APPROVED',
+        rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
+            none: {},   // PR ที่ไม่มี RFQ
+        },
+    };
+
+    const [data, total] = await Promise.all([
+        this.prisma.pr_header.findMany({
+            where,
             include: {
                 prLines: true,
             },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-        });
+            skip,
+            take: safeLimit,
+            orderBy: { pr_id: 'desc' },
+        }),
+        this.prisma.pr_header.count({ where }),
+    ]);
 
-        const count = await this.prisma.pr_header.count({
-            where: {
-                status: 'APPROVED',
-            },
-        });
-
-        return { data, count };
-    }
-
+    return {
+        data,
+        total,
+        page,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+    };
 }
-
+}

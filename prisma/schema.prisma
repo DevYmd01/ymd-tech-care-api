@@ -1092,7 +1092,7 @@ model pr_header {
     project          project?     @relation(fields: [project_id], references: [project_id])
     cost_center      cost_center? @relation(fields: [cost_center_id], references: [cost_center_id])
     prLines          pr_line[]
-    rfqHeaders       rfq_header[]
+    rfqHeaders       rfq_header[]  @relation("PRtoRFQ")
     vqHeaders        vq_header[]
     qcHeaders        qc_header[]
     poHeaders        po_header[]
@@ -1202,7 +1202,7 @@ model rfq_header {
     updated_at        DateTime     @updatedAt
     branch            org_branch?  @relation(fields: [branch_id], references: [branch_id])
     requested_by_user employees    @relation("requested_by_user", fields: [requested_by_user_id], references: [employee_id])
-    pr                pr_header    @relation(fields: [pr_id], references: [pr_id])
+    pr                pr_header    @relation("PRtoRFQ",fields: [pr_id], references: [pr_id])
     rfqLines          rfq_line[]
     rfqVendors        rfq_vendor[]
     vqHeaders         vq_header[]
