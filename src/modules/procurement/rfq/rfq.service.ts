@@ -197,7 +197,11 @@ export class RfqService {
                     quotation_due_date: true,
                     remarks: true,
                     created_at: true,
-
+                    pr: {
+                        select: {
+                            pr_no: true,
+                        }
+                    },
                     // ✅ ชื่อผู้สร้าง
                     requested_by_user: {
                         select: {
