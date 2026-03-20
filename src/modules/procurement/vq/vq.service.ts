@@ -510,6 +510,7 @@ export class VqService {
                                 vendor: true,
                             },
                         },
+                        requested_by_user: true,
                     },
                     skip,
                     take: limit,
@@ -522,8 +523,13 @@ export class VqService {
             finalData = rows.map((row) => ({
                 rfq_id: row.rfq_id,
                 rfq_no: row.rfq_no,
+                rfq_date: row.rfq_date,
+                status: row.status,
+                remarks: row.remarks,
                 pr_id: row.pr?.pr_id,
                 pr_no: row.pr?.pr_no,
+                quotation_due_date: row.quotation_due_date,
+                requested_by_user: row.requested_by_user?.employee_fullname,
                 vendors: row.rfqVendors.map(v => ({
                     rfq_vendor_id: v.rfq_vendor_id,
                     vendor_id: v.vendor?.vendor_id,
