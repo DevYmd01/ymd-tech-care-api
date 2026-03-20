@@ -19,6 +19,7 @@ import { UpdateVQLineMapper } from './mapper/update-vq-line.mapper';
 import { UpdateVQHeaderRepository } from './repository/update-vq-header.repository';
 import { UpdateVQLineRepository } from './repository/update-vq-line.repository';
 import { Prisma } from '@prisma/client';
+import { SearchVQDto } from './dto/search-vq.dto';
 
 @Injectable()
 export class VqService {
@@ -90,6 +91,18 @@ export class VqService {
                 tx,
                 createVQHeaderData
             );
+
+            // update เพื่อบอก
+            await this.prisma.rfq_vendor.updateMany({
+                where: {
+                    rfq_id: createdHeader.rfq_id,
+                },
+                data: {
+                    status: 'RECORDED', // example
+                },
+            });
+
+
 
             for (const { line, calc } of calculatedLines) {
                 const createVQLineData =
@@ -268,22 +281,279 @@ export class VqService {
         });
     }
 
-    async findAllByVendor() {
-        return this.prisma.rfq_vendor.findMany({
-            include: {
-                rfq: true,
-                vendor: true,
+    async findAllByVQ(query: SearchVQDto) {
 
-            },
-        });
+        const {
+            page = 1,
+            limit = 20,
+            tab,
+            sort,
+            pr_no,
+            rfq_no,
+            vq_no,
+            creator_name,
+            vendor_name,
+            status,
+            date_start,
+            date_end
+        } = query;
+
+        const skip = (page - 1) * limit;
+        const isAllTab = !tab || tab === 'ALL';
+
+        let finalData: any[] = [];
+        let totalCount = 0;
+
+        if (isAllTab) {
+            const filters: Prisma.vq_headerWhereInput[] = [];
+
+            if (vq_no) filters.push({ vq_no: { contains: vq_no, mode: 'insensitive' } });
+            if (rfq_no) filters.push({ rfq_vendor: { rfq: { rfq_no: { contains: rfq_no, mode: 'insensitive' } } } });
+            if (pr_no) filters.push({ rfq_vendor: { rfq: { pr: { pr_no: { contains: pr_no, mode: 'insensitive' } } } } });
+            if (vendor_name) filters.push({ vendor: { vendor_name: { contains: vendor_name, mode: 'insensitive' } } });
+            if (creator_name) {
+                filters.push({
+                    createdVqHeaders: {
+                        OR: [
+                            { employee_firstname_th: { contains: creator_name, mode: 'insensitive' } },
+                            { employee_lastname_th: { contains: creator_name, mode: 'insensitive' } }
+                        ]
+                    }
+                });
+            }
+            if (status) filters.push({ status });
+            if (date_start || date_end) {
+                filters.push({
+                    created_at: {
+                        ...(date_start && { gte: new Date(date_start) }),
+                        ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
+                    }
+                });
+            }
+
+            const where: Prisma.vq_headerWhereInput = filters.length > 0 ? { AND: filters } : {};
+
+            const [data, total] = await Promise.all([
+                this.prisma.vq_header.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    orderBy: { created_at: 'desc' },
+                    include: {
+                        vendor: true,
+                        createdVqHeaders: true,
+                        rfq_vendor: {
+                            include: {
+                                rfq: {
+                                    include: { pr: true }
+                                }
+                            }
+                        }
+                    }
+                }),
+                this.prisma.vq_header.count({ where })
+            ]);
+
+            totalCount = total;
+            finalData = data.map((item) => ({
+                vq_id: item.vq_header_id,
+                vq_no: item.vq_no,
+                payment_term_days: item.payment_term_days,
+                exchange_rate: item.exchange_rate,
+                quotation_date: item.quotation_date,
+                base_total_amount: item.base_total_amount,
+                lead_time_days: item.lead_time_days,
+                discount_expression: item.discount_expression,
+                quotation_expiry_date: item.quotation_expiry_date,
+                status: item.status,
+                vendor_name: item.vendor?.vendor_name,
+                created_at: item.created_at,
+                vendor: item.vendor,
+                rfq: item.rfq_vendor?.rfq,
+                pr: item.rfq_vendor?.rfq?.pr,
+                // creator: item.createdVqHeaders,
+            }));
+
+        } else if (tab === 'WAITING_VQ') {
+            const filters: Prisma.rfq_vendorWhereInput[] = [];
+
+            // 🔹 เงื่อนไขบังคับสำหรับ Tab "รอสร้าง VQ" (WAITING_VQ)
+            filters.push({
+                is_active: true,
+                status: { in: ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'] },
+                vq_header: { none: {} } // กรองเฉพาะ RFQ Vendor ที่ยังไม่มีการสร้าง VQ (None) เท่านั้น
+            });
+
+            if (rfq_no) filters.push({ rfq: { rfq_no: { contains: rfq_no, mode: 'insensitive' } } });
+            if (pr_no) filters.push({ rfq: { pr: { pr_no: { contains: pr_no, mode: 'insensitive' } } } });
+            if (vendor_name) filters.push({ vendor: { vendor_name: { contains: vendor_name, mode: 'insensitive' } } });
+            if (creator_name) {
+                filters.push({
+                    rfq: {
+                        requested_by_user: {
+                            OR: [
+                                { employee_firstname_th: { contains: creator_name, mode: 'insensitive' } },
+                                { employee_lastname_th: { contains: creator_name, mode: 'insensitive' } }
+                            ]
+                        }
+                    }
+                });
+            }
+
+            // จัดการกรณีมีการส่ง status search มา
+            if (status && ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'].includes(status)) {
+                filters.push({ status });
+            } else if (status) {
+                // หากส่งสถานะมาค้นหาใน tab นี้ และไม่เข้าพวกเลย บังคับให้หาไม่เจอ
+                filters.push({ rfq_vendor_id: -1 });
+            }
+
+            if (date_start || date_end) {
+                filters.push({
+                    created_at: {
+                        ...(date_start && { gte: new Date(date_start) }),
+                        ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
+                    }
+                });
+            }
+
+            const where: Prisma.rfq_vendorWhereInput = { AND: filters };
+
+            const [data, total] = await Promise.all([
+                this.prisma.rfq_vendor.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    orderBy: { created_at: 'desc' },
+                    include: {
+                        vendor: true,
+                        rfq: {
+                            include: {
+                                pr: true,
+                                requested_by_user: true
+                            }
+                        }
+                    }
+                }),
+                this.prisma.rfq_vendor.count({ where })
+            ]);
+
+            totalCount = total;
+            finalData = data.map((item) => ({
+                rfq_vendor_id: item.rfq_vendor_id,
+                rfq_id: item.rfq?.rfq_id,
+                rfq_no: item.rfq?.rfq_no,
+                pr_id: item.rfq?.pr?.pr_id,
+                pr_no: item.rfq?.pr?.pr_no,
+                vendor: item.vendor,
+                status: item.status, // ดึงจาก rfq_vendor
+                created_at: item.created_at,
+                creator: item.rfq?.requested_by_user, // ดึงจากคนสร้าง rfq
+            }));
+
+        } else if (tab === 'WAITING_RFQ') {
+            const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'];
+            
+            // 🔹 สร้างเงื่อนไขสำหรับค้นหาผู้ขายใน RFQ
+            const vendorCondition: Prisma.rfq_vendorWhereInput = {
+                is_active: true,
+                status: { in: validStatuses },
+            };
+
+            if (vendor_name) {
+                vendorCondition.vendor = { vendor_name: { contains: vendor_name, mode: 'insensitive' } };
+            }
+
+            if (status) {
+                if (validStatuses.includes(status)) {
+                    vendorCondition.status = status;
+                } else {
+                    vendorCondition.rfq_vendor_id = -1; // ถ้าหาสถานะที่ไม่เกี่ยวข้อง บังคับไม่ให้เจอ
+                }
+            }
+
+            const filters: Prisma.rfq_headerWhereInput[] = [];
+            
+            filters.push({ rfqVendors: { some: vendorCondition } });
+
+            if (rfq_no) filters.push({ rfq_no: { contains: rfq_no, mode: 'insensitive' } });
+            if (pr_no) filters.push({ pr: { pr_no: { contains: pr_no, mode: 'insensitive' } } });
+            if (creator_name) {
+                filters.push({
+                    requested_by_user: {
+                        OR: [
+                            { employee_firstname_th: { contains: creator_name, mode: 'insensitive' } },
+                            { employee_lastname_th: { contains: creator_name, mode: 'insensitive' } }
+                        ]
+                    }
+                });
+            }
+            if (date_start || date_end) {
+                filters.push({
+                    created_at: {
+                        ...(date_start && { gte: new Date(date_start) }),
+                        ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
+                    }
+                });
+            }
+
+            const where: Prisma.rfq_headerWhereInput = { AND: filters };
+
+            const [rows, total] = await Promise.all([
+                this.prisma.rfq_header.findMany({
+                    where,
+                    include: {
+                        pr: true,
+                        rfqVendors: {
+                            where: vendorCondition, // กรองเฉพาะ Vendor ที่เข้าเงื่อนไขการค้นหาคืนกลับไปด้วย
+                            include: {
+                                vendor: true,
+                            },
+                        },
+                    },
+                    skip,
+                    take: limit,
+                    orderBy: { created_at: 'desc' },
+                }),
+                this.prisma.rfq_header.count({ where }),
+            ]);
+
+            totalCount = total;
+            finalData = rows.map((row) => ({
+                rfq_id: row.rfq_id,
+                rfq_no: row.rfq_no,
+                pr_id: row.pr?.pr_id,
+                pr_no: row.pr?.pr_no,
+                vendors: row.rfqVendors.map(v => ({
+                    rfq_vendor_id: v.rfq_vendor_id,
+                    vendor_id: v.vendor?.vendor_id,
+                    vendor_code: v.vendor?.vendor_code,
+                    vendor_name: v.vendor?.vendor_name,
+                    status: v.status,
+                })),
+                created_at: row.created_at,
+            }));
+
+          
+
+        }
+
+        return {
+            data: finalData,
+            total: totalCount,
+            page,
+            limit,
+            totalPages: Math.ceil(totalCount / limit),
+        };
     }
 
-    async findPRWithoutRFQ(page: number, pageSize: number) {
+    async findPRWithoutRFQ(rfq_id: number, page: number, pageSize: number) {
         const skip = (page - 1) * pageSize;
 
         const rows = await this.prisma.rfq_vendor.findMany({
             where: {
                 is_active: true,
+                rfq_id: rfq_id,
             },
             include: {
                 rfq: {
@@ -326,55 +596,63 @@ export class VqService {
         };
     }
 
-    async findPRWithoutVQ(page: number, pageSize: number) {
+    async findPRWithoutVQ(page: number = 1, pageSize: number = 20) {
         const skip = (page - 1) * pageSize;
 
-        const rows = await this.prisma.rfq_vendor.findMany({
-            where: {
-                is_active: true,
-                status: 'SENT',
-                vq_header: {
-                    none: {}, // 👈 ไม่มี quotation
+        const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'];
+
+        const where: Prisma.rfq_headerWhereInput = {
+            rfqVendors: {
+                some: {
+                    is_active: true,
+                    status: { in: validStatuses },
                 },
             },
-            include: {
-                rfq: {
-                    include: {
-                        pr: true,
+        };
+
+        const [rows, total] = await Promise.all([
+            this.prisma.rfq_header.findMany({
+                where,
+                include: {
+                    pr: true,
+                    rfqVendors: {
+                        where: {
+                            is_active: true,
+                            status: { in: validStatuses },
+                        },
+                        include: {
+                            vendor: true,
+                        },
                     },
                 },
-                vendor: true,
-                vq_header: true,
-            },
-            skip,
-            take: pageSize,
-        });
+                skip,
+                take: pageSize,
+                orderBy: { created_at: 'desc' },
+            }),
+            this.prisma.rfq_header.count({ where }),
+        ]);
 
         const data = rows.map((row) => ({
-            rfq_vendor_id: row.rfq_vendor_id,
-
-            pr_id: row.rfq?.pr?.pr_id,
-            pr_no: row.rfq?.pr?.pr_no,
-
-            rfq_id: row.rfq?.rfq_id,
-            rfq_no: row.rfq?.rfq_no,
-            rfq_date: row.rfq?.rfq_date,
-
-            vendor_id: row.vendor?.vendor_id,
-            vendor_code: row.vendor?.vendor_code,
-            vendor_name: row.vendor?.vendor_name,
-            vendor_email: row.vendor?.email,
-
-            quotation_count: row.vq_header?.length || 0,
-
-            status: row.status,
+            rfq_id: row.rfq_id,
+            rfq_no: row.rfq_no,
+            pr_id: row.pr?.pr_id,
+            pr_no: row.pr?.pr_no,
+            vendors: row.rfqVendors.map(v => ({
+                rfq_vendor_id: v.rfq_vendor_id,
+                vendor_id: v.vendor?.vendor_id,
+                vendor_code: v.vendor?.vendor_code,
+                vendor_name: v.vendor?.vendor_name,
+                status: v.status,
+            })),
             created_at: row.created_at,
         }));
 
         return {
             data,
+            total,
             page,
             pageSize,
+            totalPages: Math.ceil(total / pageSize),
         };
     }
 
@@ -391,5 +669,3 @@ export class VqService {
 
 
 }
-
-

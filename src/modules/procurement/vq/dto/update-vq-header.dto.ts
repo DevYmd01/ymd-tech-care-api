@@ -14,6 +14,9 @@ export class UpdateVQHeaderDTO {
     rfq_id: number;
     @IsNotEmpty()
     @IsNumber()
+    rfq_vendor_id: number;
+    @IsNotEmpty()
+    @IsNumber()
     vendor_id: number;
     @IsNotEmpty()
     @IsDate()

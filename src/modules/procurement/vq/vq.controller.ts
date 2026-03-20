@@ -2,7 +2,7 @@ import { Controller, Get, Body, Post, Param, Request, Patch, Query } from '@nest
 import { CreateVQHeaderDTO } from './dto/create-vq-header.bto';
 import { UpdateVQHeaderDTO } from './dto/update-vq-header.dto';
 import { VqService } from './vq.service';
-
+import { SearchVQDto } from './dto/search-vq.dto';
 
 @Controller('vq')
 export class VqController {
@@ -14,7 +14,7 @@ export class VqController {
     return this.vqService.create(createVQHeaderDto, req.context);
   }
 
-  @Get()
+  @Get('1')
   findAll() {
     return this.vqService.findAll();
   }
@@ -30,24 +30,28 @@ export class VqController {
   }
 
   @Get()
-  findAllByVendor() {
-    return this.vqService.findAllByVendor();
+  findAllByVQ(
+    @Query() query: SearchVQDto,
+  ) {
+    return this.vqService.findAllByVQ(query);
   }
 
-  // แสดง rfq_vendor ทั้งหมดเพื่อแสดงให้เห็นว่ามีการส่ง RFQ แล้ว ใช้ใน table frontend
-  @Get('pr/waiting-for-rfq-vendor')
+  // แสดง rfq-vendov ทั้งหมดเพื่อรอสร้าง vq ค่า rfq_vendor จะต้อง is_action = true และ status
+  @Get('rfq/waiting-for-rfq-vendor/:id')
   findPRWithoutRFQ(
+    @Param('id') rfq_id: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
   ) {
     return this.vqService.findPRWithoutRFQ(
+      +rfq_id,
       Number(page) || 1,
       Number(pageSize) || 20,
     );
   }
 
-  ///  รอเพื่อสร้าง VQ จาก RFQ
-  @Get('pr/waiting-for-vq-vendor')
+  // แสดง rfq ทั้งหมดเพื่อรอสร้าง vq ค่า rfq_vendor จะต้อง is_action = true และ status
+  @Get('rfq/waiting-for-rfq')
   // แสดง rfq_vendor ทั้งหมดเพื่อแสดงให้เห็นว่ามีการส่ง RFQ แล้ว ใช้ใน table frontend
   findPRWithoutVQ(
     @Query('page') page: string,
