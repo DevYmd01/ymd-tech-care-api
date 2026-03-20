@@ -18,6 +18,15 @@ export class UpdateVQHeaderDTO {
     @IsNotEmpty()
     @IsNumber()
     vendor_id: number;
+    @IsOptional()
+    @IsString()
+    contact_name?: string;
+    @IsOptional()
+    @IsString()
+    contact_email?: string;
+    @IsOptional()
+    @IsString()
+    contact_phone?: string;
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)

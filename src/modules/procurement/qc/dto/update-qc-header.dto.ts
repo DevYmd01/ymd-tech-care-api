@@ -5,21 +5,25 @@ export class UpdateQcHeaderDTO {
 
     @IsNotEmpty()
     @IsNumber()
-    rfq_id: number;
+    rfq_id!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    pr_id: number;
+    pr_id!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    department_id: number;
+    department_id!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    created_by: number;
+    created_by!: number;
 
     @IsNotEmpty()
     @IsNumber()
-    winning_vq_id: number;
+    winning_vq_id!: number;
+
+    @IsOptional()
+    @IsString()
+    remarks?: string;
 }

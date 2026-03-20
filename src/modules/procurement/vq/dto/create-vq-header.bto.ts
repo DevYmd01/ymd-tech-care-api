@@ -3,25 +3,34 @@ import { Type } from "class-transformer";
 import { CreateVQLineDTO } from "./create-vq-line.dto";
 
 export class CreateVQHeaderDTO {
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    quotation_no: string;
+    quotation_no?: string;
     @IsNotEmpty()
     @IsNumber()
-    pr_id: number;
+    pr_id!: number;
     @IsNotEmpty()
     @IsNumber()
-    rfq_id: number;
+    rfq_id!: number;
     @IsNotEmpty()
     @IsNumber()
-    rfq_vendor_id: number;
+    rfq_vendor_id!: number;
+    @IsOptional()
+    @IsString()
+    contact_name?: string;
+    @IsOptional()
+    @IsString()
+    contact_email?: string;
+    @IsOptional()
+    @IsString()
+    contact_phone?: string;
     @IsNotEmpty()
     @IsNumber()
-    vendor_id: number;
+    vendor_id!: number;
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
-    quotation_date: Date;
+    quotation_date!: Date;
     @IsOptional()
     @IsDate()
     @Type(() => Date)
@@ -59,5 +68,5 @@ export class CreateVQHeaderDTO {
     @ValidateNested({ each: true })
 
     @Type(() => CreateVQLineDTO)
-    vq_lines: CreateVQLineDTO[];
+    vq_lines!: CreateVQLineDTO[];
 } 

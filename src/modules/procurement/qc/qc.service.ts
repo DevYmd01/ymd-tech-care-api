@@ -66,6 +66,9 @@ export class QcService {
         const skip = (page - 1) * pageSize;
         const take = pageSize;
 
+        let rfqsData
+        let total
+
         const rfqs = await this.prisma.rfq_header.findMany({
             where: {
                 qcHeaders: {
@@ -78,13 +81,41 @@ export class QcService {
             include: {
                 qcHeaders: true,
                 pr: true,
+                rfqVendors: {
+                    where: {
+                        is_active: true,
+                    },
+                },
+                vqHeaders: {
+                    where: {
+                        status: 'RECORDED',
+                    },
+                },
             },
             skip,
             take,
         });
 
+        rfqsData = rfqs.map((rfq) => ({
+            pr_header_id: rfq.pr.pr_id,
+            pr_no: rfq.pr.pr_no,
+            pr_requester_name: rfq.pr.requester_name,
+            pr_date: rfq.pr.pr_date,
+            pr_status: rfq.pr.status,
+            pr_remark: rfq.pr.remark,
+            rfq_id: rfq.rfq_id,
+            rfq_no: rfq.rfq_no,
+            rfq_date: rfq.rfq_date,
+            rfq_status: rfq.status,
+            rfq_remark: rfq.pr.remark,
+            rfq_requester_name: rfq.requested_by,
+            rfq_vendor_count: rfq.rfqVendors.length ?? 0,
+            rfq_vendor_active_count: rfq.vqHeaders.length ?? 0,
+        }));
+
+
         // นับจำนวน RFQ ที่มี PR แล้วแต่ยังไม่มี QC
-        const total = await this.prisma.rfq_header.count({
+        total = await this.prisma.rfq_header.count({
             where: {
                 qcHeaders: {
                     none: {},
@@ -95,7 +126,9 @@ export class QcService {
             },
         });
 
-        return { data: rfqs, total, page, pageSize };
+
+
+        return { data: rfqsData, total, page, pageSize };
     }
 
     async findVendorWithoutQCByRFQId(rfq_id: number) {
