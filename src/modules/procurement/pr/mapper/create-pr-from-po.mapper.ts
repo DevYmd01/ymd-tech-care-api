@@ -2,7 +2,6 @@
 import { CreatePOHeaderDTO } from "../../po/dto/create-po-header.dto";
 import { Prisma } from "@prisma/client";
 
-
 export class CreatePRFromPOHeaderMapper {
   static  toPrismaCreateInput(
         data: CreatePOHeaderDTO,

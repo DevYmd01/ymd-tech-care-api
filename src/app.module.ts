@@ -46,7 +46,8 @@ import { PoModule } from './modules/procurement/po/po.module';
 import { ItemColorModule } from './modules/master-data/item/item-color/item-color.module';
 import { ItemGradeModule } from './modules/master-data/item/item-grade/item-grade.module';
 import { ShelfModule } from './modules/master-data/warehouse/shelf/shelf.module';
-
+import { PrApprovalService } from './modules/procurement/pr-approval/pr-approval.service';
+import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.module';
 
 @Module({
   imports: [
@@ -94,10 +95,11 @@ import { ShelfModule } from './modules/master-data/warehouse/shelf/shelf.module'
     ItemColorModule,
     ItemGradeModule,
     ShelfModule,
+    PrApprovalModule,
 
   ],
   controllers: [AppController],
-  providers: [AppService, PdfService],
+  providers: [AppService, PdfService, PrApprovalService],
 })
 
 export class AppModule implements NestModule {

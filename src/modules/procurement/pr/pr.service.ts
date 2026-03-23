@@ -143,7 +143,7 @@ export class PrService {
                     pr_discount_amount: headerDocTotals.discount_amount ?? 0,
                     pr_discount_rate: headerDocTotals.total ?? 0,
                     pr_discount_raw: dto.pr_discount_raw ?? '',
-preferred_vendor: dto.preferred_vendor ?? '',
+                    preferred_vendor: dto.preferred_vendor ?? '',
                     // ===== Tax =====
                     pr_tax_rate: taxConfig.tax_rate ?? 0,
 
@@ -173,7 +173,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                             connect: { vendor_id: dto.preferred_vendor_id },
                         },
                     }),
-                    
+
                     created_at: new Date(),
                     updated_at: new Date(),
                 };
@@ -196,6 +196,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                         est_unit_price: Number(line.est_unit_price),
                         required_receipt_type: line.required_receipt_type,
                         line_discount_raw: line.line_discount_raw,
+                        status: "PENDING",
 
 
                         pr: {
@@ -446,7 +447,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                     pr_discount_amount: headerDocTotals.discount_amount ?? 0,
                     pr_discount_rate: headerDocTotals.total ?? 0,
                     pr_discount_raw: dto.pr_discount_raw ?? '',
-preferred_vendor: dto.preferred_vendor ?? '',
+                    preferred_vendor: dto.preferred_vendor ?? '',
                     // ===== Tax =====
                     pr_tax_rate: taxConfig.tax_rate ?? 0,
 
@@ -471,7 +472,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                             connect: { cost_center_id: dto.cost_center_id },
                         },
                     }),
-                                        ...(dto.preferred_vendor_id && {
+                    ...(dto.preferred_vendor_id && {
                         preferredVendor: {
                             connect: { vendor_id: dto.preferred_vendor_id },
                         },
@@ -518,7 +519,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                         est_unit_price: Number(line.est_unit_price),
                         required_receipt_type: line.required_receipt_type,
                         line_discount_raw: line.line_discount_raw,
-
+                        status: "PENDING",
                         pr: {
                             connect: { pr_id: updatedHeader.pr_id },
                         },
@@ -567,7 +568,7 @@ preferred_vendor: dto.preferred_vendor ?? '',
                         est_unit_price: Number(line.est_unit_price),
                         required_receipt_type: line.required_receipt_type,
                         line_discount_raw: line.line_discount_raw,
-
+                        status: "PENDING",
                         pr: {
                             connect: { pr_id: updatedHeader.pr_id },
                         },
@@ -748,111 +749,111 @@ preferred_vendor: dto.preferred_vendor ?? '',
     // search
     // ================================
 
-async findAll(query: SearchPrDto) {
-  const {
-    page = 1,
-    limit = 20,
-    pr_no,
-    requester_name,
-    project_name,
-    vendor_code,
-    vendor_name,
-    status,
-    date_start,
-    date_end
-  } = query;
+    async findAll(query: SearchPrDto) {
+        const {
+            page = 1,
+            limit = 20,
+            pr_no,
+            requester_name,
+            project_name,
+            vendor_code,
+            vendor_name,
+            status,
+            date_start,
+            date_end
+        } = query;
 
-  const safeLimit = Math.min(limit, 100);
-  const skip = (page - 1) * safeLimit;
+        const safeLimit = Math.min(limit, 100);
+        const skip = (page - 1) * safeLimit;
 
-  const clean = (val?: string) => val?.trim();
+        const clean = (val?: string) => val?.trim();
 
-  const filters: Prisma.pr_headerWhereInput[] = [];
+        const filters: Prisma.pr_headerWhereInput[] = [];
 
-  if (clean(pr_no)) {
-    filters.push({ pr_no: { contains: clean(pr_no), mode: 'insensitive' } });
-  }
+        if (clean(pr_no)) {
+            filters.push({ pr_no: { contains: clean(pr_no), mode: 'insensitive' } });
+        }
 
-  if (clean(requester_name)) {
-    filters.push({ requester_name: { contains: clean(requester_name), mode: 'insensitive' } });
-  }
+        if (clean(requester_name)) {
+            filters.push({ requester_name: { contains: clean(requester_name), mode: 'insensitive' } });
+        }
 
-  if (clean(project_name)) {
-    filters.push({
-      project: {
-        project_name: { contains: clean(project_name), mode: 'insensitive' }
-      }
-    });
-  }
+        if (clean(project_name)) {
+            filters.push({
+                project: {
+                    project_name: { contains: clean(project_name), mode: 'insensitive' }
+                }
+            });
+        }
 
-  if (clean(vendor_code)) {
-    filters.push({
-      preferredVendor: {
-        vendor_code: { contains: clean(vendor_code), mode: 'insensitive' },
-      },
-    });
-  }
+        if (clean(vendor_code)) {
+            filters.push({
+                preferredVendor: {
+                    vendor_code: { contains: clean(vendor_code), mode: 'insensitive' },
+                },
+            });
+        }
 
-  if (clean(vendor_name)) {
-    filters.push({
-      OR: [
-        { preferred_vendor: { contains: clean(vendor_name), mode: 'insensitive' } },
-        {
-          preferredVendor: {
-            vendor_name: { contains: clean(vendor_name), mode: 'insensitive' },
-          },
-        },
-      ],
-    });
-  }
+        if (clean(vendor_name)) {
+            filters.push({
+                OR: [
+                    { preferred_vendor: { contains: clean(vendor_name), mode: 'insensitive' } },
+                    {
+                        preferredVendor: {
+                            vendor_name: { contains: clean(vendor_name), mode: 'insensitive' },
+                        },
+                    },
+                ],
+            });
+        }
 
-  if (status) {
-    filters.push({ status });
-  }
+        if (status) {
+            filters.push({ status });
+        }
 
-  const startDate = date_start ? new Date(date_start) : null;
-  const endDate = date_end ? new Date(date_end) : null;
+        const startDate = date_start ? new Date(date_start) : null;
+        const endDate = date_end ? new Date(date_end) : null;
 
-  if (startDate || endDate) {
-    filters.push({
-      created_at: {
-        ...(startDate && { gte: startDate }),
-        ...(endDate && {
-          lte: new Date(endDate.setHours(23, 59, 59, 999)),
-        }),
-      },
-    });
-  }
+        if (startDate || endDate) {
+            filters.push({
+                created_at: {
+                    ...(startDate && { gte: startDate }),
+                    ...(endDate && {
+                        lte: new Date(endDate.setHours(23, 59, 59, 999)),
+                    }),
+                },
+            });
+        }
 
-  const where = filters.length > 0 ? { AND: filters } : {};
+        const where = filters.length > 0 ? { AND: filters } : {};
 
-  const [data, total] = await Promise.all([
-    this.prisma.pr_header.findMany({
-      where,
-      skip,
-      take: safeLimit,
-      orderBy: { pr_id: 'desc' },
-    }),
-    this.prisma.pr_header.count({ where }),
-  ]);
+        const [data, total] = await Promise.all([
+            this.prisma.pr_header.findMany({
+                where,
+                skip,
+                take: safeLimit,
+                orderBy: { pr_id: 'desc' },
+            }),
+            this.prisma.pr_header.count({ where }),
+        ]);
 
-  return {
-    data: data.map(item => ({
-      ...item,
-      pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
-      pr_date: formatDate(item.pr_date),
-      need_by_date: formatDate(item.need_by_date),
-      created_at: formatDate(item.created_at),
-      updated_at: formatDate(item.updated_at),
-    })),
-    total,
-    page,
-    limit: safeLimit,
-    totalPages: Math.ceil(total / safeLimit),
-  };
-}
-        
-                
+        return {
+            data: data.map(item => ({
+                ...item,
+                pr_exchange_rate_date: formatDate(item.pr_exchange_rate_date),
+                pr_date: formatDate(item.pr_date),
+                need_by_date: formatDate(item.need_by_date),
+                created_at: formatDate(item.created_at),
+                updated_at: formatDate(item.updated_at),
+            })),
+            total,
+            page,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit),
+        };
+    }
+
+
 
 
 }
