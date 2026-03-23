@@ -11,7 +11,7 @@ export class WarehouseService {
             data: {
                 warehouse_code: createWarehouseDto.warehouse_code,
                 warehouse_name: createWarehouseDto.warehouse_name,
-                address: createWarehouseDto.address,
+                address: createWarehouseDto.address ?? null,
                 branch_id: createWarehouseDto.branch_id,
             },
             select: {
@@ -59,7 +59,7 @@ export class WarehouseService {
             data: {
                 warehouse_code: updateWarehouseDto.warehouse_code,
                 warehouse_name: updateWarehouseDto.warehouse_name,
-                address: updateWarehouseDto.address,
+                address: updateWarehouseDto.address ?? null,
                 branch_id: updateWarehouseDto.branch_id,
             },
             select: {
