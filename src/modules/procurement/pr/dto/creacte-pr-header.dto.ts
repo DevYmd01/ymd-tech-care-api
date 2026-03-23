@@ -125,6 +125,13 @@ export class CreatePRHeaderDTO {
     @Type(() => String)
     status?: string;
 
+    @IsOptional()
+    @IsString()
+    @Type(() => String)
+    quotation_no?: string;
+
+
+
 }
 
 

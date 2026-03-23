@@ -99,7 +99,7 @@ import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.
 
   ],
   controllers: [AppController],
-  providers: [AppService, PdfService, PrApprovalService],
+  providers: [AppService, PdfService],
 })
 
 export class AppModule implements NestModule {
@@ -110,6 +110,3 @@ export class AppModule implements NestModule {
   }
 
 }
-
-
-

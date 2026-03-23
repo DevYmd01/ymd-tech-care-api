@@ -1013,6 +1013,8 @@ model pr_header {
     pr_id      Int      @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
     pr_no      String   @unique @db.VarChar(50)
+/// เลขใบเสนอราคาจาก vender ที่ต้องการ
+    quotation_no String?  @db.VarChar(30)
     /// รหัสสาขา (FK)
     branch_id  Int?
     /// สถานะ

@@ -118,6 +118,7 @@ export class PrService {
 
                     pr_no: documentNo,
                     pr_date: new Date(dto.pr_date),
+                    quotation_no: dto.quotation_no,
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
                     status: dto.status ?? 'DRAFT',
                     remark: dto.remark ?? null,
@@ -425,6 +426,7 @@ export class PrService {
                     need_by_date: dto.need_by_date ? new Date(dto.need_by_date) : new Date(),
                     status: dto.status ?? 'DRAFT',
                     remark: dto.remark ?? null,
+                    quotation_no: dto.quotation_no ?? null,
                     payment_term_days: dto.payment_term_days ?? null,
                     delivery_date: dto.delivery_date ? new Date(dto.delivery_date) : new Date(),
                     credit_days: dto.credit_days,
