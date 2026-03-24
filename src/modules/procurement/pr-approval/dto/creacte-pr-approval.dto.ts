@@ -14,10 +14,6 @@ import { createPrApprovalLineDto } from './create-pr-approval-line.dto';
 
 export class createPrApprovalDto {
     @IsNotEmpty()
-    @Type(() => Number)
-    @IsNumber()
-    approval_id: number;
-    @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
     approval_date: Date;
@@ -71,7 +67,7 @@ export class createPrApprovalDto {
     @IsOptional()
     @IsString()
     discount_expression?: string;
-    
+
     @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })

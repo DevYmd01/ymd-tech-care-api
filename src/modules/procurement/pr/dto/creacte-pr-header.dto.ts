@@ -120,7 +120,7 @@ export class CreatePRHeaderDTO {
     @IsOptional()
     cost_center_id?: number;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     @Type(() => String)
     status?: string;

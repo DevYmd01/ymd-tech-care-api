@@ -44,7 +44,7 @@ export class PrService {
     async create(dto: CreatePRHeaderDTO, context: any) {
         try {
             return await this.prisma.$transaction(async (tx) => {
-
+console.log(dto);
                 // ==============================
                 // 1️⃣ Generate Document No
                 // ==============================
