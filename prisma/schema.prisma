@@ -1228,7 +1228,7 @@ model pr_approval_line {
 
     pr_line_id Int
     approval_id Int
-    status     String  @db.VarChar(20)
+    status     String?  @db.VarChar(20)
     approved_at DateTime? // NULL = ยังไม่ approve
 
     // 🔗 relation
