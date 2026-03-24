@@ -296,44 +296,44 @@ export class PrApprovalService {
     }
 
     async prApprovalPending() {
-  const pr = await this.prisma.pr_header.findMany({
-    where: {
-         status: {
-    notIn: ['DRAFT', 'CANCELLED'], 
-  },
-      prLines: {
-        some: {
-          status: {
-            in: ['PENDING', 'PARTIAL'],
-          },
-        },
-      },
-    },
-    include: {
-      prLines: {
-        where: {
-          status: {
-            in: ['PENDING', 'PARTIAL'],
-          },
-        },
-        include: {
-          item: true,
-          warehouse: true,
-          locationId: true,
-          uom: true,
-        },
-      },
-    },
-  });
+        const pr = await this.prisma.pr_header.findMany({
+            where: {
+                status: {
+                    notIn: ['DRAFT', 'CANCELLED'],
+                },
+                prLines: {
+                    some: {
+                        status: {
+                            in: ['PENDING', 'PARTIAL'],
+                        },
+                    },
+                },
+            },
+            include: {
+                prLines: {
+                    where: {
+                        status: {
+                            in: ['PENDING', 'PARTIAL'],
+                        },
+                    },
+                    include: {
+                        item: true,
+                        warehouse: true,
+                        locationId: true,
+                        uom: true,
+                    },
+                },
+            },
+        });
 
-  if (!pr.length) {
-    throw new NotFoundException(
-      `ไม่พบข้อมูล PR ที่รออนุมัติ`
-    );
-  }
+        if (!pr.length) {
+            throw new NotFoundException(
+                `ไม่พบข้อมูล PR ที่รออนุมัติ`
+            );
+        }
 
-  return pr;
-}
+        return pr;
+    }
 
     async findOne(approval_id: number) {
         const approval = await this.prisma.pr_approval.findUnique({
@@ -359,4 +359,76 @@ export class PrApprovalService {
 
         return approval;
     }
+
+async findPR(id: number) {
+    const pr = await this.prisma.pr_header.findMany({
+        where: {
+            pr_id: id,
+            status: {
+                notIn: ['DRAFT', 'CANCELLED'],
+            },
+            prLines: {
+                some: {
+                    status: {
+                        in: ['PENDING', 'PARTIAL'],
+                    },
+                },
+            },
+        },
+        include: {
+            prLines: {
+                where: {
+                    status: {
+                        in: ['PENDING', 'PARTIAL'],
+                    },
+                },
+                include: {
+                    item: true,
+                    warehouse: true,
+                    locationId: true,
+                    uom: true,
+                },
+            },
+        },
+    });
+
+    if (!pr.length) {
+        throw new NotFoundException(`ไม่พบข้อมูล PR ที่รออนุมัติ`);
+    }
+
+    // 🔥 เพิ่ม logic คำนวณ qty
+    const result = pr.map((p) => {
+        const lines = p.prLines.map((line) => {
+            const approvedQty = line.approved_qty || 0;
+            const requestedQty = line.qty || 0;
+
+            const remaining_qty = Number(requestedQty) - Number(approvedQty);
+
+            let computedStatus = line.status;
+
+            if (Number(approvedQty) === 0) {
+                computedStatus = 'PENDING';
+            } else if (approvedQty < requestedQty) {
+                computedStatus = 'PARTIAL';
+            } else {
+                computedStatus = 'APPROVED';
+            }
+
+            return {
+                ...line,
+                approved_qty: approvedQty,
+                requested_qty: requestedQty,
+                remaining_qty,
+                computed_status: computedStatus, // 🔥 สำคัญ
+            };
+        });
+
+        return {
+            ...p,
+            prLines: lines,
+        };
+    });
+
+    return result;
+}
 }

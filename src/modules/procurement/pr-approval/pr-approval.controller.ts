@@ -22,7 +22,7 @@ export class PrApprovalController {
 
     // ข้อมูล pr รออนุัติ
     @Get('pr/pending-approval')
-    async prApprovalPending(@Param('id') id: string) {
+    async prApprovalPending() {
         return this.PrApprovalService.prApprovalPending();
     }
 
@@ -31,6 +31,12 @@ export class PrApprovalController {
         return this.PrApprovalService.findOne(+id);
     }
 
+    @Get(':id/pr')
+    async findPR(@Param('id') id: string) {
+        return this.PrApprovalService.findPR(+id);
+    }
+
+    
 
     
 
