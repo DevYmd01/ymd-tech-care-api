@@ -334,4 +334,29 @@ export class PrApprovalService {
 
   return pr;
 }
+
+    async findOne(approval_id: number) {
+        const approval = await this.prisma.pr_approval.findUnique({
+            where: { approval_id },
+            include: {
+                pr: true, // ดึงข้อมูล PR ตั้งต้น
+                prApprovalLines: {
+                    include: {
+                        pr_line: { // ดึงข้อมูลบรรทัด PR ที่เชื่อมโยง
+                            include: {
+                                item: true,
+                                uom: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!approval) {
+            throw new NotFoundException(`ไม่พบข้อมูลรายการอนุมัติรหัส ${approval_id}`);
+        }
+
+        return approval;
+    }
 }

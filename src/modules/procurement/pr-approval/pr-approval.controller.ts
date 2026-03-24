@@ -26,6 +26,11 @@ export class PrApprovalController {
         return this.PrApprovalService.prApprovalPending();
     }
 
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        return this.PrApprovalService.findOne(+id);
+    }
+
 
     
 
