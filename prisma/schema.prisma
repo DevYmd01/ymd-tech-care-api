@@ -1154,7 +1154,10 @@ model pr_line {
     required_receipt_type String?            @db.VarChar(20)
     // ใช้ตรวจสอบอนุมัติ
     status                String?            @db.VarChar(20)
+    // จำนวนที่อนุมัติ
     approved_qty          Decimal            @default(0)
+    // จำนวนที่ปฏิเสธ
+    rejected_qty          Decimal            @default(0)
     item                  item?              @relation(fields: [item_id], references: [item_id])
     pr                    pr_header          @relation(fields: [pr_id], references: [pr_id])
     uom                   uom                @relation(fields: [uom_id], references: [uom_id])

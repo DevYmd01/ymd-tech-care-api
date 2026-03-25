@@ -1,4 +1,4 @@
-import { Injectable, Query, NotFoundException, BadRequestException} from '@nestjs/common';
+import { Injectable, Query, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { CreateRFQHeaderRepository } from './repository/rfq-header.repository';
 import { CreateRFQLineRepository } from './repository/rfq-line.repository';
@@ -209,11 +209,11 @@ export class RfqService {
                             employee_firstname_th: true,
                             employee_lastname_th: true,
                         }
-                    }, 
+                    },
 
                     // ✅ จำนวน vendor ทั้งหมด และที่ส่งแล้ว
                     rfqVendors: {
-                        where:{
+                        where: {
                             is_active: true
                         },
                         select: {
@@ -480,7 +480,7 @@ export class RfqService {
                 }
             }
 
-            
+
             // UPDATE
             if (vendorDiff.toUpdate.length > 0) {
 
@@ -593,7 +593,7 @@ export class RfqService {
             data: {
                 status: 'SENT',
                 sent_at: new Date(),
-                 contact_email: Array.isArray(toList) ? toList.join(',') : toList,// บันทึกว่าส่งไปที่ไหน
+                contact_email: Array.isArray(toList) ? toList.join(',') : toList,// บันทึกว่าส่งไปที่ไหน
             },
         });
     }
@@ -623,15 +623,48 @@ export class RfqService {
         return pdfBuffer;
     }
 
-async findPRWithoutRFQ(page: number = 1, limit: number = 20) {
+    async findPRWithoutRFQ(page: number = 1, limit: number = 20) {
+        const safeLimit = Math.min(limit, 100);
+        const skip = (page - 1) * safeLimit;
+
+        const where: Prisma.pr_headerWhereInput = {
+            status: 'APPROVED',
+            rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
+                none: {},   // PR ที่ไม่มี RFQ
+            },
+        };
+
+        const [data, total] = await Promise.all([
+            this.prisma.pr_header.findMany({
+                where,
+                include: {
+                    prLines: true,
+                },
+                skip,
+                take: safeLimit,
+                orderBy: { pr_id: 'desc' },
+            }),
+            this.prisma.pr_header.count({ where }),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit),
+        };
+    }
+
+async findPRWithoutPRApproved(page: number = 1, limit: number = 20) {
     const safeLimit = Math.min(limit, 100);
     const skip = (page - 1) * safeLimit;
 
     const where: Prisma.pr_headerWhereInput = {
-        status: 'APPROVED',
-        rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
-            none: {},   // PR ที่ไม่มี RFQ
-        },
+        status:{in: [ 'APPROVED', 'PARTIAL' ]},
+        // rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
+        //     none: {},   // PR ที่ไม่มี RFQ
+        // },
     };
 
     const [data, total] = await Promise.all([
@@ -655,4 +688,43 @@ async findPRWithoutRFQ(page: number = 1, limit: number = 20) {
         totalPages: Math.ceil(total / safeLimit),
     };
 }
+
+async findApprovedPRWithoutRFQ(
+    pr_id: number,
+    page: number = 1,
+    limit: number = 20
+) {
+    const safeLimit = Math.min(limit, 100);
+    const skip = (page - 1) * safeLimit;
+
+    const where: Prisma.pr_approvalWhereInput = {
+        pr_id: pr_id,
+        status: {in: ['APPROVED', 'PARTIAL'] },
+        // rfq: {
+        //     none: {}, // 👈 ยังไม่มี RFQ
+        // },
+    };
+
+    const [data, total] = await Promise.all([
+        this.prisma.pr_approval.findMany({
+            where,
+            include: {
+                prApprovalLines: true,
+            },
+            skip,
+            take: safeLimit,
+            orderBy: { created_at: 'desc' },
+        }),
+        this.prisma.pr_approval.count({ where }),
+    ]);
+
+    return {
+        data,
+        total,
+        page,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+    };
+}
+
 }

@@ -79,5 +79,30 @@ export class RfqController {
         );
     }
 
+    // แสดง pr ที่ถูกทำการอนุมัตแล้วจาก pr_approval ยังไม่มีการทำ rfq
+    @Get('pr-approved/without-rfq')
+    async findPRWithoutPRApproved(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+    ) {
+        return this.rfqService.findPRWithoutPRApproved(
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
+    }
+
+    @Get('pr-approved/:pr_id/without-rfq')
+    async findApprovedPRWithoutRFQ(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Param('pr_id') pr_id: number
+    ) {
+        return this.rfqService.findApprovedPRWithoutRFQ(
+            pr_id,
+            Number(page) || 1,
+            Number(pageSize) || 20,
+        );
+    }
+
 
 }

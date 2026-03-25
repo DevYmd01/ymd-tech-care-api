@@ -31,13 +31,10 @@ export class PrApprovalController {
         return this.PrApprovalService.findOne(+id);
     }
 
+    // แสดง pr ที่ต้องการอนุมัติและยังเหลืออยู่ที่ยังไม่ได้อนุมัติ
     @Get(':id/pr')
     async findPR(@Param('id') id: string) {
         return this.PrApprovalService.findPR(+id);
     }
-
-    
-
-    
 
 }
