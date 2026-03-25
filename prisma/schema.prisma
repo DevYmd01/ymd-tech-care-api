@@ -1010,17 +1010,17 @@ model document_running {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
     /// รหัสใบขอซื้อ (PK)
-    pr_id      Int      @id @default(autoincrement())
+    pr_id        Int      @id @default(autoincrement())
     /// เลขที่ใบขอซื้อ
-    pr_no      String   @unique @db.VarChar(50)
-/// เลขใบเสนอราคาจาก vender ที่ต้องการ
+    pr_no        String   @unique @db.VarChar(50)
+    /// เลขใบเสนอราคาจาก vender ที่ต้องการ
     quotation_no String?  @db.VarChar(30)
     /// รหัสสาขา (FK)
-    branch_id  Int?
+    branch_id    Int?
     /// สถานะ
-    status     String   @db.VarChar(30)
+    status       String   @db.VarChar(30)
     /// วันที่สร้าง
-    created_at DateTime @default(now())
+    created_at   DateTime @default(now())
 
     /// สกุลเงินที่ใช้ทำรายการ (Base Currency)
     pr_base_currency_code  String?   @db.VarChar(3)
@@ -1151,23 +1151,26 @@ model pr_line {
     line_amount Decimal @db.Decimal(18, 4)
 
     /// ประเภทการรับสินค้าที่ต้องการ GOODS/SERVICE
-    required_receipt_type String?            @db.VarChar(20)
+    required_receipt_type String? @db.VarChar(20)
     // ใช้ตรวจสอบอนุมัติ
-    status                String?            @db.VarChar(20)
+    status                String? @db.VarChar(20)
     // จำนวนที่อนุมัติ
-    approved_qty          Decimal            @default(0)
+    approved_qty          Decimal @default(0)
     // จำนวนที่ปฏิเสธ
-    rejected_qty          Decimal            @default(0)
-    item                  item?              @relation(fields: [item_id], references: [item_id])
-    pr                    pr_header          @relation(fields: [pr_id], references: [pr_id])
-    uom                   uom                @relation(fields: [uom_id], references: [uom_id])
-    warehouse             warehouse?         @relation(fields: [warehouse_id], references: [warehouse_id])
-    locationId            location?          @relation(fields: [location_id], references: [location_id])
-    tax_code              tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
-    rfqLines              rfq_line[]
-    vqLines               vq_line[]
-    poLines               po_line[]
-    prApprovalLines       pr_approval_line[]
+    rejected_qty          Decimal @default(0)
+    // จำนวนที่ยังค้างอยู่จากการอนุมัติ
+    remaining_qty         Decimal @default(0)
+
+    item            item?              @relation(fields: [item_id], references: [item_id])
+    pr              pr_header          @relation(fields: [pr_id], references: [pr_id])
+    uom             uom                @relation(fields: [uom_id], references: [uom_id])
+    warehouse       warehouse?         @relation(fields: [warehouse_id], references: [warehouse_id])
+    locationId      location?          @relation(fields: [location_id], references: [location_id])
+    tax_code        tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
+    rfqLines        rfq_line[]
+    vqLines         vq_line[]
+    poLines         po_line[]
+    prApprovalLines pr_approval_line[]
 
     @@unique([pr_id, line_no])
     @@index([pr_id])
@@ -1219,24 +1222,26 @@ model pr_approval {
     quote_currency  currency?          @relation("pr_approval-quote_currency", fields: [quote_currency_id], references: [currency_id])
     tax_code        tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
     prApprovalLines pr_approval_line[]
+    rfqHeaders      rfq_header[]
 
     @@map("pr_approval")
 }
 
 model pr_approval_line {
-    approval_line_id String  @id @default(uuid())
+    approval_line_id  Int       @id @default(autoincrement())
 
-    approved_qty     Decimal @db.Decimal(18, 3)
-    remarks          String? @db.Text
+    approved_qty Decimal @db.Decimal(18, 3)
+    remarks      String? @db.Text
 
-    pr_line_id Int
+    pr_line_id  Int
     approval_id Int
-    
+
     approved_at DateTime? // NULL = ยังไม่ approve
 
     // 🔗 relation
     approval pr_approval @relation(fields: [approval_id], references: [approval_id])
     pr_line  pr_line     @relation(fields: [pr_line_id], references: [pr_line_id])
+    rfqLines rfq_line[]
 
     @@map("approval_pr_line")
 }
@@ -1253,6 +1258,7 @@ model rfq_header {
     requested_by_user_id Int
     /// รหัสใบขอซื้อ (FK)
     pr_id                Int
+    pr_approval_id       Int?
     /// รหัสสาขา (FK)
     branch_id            Int?
     /// ผู้ขอ
@@ -1285,6 +1291,7 @@ model rfq_header {
     branch            org_branch?  @relation(fields: [branch_id], references: [branch_id])
     requested_by_user employees    @relation("requested_by_user", fields: [requested_by_user_id], references: [employee_id])
     pr                pr_header    @relation("PRtoRFQ", fields: [pr_id], references: [pr_id])
+    pr_approval       pr_approval? @relation(fields: [pr_approval_id], references: [approval_id])
     rfqLines          rfq_line[]
     rfqVendors        rfq_vendor[]
     vqHeaders         vq_header[]
@@ -1294,17 +1301,18 @@ model rfq_header {
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase for Quotation Line) (P4)
 model rfq_line {
     /// รหัสใบขอซื้อ (PK)
-    rfq_line_id Int     @id @default(autoincrement())
+    rfq_line_id      Int     @id @default(autoincrement())
     /// รหัสใบขอซื้อ (FK)
-    rfq_id      Int
+    rfq_id           Int
+    approval_line_id Int?
     /// ลำดับ
-    line_no     Int
+    line_no          Int
     /// รหัสสินค้า (FK)
-    pr_line_id  Int
+    pr_line_id       Int
     /// รหัสสินค้า (FK)
-    item_id     Int?
+    item_id          Int?
     /// รายละเอียด
-    description String? @db.VarChar(255)
+    description      String? @db.VarChar(255)
 
     /// จำนวน
     qty    Decimal @default(0) @db.Decimal(18, 6)
@@ -1318,10 +1326,11 @@ model rfq_line {
     /// หมายเหตุถึงผู้ขาย
     note_to_vendor        String?   @db.Text
 
-    item    item?      @relation(fields: [item_id], references: [item_id])
-    rfq     rfq_header @relation(fields: [rfq_id], references: [rfq_id])
-    uom     uom        @relation(fields: [uom_id], references: [uom_id])
-    pr_line pr_line    @relation(fields: [pr_line_id], references: [pr_line_id])
+    item             item?            @relation(fields: [item_id], references: [item_id])
+    rfq              rfq_header       @relation(fields: [rfq_id], references: [rfq_id])
+    uom              uom              @relation(fields: [uom_id], references: [uom_id])
+    pr_line          pr_line          @relation(fields: [pr_line_id], references: [pr_line_id])
+    pr_approval_line pr_approval_line? @relation(fields: [approval_line_id], references: [approval_line_id])
 
     @@index([rfq_id])
 }

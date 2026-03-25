@@ -10,6 +10,12 @@ export class UpdateRFQHeaderDTO {
     requested_by_user_id: number;
 
     @IsNotEmpty()
+    @IsNumber()
+    pr_approval_id: number;
+
+
+
+    @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
     rfq_date: Date;

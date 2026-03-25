@@ -10,7 +10,7 @@ export class CreateRFQLineMapper {
 
         return lines.map(line => ({
             rfq_id,
-
+            approval_line_id: line.approval_line_id,
             line_no: line.line_no,
             pr_line_id: line.pr_line_id,
 

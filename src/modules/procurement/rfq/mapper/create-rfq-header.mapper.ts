@@ -9,6 +9,7 @@ export class RFQMapper {
         return {
             rfq_no: rfq_no,
             requested_by_user: { connect: { employee_id: dto.requested_by_user_id } },
+            pr_approval: { connect: { approval_id: dto.pr_approval_id } },
             rfq_date: dto.rfq_date,
             pr: { connect: { pr_id: dto.pr_id } },
             branch: { connect: { branch_id: dto.branch_id } },

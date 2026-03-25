@@ -10,6 +10,10 @@ export class UpdateRFQLineDTO {
 
     @IsNotEmpty()
     @IsNumber()
+    approval_line_id: number;
+
+    @IsNotEmpty()
+    @IsNumber()
     line_no: number;
 
     @IsNotEmpty()

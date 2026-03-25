@@ -11,6 +11,10 @@ export class CreateRFQLineDTO {
     @IsNumber()
     pr_line_id: number;
 
+    @IsNotEmpty()
+    @IsNumber()
+    approval_line_id: number;
+
     @IsOptional()
     @IsNumber()
     item_id?: number;

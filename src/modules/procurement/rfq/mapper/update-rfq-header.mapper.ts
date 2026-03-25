@@ -9,6 +9,7 @@ export class UpdateRFQHeaderMapper {
         return {
             rfq_id: rfq_id,
             requested_by_user_id: dto.requested_by_user_id,
+            pr_approval_id: dto.pr_approval_id,
             rfq_date: dto.rfq_date,
             pr_id: dto.pr_id,
             branch_id: dto.branch_id,
