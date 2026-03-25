@@ -656,75 +656,92 @@ export class RfqService {
         };
     }
 
-async findPRWithoutPRApproved(page: number = 1, limit: number = 20) {
-    const safeLimit = Math.min(limit, 100);
-    const skip = (page - 1) * safeLimit;
+    async findPRWithoutPRApproved(page: number = 1, limit: number = 20) {
+        const safeLimit = Math.min(limit, 100);
+        const skip = (page - 1) * safeLimit;
 
-    const where: Prisma.pr_headerWhereInput = {
-        status:{in: [ 'APPROVED', 'PARTIAL' ]},
-        // rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
-        //     none: {},   // PR ที่ไม่มี RFQ
-        // },
-    };
+        const where: Prisma.pr_headerWhereInput = {
+            status: { in: ['APPROVED', 'PARTIAL'] },
+            // rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
+            //     none: {},   // PR ที่ไม่มี RFQ
+            // },
+        };
 
-    const [data, total] = await Promise.all([
-        this.prisma.pr_header.findMany({
-            where,
-            include: {
-                prLines: true,
-            },
-            skip,
-            take: safeLimit,
-            orderBy: { pr_id: 'desc' },
-        }),
-        this.prisma.pr_header.count({ where }),
-    ]);
+        const [data, total] = await Promise.all([
+            this.prisma.pr_header.findMany({
+                where,
+                include: {
+                    prLines: true,
+                },
+                skip,
+                take: safeLimit,
+                orderBy: { pr_id: 'desc' },
+            }),
+            this.prisma.pr_header.count({ where }),
+        ]);
 
-    return {
-        data,
-        total,
-        page,
-        limit: safeLimit,
-        totalPages: Math.ceil(total / safeLimit),
-    };
-}
+        return {
+            data,
+            total,
+            page,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit),
+        };
+    }
 
-async findApprovedPRWithoutRFQ(
-    pr_id: number,
-    page: number = 1,
-    limit: number = 20
-) {
-    const safeLimit = Math.min(limit, 100);
-    const skip = (page - 1) * safeLimit;
+    async findApprovedPRWithoutRFQ(
+        pr_id: number,
+        page: number = 1,
+        limit: number = 20
+    ) {
+        const safeLimit = Math.min(limit, 100);
+        const skip = (page - 1) * safeLimit;
 
-    const where: Prisma.pr_approvalWhereInput = {
-        pr_id: pr_id,
-        status: {in: ['APPROVED', 'PARTIAL'] },
-        // rfq: {
-        //     none: {}, // 👈 ยังไม่มี RFQ
-        // },
-    };
+        const where: Prisma.pr_approvalWhereInput = {
+            pr_id: pr_id,
+            status: { in: ['APPROVED', 'PARTIAL'] },
+            // rfq: {
+            //     none: {}, // 👈 ยังไม่มี RFQ
+            // },
+        };
 
-    const [data, total] = await Promise.all([
-        this.prisma.pr_approval.findMany({
-            where,
-            include: {
-                prApprovalLines: true,
-            },
-            skip,
-            take: safeLimit,
-            orderBy: { created_at: 'desc' },
-        }),
-        this.prisma.pr_approval.count({ where }),
-    ]);
+        const [data, total] = await Promise.all([
+            this.prisma.pr_approval.findMany({
+                where,
+                include: {
+                    prApprovalLines: {
+                        include: {
+                            pr_line: {
+                                select: {
+                                    pr_line_id: true,
+                                    line_no: true,
+                                    item_id: true,
+                                    description: true,
+                                    warehouse_id: true,
+                                    location: true,
+                                    location_id: true,
+                                    pr_id: true,
+                                    uom_id: true,
+                                    est_unit_price: true,
+                                }
+                            },
+                        }
+                    },
+                },
+                skip,
+                take: safeLimit,
+                orderBy: { created_at: 'desc' },
+            }),
+            this.prisma.pr_approval.count({ where }),
+        ]);
 
-    return {
-        data,
-        total,
-        page,
-        limit: safeLimit,
-        totalPages: Math.ceil(total / safeLimit),
-    };
-}
+        return {
+            data,
+            total,
+            page,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit),
+        };
+    }
 
 }
