@@ -202,6 +202,12 @@ export class RfqService {
                             pr_no: true,
                         }
                     },
+                    pr_approval: {
+                        select: {
+                            approval_no: true,
+                        }
+                    },
+
                     // ✅ ชื่อผู้สร้าง
                     requested_by_user: {
                         select: {
