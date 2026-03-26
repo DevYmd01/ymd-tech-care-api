@@ -219,11 +219,21 @@ av_remark: rfq.pr_approval?.remarks,
                     select: {
                         rfq_id: true,
                         rfq_no: true,
+                        pr_approval: {
+                            select: {
+                                approval_id: true,
+                                approval_no: true,
+                                approval_date: true,
+                                status: true,
+                                remarks: true
+                            },
+                        },
                         _count: {
                             select: {
                                 vqHeaders: true,
                             }
                         }
+                        
                     }
                 },
                 winningVq: {
@@ -247,6 +257,10 @@ av_remark: rfq.pr_approval?.remarks,
         const data = qcHeaders.map((qc) => ({
             qc_id: qc.qc_id,
             qc_no: qc.qc_no,
+            av_no: qc.rfq?.pr_approval?.approval_no,
+            av_date: qc.rfq?.pr_approval?.approval_date,
+            av_status: qc.rfq?.pr_approval?.status,
+            av_remark: qc.rfq?.pr_approval?.remarks,
             pr_header_id: qc.pr_id,
             rfq_header_id: qc.rfq_id,
             vq_header_id: qc.winningVq?.vq_header_id,
