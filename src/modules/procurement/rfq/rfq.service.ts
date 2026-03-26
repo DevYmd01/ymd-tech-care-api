@@ -265,7 +265,7 @@ export class RfqService {
 
     async findOne(rfq_id: number) {
         return this.prisma.rfq_header.findUnique({
-            where: { rfq_id },
+            where: { rfq_id: rfq_id},
             include: {
                 rfqLines: true,
                 rfqVendors: { where: { is_active: true } },

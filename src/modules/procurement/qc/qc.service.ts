@@ -77,10 +77,16 @@ export class QcService {
                 pr: {
                     status: 'APPROVED',
                 },
+
             },
             include: {
                 qcHeaders: true,
                 pr: true,
+                pr_approval: {
+                    where: {
+                        status: 'APPROVED',
+                    },
+                },
                 rfqVendors: {
                     where: {
                         is_active: true,
@@ -103,6 +109,11 @@ export class QcService {
             pr_date: rfq.pr.pr_date,
             pr_status: rfq.pr.status,
             pr_remark: rfq.pr.remark,
+            pr_approval_id: rfq.pr_approval_id,
+av_no: rfq.pr_approval?.approval_no,
+av_date: rfq.pr_approval?.approval_date,
+av_status: rfq.pr_approval?.status,
+av_remark: rfq.pr_approval?.remarks,
             rfq_id: rfq.rfq_id,
             rfq_no: rfq.rfq_no,
             rfq_date: rfq.rfq_date,

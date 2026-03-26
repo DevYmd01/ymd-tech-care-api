@@ -13,6 +13,10 @@ export class CreateRFQHeaderDTO {
     @IsNumber()
     pr_approval_id: number;
 
+    @IsOptional()
+    @IsString()
+    approved_pr_no: string;
+
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
