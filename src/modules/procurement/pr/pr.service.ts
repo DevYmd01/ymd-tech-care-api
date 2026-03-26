@@ -353,11 +353,20 @@ console.log(dto);
                 // ==============================
                 // 2️⃣ Validate status
                 // ==============================
-                if (existing.status !== 'DRAFT') {
-                    throw new BadRequestException(
-                        `PR status must be DRAFT to update`
-                    );
-                }
+                const PR_STATUS = {
+    DRAFT: 'DRAFT',
+    PENDING: 'PENDING',
+    REJECTED: 'REJECTED',
+};
+if (![PR_STATUS.DRAFT, PR_STATUS.PENDING, PR_STATUS.REJECTED].includes(existing.status)) {
+    throw new BadRequestException('Invalid status');
+}
+
+                // if (existing.status !== ['DRAFT', 'PENDING', 'REJECTED']) {
+                //     throw new BadRequestException(
+                //         `PR status must be DRAFT to update`
+                //     );
+                // }
 
                 // ==============================
                 // 3️⃣ Get Tax Config

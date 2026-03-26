@@ -1500,6 +1500,7 @@ model qc_header {
     updatedQcHeaders employees?     @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
     winningVq        vq_header?     @relation(fields: [winning_vq_id], references: [vq_header_id])
     department       org_department @relation(fields: [department_id], references: [department_id])
+    poHeaders        po_header[]
 }
 
 model po_header {
@@ -1511,6 +1512,8 @@ model po_header {
     po_date        DateTime @default(now())
     /// รหัสใบขอซื้อ (FK)
     pr_id          Int?
+    /// รหัสใบขอซื้อ (FK)
+    qc_id          Int?
     /// รหัสอนุมัติซื้อจาก pr (FK)
     pr_approval_id Int?
     /// รหัสผู้ขาย (FK)
@@ -1556,6 +1559,7 @@ model po_header {
 
     pr               pr_header?   @relation(fields: [pr_id], references: [pr_id])
     pr_approval      pr_approval? @relation(fields: [pr_approval_id], references: [approval_id])
+    qc               qc_header?   @relation(fields: [qc_id], references: [qc_id])
     createdPoHeaders employees?   @relation("poCreatedBy", fields: [created_by], references: [employee_id])
     updatedPoHeaders employees?   @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
     vendor           vendor       @relation(fields: [vendor_id], references: [vendor_id])

@@ -7,9 +7,13 @@ export class CreatePOHeaderDTO {
     @IsInt()
     pr_id?: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsInt()
-    rfq_id!: number;
+    vq_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    pr_approval_id?: number;
 
     @IsNotEmpty()
     @IsNumber()
