@@ -10,6 +10,7 @@ import {
     IsArray,         // ตรวจว่าเป็น array
     ValidateNested,  // ใช้ตรวจ object ซ้อน (เช่น array ของ DTO)
     IsIn,
+    IsNotEmpty,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
@@ -18,6 +19,7 @@ export class CreateAddressDto {
     @IsIn(['REGISTERED', 'CONTACT', 'BILLING', 'SHIPPING'])
     address_type!: 'REGISTERED' | 'CONTACT' | 'BILLING' | 'SHIPPING';
 
+    @IsOptional()
     @IsString()
     address?: string;
 
@@ -42,18 +44,23 @@ export class CreateAddressDto {
     @IsString()
     contact_person!: string;
 
+    @IsOptional()
     @IsString()
-    phone!: string;
+    phone?: string;
 
+    @IsOptional()
     @IsString()
-    phone_extension!: string;
+    phone_extension?: string;
 
+    @IsNotEmpty()
     @IsString()
     email!: string;
 
+        @IsOptional()
     @IsBoolean()
     is_default?: boolean;
 
+        @IsOptional()
     @IsBoolean()
     is_active?: boolean;
 }

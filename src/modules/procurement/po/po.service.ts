@@ -96,30 +96,30 @@ export class PoService {
             /**
              * ตรวจสอบ PR
              */
-            let prId = createPOHeaderDTO.pr_id;
+            // let prId = createPOHeaderDTO.pr_id;
 
-            if (!prId) {
+            // if (!prId) {
 
-                const prDocumentNo = await this.DocumentNumberService.generate({
-                    module_code: 'PR',
-                    document_type_code: 'PR',
-                    branch_id: 0,
-                });
+            //     const prDocumentNo = await this.DocumentNumberService.generate({
+            //         module_code: 'PR',
+            //         document_type_code: 'PR',
+            //         branch_id: 0,
+            //     });
 
-                const prHeaderData =
-                    PrCreatePOHeaderMapper.toPrismaCreateInput(
-                        createPOHeaderDTO,
-                        prDocumentNo,
-                        headerDocTotals
-                    );
+            //     const prHeaderData =
+            //         PrCreatePOHeaderMapper.toPrismaCreateInput(
+            //             createPOHeaderDTO,
+            //             prDocumentNo,
+            //             headerDocTotals
+            //         );
 
-                const createdPR = await this.PRHeaderRepository.create(
-                    tx,
-                    prHeaderData
-                );
+            //     const createdPR = await this.PRHeaderRepository.create(
+            //         tx,
+            //         prHeaderData
+            //     );
 
-                prId = createdPR.pr_id;
-            }
+            //     prId = createdPR.pr_id;
+            // }
 
             /**
              * สร้าง PO Header
@@ -129,7 +129,7 @@ export class PoService {
                     createPOHeaderDTO,
                     documentNo,
                     headerDocTotals,
-                    prId
+                    // prId
                 );
 
             const createdHeader =

@@ -57,6 +57,10 @@ export class CreateVendorDto {
     @IsString()
     email?: string;
 
+    @IsOptional()
+    @IsString()
+    website?: string;
+
     /// ที่อยู่ ข้อมูล array ของ CreateVendorAddressDto
     @IsOptional()
     @IsArray()

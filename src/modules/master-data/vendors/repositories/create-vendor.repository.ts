@@ -15,7 +15,9 @@ export class CreateVendorRepository {
         is_subject_to_wht: dto.is_subject_to_wht ?? false,
         payment_term_days: dto.payment_term_days ?? 0,
         phone: dto.phone,
+        phone_extension: dto.phone_extension , 
         email: dto.email,
+        website: dto.website ?? null,
         is_active: dto.is_active ?? true,
 
         vendor_type: {

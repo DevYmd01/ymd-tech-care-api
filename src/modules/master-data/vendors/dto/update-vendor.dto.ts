@@ -55,6 +55,10 @@ export class UpdateVendorDto {
     @IsOptional()
     email?: string;
 
+        @IsOptional()
+    @IsString()
+    website?: string;
+
     @IsBoolean()
     @IsOptional()
     is_active?: boolean;

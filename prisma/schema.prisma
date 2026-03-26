@@ -525,6 +525,8 @@ model vendor {
     vendor_name         String   @db.VarChar(255)
     /// ชื่อเจ้าหนี้ (อังกฤษ)
     vendor_nameeng      String?  @db.VarChar(255)
+    /// เว็บไซต์
+    website             String?  @db.VarChar(255)
     /// เลขที่ผู้เสียภาษี
     tax_id              String?  @db.VarChar(20)
     /// เลขที่ผู้เสียภาษี
@@ -1223,12 +1225,13 @@ model pr_approval {
     tax_code        tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
     prApprovalLines pr_approval_line[]
     rfqHeaders      rfq_header[]
+    poHeaders       po_header[]
 
     @@map("pr_approval")
 }
 
 model pr_approval_line {
-    approval_line_id  Int       @id @default(autoincrement())
+    approval_line_id Int @id @default(autoincrement())
 
     approved_qty Decimal @db.Decimal(18, 3)
     remarks      String? @db.Text
@@ -1326,10 +1329,10 @@ model rfq_line {
     /// หมายเหตุถึงผู้ขาย
     note_to_vendor        String?   @db.Text
 
-    item             item?            @relation(fields: [item_id], references: [item_id])
-    rfq              rfq_header       @relation(fields: [rfq_id], references: [rfq_id])
-    uom              uom              @relation(fields: [uom_id], references: [uom_id])
-    pr_line          pr_line          @relation(fields: [pr_line_id], references: [pr_line_id])
+    item             item?             @relation(fields: [item_id], references: [item_id])
+    rfq              rfq_header        @relation(fields: [rfq_id], references: [rfq_id])
+    uom              uom               @relation(fields: [uom_id], references: [uom_id])
+    pr_line          pr_line           @relation(fields: [pr_line_id], references: [pr_line_id])
     pr_approval_line pr_approval_line? @relation(fields: [approval_line_id], references: [approval_line_id])
 
     @@index([rfq_id])
@@ -1364,15 +1367,16 @@ model rfq_vendor {
 
 model vq_header {
     /// รหัสใบเสนอราคา (PK)
-    vq_header_id Int     @id @default(autoincrement())
+    vq_header_id   Int     @id @default(autoincrement())
     /// เลขที่ใบเสนอราคา
-    vq_no        String  @unique @db.VarChar(30)
+    vq_no          String  @unique @db.VarChar(30)
     /// เลขที่ใบเสนอราคาจากผู้ขาย
-    quotation_no String? @db.VarChar(30)
+    quotation_no   String? @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
-    pr_id        Int
+    pr_id          Int
+    pr_approval_id Int?
     /// รหัสใบขอซื้อ (FK)
-    rfq_id       Int
+    rfq_id         Int
 
     rfq_vendor_id Int?
     /// รหัสผู้ขาย (FK)
@@ -1500,27 +1504,29 @@ model qc_header {
 
 model po_header {
     /// รหัสใบสั่งซื้อ (PK)
-    po_header_id Int      @id @default(autoincrement())
+    po_header_id   Int      @id @default(autoincrement())
     /// เลขที่ใบสั่งซื้อ
-    po_no        String   @unique @db.VarChar(30)
+    po_no          String   @unique @db.VarChar(30)
     /// วันที่ใบสั่งซื้อ
-    po_date      DateTime @default(now())
+    po_date        DateTime @default(now())
     /// รหัสใบขอซื้อ (FK)
-    pr_id        Int?
+    pr_id          Int?
+    /// รหัสอนุมัติซื้อจาก pr (FK)
+    pr_approval_id Int?
     /// รหัสผู้ขาย (FK)
-    vendor_id    Int
+    vendor_id      Int
     /// รหัสสาขา (FK)
-    branch_id    Int
+    branch_id      Int
     /// รหัสคลังสินค้า (FK)
-    warehouse_id Int?
+    warehouse_id   Int?
     /// สถานะ
-    status       String   @db.VarChar(20)
+    status         String   @db.VarChar(20)
     /// วันที่สร้าง
-    created_at   DateTime @default(now())
+    created_at     DateTime @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at   DateTime @updatedAt
-    created_by   Int?
-    updated_by   Int?
+    updated_at     DateTime @updatedAt
+    created_by     Int?
+    updated_by     Int?
 
     /// สกุลเงินหลักของระบบ (Functional Currency)
     base_currency_code  String?   @db.VarChar(3)
@@ -1549,6 +1555,7 @@ model po_header {
     quote_discount_amount Decimal? @db.Decimal(18, 2)
 
     pr               pr_header?   @relation(fields: [pr_id], references: [pr_id])
+    pr_approval      pr_approval? @relation(fields: [pr_approval_id], references: [approval_id])
     createdPoHeaders employees?   @relation("poCreatedBy", fields: [created_by], references: [employee_id])
     updatedPoHeaders employees?   @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
     vendor           vendor       @relation(fields: [vendor_id], references: [vendor_id])

@@ -7,7 +7,7 @@ export class CreatePOHeaderMapper {
         data: CreatePOHeaderDTO,
         po_no: string,
         headerDocTotals: any,
-        prId: number   // ⭐ บังคับต้องมี
+        // prId: number   // ⭐ บังคับต้องมี
     ): Prisma.po_headerCreateInput {
 
         return {
@@ -16,7 +16,7 @@ export class CreatePOHeaderMapper {
 
             pr: {
                 connect: {
-                    pr_id: prId
+                    pr_id: headerDocTotals.pr_id ?? null
                 }
             },
 

@@ -52,6 +52,10 @@ export class UpdateVendorRepository {
       ...(dto.email !== undefined && {
         email: dto.email
       }),
+      
+      ...(dto.website !== undefined && {
+        website: dto.website
+      }),
 
       ...(dto.is_active !== undefined && {
         is_active: dto.is_active
