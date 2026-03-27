@@ -16,6 +16,7 @@ export class POLineMapper {
             line_no: dto.line_no,
             item: { connect: { item_id: dto.item_id } },
             prLine: { connect: { pr_line_id: dto.pr_line_id } },
+            
             status: dto.status,
             qty: dto.qty,
             uom: { connect: { uom_id: dto.uom_id } },

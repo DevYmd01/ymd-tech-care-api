@@ -1226,6 +1226,7 @@ model pr_approval {
     prApprovalLines pr_approval_line[]
     rfqHeaders      rfq_header[]
     poHeaders       po_header[]
+    vqHeaders       vq_header[]
 
     @@map("pr_approval")
 }
@@ -1245,6 +1246,8 @@ model pr_approval_line {
     approval pr_approval @relation(fields: [approval_id], references: [approval_id])
     pr_line  pr_line     @relation(fields: [pr_line_id], references: [pr_line_id])
     rfqLines rfq_line[]
+    poLines  po_line[]
+    vqLines  vq_line[]
 
     @@map("approval_pr_line")
 }
@@ -1417,89 +1420,96 @@ model vq_header {
     quote_tax_amount Decimal? @db.Decimal(18, 2)
 
     /// DOCUMENT DISCOUNT
-    discount_expression   String?     @db.VarChar(20)
-    discount_rate         Decimal?    @db.Decimal(9, 4)
-    base_discount_amount  Decimal?    @db.Decimal(18, 2)
-    quote_discount_amount Decimal?    @db.Decimal(18, 2)
+    discount_expression   String?      @db.VarChar(20)
+    discount_rate         Decimal?     @db.Decimal(9, 4)
+    base_discount_amount  Decimal?     @db.Decimal(18, 2)
+    quote_discount_amount Decimal?     @db.Decimal(18, 2)
     created_by            Int?
     updated_by            Int?
-    created_at            DateTime    @default(now())
-    updated_at            DateTime    @updatedAt
+    created_at            DateTime     @default(now())
+    updated_at            DateTime     @updatedAt
     //ใช้ตอน qc
-    is_awarded            Boolean     @default(false)
-    pr                    pr_header   @relation(fields: [pr_id], references: [pr_id])
-    rfq                   rfq_header  @relation(fields: [rfq_id], references: [rfq_id])
-    rfq_vendor            rfq_vendor? @relation(fields: [rfq_vendor_id], references: [rfq_vendor_id])
-    vendor                vendor      @relation(fields: [vendor_id], references: [vendor_id])
-    tax_code              tax_code?   @relation(fields: [tax_code_id], references: [tax_code_id])
-    createdVqHeaders      employees?  @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
-    updatedVqHeaders      employees?  @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
+    is_awarded            Boolean      @default(false)
+    pr                    pr_header    @relation(fields: [pr_id], references: [pr_id])
+    rfq                   rfq_header   @relation(fields: [rfq_id], references: [rfq_id])
+    rfq_vendor            rfq_vendor?  @relation(fields: [rfq_vendor_id], references: [rfq_vendor_id])
+    vendor                vendor       @relation(fields: [vendor_id], references: [vendor_id])
+    tax_code              tax_code?    @relation(fields: [tax_code_id], references: [tax_code_id])
+    createdVqHeaders      employees?   @relation("VQCreatedBy", fields: [created_by], references: [employee_id])
+    updatedVqHeaders      employees?   @relation("VQUpdatedBy", fields: [updated_by], references: [employee_id])
+    pr_approval           pr_approval? @relation(fields: [pr_approval_id], references: [approval_id])
     vqLines               vq_line[]
     qcHeaders             qc_header[]
 }
 
 model vq_line {
     /// รหัสใบเสนอราคา (PK)
-    vq_line_id          Int       @id @default(autoincrement())
-    vq_header_id        Int
+    vq_line_id   Int  @id @default(autoincrement())
+    vq_header_id Int
     /// ลำดับ
-    line_no             Int
+    line_no      Int
     /// รหัสสินค้า (FK)
-    item_id             Int?
+    item_id      Int?
     /// รหัสใบขอซื้อ (FK)
-    pr_line_id          Int
+    pr_line_id   Int
+
+    approval_line_id Int?
+    /// รายละเอียด
+    description      String? @db.VarChar(255)
+
     /// สถานะ
-    status              String    @db.VarChar(20)
+    status              String            @db.VarChar(20)
     /// จำนวน
-    qty                 Decimal   @db.Decimal(18, 6)
+    qty                 Decimal           @db.Decimal(18, 6)
     /// รหัสหน่วยนับ (FK)
     uom_id              Int
     /// ราคาต่อหน่วย
-    unit_price          Decimal   @db.Decimal(18, 2)
+    unit_price          Decimal           @db.Decimal(18, 2)
     /// ส่วนลดต่อบรรทัด 
-    discount_amount     Decimal?  @db.Decimal(9, 4)
+    discount_amount     Decimal?          @db.Decimal(9, 4)
     /// % ส่วนลด(string) 
-    discount_rate       Decimal?  @db.Decimal(9, 4)
+    discount_rate       Decimal?          @db.Decimal(9, 4)
     /// % ส่วนลด(คำนวณจาก discount_rate)จาก UI
-    discount_expression String?   @db.VarChar(20)
-    net_amount          Decimal   @db.Decimal(18, 2)
-    created_at          DateTime  @default(now())
-    updated_at          DateTime  @updatedAt
-    vq                  vq_header @relation(fields: [vq_header_id], references: [vq_header_id])
-    item                item?     @relation(fields: [item_id], references: [item_id])
-    prLine              pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
-    uom                 uom       @relation(fields: [uom_id], references: [uom_id])
+    discount_expression String?           @db.VarChar(20)
+    net_amount          Decimal           @db.Decimal(18, 2)
+    created_at          DateTime          @default(now())
+    updated_at          DateTime          @updatedAt
+    vq                  vq_header         @relation(fields: [vq_header_id], references: [vq_header_id])
+    item                item?             @relation(fields: [item_id], references: [item_id])
+    prLine              pr_line           @relation(fields: [pr_line_id], references: [pr_line_id])
+    approval_line       pr_approval_line? @relation(fields: [approval_line_id], references: [approval_line_id])
+    uom                 uom               @relation(fields: [uom_id], references: [uom_id])
 }
 
 model qc_header {
     /// รหัสใบเปรียบเทียบราคา (PK)
-    qc_id            Int            @id @default(autoincrement())
+    qc_id            Int             @id @default(autoincrement())
     /// เลขที่ใบเปรียบเทียบราคา
-    qc_no            String         @unique @db.VarChar(30)
+    qc_no            String          @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
     pr_id            Int
     /// รหัสใบขอซื้อ (FK)
     rfq_id           Int
     /// แผนกที่ขอ
-    department_id    Int
+    department_id    Int?
     /// รหัสใบขอซื้อ (FK) ผู้ชนะ
-    winning_vq_id    Int?
+    winning_vq_id    Int
     /// หมายเหตุ
-    remarks          String?        @db.Text
+    remarks          String?         @db.Text
     /// สถานะ
-    status           String         @db.VarChar(20)
+    status           String          @db.VarChar(20)
     /// วันที่สร้าง
-    created_at       DateTime       @default(now())
+    created_at       DateTime        @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at       DateTime       @updatedAt
+    updated_at       DateTime        @updatedAt
     created_by       Int?
     updated_by       Int?
-    pr               pr_header      @relation(fields: [pr_id], references: [pr_id])
-    rfq              rfq_header     @relation(fields: [rfq_id], references: [rfq_id])
-    createdQcHeaders employees?     @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
-    updatedQcHeaders employees?     @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
-    winningVq        vq_header?     @relation(fields: [winning_vq_id], references: [vq_header_id])
-    department       org_department @relation(fields: [department_id], references: [department_id])
+    pr               pr_header       @relation(fields: [pr_id], references: [pr_id])
+    rfq              rfq_header      @relation(fields: [rfq_id], references: [rfq_id])
+    createdQcHeaders employees?      @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
+    updatedQcHeaders employees?      @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
+    winningVq        vq_header?      @relation(fields: [winning_vq_id], references: [vq_header_id])
+    department       org_department? @relation(fields: [department_id], references: [department_id])
     poHeaders        po_header[]
 }
 
@@ -1572,36 +1582,40 @@ model po_header {
 
 model po_line {
     /// รหัสใบสั่งซื้อ (PK)
-    po_line_id   Int     @id @default(autoincrement())
+    po_line_id       Int  @id @default(autoincrement())
     /// เลขที่ใบสั่งซื้อ
-    po_header_id Int
+    po_header_id     Int
     /// ลำดับบรรทัด
-    line_no      Int
+    line_no          Int
     /// รหัสใบขอซื้อ (FK)
-    pr_line_id   Int
+    pr_line_id       Int?
+    approval_line_id Int?
+
     /// รหัสสินค้า (FK)
-    item_id      Int?
-    description  String? @db.VarChar(255)
+    item_id     Int?
+    description String? @db.VarChar(255)
+
+    /// ประเภทการรับ GOODS/SERVICE
+    required_receipt_type String? @db.VarChar(20)
 
     /// สถานะ
-    status                String   @db.VarChar(20)
+    status          String   @db.VarChar(20)
     /// วันที่สร้าง
-    created_at            DateTime @default(now())
+    created_at      DateTime @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at            DateTime @updatedAt
+    updated_at      DateTime @updatedAt
     /// จำนวนที่สั่งซื้อ
-    qty                   Decimal  @db.Decimal(18, 2)
+    qty             Decimal  @db.Decimal(18, 2)
     /// หน่วยนับ
-    uom_id                Int
+    uom_id          Int
     /// ราคาต่อหน่วย
-    unit_price            Decimal  @db.Decimal(18, 2)
+    unit_price      Decimal  @db.Decimal(18, 2)
     /// ส่วนลด
-    discount_amount       Decimal  @db.Decimal(18, 2)
-    /// ประเภทการรับ GOODS/SERVICE
-    required_receipt_type String   @db.VarChar(20)
+    discount_amount Decimal  @db.Decimal(18, 2)
+
     /// TAX
-    tax_code_id           Int?
-    tax_rate              Decimal? @db.Decimal(9, 4)
+    tax_code_id Int?
+    tax_rate    Decimal? @db.Decimal(9, 4)
 
     /// DOCUMENT DISCOUNT
     discount_expression String?  @db.VarChar(20)
@@ -1609,11 +1623,19 @@ model po_line {
 
     net_amount Decimal @db.Decimal(18, 2)
 
-    poHeader po_header @relation(fields: [po_header_id], references: [po_header_id])
-    prLine   pr_line   @relation(fields: [pr_line_id], references: [pr_line_id])
-    uom      uom       @relation(fields: [uom_id], references: [uom_id])
-    taxCode  tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
-    item     item?     @relation(fields: [item_id], references: [item_id])
+    // จำนวนที่อนุมัติ
+    approved_qty  Decimal @default(0)
+    // จำนวนที่ปฏิเสธ
+    rejected_qty  Decimal @default(0)
+    // จำนวนที่ยังค้างอยู่จากการอนุมัติ
+    remaining_qty Decimal @default(0)
+
+    poHeader         po_header         @relation(fields: [po_header_id], references: [po_header_id])
+    prLine           pr_line?          @relation(fields: [pr_line_id], references: [pr_line_id])
+    pr_approval_line pr_approval_line? @relation(fields: [approval_line_id], references: [approval_line_id])
+    uom              uom               @relation(fields: [uom_id], references: [uom_id])
+    taxCode          tax_code?         @relation(fields: [tax_code_id], references: [tax_code_id])
+    item             item?             @relation(fields: [item_id], references: [item_id])
 }
 
 model grn_header {

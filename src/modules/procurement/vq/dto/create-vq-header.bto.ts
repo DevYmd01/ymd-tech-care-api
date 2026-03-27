@@ -11,6 +11,9 @@ export class CreateVQHeaderDTO {
     pr_id!: number;
     @IsNotEmpty()
     @IsNumber()
+    pr_approval_id!: number;
+    @IsNotEmpty()
+    @IsNumber()
     rfq_id!: number;
     @IsNotEmpty()
     @IsNumber()

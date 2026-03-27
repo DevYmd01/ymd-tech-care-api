@@ -11,7 +11,11 @@ export class CreatePOLineDTO {
 
     @IsOptional()
     @IsNumber()
-    pr_line_id!: number;
+    pr_line_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    pr_approval_line?: number;
 
     @IsNotEmpty()
     @IsString()

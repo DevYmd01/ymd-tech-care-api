@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";   
+import { Type } from "class-transformer";
 
 export class UpdateVQLineDTO {
 
@@ -18,6 +18,10 @@ export class UpdateVQLineDTO {
     @IsOptional()
     @IsNumber()
     pr_line_id: number;
+
+    @IsOptional()
+    @IsNumber()
+    approval_line_id!: number;
 
     @IsNotEmpty()
     @IsString()
@@ -39,7 +43,7 @@ export class UpdateVQLineDTO {
     @IsNumber()
     tax_code_id: number;
 
-    @IsOptional() 
+    @IsOptional()
     @IsString()
     discount_expression?: string;
 

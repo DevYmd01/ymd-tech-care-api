@@ -22,11 +22,14 @@ export class UpdatePOHeaderMapper {
 
     return {
       pr: { connect: { pr_id: data.pr_id } },
+      qc: { connect: { qc_id: data.qc_id } },
+      pr_approval: { connect: { approval_id: data.pr_approval_id } },
       vendor: { connect: { vendor_id: data.vendor_id } },
       branch: { connect: { branch_id: data.branch_id } },
       warehouse: { connect: { warehouse_id: data.warehouse_id } },
+      po_date: data.po_date,
 
-      status: "DRAFT",
+      status: data.status,
 
       base_currency_code: data.base_currency_code,
       quote_currency_code: data.quote_currency_code,

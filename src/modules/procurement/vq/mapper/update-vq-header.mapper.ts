@@ -24,6 +24,7 @@ export class UpdateVQHeaderMapper {
         return {
             quotation_no: dto.quotation_no,
             pr: { connect: { pr_id: dto.pr_id } },
+            pr_approval: { connect: { approval_id: dto.pr_approval_id } },
             rfq: { connect: { rfq_id: dto.rfq_id } },
             rfq_vendor: { connect: { rfq_vendor_id: dto.rfq_vendor_id } },
             vendor: { connect: { vendor_id: dto.vendor_id } },

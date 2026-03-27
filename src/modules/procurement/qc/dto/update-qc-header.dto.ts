@@ -25,5 +25,5 @@ export class UpdateQcHeaderDTO {
 
     @IsOptional()
     @IsString()
-    remarks?: string;
+    remark?: string;
 }

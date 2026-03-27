@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsDate, IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";   
+import { Type } from "class-transformer";
 
 export class CreateVQLineDTO {
     @IsNotEmpty()
@@ -13,6 +13,10 @@ export class CreateVQLineDTO {
     @IsOptional()
     @IsNumber()
     pr_line_id: number;
+
+    @IsOptional()
+    @IsNumber()
+    approval_line_id!: number;
 
     @IsNotEmpty()
     @IsString()
@@ -30,7 +34,7 @@ export class CreateVQLineDTO {
     @IsNumber()
     unit_price: number;
 
-    @IsOptional() 
+    @IsOptional()
     @IsString()
     discount_expression?: string;
 

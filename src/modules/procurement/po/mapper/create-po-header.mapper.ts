@@ -13,7 +13,7 @@ export class CreatePOHeaderMapper {
         return {
 
             po_no: po_no,
-
+            po_date: data.po_date,
             pr: {
                 connect: {
                     pr_id: headerDocTotals.pr_id ?? null

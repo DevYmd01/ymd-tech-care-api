@@ -12,9 +12,9 @@ export class CreateQcHeaderDTO {
     pr_id!: number;
 
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
-    department_id!: number;
+    department_id?: number;
 
     @IsNotEmpty()
     @IsNumber()
@@ -24,8 +24,7 @@ export class CreateQcHeaderDTO {
     @IsNumber()
     winning_vq_id!: number;
 
-    
     @IsOptional()
     @IsString()
-    remarks?: string;
+    remark?: string;
 }

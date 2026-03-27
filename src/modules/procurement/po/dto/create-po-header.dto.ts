@@ -3,13 +3,19 @@ import { Type } from 'class-transformer';
 import { CreatePOLineDTO } from './create-po-line.dto';
 
 export class CreatePOHeaderDTO {
+
+    @IsNotEmpty()
+    @IsDate()
+    @Type(() => Date)
+    po_date: Date;
+
     @IsOptional()
     @IsInt()
     pr_id?: number;
 
     @IsOptional()
     @IsInt()
-    vq_id?: number;
+    qc_id?: number;
 
     @IsOptional()
     @IsInt()

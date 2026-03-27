@@ -15,7 +15,11 @@ export class UpdatePOLineDTO {
 
     @IsOptional()
     @IsNumber()
-    pr_line_id: number;
+    pr_line_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    approval_line_id?: number;
 
     @IsNotEmpty()
     @IsString()

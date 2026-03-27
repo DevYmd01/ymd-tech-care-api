@@ -3,13 +3,23 @@ import { Type } from 'class-transformer';
 import { UpdatePOLineDTO } from './update-po-line.dto';
 
 export class UpdatePOHeaderDTO {
-    @IsNotEmpty()
-    @IsInt()
-    pr_id: number;
 
     @IsNotEmpty()
+    @IsDate()
+    @Type(() => Date)
+    po_date: Date;
+   
+    @IsOptional()
     @IsInt()
-    rfq_id: number;
+    pr_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    qc_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    pr_approval_id?: number;
 
     @IsNotEmpty()
     @IsNumber()

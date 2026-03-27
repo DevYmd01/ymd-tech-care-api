@@ -583,6 +583,8 @@ export class VqService {
             rfq_id: row.rfq?.rfq_id,
             rfq_no: row.rfq?.rfq_no,
             rfq_date: row.rfq?.rfq_date,
+            pr_approval_id: row.rfq?.pr_approval_id,
+
 
             vendor_id: row.vendor?.vendor_id,
             vendor_code: row.vendor?.vendor_code,
