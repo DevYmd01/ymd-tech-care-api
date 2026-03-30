@@ -25,9 +25,9 @@ export class CreatePOHeaderDTO {
     @IsInt()
     branch_id!: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsInt()
-    warehouse_id!: number;
+    warehouse_id?: number;
 
     @IsNotEmpty()
     @IsString()

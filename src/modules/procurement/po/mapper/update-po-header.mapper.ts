@@ -32,7 +32,7 @@ export class UpdatePOHeaderMapper {
 
       vendor: { connect: { vendor_id: data.vendor_id } },
       branch: { connect: { branch_id: data.branch_id } },
-      warehouse: { connect: { warehouse_id: data.warehouse_id } },
+      // warehouse: { connect: { warehouse_id: data.warehouse_id } },
       po_date: data.po_date,
 
       status: data.status,
