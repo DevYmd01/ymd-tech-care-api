@@ -67,9 +67,6 @@ export class UpdatePOHeaderDTO {
     @IsInt()
     updated_by: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    winning_vq_id: number;
 
     @IsNotEmpty()
     @IsArray()

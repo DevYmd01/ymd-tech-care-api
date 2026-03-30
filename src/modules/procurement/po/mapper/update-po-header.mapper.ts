@@ -21,8 +21,15 @@ export class UpdatePOHeaderMapper {
   ): Prisma.po_headerUpdateInput {
 
     return {
-      pr: { connect: { pr_id: data.pr_id } },
-      qc: { connect: { qc_id: data.qc_id } },
+
+      ...(data.pr_id !== undefined && {
+        pr: data.pr_id === null ? { disconnect: true } : { connect: { pr_id: data.pr_id } }
+      }),
+
+      ...(data.qc_id !== undefined && {
+        qc: data.qc_id === null ? { disconnect: true } : { connect: { qc_id: data.qc_id } }
+      }),
+
       vendor: { connect: { vendor_id: data.vendor_id } },
       branch: { connect: { branch_id: data.branch_id } },
       warehouse: { connect: { warehouse_id: data.warehouse_id } },

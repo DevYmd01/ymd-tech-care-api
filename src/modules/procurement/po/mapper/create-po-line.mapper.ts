@@ -15,8 +15,15 @@ export class POLineMapper {
             poHeader: { connect: { po_header_id: po_header_id } },
             line_no: dto.line_no,
             item: { connect: { item_id: dto.item_id } },
-            prLine: { connect: { pr_line_id: dto.pr_line_id } },
-            rfqLine: { connect: { rfq_line_id: dto.rfq_line_id } },
+
+            ...(dto.pr_line_id != null && {
+                prLine: { connect: { pr_line_id: dto.pr_line_id } }
+            }),
+
+            ...(dto.rfq_line_id != null && {
+                rfqLine: { connect: { rfq_line_id: dto.rfq_line_id } }
+            }),
+
             status: dto.status,
             qty: dto.qty,
             uom: { connect: { uom_id: dto.uom_id } },

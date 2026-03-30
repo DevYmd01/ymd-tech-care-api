@@ -68,10 +68,6 @@ export class CreatePOHeaderDTO {
     created_by!: number;
 
     @IsNotEmpty()
-    @IsInt()
-    winning_vq_id!: number;
-
-    @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreatePOLineDTO)

@@ -41,6 +41,7 @@ export class PoService {
 
     async createPOHeader(createPOHeaderDTO: CreatePOHeaderDTO, context: any) {
 
+        console.log('createPOHeaderDTO', createPOHeaderDTO);
         return this.prismaService.$transaction(async (tx) => {
 
             // สร้าง PO document number
@@ -94,42 +95,14 @@ export class PoService {
                 });
 
             /**
-             * ตรวจสอบ PR
-             */
-            // let prId = createPOHeaderDTO.pr_id;
-
-            // if (!prId) {
-
-            //     const prDocumentNo = await this.DocumentNumberService.generate({
-            //         module_code: 'PR',
-            //         document_type_code: 'PR',
-            //         branch_id: 0,
-            //     });
-
-            //     const prHeaderData =
-            //         PrCreatePOHeaderMapper.toPrismaCreateInput(
-            //             createPOHeaderDTO,
-            //             prDocumentNo,
-            //             headerDocTotals
-            //         );
-
-            //     const createdPR = await this.PRHeaderRepository.create(
-            //         tx,
-            //         prHeaderData
-            //     );
-
-            //     prId = createdPR.pr_id;
-            // }
-
-            /**
              * สร้าง PO Header
+             * รองรับการสร้าง PO โดยตรง ไม่จำเป็นต้องผ่าน PR, RFQ, AV, QC (FK เป็น Optional)
              */
             const createPOHeaderData =
                 CreatePOHeaderMapper.toPrismaCreateInput(
                     createPOHeaderDTO,
                     documentNo,
-                    headerDocTotals,
-                    // prId
+                    headerDocTotals
                 );
 
             const createdHeader =
