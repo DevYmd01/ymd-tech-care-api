@@ -23,7 +23,6 @@ export class UpdatePOHeaderMapper {
     return {
       pr: { connect: { pr_id: data.pr_id } },
       qc: { connect: { qc_id: data.qc_id } },
-      pr_approval: { connect: { approval_id: data.pr_approval_id } },
       vendor: { connect: { vendor_id: data.vendor_id } },
       branch: { connect: { branch_id: data.branch_id } },
       warehouse: { connect: { warehouse_id: data.warehouse_id } },

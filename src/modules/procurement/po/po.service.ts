@@ -328,23 +328,184 @@ export class PoService {
         });
     }
 
+    // findPRWithoutQC() {
+    //     return this.prismaService.pr_header.findMany({
+    //         where: {
+    //             poHeaders: {
+    //                 none: {},
+    //             },
+    //             qcHeaders: {
+    //                 some: {},
+    //             },
+    //             status: 'APPROVED',
+    //         },
+    //         include: {
+    //             poHeaders: true,
+    //             qcHeaders: true,
+    //         }
+    //     });
+    // }
 
-    findPRWithoutQC() {
-        return this.prismaService.pr_header.findMany({
-            where: {
-                poHeaders: {
-                    none: {},
-                },
-                qcHeaders: {
-                    some: {},
-                },
-                status: 'APPROVED',
-            },
-            include: {
-                poHeaders: true,
-                qcHeaders: true,
+    
+    // findPRWithoutQC() {
+    //     return this.prismaService.qc_header.findMany({
+    //         include: {
+    //             pr: {
+    //                 select: {
+    //                     pr_id: true,
+    //                     pr_no: true
+    //                 }
+    //             },
+    //             rfq: {
+    //                 select: {
+    //                     rfq_id: true,
+    //                     rfq_no: true,
+    //                     pr_approval: {
+    //                         select: {
+    //                             approval_id: true,
+    //                             approval_no: true,
+    //                             approval_date: true,
+    //                             status: true,
+    //                             remarks: true
+    //                         },
+    //                     },
+    //                     _count: {
+    //                         select: {
+    //                             vqHeaders: true,
+    //                         }
+    //                     }
+                        
+    //                 }
+    //             },
+    //             winningVq: {
+    //                 select: {
+    //                     vq_header_id: true,
+    //                     vq_no: true,
+    //                     base_total_amount: true,
+    //                     vendor: {
+    //                         select: {
+    //                             vendor_id: true,
+    //                             vendor_name: true,
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //     }
+    //     });
+    // }
+
+    async findPRWithoutQC() {
+  const data = await this.prismaService.qc_header.findMany({
+    include: {
+      pr: {
+        select: {
+          pr_id: true,
+          pr_no: true
+        }
+      },
+      rfq: {
+        select: {
+          rfq_id: true,
+          rfq_no: true,
+          pr_approval: {
+            select: {
+              approval_no: true,
+              status: true
             }
-        });
+          },
+          _count: {
+            select: {
+              vqHeaders: true,
+            }
+          }
+        }
+      },
+      winningVq: {
+        select: {
+          vq_no: true,
+          base_total_amount: true,
+          vendor: {
+            select: {
+              vendor_name: true,
+            }
+          }
+        }
+      }
     }
+  });
+
+  // 💥 flatten
+  return data.map(qc => ({
+    qc_id: qc.qc_id,
+    qc_no: qc.qc_no,
+    qc_status: qc.status,
+
+    pr_id: qc.pr?.pr_id,
+    pr_no: qc.pr?.pr_no,
+
+    rfq_id: qc.rfq?.rfq_id,
+    rfq_no: qc.rfq?.rfq_no,
+
+    approval_no: qc.rfq?.pr_approval?.approval_no ?? null,
+    approval_status: qc.rfq?.pr_approval?.status ?? null,
+
+    vendor_name: qc.winningVq?.vendor?.vendor_name ?? null,
+    vq_no: qc.winningVq?.vq_no ?? null,
+    total_amount: qc.winningVq?.base_total_amount ?? null,
+
+    vq_count: qc.rfq?._count?.vqHeaders ?? 0,
+  }));
+}
+
+findQCWithoutPO(qc_id: number) {
+  return this.prismaService.qc_header.findUnique({
+    where: {
+      qc_id: qc_id
+    },
+    include: {
+      pr: {
+        select: {
+          pr_id: true,
+          pr_no: true
+        }
+      },
+      rfq: {
+        include: {
+          pr_approval: {
+            select: {
+              approval_id: true,
+              approval_no: true,
+              approval_date: true,
+              status: true,
+              remarks: true
+            }
+          },
+          rfqLines: {   // 💥 เพิ่มตรงนี้
+            include: {
+              item: true,
+              uom: true,
+              // ใส่ field ที่คุณต้องใช้ใน input
+            }
+          },
+        //   _count: {
+        //     select: {
+        //       vqHeaders: true,
+        //     }
+        //   }
+        }
+      },
+    //   winningVq: {
+    //     include: {
+    //       vendor: true,
+    //       vqLines: {   // 💥 แนะนำเพิ่ม (ใช้ตอนเลือก vendor)
+    //         include: {
+    //           item: true
+    //         }
+    //       }
+    //     }
+    //   }
+    }
+  });
+}
 
 }

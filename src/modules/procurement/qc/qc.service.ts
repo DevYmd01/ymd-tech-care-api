@@ -74,9 +74,9 @@ export class QcService {
                 qcHeaders: {
                     none: {},
                 },
-                pr: {
-                    status: 'APPROVED',
-                },
+                // pr: {
+                //     status: 'APPROVED',
+                // },
 
             },
             include: {

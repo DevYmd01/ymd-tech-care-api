@@ -25,12 +25,6 @@ export class CreatePOHeaderMapper {
                     qc_id: headerDocTotals.qc_id ?? null
                 }
             },
-
-            pr_approval: {
-                connect: {
-                    approval_id: headerDocTotals.pr_approval_id ?? null
-                }
-            },
             
             vendor: { connect: { vendor_id: data.vendor_id } },
 

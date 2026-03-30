@@ -17,10 +17,6 @@ export class UpdatePOHeaderDTO {
     @IsInt()
     qc_id?: number;
 
-    @IsOptional()
-    @IsInt()
-    pr_approval_id?: number;
-
     @IsNotEmpty()
     @IsNumber()
     vendor_id: number;

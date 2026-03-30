@@ -33,4 +33,11 @@ export class PoController {
       return this.poService.findPRWithoutQC();
     }
 
+        @Get(':qc_id/waiting-for-qc')
+    findQCWithoutPO(
+      @Param('qc_id') qc_id: number,
+    ) {
+      return this.poService.findQCWithoutPO(+qc_id);
+    }
+
 }

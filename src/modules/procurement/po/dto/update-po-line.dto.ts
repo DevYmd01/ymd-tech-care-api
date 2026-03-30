@@ -19,7 +19,7 @@ export class UpdatePOLineDTO {
 
     @IsOptional()
     @IsNumber()
-    approval_line_id?: number;
+    rfq_line_id?: number;
 
     @IsNotEmpty()
     @IsString()
