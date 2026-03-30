@@ -200,6 +200,8 @@ export class RfqService {
                     pr: {
                         select: {
                             pr_no: true,
+                            requester_name: true,
+                            pr_date: true,
                         }
                     },
                     pr_approval: {
@@ -249,7 +251,7 @@ export class RfqService {
         const result = data.map((rfq) => ({
             ...rfq,
             vendor_total: rfq.rfqVendors.length,
-            vendor_sent: rfq.rfqVendors.filter(v => v.status === 'SENT').length,
+               vendor_sent: rfq.rfqVendors.filter(v => ['SENT', 'RECORDED'].includes(v.status ?? '')).length,
             line_count: rfq._count.rfqLines,
         }));
 
