@@ -50,6 +50,7 @@ model employees {
     updatedPoHeaders      po_header[]        @relation("poUpdatedBy")
     regnHeaders           grn_header[]
     prApprovals           pr_approval[]
+    poApprovals           po_approval[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -875,6 +876,7 @@ model tax_code {
     items        item[]
     vendors      vendor[]
     prApprovals  pr_approval[]
+    poApprovals  po_approval[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -920,6 +922,8 @@ model currency {
     vendors                vendor[]
     baseCurrencyApprovals  pr_approval[] @relation("pr_approval-base_currency")
     quoteCurrencyApprovals pr_approval[] @relation("pr_approval-quote_currency")
+    poApprovalsBase        po_approval[] @relation("po_approval-base_currency")
+    poApprovalsQuote       po_approval[] @relation("po_approval-quote_currency")
 
     @@map("currency")
 }
@@ -1564,16 +1568,17 @@ model po_header {
     base_discount_amount  Decimal? @db.Decimal(18, 2)
     quote_discount_amount Decimal? @db.Decimal(18, 2)
 
-    pr               pr_header?   @relation(fields: [pr_id], references: [pr_id])
-    qc               qc_header?   @relation(fields: [qc_id], references: [qc_id])
-    createdPoHeaders employees?   @relation("poCreatedBy", fields: [created_by], references: [employee_id])
-    updatedPoHeaders employees?   @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
-    vendor           vendor       @relation(fields: [vendor_id], references: [vendor_id])
-    branch           org_branch   @relation(fields: [branch_id], references: [branch_id])
-    warehouse        warehouse?   @relation(fields: [warehouse_id], references: [warehouse_id])
+    pr               pr_header?    @relation(fields: [pr_id], references: [pr_id])
+    qc               qc_header?    @relation(fields: [qc_id], references: [qc_id])
+    createdPoHeaders employees?    @relation("poCreatedBy", fields: [created_by], references: [employee_id])
+    updatedPoHeaders employees?    @relation("poUpdatedBy", fields: [updated_by], references: [employee_id])
+    vendor           vendor        @relation(fields: [vendor_id], references: [vendor_id])
+    branch           org_branch    @relation(fields: [branch_id], references: [branch_id])
+    warehouse        warehouse?    @relation(fields: [warehouse_id], references: [warehouse_id])
     poLines          po_line[]
-    tax_code         tax_code?    @relation(fields: [tax_code_id], references: [tax_code_id])
+    tax_code         tax_code?     @relation(fields: [tax_code_id], references: [tax_code_id])
     regnHeaders      grn_header[]
+    poApprovals      po_approval[]
 }
 
 model po_line {
@@ -1626,12 +1631,91 @@ model po_line {
     // จำนวนที่ยังค้างอยู่จากการอนุมัติ
     remaining_qty Decimal @default(0)
 
-    poHeader                         po_header         @relation(fields: [po_header_id], references: [po_header_id])
-    prLine                           pr_line?          @relation(fields: [pr_line_id], references: [pr_line_id])
-    rfqLine                          rfq_line?         @relation(fields: [rfq_line_id], references: [rfq_line_id])
-    uom                              uom               @relation(fields: [uom_id], references: [uom_id])
-    taxCode                          tax_code?         @relation(fields: [tax_code_id], references: [tax_code_id])
-    item                             item?             @relation(fields: [item_id], references: [item_id])
+    poHeader        po_header          @relation(fields: [po_header_id], references: [po_header_id])
+    prLine          pr_line?           @relation(fields: [pr_line_id], references: [pr_line_id])
+    rfqLine         rfq_line?          @relation(fields: [rfq_line_id], references: [rfq_line_id])
+    uom             uom                @relation(fields: [uom_id], references: [uom_id])
+    taxCode         tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
+    item            item?              @relation(fields: [item_id], references: [item_id])
+    poApprovalLines po_approval_line[]
+}
+
+model po_approval {
+    approval_id       Int       @id @default(autoincrement())
+    approval_no       String    @db.VarChar(30)
+    approval_date     DateTime  @db.Date
+    need_by_date      DateTime? @db.Date
+    status            String    @db.VarChar(20)
+    remarks           String?   @db.Text
+    created_at        DateTime  @default(now())
+    updated_at        DateTime  @updatedAt
+    // รหัสผู้อนุมัติ (FK)
+    approval_step_id   Int
+    approval_step_name String    @db.VarChar(255)
+
+    po_header_id Int
+
+    /// สกุลเงินหลักของระบบ (Functional Currency)
+    base_currency_code    String?   @db.VarChar(3)
+    base_currency_id      Int?
+    /// สกุลเงินตามใบเสนอราคา (Vendor Currency)
+    quote_currency_code   String?   @db.VarChar(3)
+    quote_currency_id     Int?
+    /// อัตราแลกเปลี่ยน (1 quote → base) ui input
+    exchange_rate         Decimal?  @db.Decimal(18, 6)
+    /// วันที่ของเรท ui input
+    exchange_rate_date    DateTime?
+    /// จำนวนเงินรวม (Base Currency)
+    base_total_amount     Decimal   @db.Decimal(18, 2)
+    /// จำนวนเงินรวม (Quote Currency)
+    quote_total_amount    Decimal   @db.Decimal(18, 2)
+    /// TAX
+    tax_code_id           Int?
+    tax_rate              Decimal?  @db.Decimal(9, 4)
+    base_tax_amount       Decimal?  @db.Decimal(18, 2)
+    quote_tax_amount      Decimal?  @db.Decimal(18, 2)
+    /// DOCUMENT DISCOUNT
+    discount_expression   String?   @db.VarChar(20)
+    discount_rate         Decimal?  @db.Decimal(9, 4)
+    base_discount_amount  Decimal?  @db.Decimal(18, 2)
+    quote_discount_amount Decimal?  @db.Decimal(18, 2)
+
+    // 🔗 Relations (แนะนำให้มี)
+    poHeader        po_header          @relation(fields: [po_header_id], references: [po_header_id])
+    approval_emp    employees          @relation(fields: [approval_step_id], references: [employee_id])
+    base_currency   currency?          @relation("po_approval-base_currency", fields: [base_currency_id], references: [currency_id])
+    quote_currency  currency?          @relation("po_approval-quote_currency", fields: [quote_currency_id], references: [currency_id])
+    tax_code        tax_code?           @relation(fields: [tax_code_id], references: [tax_code_id])
+    poApprovalLines po_approval_line[]
+
+    @@map("po_approval")
+}
+
+model po_approval_line {
+    approval_line_id Int @id @default(autoincrement())
+
+    po_line_id  Int
+    approval_id Int
+
+    approved_qty Decimal @db.Decimal(18, 3)
+// PENDING / APPROVED / REJECTED
+    status String 
+
+    remarks String? @db.Text
+
+    approved_at DateTime?
+    approved_by Int? 
+
+    // optional แต่โคตร useful // version control
+    is_active Boolean @default(true) 
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    approval po_approval @relation(fields: [approval_id], references: [approval_id])
+    po_line  po_line     @relation(fields: [po_line_id], references: [po_line_id])
+
+    @@map("approval_po_line")
 }
 
 model grn_header {

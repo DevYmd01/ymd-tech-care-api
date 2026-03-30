@@ -48,6 +48,7 @@ import { ItemGradeModule } from './modules/master-data/item/item-grade/item-grad
 import { ShelfModule } from './modules/master-data/warehouse/shelf/shelf.module';
 import { PrApprovalService } from './modules/procurement/pr-approval/pr-approval.service';
 import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.module';
+import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.
     ItemGradeModule,
     ShelfModule,
     PrApprovalModule,
+    PoApprovalModule,
 
   ],
   controllers: [AppController],
