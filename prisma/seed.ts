@@ -69,6 +69,14 @@ async function main() {
             seq_length: 4,
             running_cycle: RunningCycle.YEAR,
         },
+                        {
+            module_code: 'POA',
+            document_type_code: 'POA',
+            prefix: 'POA',
+            pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+            seq_length: 4,
+            running_cycle: RunningCycle.YEAR,
+        },
     ];
     console.log('🌱 Start seeding document_format...');
     for (const f of formats) {

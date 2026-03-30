@@ -1650,8 +1650,8 @@ model po_approval {
     created_at        DateTime  @default(now())
     updated_at        DateTime  @updatedAt
     // รหัสผู้อนุมัติ (FK)
-    approval_step_id   Int
-    approval_step_name String    @db.VarChar(255)
+    approval_emp_id   Int
+    approval_emp_name String    @db.VarChar(255)
 
     po_header_id Int
 
@@ -1682,7 +1682,7 @@ model po_approval {
 
     // 🔗 Relations (แนะนำให้มี)
     poHeader        po_header          @relation(fields: [po_header_id], references: [po_header_id])
-    approval_emp    employees          @relation(fields: [approval_step_id], references: [employee_id])
+    approval_emp    employees          @relation(fields: [approval_emp_id], references: [employee_id])
     base_currency   currency?          @relation("po_approval-base_currency", fields: [base_currency_id], references: [currency_id])
     quote_currency  currency?          @relation("po_approval-quote_currency", fields: [quote_currency_id], references: [currency_id])
     tax_code        tax_code?           @relation(fields: [tax_code_id], references: [tax_code_id])
