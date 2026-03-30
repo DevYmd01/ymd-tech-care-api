@@ -10,6 +10,8 @@ import { CreatePOApprovalLineRepository } from './repository/create-po-approval-
 import { Decimal } from '@prisma/client/runtime/library';
 import { PoApprovalHeaderMapper } from './mapper/create-po-approval.mapper';
 import { PoApprovalLineMapper } from './mapper/create-po-approval-line.mapper';
+import { SearchPoApprovalDto } from './dto/search-po-approval.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PoApprovalService {
@@ -219,5 +221,156 @@ export class PoApprovalService {
                 },
             });
         });
+    }
+
+    async poApprovalPending() {
+        const pos = await this.prisma.po_header.findMany({
+            where: {
+                // ค้นหา PO ที่มีสถานะรออนุมัติ หรือ อนุมัติไปบางส่วน
+                status: {
+                    in: ['PENDING', 'PARTIAL'],
+                },
+            },
+            include: {
+                poLines: {
+                    // ดึงรายการทั้งหมดใน PO นั้นๆ มาเพื่อคำนวณ
+                    include: {
+                        item: true,
+                        uom: true,
+                    },
+                },
+                vendor: true,
+                branch: true,
+                createdPoHeaders: { // ผูู้สร้าง PO
+                    select: {
+                        employee_id: true,
+                        employee_fullname: true,
+                    }
+                },
+            },
+            orderBy: {
+                po_date: 'desc',
+            },
+        });
+
+        // ไม่โยน Error แต่คืนค่าเป็น Array ว่าง ถ้าไม่เจอข้อมูล
+        if (!pos.length) {
+            return [];
+        }
+
+        // เพิ่มข้อมูลคำนวณ qty ที่ยังไม่ได้อนุมัติ เพื่อให้ Frontend ใช้งานง่ายขึ้น
+        const result = pos.map((p) => {
+            const lines = p.poLines.map((line) => {
+                const approvedQty = new Decimal((line as any).approved_qty ?? 0);
+                const requestedQty = new Decimal(line.qty);
+
+                const remaining_qty = requestedQty.minus(approvedQty);
+
+                return {
+                    ...line,
+                    approved_qty: approvedQty.toNumber(),
+                    requested_qty: requestedQty.toNumber(),
+                    remaining_qty: remaining_qty.toNumber(),
+                };
+            });
+
+            return {
+                ...p,
+                poLines: lines,
+            };
+        });
+
+        return result;
+    }
+
+    async findAll(query: SearchPoApprovalDto) {
+        const {
+            page = 1,
+            limit = 20,
+            po_no,
+            approval_no,
+            status,
+            date_start,
+            date_end
+        } = query;
+
+        const safeLimit = Math.min(limit, 100);
+        const skip = (page - 1) * safeLimit;
+        const clean = (val?: string) => val?.trim();
+
+        const filters: Prisma.po_approvalWhereInput[] = [];
+
+        if (clean(approval_no)) {
+            filters.push({ approval_no: { contains: clean(approval_no), mode: 'insensitive' } });
+        }
+
+        if (clean(po_no)) {
+            filters.push({
+                poHeader: {
+                    po_no: { contains: clean(po_no), mode: 'insensitive' }
+                }
+            });
+        }
+
+        if (clean(status)) {
+            filters.push({ status: clean(status) });
+        }
+
+        if (date_start || date_end) {
+            filters.push({
+                created_at: {
+                    ...(date_start && { gte: new Date(date_start) }),
+                    ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
+                }
+            });
+        }
+
+        const where: Prisma.po_approvalWhereInput = filters.length > 0 ? { AND: filters } : {};
+
+        const [data, total] = await Promise.all([
+            this.prisma.po_approval.findMany({
+                where,
+                skip,
+                take: safeLimit,
+                orderBy: { created_at: 'desc' },
+                include: {
+                    poHeader: { select: { po_no: true } },
+                }
+            }),
+            this.prisma.po_approval.count({ where }),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit),
+        };
+    }
+
+    async findOne(approval_id: number) {
+        const approval = await this.prisma.po_approval.findUnique({
+            where: { approval_id },
+            include: {
+                poHeader: true, // ดึงข้อมูล PO ตั้งต้น
+                poApprovalLines: {
+                    include: {
+                        po_line: { // ดึงข้อมูลบรรทัด PO ที่เชื่อมโยง
+                            include: {
+                                item: true,
+                                uom: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!approval) {
+            throw new NotFoundException(`ไม่พบข้อมูลรายการอนุมัติรหัส ${approval_id}`);
+        }
+
+        return approval;
     }
 }
