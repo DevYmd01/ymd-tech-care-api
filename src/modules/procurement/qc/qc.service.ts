@@ -74,19 +74,15 @@ export class QcService {
                 qcHeaders: {
                     none: {},
                 },
-                // pr: {
-                //     status: 'APPROVED',
-                // },
+                pr: {
+                    status: { in: ['APPROVED','PARTIAL'] },
+                },
 
             },
             include: {
                 qcHeaders: true,
                 pr: true,
-                pr_approval: {
-                    where: {
-                        status: 'APPROVED',
-                    },
-                },
+                pr_approval: true,
                 rfqVendors: {
                     where: {
                         is_active: true,
