@@ -19,124 +19,102 @@ export class QcService {
     ) { }
 
     // แสดง PR ที่ยังไม่มี QC
-    async findPRWithoutQC(page: number, pageSize: number) {
-        const skip = (page - 1) * pageSize;
-        const take = pageSize;
+async findPRWithoutQC(page: number, pageSize: number) {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
 
-        const prs = await this.prisma.pr_header.findMany({
-            where: {
-                status: 'APPROVED',
-                rfqHeaders: {
-                    some: {
-                        qcHeaders: {
-                            none: {},
-                        },
-                    },
-                },
-            },
-            include: {
-                rfqHeaders: {
-                    include: {
-                        qcHeaders: true,
-                    },
-                },
-            },
-            skip,
-            take,
-        });
-
-        // นับจำนวน PR ที่มี RFQ แล้วแต่ยังไม่มี QC
-        const total = await this.prisma.pr_header.count({
-            where: {
-                status: 'APPROVED',
-                rfqHeaders: {
-                    some: {
-                        qcHeaders: {
-                            none: {},
-                        },
-                    },
-                },
-            },
-        });
-
-        return { data: prs, total, page, pageSize };
-    }
-
-    async findRFQWithoutQC(page: number, pageSize: number) {
-        const skip = (page - 1) * pageSize;
-        const take = pageSize;
-
-        let rfqsData
-        let total
-
-        const rfqs = await this.prisma.rfq_header.findMany({
-            where: {
+    const whereCondition = {
+        status: 'APPROVED',
+        rfqHeaders: {
+            some: {
                 qcHeaders: {
-                    none: {},
-                },
-                pr: {
-                    status: { in: ['APPROVED','PARTIAL'] },
-                },
-
-            },
-            include: {
-                qcHeaders: true,
-                pr: true,
-                pr_approval: true,
-                rfqVendors: {
-                    where: {
-                        is_active: true,
-                    },
-                },
-                vqHeaders: {
-                    where: {
-                        status: 'RECORDED',
-                    },
+                    none: {}, // ยังไม่มี QC ใน RFQ นี้
                 },
             },
-            skip,
-            take,
-        });
+        },
+    };
 
-        rfqsData = rfqs.map((rfq) => ({
-            pr_header_id: rfq.pr.pr_id,
-            pr_no: rfq.pr.pr_no,
-            pr_requester_name: rfq.pr.requester_name,
-            pr_date: rfq.pr.pr_date,
-            pr_status: rfq.pr.status,
-            pr_remark: rfq.pr.remark,
-            pr_approval_id: rfq.pr_approval_id,
-av_no: rfq.pr_approval?.approval_no,
-av_date: rfq.pr_approval?.approval_date,
-av_status: rfq.pr_approval?.status,
-av_remark: rfq.pr_approval?.remarks,
-            rfq_id: rfq.rfq_id,
-            rfq_no: rfq.rfq_no,
-            rfq_date: rfq.rfq_date,
-            rfq_status: rfq.status,
-            rfq_remark: rfq.pr.remark,
-            rfq_requester_name: rfq.requested_by,
-            rfq_vendor_count: rfq.rfqVendors.length ?? 0,
-            rfq_vendor_active_count: rfq.vqHeaders.length ?? 0,
-        }));
-
-
-        // นับจำนวน RFQ ที่มี PR แล้วแต่ยังไม่มี QC
-        total = await this.prisma.rfq_header.count({
-            where: {
-                qcHeaders: {
-                    none: {},
-                },
-                pr: {
-                    status: 'APPROVED',
+    const prs = await this.prisma.pr_header.findMany({
+        where: whereCondition,
+        include: {
+            rfqHeaders: {
+                include: {
+                    qcHeaders: true,
                 },
             },
-        });
+        },
+        skip,
+        take,
+    });
 
+    const total = await this.prisma.pr_header.count({
+        where: whereCondition,
+    });
 
+    return { data: prs, total, page, pageSize };
+}
 
-        return { data: rfqsData, total, page, pageSize };
-    }
+async findRFQWithoutQC(page: number, pageSize: number) {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    const whereCondition = {
+        qcHeaders: {
+            none: {}, // ยังไม่มี QC → แสดง
+        },
+        pr: {
+            status: { in: ['APPROVED', 'PARTIAL'] },
+        },
+    };
+
+    const rfqs = await this.prisma.rfq_header.findMany({
+        where: whereCondition,
+        include: {
+            qcHeaders: true,
+            pr: true,
+            pr_approval: true,
+            rfqVendors: {
+                where: { is_active: true },
+            },
+            vqHeaders: {
+                where: { status: 'RECORDED' },
+            },
+        },
+        skip,
+        take,
+    });
+
+    const rfqsData = rfqs.map((rfq) => ({
+        pr_header_id: rfq.pr.pr_id,
+        pr_no: rfq.pr.pr_no,
+        pr_requester_name: rfq.pr.requester_name,
+        pr_date: rfq.pr.pr_date,
+        pr_status: rfq.pr.status,
+        pr_remark: rfq.pr.remark,
+
+        pr_approval_id: rfq.pr_approval_id,
+        av_no: rfq.pr_approval?.approval_no,
+        av_date: rfq.pr_approval?.approval_date,
+        av_status: rfq.pr_approval?.status,
+        av_remark: rfq.pr_approval?.remarks,
+
+        rfq_id: rfq.rfq_id,
+        rfq_no: rfq.rfq_no,
+        rfq_date: rfq.rfq_date,
+        rfq_status: rfq.status,
+        rfq_remark: rfq.remarks,
+        rfq_requester_name: rfq.requested_by,
+
+        rfq_vendor_count: rfq.rfqVendors.length ?? 0,
+        rfq_vendor_active_count: rfq.vqHeaders.length ?? 0,
+    }));
+
+    const total = await this.prisma.rfq_header.count({
+        where: whereCondition, // สำคัญมาก ต้องเหมือนกัน
+    });
+
+    return { data: rfqsData, total, page, pageSize };
+}
 
     async findVendorWithoutQCByRFQId(rfq_id: number) {
         return this.prisma.vq_header.findMany({
