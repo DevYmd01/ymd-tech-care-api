@@ -204,6 +204,9 @@ model item {
     item_id               Int           @id @default(autoincrement())
     item_code             String        @unique @db.VarChar(50)
     item_name             String        @db.VarChar(255)
+    item_nameeng          String?       @db.VarChar(255)
+    item_description      String?       @db.VarChar(255)
+    item_descriptioneng   String?       @db.VarChar(255)
     item_type_id          Int?
     item_group_id         Int?
     item_category_id      Int?
@@ -318,15 +321,16 @@ model item_barcode {
     /// รหัสบาร์โค้ด
     item_barcode_id   Int      @id @default(autoincrement())
     /// รหัสบาร์โค้ด
-    item_barcode_code String   @unique @db.VarChar(30)
+    barcode String   @unique @db.VarChar(30)
     /// รหัสสินค้า
     item_id           Int
     /// รหัสหน่วยนับ
     uom_id            Int
     /// บาร์โค้ดหลักหรือไม่
-    is_primary        Boolean
+    is_primary        Boolean  @default(false)
     /// วันที่สร้างบาร์โค้ด
     created_at        DateTime @default(now())
+    is_active         Boolean  @default(true)
     /// วันที่แก้ไขบาร์โค้ด
     updated_at        DateTime @updatedAt
     item              item     @relation(fields: [item_id], references: [item_id])

@@ -1,5 +1,20 @@
 import { IssuePolicy, TrackingLevel } from '@prisma/client';
-import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class NestedCreateItemBarcodeDto {
+    @IsString()
+    @IsNotEmpty()
+    barcode: string;
+
+    @IsNotEmpty()
+    @IsInt()
+    uom_id: number;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    is_primary: boolean;
+}
 
 export class CreateItemMasterDto {
     @IsNotEmpty()
@@ -104,4 +119,11 @@ export class CreateItemMasterDto {
     @IsOptional()
     @IsInt()
     item_grade_id?: number;
+
+    // Add this for the initial barcode creation
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => NestedCreateItemBarcodeDto)
+    barcodes?: NestedCreateItemBarcodeDto[];
 }

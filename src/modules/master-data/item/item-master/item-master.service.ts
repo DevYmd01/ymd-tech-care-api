@@ -4,17 +4,40 @@ import { CreateItemMasterDto } from './dto/create-item-master.dto';
 import { CreateItemMasterMapper } from './mapper/create-item-master.mapper';
 import { UpdateItemMasterDto } from './dto/update-item-master.dto';
 import { UpdateItemMasterMapper } from './mapper/update-item-master.mapper';
+import { ItemBarcodeService } from '../item-barcode/item-barcode.service';
+import { diffById } from '@/common/utils';
 
 @Injectable()
 export class ItemMasterService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly itemBarcodeService: ItemBarcodeService,
+    ) {}
 
-    async create(createItemMasterDto: CreateItemMasterDto) {
-        const data = CreateItemMasterMapper.toPersistence(createItemMasterDto);
-        return this.prisma.item.create({
-            data,
+async create(createItemMasterDto: CreateItemMasterDto) {
+    return this.prisma.$transaction(async (tx) => {
+
+        // 1️⃣ create item
+        const item = await tx.item.create({
+            data: CreateItemMasterMapper.toPersistence(createItemMasterDto),
         });
-    }
+
+        // 2️⃣ create barcodes (หลายตัว)
+        if (createItemMasterDto.barcodes?.length) {
+            await tx.item_barcode.createMany({
+                data: createItemMasterDto.barcodes.map(b => ({
+                    item_id: item.item_id,
+                    barcode: b.barcode,
+                    uom_id: b.uom_id,
+                    is_primary: b.is_primary,
+                    is_active: true
+                }))
+            });
+        }
+
+        return item;
+    });
+}
 
 async getAll() {
     const items = await this.prisma.item.findMany({
@@ -65,14 +88,70 @@ item_brand_code: item.itemBrand?.item_brand_code ?? null,
     async getById(item_id: number) {
         return this.prisma.item.findUnique({
             where: { item_id },
+            include: {
+                itemBarcodes: true,
+            }
         });
     }
 
     async updateItemMaster(item_id: number, updateItemMasterDto: UpdateItemMasterDto) {
-        const data = UpdateItemMasterMapper.toPersistence(updateItemMasterDto);
-        return this.prisma.item.update({
-            where: { item_id },
-            data,
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Update Item Master
+            const itemData = UpdateItemMasterMapper.toPersistence(updateItemMasterDto);
+            await tx.item.update({
+                where: { item_id },
+                data: itemData,
+            });
+
+            // 2. Handle Barcodes if 'barcodes' property is present in the DTO
+            if ('barcodes' in updateItemMasterDto) {
+                const incomingBarcodes = updateItemMasterDto.barcodes || [];
+                const existingBarcodes = await tx.item_barcode.findMany({
+                    where: { item_id: item_id },
+                });
+
+                const diff = diffById(
+                    existingBarcodes,
+                    incomingBarcodes,
+                    'item_barcode_id'
+                );
+
+                // Delete barcodes
+                if (diff.toDelete.length > 0) {
+                    await tx.item_barcode.deleteMany({
+                        where: {
+                            item_barcode_id: { in: diff.toDelete.map(b => b.item_barcode_id) },
+                        },
+                    });
+                }
+
+                // Update barcodes
+                for (const barcode of diff.toUpdate) {
+                    await tx.item_barcode.update({
+                        where: { item_barcode_id: barcode.item_barcode_id },
+                        data: {
+                            barcode: barcode.barcode,
+                            uom_id: barcode.uom_id,
+                            is_primary: barcode.is_primary,
+                        },
+                    });
+                }
+
+                // Create new barcodes
+                if (diff.toCreate.length > 0) {
+                    await tx.item_barcode.createMany({
+                        data: diff.toCreate.map(b => ({
+                            item_id: item_id,
+                            barcode: b.barcode,
+                            uom_id: b.uom_id,
+                            is_primary: b.is_primary,
+                            is_active: true,
+                        })),
+                    });
+                }
+            }
+
+            return this.getById(item_id);
         });
     }
 

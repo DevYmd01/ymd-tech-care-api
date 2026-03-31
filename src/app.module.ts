@@ -49,6 +49,7 @@ import { ShelfModule } from './modules/master-data/warehouse/shelf/shelf.module'
 import { PrApprovalService } from './modules/procurement/pr-approval/pr-approval.service';
 import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.module';
 import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.module';
+import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-barcode.module';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.
     ShelfModule,
     PrApprovalModule,
     PoApprovalModule,
+    ItemBarcodeModule,
 
   ],
   controllers: [AppController],

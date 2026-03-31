@@ -4,8 +4,11 @@ import { ItemMasterService } from './item-master.service';
 
 import { UpdateItemMasterRepository } from './repository/update-item-master.repository';
 
+import { ItemBarcodeModule } from '../item-barcode/item-barcode.module';
+
 @Module({
   controllers: [ItemMasterController],
-  providers: [ItemMasterService, UpdateItemMasterRepository]
+  providers: [ItemMasterService, UpdateItemMasterRepository],
+   imports: [ItemBarcodeModule],
 })
 export class ItemMasterModule { }

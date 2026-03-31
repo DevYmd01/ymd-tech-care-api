@@ -3,10 +3,13 @@ import { ItemMasterService } from './item-master.service';
 import { CreateItemMasterDto } from './dto/create-item-master.dto';
 import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
 import { UpdateItemMasterDto } from './dto/update-item-master.dto';
+import { ItemBarcodeService } from '../item-barcode/item-barcode.service';
 
 @Controller('item-master')
 export class ItemMasterController {
-    constructor(private readonly itemMasterService: ItemMasterService) { }
+    constructor(private readonly itemMasterService: ItemMasterService
+        , private readonly itemBarcodeService: ItemBarcodeService
+    ) { }
 
     @Post()
     async create(@Body() createItemMasterDto: CreateItemMasterDto) {
