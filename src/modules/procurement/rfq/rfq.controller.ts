@@ -24,10 +24,6 @@ export class RfqController {
         );
     }
 
-    @Get(':rfq_id')
-    async findOne(@Param('rfq_id') rfq_id: number) {
-        return this.rfqService.findOne(rfq_id);
-    }
 
     @Patch(':rfq_id')
     async updateRFQ(@Body() rfqHeader: UpdateRFQHeaderDTO, @Param('rfq_id') rfq_id: number, @Request() req: any) {
@@ -102,6 +98,11 @@ export class RfqController {
             Number(page) || 1,
             Number(pageSize) || 20,
         );
+    }
+
+        @Get(':rfq_id')
+    async findOne(@Param('rfq_id') rfq_id: number) {
+        return this.rfqService.findOne(rfq_id);
     }
 
 

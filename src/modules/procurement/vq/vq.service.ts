@@ -452,65 +452,75 @@ export class VqService {
             }));
 
         } else if (tab === 'WAITING_RFQ') {
-            const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'];
-            
-            // 🔹 สร้างเงื่อนไขสำหรับค้นหาผู้ขายใน RFQ
-            const vendorCondition: Prisma.rfq_vendorWhereInput = {
+            const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE', 'RECORDED'];
+
+            const headerSearchVendorCondition: Prisma.rfq_vendorWhereInput = {
+                is_active: true,
+                status: { in: validStatuses },
+                vq_header: { none: {} },
+            };
+
+            const vendorIncludeCondition: Prisma.rfq_vendorWhereInput = {
                 is_active: true,
                 status: { in: validStatuses },
             };
 
             if (vendor_name) {
-                vendorCondition.vendor = { vendor_name: { contains: vendor_name, mode: 'insensitive' } };
+                const vendorFilter = { vendor: { vendor_name: { contains: vendor_name, mode: 'insensitive' } } };
+                Object.assign(headerSearchVendorCondition, vendorFilter);
+                Object.assign(vendorIncludeCondition, vendorFilter);
             }
 
             if (status) {
                 if (validStatuses.includes(status)) {
-                    vendorCondition.status = status;
+                    headerSearchVendorCondition.status = status;
+                    vendorIncludeCondition.status = status;
                 } else {
-                    vendorCondition.rfq_vendor_id = -1; // ถ้าหาสถานะที่ไม่เกี่ยวข้อง บังคับไม่ให้เจอ
+                    headerSearchVendorCondition.rfq_vendor_id = -1;
                 }
             }
 
             const filters: Prisma.rfq_headerWhereInput[] = [];
-            
-            filters.push({ rfqVendors: { some: vendorCondition } });
 
-            if (rfq_no) filters.push({ rfq_no: { contains: rfq_no, mode: 'insensitive' } });
-            if (pr_no) filters.push({ pr: { pr_no: { contains: pr_no, mode: 'insensitive' } } });
+            filters.push({ rfqVendors: { some: headerSearchVendorCondition } });
+
+            if (rfq_no) {
+                filters.push({ rfq_no: { contains: rfq_no, mode: 'insensitive' } });
+            }
+            if (pr_no) {
+                filters.push({ pr: { pr_no: { contains: pr_no, mode: 'insensitive' } } });
+            }
             if (creator_name) {
                 filters.push({
                     requested_by_user: {
                         OR: [
                             { employee_firstname_th: { contains: creator_name, mode: 'insensitive' } },
-                            { employee_lastname_th: { contains: creator_name, mode: 'insensitive' } }
-                        ]
-                    }
+                            { employee_lastname_th: { contains: creator_name, mode: 'insensitive' } },
+                        ],
+                    },
                 });
             }
+
             if (date_start || date_end) {
                 filters.push({
                     created_at: {
                         ...(date_start && { gte: new Date(date_start) }),
                         ...(date_end && { lte: new Date(new Date(date_end).setHours(23, 59, 59, 999)) }),
-                    }
+                    },
                 });
             }
 
             const where: Prisma.rfq_headerWhereInput = { AND: filters };
 
-            const [rows, total] = await Promise.all([
+            const [data, total] = await Promise.all([
                 this.prisma.rfq_header.findMany({
                     where,
                     include: {
                         pr: true,
                         rfqVendors: {
-                            where: vendorCondition, // กรองเฉพาะ Vendor ที่เข้าเงื่อนไขการค้นหาคืนกลับไปด้วย
-                            include: {
-                                vendor: true,
-                            },
+                            where: vendorIncludeCondition,
+                            include: { vendor: true },
                         },
-                        requested_by_user: true,
                     },
                     skip,
                     take: limit,
@@ -520,16 +530,11 @@ export class VqService {
             ]);
 
             totalCount = total;
-            finalData = rows.map((row) => ({
+            finalData = data.map((row) => ({
                 rfq_id: row.rfq_id,
                 rfq_no: row.rfq_no,
-                rfq_date: row.rfq_date,
-                status: row.status,
-                remarks: row.remarks,
                 pr_id: row.pr?.pr_id,
                 pr_no: row.pr?.pr_no,
-                quotation_due_date: row.quotation_due_date,
-                requested_by_user: row.requested_by_user?.employee_fullname,
                 vendors: row.rfqVendors.map(v => ({
                     rfq_vendor_id: v.rfq_vendor_id,
                     vendor_id: v.vendor?.vendor_id,
@@ -539,9 +544,6 @@ export class VqService {
                 })),
                 created_at: row.created_at,
             }));
-
-          
-
         }
 
         return {
@@ -560,6 +562,9 @@ export class VqService {
             where: {
                 is_active: true,
                 rfq_id: rfq_id,
+                vq_header: {
+                    none: {}
+                },
             },
             include: {
                 rfq: {
@@ -607,16 +612,27 @@ export class VqService {
     async findPRWithoutVQ(page: number = 1, pageSize: number = 20) {
         const skip = (page - 1) * pageSize;
 
-        const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE'];
+        const validStatuses = ['DRAFT', 'PENDING', 'SENT', 'ACTIVE', 'RECORDED'];
 
+        // const where: Prisma.rfq_headerWhereInput = {
+        //     rfqVendors: {
+        //         some: {
+        //             is_active: true,
+        //             status: { in: validStatuses },
+        //         },
+        //     },
+        // };
         const where: Prisma.rfq_headerWhereInput = {
-            rfqVendors: {
-                some: {
-                    is_active: true,
-                    status: { in: validStatuses },
-                },
+    rfqVendors: {
+        some: {
+            is_active: true,
+            status: { in: validStatuses },
+            vq_header: {
+                none: {}, // ✅ ยังไม่มี VQ
             },
-        };
+        },
+    },
+};
 
         const [rows, total] = await Promise.all([
             this.prisma.rfq_header.findMany({

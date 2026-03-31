@@ -636,7 +636,7 @@ export class RfqService {
         const skip = (page - 1) * safeLimit;
 
         const where: Prisma.pr_headerWhereInput = {
-            status: 'APPROVED',
+            status: { in: ['APPROVED', 'PARTIAL'] },
             rfqHeaders: {   // 🔥 relation name (ต้องตรงกับ schema)
                 none: {},   // PR ที่ไม่มี RFQ
             },

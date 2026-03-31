@@ -32,6 +32,10 @@ export class SearchRfqDto {
 
   @IsOptional()
   @IsString()
+  tab?: string;
+
+  @IsOptional()
+  @IsString()
   date_start?: string;
 
   @IsOptional()
