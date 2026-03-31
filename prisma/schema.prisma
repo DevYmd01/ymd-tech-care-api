@@ -7,6 +7,10 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+////////////
+//// EP0 Master-data
+////////////
+
 model employees {
     employee_id           Int                @id @default(autoincrement())
     branch_id             Int?
@@ -52,6 +56,57 @@ model employees {
     prApprovals           pr_approval[]
     poApprovals           po_approval[]
 }
+
+model employee_group {
+    employee_group_id Int      @id @default(autoincrement())
+    employee_group_code String   @unique @db.VarChar(30)
+    employee_group_name String   @db.VarChar(200)
+    employee_group_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+model employee_sale_area {
+    sale_area_id Int @id @default(autoincrement())
+    sale_area_code String @unique @db.VarChar(30)
+    sale_area_name String @db.VarChar(200)
+    sale_area_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+model employee_position {
+    position_id Int @id @default(autoincrement())
+    position_code String @unique @db.VarChar(30)
+    position_name String @db.VarChar(200)
+    position_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+model employee_channel {
+    channel_id Int @id @default(autoincrement())
+    channel_code String @unique @db.VarChar(30)
+    channel_name String @db.VarChar(200)
+    channel_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+model employee_saleperiod {
+    saleperiod_id Int @id @default(autoincrement())
+    saleperiod_code String @unique @db.VarChar(30)
+    saleperiod_name String @db.VarChar(200)
+    saleperiod_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+model employee_saletarget {
+    saletarget_id Int @id @default(autoincrement())
+    saletarget_code String @unique @db.VarChar(30)
+    saletarget_name String @db.VarChar(200)
+    saletarget_nameeng String? @db.VarChar(200)
+    is_active Boolean @default(true)
+}
+
+
+
 
 /// ตารางเก็บข้อมูลบริษัท
 model company {
@@ -1017,6 +1072,10 @@ model document_running {
     @@unique([document_format_id, branch_id, prefix, year, month, day])
 }
 
+////////////
+//// EP1 Procurement
+////////////
+
 /// ตารางเก็บข้อมูลหลักของใบขอซื้อ (Purchase Requisition Header) (P1)
 model pr_header {
     /// รหัสใบขอซื้อ (PK)
@@ -1823,6 +1882,11 @@ model audit_log {
     @@index([request_id])
     @@map("audit_log")
 }
+
+////////////
+//// EP2 Sales
+////////////
+
 
 ////////////
 //// Enum
