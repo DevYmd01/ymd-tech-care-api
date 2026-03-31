@@ -17,6 +17,11 @@ export class PoController {
     return this.poService.updatePO(po_id, updatePOHeaderDTO, req.context);
   }
 
+  @Patch(':po_id/pending')
+  updateStatusToPending(@Param('po_id', ParseIntPipe) po_id: number, @Request() req: any) {
+    return this.poService.updateStatusToPending(po_id, req.context);
+  }
+
   @Get()
   findAll() {
     return this.poService.findAll();
@@ -39,5 +44,6 @@ export class PoController {
     ) {
       return this.poService.findQCWithoutPO(+qc_id);
     }
+
 
 }

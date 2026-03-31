@@ -286,6 +286,27 @@ export class PoService {
         });
     }
 
+    async updateStatusToPending(po_id: number, context: any) {
+        return this.prismaService.$transaction(async (tx) => {
+            const existingHeader = await tx.po_header.findUnique({
+                where: { po_header_id: po_id },
+            });
+
+            if (!existingHeader) {
+                throw new Error('PO not found');
+            }
+
+            const updatedHeader = await tx.po_header.update({
+                where: { po_header_id: po_id },
+                data: { status: 'PENDING' },
+            });
+
+            // await this.auditLogRepository.update(tx, updatedHeader, context);
+
+            return updatedHeader;
+        });
+    }
+
     findAll() {
         return this.prismaService.po_header.findMany({
 
