@@ -27,8 +27,9 @@ export class PrApprovalService {
 async create(createPrApprovalDto: createPrApprovalDto, request: any) {
     return this.prisma.$transaction(async (tx) => {
 
-        const isCancelled = createPrApprovalDto.status === 'CANCELLED';
-
+        const isCancelled = createPrApprovalDto.status === 'REJECTED';
+ console.log('DEBUG isCancelled:', isCancelled);
+ console.log('DEBUG incoming status:', createPrApprovalDto.status);
         const documentNo = await this.documentNumberService.generate({
             module_code: 'AV',
             document_type_code: 'AV',
@@ -185,14 +186,24 @@ async create(createPrApprovalDto: createPrApprovalDto, request: any) {
             );
 
             // ✅ คำนวณ status
-            let status: 'PENDING' | 'PARTIAL' | 'APPROVED';
+            let status: 'PENDING' | 'PARTIAL' | 'APPROVED' | 'REJECTED';
 
-            if (newTotal === 0) {
-                status = 'PENDING';
-            } else if (newTotal < prQty) {
-                status = 'PARTIAL';
+            if (isCancelled) {
+                if (newTotal === 0) {
+                    status = 'REJECTED';
+                } else if (newTotal < prQty) {
+                    status = 'PARTIAL';
+                } else {
+                    status = 'APPROVED';
+                }
             } else {
-                status = 'APPROVED';
+                if (newTotal === 0) {
+                    status = 'PENDING';
+                } else if (newTotal < prQty) {
+                    status = 'PARTIAL';
+                } else {
+                    status = 'APPROVED';
+                }
             }
 
             // ✅ update pr_line
@@ -220,11 +231,21 @@ async create(createPrApprovalDto: createPrApprovalDto, request: any) {
             0
         );
 
-        let headerStatus: 'PENDING' | 'PARTIAL' | 'APPROVED';
+        let headerStatus: 'PENDING' | 'PARTIAL' | 'APPROVED' | 'REJECTED';
 
-        if (totalApproved === 0) headerStatus = 'PENDING';
-        else if (totalApproved < totalRequested) headerStatus = 'PARTIAL';
-        else headerStatus = 'APPROVED';
+        if (isCancelled) {
+            if (totalApproved === 0) {
+                headerStatus = 'REJECTED';
+            } else if (totalApproved < totalRequested) {
+                headerStatus = 'PARTIAL';
+            } else {
+                headerStatus = 'APPROVED';
+            }
+        } else {
+            if (totalApproved === 0) headerStatus = 'PENDING';
+            else if (totalApproved < totalRequested) headerStatus = 'PARTIAL';
+            else headerStatus = 'APPROVED';
+        }
 
         await tx.pr_header.update({
             where: { pr_id: createPrApprovalDto.pr_id },

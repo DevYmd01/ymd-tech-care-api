@@ -3,11 +3,11 @@ import { Type } from "class-transformer";
 
 export class CreateSaleAreaDto {
     @IsString()
-    employee_group_code: string;    
+    sale_area_code: string;    
     @IsString()
-    employee_group_name: string;
+    sale_area_name: string;
     @IsString()
-    employee_group_nameeng: string;
+    sale_area_nameeng: string;
     @Type(() => Boolean)
     @IsBoolean()
     is_active: boolean;

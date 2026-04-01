@@ -53,6 +53,7 @@ import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-
 import { PositionModule } from './modules/master-data/organization/position/position.module';
 import { EmployeeGroupModule } from './modules/master-data/employee-group/employee-group.module';
 import { EmployeeSaleAreaModule } from './modules/master-data/employee-sale-area/employee-sale-area.module';
+import { EmployeeSaleChannelModule } from './modules/master-data/employee-sale-channel/employee-sale-channel.module';
 
 @Module({
   imports: [
@@ -106,6 +107,7 @@ import { EmployeeSaleAreaModule } from './modules/master-data/employee-sale-area
     PositionModule,
     EmployeeGroupModule,
     EmployeeSaleAreaModule,
+    EmployeeSaleChannelModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

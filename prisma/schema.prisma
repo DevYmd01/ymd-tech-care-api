@@ -81,7 +81,7 @@ model employee_position {
     is_active Boolean @default(true)
 }
 
-model employee_channel {
+model employee_sale_channel {
     channel_id Int @id @default(autoincrement())
     channel_code String @unique @db.VarChar(30)
     channel_name String @db.VarChar(200)
@@ -89,7 +89,7 @@ model employee_channel {
     is_active Boolean @default(true)
 }
 
-model employee_saleperiod {
+model employee_sale_period {
     saleperiod_id Int @id @default(autoincrement())
     saleperiod_code String @unique @db.VarChar(30)
     saleperiod_name String @db.VarChar(200)
@@ -97,7 +97,7 @@ model employee_saleperiod {
     is_active Boolean @default(true)
 }
 
-model employee_saletarget {
+model employee_sale_target {
     saletarget_id Int @id @default(autoincrement())
     saletarget_code String @unique @db.VarChar(30)
     saletarget_name String @db.VarChar(200)
