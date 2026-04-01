@@ -25,6 +25,6 @@ export class EmployeeSaleAreaController {
     }
     @Delete(':id')
     async remove(@Param('id') id: string) {
-        return this.employeeSaleAreaService.remove(+id);
+        return this.employeeSaleAreaService.remove(+id); 
     }
 }
