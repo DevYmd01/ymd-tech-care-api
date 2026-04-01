@@ -52,6 +52,7 @@ import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.
 import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-barcode.module';
 import { PositionModule } from './modules/master-data/organization/position/position.module';
 import { EmployeeGroupModule } from './modules/master-data/employee-group/employee-group.module';
+import { EmployeeSaleAreaModule } from './modules/master-data/employee-sale-area/employee-sale-area.module';
 
 @Module({
   imports: [
@@ -104,6 +105,7 @@ import { EmployeeGroupModule } from './modules/master-data/employee-group/employ
     ItemBarcodeModule,
     PositionModule,
     EmployeeGroupModule,
+    EmployeeSaleAreaModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
