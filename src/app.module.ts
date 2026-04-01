@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OrgBranchModule } from './modules/master-data/org_branch/org_branch.module';
+import { OrgBranchModule } from './modules/master-data/organization/org_branch/org_branch.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VendorsModule } from './modules/master-data/vendors/vendors.module';
 import { PrModule } from './modules/procurement/pr/pr.module';
@@ -11,7 +11,7 @@ import { CurrencyModule } from './modules/master-data/currency/currency.module';
 import { DepartmentModule } from './modules/master-data/department/department.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AuthModule } from './modules/system/auth/auth.module';
-import { OrgPositionModule } from './modules/master-data/org-position/org-position.module';
+import { OrgPositionModule } from './modules/master-data/organization/org-position/org-position.module';
 import { WarehouseModule } from './modules/master-data/warehouse/warehouse/warehouse.module';
 import { ItemCategoryModule } from './modules/master-data/item/item-category/item-category.module';
 import { ItemTypeModule } from './modules/master-data/item/item-type/item-type.module';
@@ -38,7 +38,7 @@ import { PdfService } from './modules/pdf/pdf.service';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { MailModule } from './modules/mail/mail.module';
 import { LocationModule } from './modules/master-data/warehouse/location/location.module';
-import { CompanyModule } from './modules/master-data/company/company.module';
+import { CompanyModule } from './modules/master-data/organization/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { VqModule } from './modules/procurement/vq/vq.module';
 import { QcModule } from './modules/procurement/qc/qc.module';
@@ -50,6 +50,8 @@ import { PrApprovalService } from './modules/procurement/pr-approval/pr-approval
 import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.module';
 import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.module';
 import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-barcode.module';
+import { PositionModule } from './modules/master-data/organization/position/position.module';
+import { EmployeeGroupModule } from './modules/master-data/employee-group/employee-group.module';
 
 @Module({
   imports: [
@@ -100,7 +102,8 @@ import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-
     PrApprovalModule,
     PoApprovalModule,
     ItemBarcodeModule,
-
+    PositionModule,
+    EmployeeGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

@@ -106,8 +106,6 @@ model employee_saletarget {
 }
 
 
-
-
 /// ตารางเก็บข้อมูลบริษัท
 model company {
     company_id         Int      @id @default(autoincrement())
