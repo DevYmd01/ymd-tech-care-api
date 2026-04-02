@@ -89,6 +89,7 @@ model employee_sale_channel {
     is_active Boolean @default(true)
 }
 
+// เป้าหมายการขาย
 model employee_sale_period {
     saleperiod_id Int @id @default(autoincrement())
     saleperiod_code String @unique @db.VarChar(30)

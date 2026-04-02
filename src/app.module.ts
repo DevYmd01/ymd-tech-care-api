@@ -54,6 +54,7 @@ import { PositionModule } from './modules/master-data/organization/position/posi
 import { EmployeeGroupModule } from './modules/master-data/employee-group/employee-group.module';
 import { EmployeeSaleAreaModule } from './modules/master-data/employee-sale-area/employee-sale-area.module';
 import { EmployeeSaleChannelModule } from './modules/master-data/employee-sale-channel/employee-sale-channel.module';
+import { EmployeesSalePeriodModule } from './modules/master-data/empployees-sale-period/employees-sale-period.module';
 
 @Module({
   imports: [
@@ -108,6 +109,7 @@ import { EmployeeSaleChannelModule } from './modules/master-data/employee-sale-c
     EmployeeGroupModule,
     EmployeeSaleAreaModule,
     EmployeeSaleChannelModule,
+    EmployeesSalePeriodModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
