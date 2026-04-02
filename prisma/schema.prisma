@@ -374,7 +374,7 @@ model item_barcode {
     /// รหัสบาร์โค้ด
     item_barcode_id   Int      @id @default(autoincrement())
     /// รหัสบาร์โค้ด
-    barcode String   @unique @db.VarChar(30)
+    barcode String   @unique @db.VarChar(80)
     /// รหัสสินค้า
     item_id           Int
     /// รหัสหน่วยนับ

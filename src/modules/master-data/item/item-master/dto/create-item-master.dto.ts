@@ -120,6 +120,10 @@ export class CreateItemMasterDto {
     @IsInt()
     item_grade_id?: number;
 
+    @IsOptional()
+    @IsString()
+    costing_method?: string;
+
     // Add this for the initial barcode creation
     @IsOptional()
     @IsArray()
