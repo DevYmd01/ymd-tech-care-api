@@ -5,20 +5,15 @@ export class UpdateSalePeriodDto {
     @IsNotEmpty()
     @IsString()
     @MaxLength(30)
-    saleperiod_code: string;
-
+   period_target!: number;
     @IsNotEmpty()
     @IsString()
-    @MaxLength(255)
-    saleperiod_name: string;
-
+    begin_date!: string;
     @IsOptional()
     @IsString()
-    @MaxLength(255)
-    saleperiod_nameeng?: string;
-
-
+    end_date?: string;
     @IsOptional()
     @IsBoolean()
-    is_active?: boolean;
+    close_status?: boolean;
+
 }

@@ -31,7 +31,7 @@ export class EmployeesService {
                 position_id: dto.position_id!,
                 department_id: dto.department_id!,
                 is_active: dto.is_active!,
-                manager_employee_id: dto.manager_employee_id!,
+                employee_head_id: dto.manager_employee_id!,
                 employeeAddresses: {
                     create: dto.addresses?.map((address: CreateAddressDto) => ({
                         address_type: address.address_type!,
@@ -71,7 +71,7 @@ export class EmployeesService {
                 position_id: dto.position_id!,
                 department_id: dto.department_id!,
                 is_active: dto.is_active!,
-                manager_employee_id: dto.manager_employee_id!,
+                employee_head_id: dto.manager_employee_id!,
                 employeeAddresses: {
                     create: dto.addresses?.map((address: UpdateAddressDto) => ({
                         employee_address_id: address.employee_address_id!,

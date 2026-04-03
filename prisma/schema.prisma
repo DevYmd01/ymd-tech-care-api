@@ -12,100 +12,142 @@ datasource db {
 ////////////
 
 model employees {
-    employee_id           Int                @id @default(autoincrement())
+    employee_id           Int                    @id @default(autoincrement())
     branch_id             Int?
-    employee_code         String             @unique @db.VarChar(20)
-    employee_title_th     String             @db.VarChar(20)
-    employee_title_en     String             @db.VarChar(20)
-    employee_firstname_th String             @db.VarChar(200)
-    employee_lastname_th  String             @db.VarChar(200)
-    employee_firstname_en String?            @db.VarChar(200)
-    employee_lastname_en  String?            @db.VarChar(200)
-    employee_fullname     String             @db.VarChar(400)
+    employee_code         String                 @unique @db.VarChar(20)
+    employee_title_th     String                 @db.VarChar(20)
+    employee_title_en     String                 @db.VarChar(20)
+    employee_firstname_th String                 @db.VarChar(200)
+    employee_lastname_th  String                 @db.VarChar(200)
+    employee_firstname_en String?                @db.VarChar(200)
+    employee_lastname_en  String?                @db.VarChar(200)
+    employee_fullname     String                 @db.VarChar(400)
     employee_startdate    DateTime
     employee_resigndate   DateTime?
-    employee_status       String             @db.VarChar(20)
-    phone                 String?            @db.VarChar(20)
-    email                 String             @db.VarChar(255)
+    employee_status       String                 @db.VarChar(20)
+    phone                 String?                @db.VarChar(20)
+    email                 String                 @db.VarChar(255)
     remark                String?
-    tax_id                String?            @db.VarChar(20)
-    emp_type              Boolean            @default(false)
+    tax_idcard            String?                @db.VarChar(20)
+    tax_id                String?                @db.VarChar(20)
+    emp_type              Boolean                @default(false)
     position_id           Int?
     department_id         Int?
-    is_active             Boolean            @default(true)
-    manager_employee_id   Int?
-    created_at            DateTime           @default(now())
-    updated_at            DateTime           @default(now()) @updatedAt
+    is_active             Boolean                @default(true)
+    employee_head_id      Int?
+    employee_head_code    String?                @db.VarChar(25)
+    created_at            DateTime               @default(now())
+    updated_at            DateTime               @default(now()) @updatedAt
     employeeAddresses     employee_address[]
     employeeAuths         employee_auth?
-    branch                org_branch?        @relation(fields: [branch_id], references: [branch_id])
-    department            org_department?    @relation(fields: [department_id], references: [department_id])
-    manager_employee      employees?         @relation("EmployeeManager", fields: [manager_employee_id], references: [employee_id])
-    employees             employees[]        @relation("EmployeeManager")
-    position              org_position?      @relation(fields: [position_id], references: [position_id])
-    requested_pr          pr_header[]        @relation("requester_user")
-    approved_pr           pr_header[]        @relation("approved_by_user")
-    rfqHeaders            rfq_header[]       @relation("requested_by_user")
-    createdVqHeaders      vq_header[]        @relation("VQCreatedBy")
-    updatedVqHeaders      vq_header[]        @relation("VQUpdatedBy")
-    createdQcHeaders      qc_header[]        @relation("QCCreatedBy")
-    updatedQcHeaders      qc_header[]        @relation("QCUpdatedBy")
-    createdPoHeaders      po_header[]        @relation("poCreatedBy")
-    updatedPoHeaders      po_header[]        @relation("poUpdatedBy")
+    branch                org_branch?            @relation(fields: [branch_id], references: [branch_id])
+    department            org_department?        @relation(fields: [department_id], references: [department_id])
+    employeeHead          employees?             @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
+    employees             employees[]            @relation("EmployeeManager")
+    position              org_position?          @relation(fields: [position_id], references: [position_id])
+    requested_pr          pr_header[]            @relation("requester_user")
+    approved_pr           pr_header[]            @relation("approved_by_user")
+    rfqHeaders            rfq_header[]           @relation("requested_by_user")
+    createdVqHeaders      vq_header[]            @relation("VQCreatedBy")
+    updatedVqHeaders      vq_header[]            @relation("VQUpdatedBy")
+    createdQcHeaders      qc_header[]            @relation("QCCreatedBy")
+    updatedQcHeaders      qc_header[]            @relation("QCUpdatedBy")
+    createdPoHeaders      po_header[]            @relation("poCreatedBy")
+    updatedPoHeaders      po_header[]            @relation("poUpdatedBy")
     regnHeaders           grn_header[]
     prApprovals           pr_approval[]
     poApprovals           po_approval[]
+    employeeSaleTargets   employee_sale_target[]
 }
 
 model employee_group {
-    employee_group_id Int      @id @default(autoincrement())
-    employee_group_code String   @unique @db.VarChar(30)
-    employee_group_name String   @db.VarChar(200)
+    employee_group_id      Int     @id @default(autoincrement())
+    employee_group_code    String  @unique @db.VarChar(30)
+    employee_group_name    String  @db.VarChar(200)
     employee_group_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    is_active              Boolean @default(true)
 }
 
 model employee_sale_area {
-    sale_area_id Int @id @default(autoincrement())
-    sale_area_code String @unique @db.VarChar(30)
-    sale_area_name String @db.VarChar(200)
+    sale_area_id      Int     @id @default(autoincrement())
+    sale_area_code    String  @unique @db.VarChar(30)
+    sale_area_name    String  @db.VarChar(200)
     sale_area_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    is_active         Boolean @default(true)
 }
 
 model employee_position {
-    position_id Int @id @default(autoincrement())
-    position_code String @unique @db.VarChar(30)
-    position_name String @db.VarChar(200)
+    position_id      Int     @id @default(autoincrement())
+    position_code    String  @unique @db.VarChar(30)
+    position_name    String  @db.VarChar(200)
     position_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    is_active        Boolean @default(true)
 }
 
 model employee_sale_channel {
-    channel_id Int @id @default(autoincrement())
-    channel_code String @unique @db.VarChar(30)
-    channel_name String @db.VarChar(200)
+    channel_id      Int     @id @default(autoincrement())
+    channel_code    String  @unique @db.VarChar(30)
+    channel_name    String  @db.VarChar(200)
     channel_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    is_active       Boolean @default(true)
 }
 
 // เป้าหมายการขาย
 model employee_sale_period {
-    saleperiod_id Int @id @default(autoincrement())
-    saleperiod_code String @unique @db.VarChar(30)
-    saleperiod_name String @db.VarChar(200)
-    saleperiod_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    period_id     Int     @id @default(autoincrement())
+    period_target Decimal @db.Decimal(18, 2)
+
+    begin_date DateTime
+    end_date   DateTime
+
+    close_status Boolean @default(false)
+
+    created_at          DateTime               @default(now())
+    updated_at          DateTime?
+    employeeSaleTargets employee_sale_target[]
 }
 
+// เป้าการขายพนักงาน
 model employee_sale_target {
-    saletarget_id Int @id @default(autoincrement())
-    saletarget_code String @unique @db.VarChar(30)
-    saletarget_name String @db.VarChar(200)
-    saletarget_nameeng String? @db.VarChar(200)
-    is_active Boolean @default(true)
+    target_id Int @id @default(autoincrement())
+    list_no   Int @default(0)
+    emp_id    Int
+    period_id Int
+
+    period_target Decimal @db.Decimal(15, 2)
+
+    created_at DateTime             @default(now())
+    updated_at DateTime?
+    employee   employees            @relation(fields: [emp_id], references: [employee_id], onDelete: Cascade)
+    period     employee_sale_period @relation(fields: [period_id], references: [period_id], onDelete: Cascade)
 }
 
+// รหัสฝ่าย
+model employee_side {
+    emp_side_id         Int                   @id @default(autoincrement())
+    emp_side_code       String                @unique @db.VarChar(30)
+    emp_side_name       String                @db.VarChar(200)
+    emp_side_nameeng    String?               @db.VarChar(200)
+    is_active           Boolean               @default(true)
+    employeeDepartments employee_department[]
+}
+
+// แผนกของพนักงาน
+model employee_department {
+    emp_dept_id      Int           @id @default(autoincrement())
+    emp_dept_code    String        @unique @db.VarChar(30)
+    emp_dept_name    String        @db.VarChar(200)
+    emp_dept_nameeng String?       @db.VarChar(200)
+    is_active        Boolean       @default(true)
+    emp_side_id      Int
+    emp_side_name    Int
+    end_date         DateTime?
+    created_at       DateTime      @default(now())
+    updated_at       DateTime      @updatedAt
+    side             employee_side @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+
+    @@unique([emp_dept_id])
+}
 
 /// ตารางเก็บข้อมูลบริษัท
 model company {
@@ -373,22 +415,22 @@ model item_type {
 /// ตารางเก็บข้อมูลบาร์โค้ดสินค้า
 model item_barcode {
     /// รหัสบาร์โค้ด
-    item_barcode_id   Int      @id @default(autoincrement())
+    item_barcode_id Int      @id @default(autoincrement())
     /// รหัสบาร์โค้ด
-    barcode String   @unique @db.VarChar(80)
+    barcode         String   @unique @db.VarChar(80)
     /// รหัสสินค้า
-    item_id           Int
+    item_id         Int
     /// รหัสหน่วยนับ
-    uom_id            Int
+    uom_id          Int
     /// บาร์โค้ดหลักหรือไม่
-    is_primary        Boolean  @default(false)
+    is_primary      Boolean  @default(false)
     /// วันที่สร้างบาร์โค้ด
-    created_at        DateTime @default(now())
-    is_active         Boolean  @default(true)
+    created_at      DateTime @default(now())
+    is_active       Boolean  @default(true)
     /// วันที่แก้ไขบาร์โค้ด
-    updated_at        DateTime @updatedAt
-    item              item     @relation(fields: [item_id], references: [item_id])
-    uom               uom      @relation(fields: [uom_id], references: [uom_id])
+    updated_at      DateTime @updatedAt
+    item            item     @relation(fields: [item_id], references: [item_id])
+    uom             uom      @relation(fields: [uom_id], references: [uom_id])
 
     @@map("item_barcode")
 }
@@ -1747,7 +1789,7 @@ model po_approval {
     approval_emp    employees          @relation(fields: [approval_emp_id], references: [employee_id])
     base_currency   currency?          @relation("po_approval-base_currency", fields: [base_currency_id], references: [currency_id])
     quote_currency  currency?          @relation("po_approval-quote_currency", fields: [quote_currency_id], references: [currency_id])
-    tax_code        tax_code?           @relation(fields: [tax_code_id], references: [tax_code_id])
+    tax_code        tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
     poApprovalLines po_approval_line[]
 
     @@map("po_approval")
@@ -1760,16 +1802,16 @@ model po_approval_line {
     approval_id Int
 
     approved_qty Decimal @db.Decimal(18, 3)
-// PENDING / APPROVED / REJECTED
-    status String 
+    // PENDING / APPROVED / REJECTED
+    status       String
 
     remarks String? @db.Text
 
     approved_at DateTime?
-    approved_by Int? 
+    approved_by Int?
 
     // optional แต่โคตร useful // version control
-    is_active Boolean @default(true) 
+    is_active Boolean @default(true)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -1885,7 +1927,6 @@ model audit_log {
 ////////////
 //// EP2 Sales
 ////////////
-
 
 ////////////
 //// Enum

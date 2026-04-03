@@ -2,23 +2,20 @@ import { IssuePolicy, TrackingLevel } from '@prisma/client';
 import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 export class CreateSaleTargetDto {
-    @IsNotEmpty()
-    @IsString()
-    @MaxLength(30)
-    saletarget_code: string;
 
     @IsNotEmpty()
-    @IsString()
-    @MaxLength(255)
-    saletarget_name: string;
+    @IsInt()
+    list_no: number;
 
-    @IsOptional()
-    @IsString()
-    @MaxLength(255)
-    saletarget_nameeng?: string;
+    @IsNotEmpty()
+    @IsInt()
+    emp_id: number;
 
+    @IsNotEmpty()
+    @IsInt()
+    period_id: number;
 
-    @IsOptional()
-    @IsBoolean()
-    is_active?: boolean;
+    @IsNotEmpty()
+    @IsNumber()
+    period_target: number;
 }

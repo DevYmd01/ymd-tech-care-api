@@ -5,20 +5,14 @@ export class CreateSalePeriodDto {
     @IsNotEmpty()
     @IsString()
     @MaxLength(30)
-    saleperiod_code: string;
-
+   period_target!: number;
     @IsNotEmpty()
     @IsString()
-    @MaxLength(255)
-    saleperiod_name: string;
-
-    @IsOptional()
+    begin_date!: string;
+    @IsNotEmpty()
     @IsString()
-    @MaxLength(255)
-    saleperiod_nameeng?: string;
-
-
-    @IsOptional()
+    end_date!: string;
+    @IsNotEmpty()
     @IsBoolean()
-    is_active?: boolean;
+    close_status!: boolean;
 }

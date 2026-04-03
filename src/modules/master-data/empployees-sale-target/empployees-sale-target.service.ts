@@ -10,39 +10,37 @@ export class EmpployeesSaleTargetService {
     async create(dto: CreateSaleTargetDto) {
         return this.prisma.employee_sale_target.create({
             data: {
-                saletarget_code: dto.saletarget_code,
-                saletarget_name: dto.saletarget_name,
-                saletarget_nameeng: dto.saletarget_nameeng,
-                is_active: dto.is_active ?? true,
+                list_no: dto.list_no,
+                emp_id: dto.emp_id,
+                period_id: dto.period_id,
+                period_target: dto.period_target,
             },
         });
     }
     async findAll() {
         return this.prisma.employee_sale_target.findMany({
-            where: { is_active: true },
-            orderBy: { saletarget_id: 'desc' }
+            orderBy: { target_id: 'desc' }
         });
-    }   
+    }
     async findOne(id: number) {
         return this.prisma.employee_sale_target.findUnique({
-            where: { saletarget_id: id },
+            where: { target_id: id },
         });
     }
     async update(id: number, dto: UpdateSaleTargetDto) {
         return this.prisma.employee_sale_target.update({
-            where: { saletarget_id: id },
+            where: { target_id: id },
             data: {
-                saletarget_code: dto.saletarget_code,
-                saletarget_name: dto.saletarget_name,
-                saletarget_nameeng: dto.saletarget_nameeng,
-                is_active: dto.is_active,
+                list_no: dto.list_no,
+                emp_id: dto.emp_id,
+                period_id: dto.period_id,
+                period_target: dto.period_target,
             },
         });
     }
     async remove(id: number) {
-        return this.prisma.employee_sale_target.update({
-            where: { saletarget_id: id },
-            data: { is_active: false },
+        return this.prisma.employee_sale_target.delete({
+            where: { target_id: id },
         });
     }
 }
