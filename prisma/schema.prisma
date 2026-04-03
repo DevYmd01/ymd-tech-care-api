@@ -120,6 +120,8 @@ model employee_sale_target {
     updated_at DateTime?
     employee   employees            @relation(fields: [emp_id], references: [employee_id], onDelete: Cascade)
     period     employee_sale_period @relation(fields: [period_id], references: [period_id], onDelete: Cascade)
+
+        @@unique([emp_id, period_id])
 }
 
 // รหัสฝ่าย
@@ -1111,6 +1113,25 @@ model document_running {
     document_format    document_format @relation(fields: [document_format_id], references: [document_format_id])
 
     @@unique([document_format_id, branch_id, prefix, year, month, day])
+}
+
+
+// 
+model customer_type {
+    /// รหัสประเภทลูกค้า
+    customer_type_id      Int      @id @default(autoincrement())
+    /// รหัสประเภทลูกค้า
+    customer_type_code    String   @unique @db.VarChar(30)
+    /// ชื่อประเภทลูกค้า
+    customer_type_name    String   @db.VarChar(200)
+    /// ชื่อประเภทลูกค้า (อังกฤษ)
+    customer_type_nameeng String?  @db.VarChar(200)
+    /// สถานะการใช้งาน
+    is_active            Boolean  @default(true)
+    created_at           DateTime @default(now())
+    updated_at           DateTime @updatedAt
+
+    @@map("customer_type")
 }
 
 ////////////
