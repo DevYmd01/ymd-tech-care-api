@@ -57,6 +57,7 @@ import { EmployeeSaleChannelModule } from './modules/master-data/employee-sale-c
 import { EmployeesSalePeriodModule } from './modules/master-data/empployees-sale-period/employees-sale-period.module';
 import { EmpployeesSaleTargetModule } from './modules/master-data/empployees-sale-target/empployees-sale-target.module';
 import { CustomerTypeModule } from './modules/master-data/customer/customer-type/customer-type.module';
+import { CustomerGroupModule } from './modules/master-data/customer/customer-group/customer-group.module';
 
 @Module({
   imports: [
@@ -114,6 +115,7 @@ import { CustomerTypeModule } from './modules/master-data/customer/customer-type
     EmployeesSalePeriodModule,
     EmpployeesSaleTargetModule,
     CustomerTypeModule,
+    CustomerGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

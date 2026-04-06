@@ -1134,6 +1134,24 @@ model customer_type {
     @@map("customer_type")
 }
 
+
+model customer_group {
+    /// รหัสกลุ่มลูกค้า
+    customer_group_id      Int      @id @default(autoincrement())
+    /// รหัสกลุ่มลูกค้า
+    customer_group_code    String   @unique @db.VarChar(30)
+    /// ชื่อกลุ่มลูกค้า
+    customer_group_name    String   @db.VarChar(200)
+    /// ชื่อกลุ่มลูกค้า (อังกฤษ)
+    customer_group_nameeng String?  @db.VarChar(200)
+    /// สถานะการใช้งาน
+    is_active              Boolean  @default(true)
+    created_at             DateTime @default(now())
+    updated_at             DateTime @updatedAt
+
+    @@map("customer_group")
+}
+
 ////////////
 //// EP1 Procurement
 ////////////
