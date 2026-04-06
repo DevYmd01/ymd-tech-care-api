@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
-export class UpdateBillGruopDto {
+export class UpdateBillGroupDto {
     @IsNotEmpty()
     @IsString()
     bill_group_code: string;

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBillGruopDto } from './dto/create-bill-gruop.dto';
-import { UpdateBillGruopDto } from './dto/update-bill-gruop.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
+import { CreateBillGroupDto } from './dto/create-bill-group.dto';
+import { UpdateBillGroupDto } from './dto/update-bill-group.dto';
 
 @Injectable()
-export class BillGruopService {
+export class BillGroupService {
     constructor(private readonly prisma: PrismaService) {}
-    async create(dto: CreateBillGruopDto) {
+    async create(dto: CreateBillGroupDto) {
         return this.prisma.bill_group.create({
             data: {
                 bill_group_code: dto.bill_group_code,
@@ -27,7 +27,7 @@ export class BillGruopService {
             where: { bill_group_id: id },
         });
     }
-    async update(id: number, dto: UpdateBillGruopDto) {
+    async update(id: number, dto: UpdateBillGroupDto) {
         return this.prisma.bill_group.update({
             where: { bill_group_id: id },
             data: {
