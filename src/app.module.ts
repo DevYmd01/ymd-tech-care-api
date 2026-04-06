@@ -59,6 +59,7 @@ import { EmpployeesSaleTargetModule } from './modules/master-data/empployees-sal
 import { CustomerTypeModule } from './modules/master-data/customer/customer-type/customer-type.module';
 import { CustomerGroupModule } from './modules/master-data/customer/customer-group/customer-group.module';
 import { BusinessTypeModule } from './modules/master-data/business/business-type/business-type.module';
+import { BillGruopModule } from './modules/master-data/customer/bill-gruop/bill-gruop.module';
 
 @Module({
   imports: [
@@ -118,6 +119,7 @@ import { BusinessTypeModule } from './modules/master-data/business/business-type
     CustomerTypeModule,
     CustomerGroupModule,
     BusinessTypeModule,
+    BillGruopModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

@@ -121,7 +121,7 @@ model employee_sale_target {
     employee   employees            @relation(fields: [emp_id], references: [employee_id], onDelete: Cascade)
     period     employee_sale_period @relation(fields: [period_id], references: [period_id], onDelete: Cascade)
 
-        @@unique([emp_id, period_id])
+    @@unique([emp_id, period_id])
 }
 
 // รหัสฝ่าย
@@ -1116,71 +1116,176 @@ model document_running {
 }
 
 // /// ตารางเก็บข้อมูลลูกค้า
-// model customer {
-//     /// รหัสลูกค้า
-//     customer_id      Int      @id @default(autoincrement())
-//     /// รหัสลูกค้า
-//     customer_code    String   @unique @db.VarChar(30)
-//     /// ชื่อลูกค้า
-//     customer_name    String   @db.VarChar(200)
-//     /// ชื่อลูกค้า (อังกฤษ)
-//     customer_nameeng String?  @db.VarChar(200)
+model customer {
+    /// รหัสลูกค้า
+    customer_id            Int             @id @default(autoincrement())
+    /// รหัสลูกค้า
+    customer_code          String          @unique @db.VarChar(30)
+    /// ชื่อลูกค้า
+    customer_name          String          @db.VarChar(200)
+    /// ชื่อลูกค้า (อังกฤษ)
+    customer_nameeng       String?         @db.VarChar(200)
+    /// รหัสประเภทลูกค้า
+    customer_type_id       Int?
+    customer_type          customer_type?  @relation(fields: [customer_type_id], references: [customer_type_id])
+    /// รหัสกลุ่มลูกค้า
+    customer_group_id      Int?
+    customer_group         customer_group? @relation(fields: [customer_group_id], references: [customer_group_id])
+    /// วงเงิน
+    credit_limit           Decimal?        @db.Decimal(18, 2)
+    /// เครดิตเทอม (วัน)
+    credit_term_days       Int?
+    /// เงื่อนไขการชำระเงิน วิธีจ่าย
+    payment_method_default String?         @db.VarChar(50)
 
+    ///คำนำหน้า
+    customer_title String? @db.VarChar(20)
 
+    /// เลขผู้เสียภาษี
+    tax_id String? @db.VarChar(20)
+
+    /// รหัสประเภทธุรกิจ
+    business_type_id Int?
+    business_type    business_type? @relation(fields: [business_type_id], references: [business_type_id])
+
+    /// สถานะการใช้งาน
+    is_active         Boolean            @default(true)
+    created_at        DateTime           @default(now())
+    updated_at        DateTime           @updatedAt
+    customerAddresses customer_address[]
+    customerBranches  customer_branch[]
+
+    @@map("customer")
+}
 
 // 
 model customer_type {
     /// รหัสประเภทลูกค้า
-    customer_type_id      Int      @id @default(autoincrement())
+    customer_type_id      Int        @id @default(autoincrement())
     /// รหัสประเภทลูกค้า
-    customer_type_code    String   @unique @db.VarChar(30)
+    customer_type_code    String     @unique @db.VarChar(30)
     /// ชื่อประเภทลูกค้า
-    customer_type_name    String   @db.VarChar(200)
+    customer_type_name    String     @db.VarChar(200)
     /// ชื่อประเภทลูกค้า (อังกฤษ)
-    customer_type_nameeng String?  @db.VarChar(200)
+    customer_type_nameeng String?    @db.VarChar(200)
     /// สถานะการใช้งาน
-    is_active            Boolean  @default(true)
-    created_at           DateTime @default(now())
-    updated_at           DateTime @updatedAt
+    is_active             Boolean    @default(true)
+    created_at            DateTime   @default(now())
+    updated_at            DateTime   @updatedAt
+    customers             customer[]
 
     @@map("customer_type")
 }
 
-
 model customer_group {
     /// รหัสกลุ่มลูกค้า
-    customer_group_id      Int      @id @default(autoincrement())
+    customer_group_id      Int        @id @default(autoincrement())
     /// รหัสกลุ่มลูกค้า
-    customer_group_code    String   @unique @db.VarChar(30)
+    customer_group_code    String     @unique @db.VarChar(30)
     /// ชื่อกลุ่มลูกค้า
-    customer_group_name    String   @db.VarChar(200)
+    customer_group_name    String     @db.VarChar(200)
     /// ชื่อกลุ่มลูกค้า (อังกฤษ)
-    customer_group_nameeng String?  @db.VarChar(200)
+    customer_group_nameeng String?    @db.VarChar(200)
     /// สถานะการใช้งาน
-    is_active              Boolean  @default(true)
-    created_at             DateTime @default(now())
-    updated_at             DateTime @updatedAt
+    is_active              Boolean    @default(true)
+    created_at             DateTime   @default(now())
+    updated_at             DateTime   @updatedAt
+    customers              customer[]
 
     @@map("customer_group")
 }
 
-
 model business_type {
     /// รหัสประเภทธุรกิจ
-    business_type_id      Int      @id @default(autoincrement())
+    business_type_id      Int        @id @default(autoincrement())
     /// รหัสประเภทธุรกิจ
-    business_type_code    String   @unique @db.VarChar(30)
+    business_type_code    String     @unique @db.VarChar(30)
     /// ชื่อประเภทธุรกิจ
-    business_type_name    String   @db.VarChar(200)
+    business_type_name    String     @db.VarChar(200)
     /// ชื่อประเภทธุรกิจ (อังกฤษ)
-    business_type_nameeng String?  @db.VarChar(200)
-    remark                  String?  @db.VarChar(500)
+    business_type_nameeng String?    @db.VarChar(200)
+    remark                String?    @db.VarChar(500)
     /// สถานะการใช้งาน
-    is_active            Boolean  @default(true)
-    created_at           DateTime @default(now())
-    updated_at           DateTime @updatedAt
+    is_active             Boolean    @default(true)
+    created_at            DateTime   @default(now())
+    updated_at            DateTime   @updatedAt
+    customers             customer[]
 
     @@map("business_type")
+}
+
+model bill_group {
+    /// รหัสกลุ่มบิล
+    bill_group_id      Int      @id @default(autoincrement())
+    /// รหัสกลุ่มบิล
+    bill_group_code    String   @unique @db.VarChar(30)
+    /// ชื่อกลุ่มบิล
+    bill_group_name    String   @db.VarChar(200)
+    /// ชื่อกลุ่มบิล (อังกฤษ)
+    bill_group_nameeng String?  @db.VarChar(200)
+    /// รายละเอียดกลุ่มบิล
+    remark             String?  @db.VarChar(500)
+    /// สถานะการใช้งาน
+    is_active          Boolean  @default(true)
+    created_at         DateTime @default(now())
+    updated_at         DateTime @updatedAt
+
+    @@map("bill_group")
+}
+
+model customer_address {
+    customer_address_id Int      @id @default(autoincrement())
+    customer_id         Int
+    /// REGISTERED / CONTACT / BILLING / SHIPPING
+    address_type        String   @db.VarChar(20)
+    /// ที่อยู่
+    address             String
+    /// ตำบล
+    sub_district        String?  @db.VarChar(100)
+    /// อำเภอ
+    district            String?  @db.VarChar(100)
+    /// จังหวัด
+    province            String?  @db.VarChar(100)
+    /// รหัสไปรษณีย์
+    postal_code         String?  @db.VarChar(10)
+    /// ประเทศ
+    country             String   @db.VarChar(100)
+    /// ผู้ติดต่อ
+    contact_person      String?  @db.VarChar(255)
+    /// เบอร์โทรศัพท์
+    phone               String?  @db.VarChar(20)
+    /// ต่อ
+    phone_extension     String?  @db.VarChar(20)
+    /// อีเมล
+    email               String?  @db.VarChar(255)
+    /// สถานะ
+    is_default          Boolean  @default(false)
+    /// สถานะ
+    is_active           Boolean  @default(true)
+    customer            customer @relation(fields: [customer_id], references: [customer_id])
+
+    @@index([customer_id])
+    @@map("customer_address")
+}
+
+model customer_branch {
+    /// รหัสสาขาลูกค้า
+    customer_branch_id Int @id @default(autoincrement())
+    /// รหัสลูกค้า (FK)
+    customer_id        Int
+
+    customer_branch_code    String  @db.VarChar(30)
+    customer_branch_name    String  @db.VarChar(200)
+    customer_branch_nameeng String? @db.VarChar(200)
+
+    /// สถานะการใช้งาน
+    is_active  Boolean  @default(true)
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    customer   customer @relation(fields: [customer_id], references: [customer_id])
+
+    @@index([customer_id])
+    @@map("customer_branch")
 }
 
 ////////////
