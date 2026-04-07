@@ -24,8 +24,8 @@ export class CreateCustomerMasterDto {
   customer_nameeng?: string;
 
   @IsOptional()
-  @IsNumber()
-  tax_id?: number;
+  @IsString()
+  tax_id?: string;
 
     @IsOptional()
   @IsNumber()

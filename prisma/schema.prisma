@@ -979,7 +979,6 @@ model tax_code {
     vendors      vendor[]
     prApprovals  pr_approval[]
     poApprovals  po_approval[]
-    customers    customer[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -1151,8 +1150,7 @@ model customer {
     website      String? @db.VarChar(255)
 
     /// เลขผู้เสียภาษี
-    tax_id            Int?
-    tax_code          tax_code?      @relation(fields: [tax_id], references: [tax_code_id])
+    tax_id            String?         @db.VarChar(20)
     /// จดทะเบียนภาษีมูลค่าเพิ่มแล้ว
     is_vat_registered Boolean?       @default(false)
     /// รหัสประเภทธุรกิจ

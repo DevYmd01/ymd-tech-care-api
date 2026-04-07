@@ -17,14 +17,12 @@ export class CreateCustomerMasterMapper {
       phone: dto.phone,
       email: dto.email,
       website: dto.website,
+      tax_id: dto.tax_id,
       is_active: dto.is_active ?? true,
       customer_type: { connect: { customer_type_id: dto.customer_type_id } },
       customer_group: { connect: { customer_group_id: dto.customer_group_id } },
       bill_group: dto.bill_group_id
         ? { connect: { bill_group_id: dto.bill_group_id } }
-        : undefined,
-      tax_code: dto.tax_id
-        ? { connect: { tax_code_id: dto.tax_id } }
         : undefined,
      business_type: dto.business_type_id
         ? { connect: { business_type_id: dto.business_type_id } }
