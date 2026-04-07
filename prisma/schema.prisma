@@ -979,6 +979,7 @@ model tax_code {
     vendors      vendor[]
     prApprovals  pr_approval[]
     poApprovals  po_approval[]
+    customers    customer[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -1141,13 +1142,25 @@ model customer {
     ///คำนำหน้า
     customer_title String? @db.VarChar(20)
 
+    contact_name String? @db.VarChar(100)
+    /// เบอร์โทรศัพท์
+    phone        String? @db.VarChar(20)
+    /// อีเมล
+    email        String? @db.VarChar(255)
+    /// เว็บไซต์
+    website      String? @db.VarChar(255)
+
     /// เลขผู้เสียภาษี
-    tax_id String? @db.VarChar(20)
-
+    tax_id            Int?
+    tax_code          tax_code?      @relation(fields: [tax_id], references: [tax_code_id])
+    /// จดทะเบียนภาษีมูลค่าเพิ่มแล้ว
+    is_vat_registered Boolean?       @default(false)
     /// รหัสประเภทธุรกิจ
-    business_type_id Int?
-    business_type    business_type? @relation(fields: [business_type_id], references: [business_type_id])
+    business_type_id  Int?
+    business_type     business_type? @relation(fields: [business_type_id], references: [business_type_id])
 
+    bill_group_id     Int?
+    bill_group        bill_group?        @relation(fields: [bill_group_id], references: [bill_group_id])
     /// สถานะการใช้งาน
     is_active         Boolean            @default(true)
     created_at        DateTime           @default(now())
@@ -1216,19 +1229,20 @@ model business_type {
 
 model bill_group {
     /// รหัสกลุ่มบิล
-    bill_group_id      Int      @id @default(autoincrement())
+    bill_group_id      Int        @id @default(autoincrement())
     /// รหัสกลุ่มบิล
-    bill_group_code    String   @unique @db.VarChar(30)
+    bill_group_code    String     @unique @db.VarChar(30)
     /// ชื่อกลุ่มบิล
-    bill_group_name    String   @db.VarChar(200)
+    bill_group_name    String     @db.VarChar(200)
     /// ชื่อกลุ่มบิล (อังกฤษ)
-    bill_group_nameeng String?  @db.VarChar(200)
+    bill_group_nameeng String?    @db.VarChar(200)
     /// รายละเอียดกลุ่มบิล
-    remark             String?  @db.VarChar(500)
+    remark             String?    @db.VarChar(500)
     /// สถานะการใช้งาน
-    is_active          Boolean  @default(true)
-    created_at         DateTime @default(now())
-    updated_at         DateTime @updatedAt
+    is_active          Boolean    @default(true)
+    created_at         DateTime   @default(now())
+    updated_at         DateTime   @updatedAt
+    customers          customer[]
 
     @@map("bill_group")
 }
