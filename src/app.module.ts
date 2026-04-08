@@ -61,6 +61,7 @@ import { CustomerGroupModule } from './modules/master-data/customer/customer-gro
 import { BusinessTypeModule } from './modules/master-data/business/business-type/business-type.module';
 import { BillGroupModule } from './modules/master-data/customer/bill-group/bill-group.module';
 import { CustomerMasterModule } from './modules/master-data/customer/customer-master/customer-master.module';
+import { PriceListModule } from './modules/pricing/price-list/price-list.module';
 
 @Module({
   imports: [
@@ -122,6 +123,7 @@ import { CustomerMasterModule } from './modules/master-data/customer/customer-ma
     BusinessTypeModule,
     BillGroupModule,
     CustomerMasterModule,
+    PriceListModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

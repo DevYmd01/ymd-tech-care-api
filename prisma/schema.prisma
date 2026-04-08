@@ -12,52 +12,56 @@ datasource db {
 ////////////
 
 model employees {
-    employee_id           Int                    @id @default(autoincrement())
-    branch_id             Int?
-    employee_code         String                 @unique @db.VarChar(20)
-    employee_title_th     String                 @db.VarChar(20)
-    employee_title_en     String                 @db.VarChar(20)
-    employee_firstname_th String                 @db.VarChar(200)
-    employee_lastname_th  String                 @db.VarChar(200)
-    employee_firstname_en String?                @db.VarChar(200)
-    employee_lastname_en  String?                @db.VarChar(200)
-    employee_fullname     String                 @db.VarChar(400)
-    employee_startdate    DateTime
-    employee_resigndate   DateTime?
-    employee_status       String                 @db.VarChar(20)
-    phone                 String?                @db.VarChar(20)
-    email                 String                 @db.VarChar(255)
-    remark                String?
-    tax_idcard            String?                @db.VarChar(20)
-    tax_id                String?                @db.VarChar(20)
-    emp_type              Boolean                @default(false)
-    position_id           Int?
-    department_id         Int?
-    is_active             Boolean                @default(true)
-    employee_head_id      Int?
-    employee_head_code    String?                @db.VarChar(25)
-    created_at            DateTime               @default(now())
-    updated_at            DateTime               @default(now()) @updatedAt
-    employeeAddresses     employee_address[]
-    employeeAuths         employee_auth?
-    branch                org_branch?            @relation(fields: [branch_id], references: [branch_id])
-    department            org_department?        @relation(fields: [department_id], references: [department_id])
-    employeeHead          employees?             @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
-    employees             employees[]            @relation("EmployeeManager")
-    position              org_position?          @relation(fields: [position_id], references: [position_id])
-    requested_pr          pr_header[]            @relation("requester_user")
-    approved_pr           pr_header[]            @relation("approved_by_user")
-    rfqHeaders            rfq_header[]           @relation("requested_by_user")
-    createdVqHeaders      vq_header[]            @relation("VQCreatedBy")
-    updatedVqHeaders      vq_header[]            @relation("VQUpdatedBy")
-    createdQcHeaders      qc_header[]            @relation("QCCreatedBy")
-    updatedQcHeaders      qc_header[]            @relation("QCUpdatedBy")
-    createdPoHeaders      po_header[]            @relation("poCreatedBy")
-    updatedPoHeaders      po_header[]            @relation("poUpdatedBy")
-    regnHeaders           grn_header[]
-    prApprovals           pr_approval[]
-    poApprovals           po_approval[]
-    employeeSaleTargets   employee_sale_target[]
+    employee_id                Int                    @id @default(autoincrement())
+    branch_id                  Int?
+    employee_code              String                 @unique @db.VarChar(20)
+    employee_title_th          String                 @db.VarChar(20)
+    employee_title_en          String                 @db.VarChar(20)
+    employee_firstname_th      String                 @db.VarChar(200)
+    employee_lastname_th       String                 @db.VarChar(200)
+    employee_firstname_en      String?                @db.VarChar(200)
+    employee_lastname_en       String?                @db.VarChar(200)
+    employee_fullname          String                 @db.VarChar(400)
+    employee_startdate         DateTime
+    employee_resigndate        DateTime?
+    employee_status            String                 @db.VarChar(20)
+    phone                      String?                @db.VarChar(20)
+    email                      String                 @db.VarChar(255)
+    remark                     String?
+    tax_idcard                 String?                @db.VarChar(20)
+    tax_id                     String?                @db.VarChar(20)
+    emp_type                   Boolean                @default(false)
+    position_id                Int?
+    department_id              Int?
+    is_active                  Boolean                @default(true)
+    employee_head_id           Int?
+    employee_head_code         String?                @db.VarChar(25)
+    created_at                 DateTime               @default(now())
+    updated_at                 DateTime               @default(now()) @updatedAt
+    employeeAddresses          employee_address[]
+    employeeAuths              employee_auth?
+    branch                     org_branch?            @relation(fields: [branch_id], references: [branch_id])
+    department                 org_department?        @relation(fields: [department_id], references: [department_id])
+    employeeHead               employees?             @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
+    employees                  employees[]            @relation("EmployeeManager")
+    position                   org_position?          @relation(fields: [position_id], references: [position_id])
+    requested_pr               pr_header[]            @relation("requester_user")
+    approved_pr                pr_header[]            @relation("approved_by_user")
+    rfqHeaders                 rfq_header[]           @relation("requested_by_user")
+    createdVqHeaders           vq_header[]            @relation("VQCreatedBy")
+    updatedVqHeaders           vq_header[]            @relation("VQUpdatedBy")
+    createdQcHeaders           qc_header[]            @relation("QCCreatedBy")
+    updatedQcHeaders           qc_header[]            @relation("QCUpdatedBy")
+    createdPoHeaders           po_header[]            @relation("poCreatedBy")
+    updatedPoHeaders           po_header[]            @relation("poUpdatedBy")
+    regnHeaders                grn_header[]
+    prApprovals                pr_approval[]
+    poApprovals                po_approval[]
+    employeeSaleTargets        employee_sale_target[]
+    standardCostHeaders_permit standard_cost_header[] @relation("permit_emp")
+    standardCostHeaders_save   standard_cost_header[] @relation("save_emp")
+    priceListHeaders_permit    price_list_header[]    @relation("permit_emp_price_list")
+    priceListHeaders_save      price_list_header[]    @relation("save_emp_price_list")
 }
 
 model employee_group {
@@ -136,17 +140,18 @@ model employee_side {
 
 // แผนกของพนักงาน
 model employee_department {
-    emp_dept_id      Int           @id @default(autoincrement())
-    emp_dept_code    String        @unique @db.VarChar(30)
-    emp_dept_name    String        @db.VarChar(200)
-    emp_dept_nameeng String?       @db.VarChar(200)
-    is_active        Boolean       @default(true)
+    emp_dept_id      Int                 @id @default(autoincrement())
+    emp_dept_code    String              @unique @db.VarChar(30)
+    emp_dept_name    String              @db.VarChar(200)
+    emp_dept_nameeng String?             @db.VarChar(200)
+    is_active        Boolean             @default(true)
     emp_side_id      Int
     emp_side_name    Int
     end_date         DateTime?
-    created_at       DateTime      @default(now())
-    updated_at       DateTime      @updatedAt
-    side             employee_side @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+    created_at       DateTime            @default(now())
+    updated_at       DateTime            @updatedAt
+    side             employee_side       @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+    priceListHeaders price_list_header[]
 
     @@unique([emp_dept_id])
 }
@@ -199,17 +204,18 @@ model employee_address {
 
 /// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_code String       @unique @db.VarChar(20)
-    branch_name String       @db.VarChar(200)
-    is_active   Boolean      @default(true)
-    branch_id   Int          @id @default(autoincrement())
-    created_at  DateTime     @default(now())
-    updated_at  DateTime     @updatedAt
-    employees   employees[]
-    prHeaders   pr_header[]
-    rfqHeaders  rfq_header[]
-    warehouses  warehouse[]
-    poHeaders   po_header[]
+    branch_code      String              @unique @db.VarChar(20)
+    branch_name      String              @db.VarChar(200)
+    is_active        Boolean             @default(true)
+    branch_id        Int                 @id @default(autoincrement())
+    created_at       DateTime            @default(now())
+    updated_at       DateTime            @updatedAt
+    employees        employees[]
+    prHeaders        pr_header[]
+    rfqHeaders       rfq_header[]
+    warehouses       warehouse[]
+    poHeaders        po_header[]
+    priceListHeaders price_list_header[]
 
     @@map("org_branch")
 }
@@ -331,25 +337,29 @@ model item {
     item_color_id         Int?
     item_grade_id         Int?
 
-    itemBrand    item_brand?    @relation(fields: [item_brand_id], references: [item_brand_id])
-    itemCategory item_category? @relation(fields: [item_category_id], references: [item_category_id])
-    itemClass    item_class?    @relation(fields: [item_class_id], references: [item_class_id])
-    itemDesign   item_design?   @relation(fields: [item_design_id], references: [item_design_id])
-    itemGroup    item_group?    @relation(fields: [item_group_id], references: [item_group_id])
-    itemPattern  item_pattern?  @relation(fields: [item_pattern_id], references: [item_pattern_id])
-    itemSize     item_size?     @relation(fields: [item_size_id], references: [item_size_id])
-    itemType     item_type?     @relation(fields: [item_type_id], references: [item_type_id])
-    baseUom      uom?           @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
-    saleUom      uom?           @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
-    itemColor    item_color?    @relation(fields: [item_color_id], references: [item_color_id])
-    itemGrade    item_grade?    @relation(fields: [item_grade_id], references: [item_grade_id])
-    taxCode      tax_code?      @relation(fields: [tax_code_id], references: [tax_code_id])
-    itemBarcodes item_barcode[]
-    itemUoms     item_uom[]
-    prLines      pr_line[]
-    rfqLines     rfq_line[]
-    vqLines      vq_line[]
-    poLines      po_line[]
+    itemBrand           item_brand?            @relation(fields: [item_brand_id], references: [item_brand_id])
+    itemCategory        item_category?         @relation(fields: [item_category_id], references: [item_category_id])
+    itemClass           item_class?            @relation(fields: [item_class_id], references: [item_class_id])
+    itemDesign          item_design?           @relation(fields: [item_design_id], references: [item_design_id])
+    itemGroup           item_group?            @relation(fields: [item_group_id], references: [item_group_id])
+    itemPattern         item_pattern?          @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    itemSize            item_size?             @relation(fields: [item_size_id], references: [item_size_id])
+    itemType            item_type?             @relation(fields: [item_type_id], references: [item_type_id])
+    baseUom             uom?                   @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    saleUom             uom?                   @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    itemColor           item_color?            @relation(fields: [item_color_id], references: [item_color_id])
+    itemGrade           item_grade?            @relation(fields: [item_grade_id], references: [item_grade_id])
+    taxCode             tax_code?              @relation(fields: [tax_code_id], references: [tax_code_id])
+    itemBarcodes        item_barcode[]
+    itemUoms            item_uom[]
+    prLines             pr_line[]
+    rfqLines            rfq_line[]
+    vqLines             vq_line[]
+    poLines             po_line[]
+    standardCostHeaders standard_cost_header[]
+    standardCostLines   standard_cost_line[]
+    priceListHeaders    price_list_header[]
+    priceListItemLines  price_list_item_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -359,22 +369,24 @@ model item {
 
 /// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id       Int            @id @default(autoincrement())
-    uom_code     String         @unique @db.VarChar(20)
-    uom_name     String         @db.VarChar(100)
-    is_active    Boolean?       @default(true)
-    created_at   DateTime       @default(now())
-    uom_nameeng  String?        @db.VarChar(100)
-    updated_at   DateTime       @updatedAt
-    baseItems    item[]         @relation("BaseUom")
-    saleItems    item[]         @relation("SaleUom")
-    itemBarcodes item_barcode[]
-    fromItemUoms item_uom[]     @relation("ItemUomFrom")
-    toItemUoms   item_uom[]     @relation("ItemUomTo")
-    prLines      pr_line[]
-    rfqLines     rfq_line[]
-    vqLines      vq_line[]
-    poLines      po_line[]
+    uom_id             Int                    @id @default(autoincrement())
+    uom_code           String                 @unique @db.VarChar(20)
+    uom_name           String                 @db.VarChar(100)
+    is_active          Boolean?               @default(true)
+    created_at         DateTime               @default(now())
+    uom_nameeng        String?                @db.VarChar(100)
+    updated_at         DateTime               @updatedAt
+    baseItems          item[]                 @relation("BaseUom")
+    saleItems          item[]                 @relation("SaleUom")
+    itemBarcodes       item_barcode[]
+    fromItemUoms       item_uom[]             @relation("ItemUomFrom")
+    toItemUoms         item_uom[]             @relation("ItemUomTo")
+    prLines            pr_line[]
+    rfqLines           rfq_line[]
+    vqLines            vq_line[]
+    poLines            po_line[]
+    standardCostLines  standard_cost_line[]
+    priceListItemLines price_list_item_line[]
 
     @@map("uom")
 }
@@ -461,20 +473,22 @@ model item_category {
 /// ตารางเก็บข้อมูลยี่ห้อสินค้า
 model item_brand {
     /// รหัสยี่ห้อสินค้า
-    item_brand_id      Int      @id @default(autoincrement())
+    item_brand_id       Int                    @id @default(autoincrement())
     /// รหัสยี่ห้อสินค้า
-    item_brand_code    String   @unique @db.VarChar(30)
+    item_brand_code     String                 @unique @db.VarChar(30)
     /// ชื่อยี่ห้อสินค้า
-    item_brand_name    String   @db.VarChar(200)
+    item_brand_name     String                 @db.VarChar(200)
     /// ชื่อยี่ห้อสินค้า (อังกฤษ)
-    item_brand_nameeng String   @db.VarChar(200)
+    item_brand_nameeng  String                 @db.VarChar(200)
     /// สถานะการใช้งาน
-    is_active          Boolean  @default(true)
+    is_active           Boolean                @default(true)
     /// วันที่สร้าง
-    created_at         DateTime @default(now())
+    created_at          DateTime               @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at         DateTime @updatedAt
-    items              item[]
+    updated_at          DateTime               @updatedAt
+    items               item[]
+    standardCostHeaders standard_cost_header[]
+    priceListHeaders    price_list_header[]
 
     @@map("item_brand")
 }
@@ -1150,7 +1164,7 @@ model customer {
     website      String? @db.VarChar(255)
 
     /// เลขผู้เสียภาษี
-    tax_id            String?         @db.VarChar(20)
+    tax_id            String?        @db.VarChar(20)
     /// จดทะเบียนภาษีมูลค่าเพิ่มแล้ว
     is_vat_registered Boolean?       @default(false)
     /// รหัสประเภทธุรกิจ
@@ -1158,13 +1172,14 @@ model customer {
     business_type     business_type? @relation(fields: [business_type_id], references: [business_type_id])
 
     bill_group_id     Int?
-    bill_group        bill_group?        @relation(fields: [bill_group_id], references: [bill_group_id])
+    bill_group        bill_group?         @relation(fields: [bill_group_id], references: [bill_group_id])
     /// สถานะการใช้งาน
-    is_active         Boolean            @default(true)
-    created_at        DateTime           @default(now())
-    updated_at        DateTime           @updatedAt
+    is_active         Boolean             @default(true)
+    created_at        DateTime            @default(now())
+    updated_at        DateTime            @updatedAt
     customerAddresses customer_address[]
     customerBranches  customer_branch[]
+    priceListHeaders  price_list_header[]
 
     @@map("customer")
 }
@@ -1190,18 +1205,19 @@ model customer_type {
 
 model customer_group {
     /// รหัสกลุ่มลูกค้า
-    customer_group_id      Int        @id @default(autoincrement())
+    customer_group_id      Int                 @id @default(autoincrement())
     /// รหัสกลุ่มลูกค้า
-    customer_group_code    String     @unique @db.VarChar(30)
+    customer_group_code    String              @unique @db.VarChar(30)
     /// ชื่อกลุ่มลูกค้า
-    customer_group_name    String     @db.VarChar(200)
+    customer_group_name    String              @db.VarChar(200)
     /// ชื่อกลุ่มลูกค้า (อังกฤษ)
-    customer_group_nameeng String?    @db.VarChar(200)
+    customer_group_nameeng String?             @db.VarChar(200)
     /// สถานะการใช้งาน
-    is_active              Boolean    @default(true)
-    created_at             DateTime   @default(now())
-    updated_at             DateTime   @updatedAt
+    is_active              Boolean             @default(true)
+    created_at             DateTime            @default(now())
+    updated_at             DateTime            @updatedAt
     customers              customer[]
+    priceListHeaders       price_list_header[]
 
     @@map("customer_group")
 }
@@ -1298,6 +1314,99 @@ model customer_branch {
 
     @@index([customer_id])
     @@map("customer_branch")
+}
+
+////////// Sales & Distribution (SD) //////////
+model standard_cost_header {
+    standard_cost_header_id Int                  @id @default(autoincrement())
+    standard_cost_code      String               @unique @db.VarChar(30)
+    standard_cost_name      String               @db.VarChar(200)
+    standard_cost_date      DateTime             @db.Date
+    remark                  String?              @db.VarChar(500)
+    is_active               Boolean              @default(true)
+    item_brand_id           Int?
+    item_brand              item_brand?          @relation(fields: [item_brand_id], references: [item_brand_id])
+    item_id                 Int?
+    item                    item?                @relation(fields: [item_id], references: [item_id])
+    permit_emp_id           Int?
+    permit_emp              employees?           @relation("permit_emp", fields: [permit_emp_id], references: [employee_id])
+    save_emp_id             Int?
+    save_emp                employees?           @relation("save_emp", fields: [save_emp_id], references: [employee_id])
+    document_date           DateTime?            @db.Date
+    created_at              DateTime             @default(now())
+    updated_at              DateTime             @updatedAt
+    standardCostLines       standard_cost_line[]
+}
+
+model standard_cost_line {
+    standard_cost_line_id   Int                  @id @default(autoincrement())
+    standard_cost_header_id Int
+    standard_cost_header    standard_cost_header @relation(fields: [standard_cost_header_id], references: [standard_cost_header_id])
+    remarks                 String?              @db.VarChar(500)
+    item_name               String?              @db.VarChar(200)
+    item_id                 Int?
+    item                    item?                @relation(fields: [item_id], references: [item_id])
+    uom_id                  Int?
+    uom                     uom?                 @relation(fields: [uom_id], references: [uom_id])
+    standard_buy_price      Decimal?             @db.Decimal(18, 2)
+    standard_cost           Decimal?             @db.Decimal(18, 2)
+    created_at              DateTime             @default(now())
+    updated_at              DateTime             @updatedAt
+}
+
+// A11
+model price_list_header {
+    price_list_header_id Int                  @id @default(autoincrement())
+    price_list_no        String               @unique @db.VarChar(30)
+    price_list_name      String               @db.VarChar(200)
+    price_list_date      DateTime             @db.Date
+    remark               String?              @db.VarChar(500)
+    is_active            Boolean              @default(true)
+    begin_date           DateTime             @db.Date
+    end_date             DateTime             @db.Date
+    branch_id            Int?
+    branch               org_branch?          @relation(fields: [branch_id], references: [branch_id])
+    changed_date         DateTime?            @db.Date
+    customer_group_id    Int?
+    customer_group       customer_group?      @relation(fields: [customer_group_id], references: [customer_group_id])
+    customer_id          Int?
+    customer             customer?            @relation(fields: [customer_id], references: [customer_id])
+    emp_dept_id          Int?
+    employee_department  employee_department? @relation(fields: [emp_dept_id], references: [emp_dept_id])
+
+    item_brand_id      Int?
+    item_brand         item_brand?            @relation(fields: [item_brand_id], references: [item_brand_id])
+    item_id            Int?
+    item               item?                  @relation(fields: [item_id], references: [item_id])
+    permit_emp_id      Int?
+    permit_emp         employees?             @relation("permit_emp_price_list", fields: [permit_emp_id], references: [employee_id])
+    save_emp_id        Int?
+    save_emp           employees?             @relation("save_emp_price_list", fields: [save_emp_id], references: [employee_id])
+    document_date      DateTime?              @db.Date
+    created_at         DateTime               @default(now())
+    updated_at         DateTime               @updatedAt
+    priceListItemLines price_list_item_line[]
+    
+}
+
+// A12
+model price_list_item_line {
+    price_list_item_id   Int               @id @default(autoincrement())
+    price_list_header_id Int
+    price_list_header    price_list_header @relation(fields: [price_list_header_id], references: [price_list_header_id])
+    remarks              String?           @db.VarChar(500)
+    item_id              Int?
+    item                 item?             @relation(fields: [item_id], references: [item_id])
+    uom_id               Int?
+    uom                  uom?              @relation(fields: [uom_id], references: [uom_id])
+    unit_price           Decimal?          @db.Decimal(18, 2)
+    line_discount_rate   String?           @db.VarChar(30)
+    line_discount_amount Decimal?          @db.Decimal(18, 2)
+    unit_price_net       Decimal?          @db.Decimal(18, 2)
+    editflag             String?           @db.VarChar(20)
+    created_at           DateTime          @default(now())
+    updated_at           DateTime          @updatedAt
+    price_list_flag      String?           @db.VarChar(20)
 }
 
 ////////////
