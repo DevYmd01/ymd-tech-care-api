@@ -65,6 +65,9 @@ export class CreatePriceListHeaderDto {
     @IsNumber()
     save_emp_id?: number;
     @IsOptional()
+    @IsString()
+    price_list_flag?: string;
+    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreatePriceListLineDto)

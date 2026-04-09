@@ -14,6 +14,7 @@ export class CreatePriceListHeaderMapper {
             end_date: dto.end_date,
             changed_date: dto.changed_date,
             is_active: dto.is_active,
+            price_list_flag: dto.price_list_flag,
             ...(dto.branch_id ? { branch: { connect: { branch_id: dto.branch_id } } } : {}),
             ...(dto.customer_group_id ? { customer_group: { connect: { customer_group_id: dto.customer_group_id } } } : {}),
             ...(dto.customer_id ? { customer: { connect: { customer_id: dto.customer_id } } } : {}),

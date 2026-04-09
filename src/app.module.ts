@@ -63,6 +63,7 @@ import { BillGroupModule } from './modules/master-data/customer/bill-group/bill-
 import { CustomerMasterModule } from './modules/master-data/customer/customer-master/customer-master.module';
 import { PriceListModule } from './modules/pricing/price-list/price-list.module';
 import { EmployeeSideModule } from './modules/master-data/employee-side/employee-side.module';
+import { MultiPriceItemModule } from './modules/pricing/multi-price-item/multi-price-item.module';
 
 @Module({
   imports: [
@@ -126,6 +127,7 @@ import { EmployeeSideModule } from './modules/master-data/employee-side/employee
     CustomerMasterModule,
     PriceListModule,
     EmployeeSideModule,
+    MultiPriceItemModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

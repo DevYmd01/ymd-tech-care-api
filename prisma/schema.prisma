@@ -357,6 +357,7 @@ model item {
     standardCostHeaders standard_cost_header[]
     standardCostLines   standard_cost_line[]
     priceListItemLines  price_list_item_line[]
+    multiPriceItems     multi_price_item[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -384,6 +385,7 @@ model uom {
     poLines            po_line[]
     standardCostLines  standard_cost_line[]
     priceListItemLines price_list_item_line[]
+    multiPriceItems    multi_price_item[]
 
     @@map("uom")
 }
@@ -1352,32 +1354,32 @@ model standard_cost_line {
 
 // A11
 model price_list_header {
-    price_list_header_id Int                  @id @default(autoincrement())
-    price_list_no        String               @unique @db.VarChar(30)
-    price_list_name      String               @db.VarChar(200)
-    price_list_date      DateTime             @db.Date
-    remark               String?              @db.VarChar(500)
-    is_active            Boolean              @default(true)
-    begin_date           DateTime             @db.Date
-    end_date             DateTime             @db.Date
+    price_list_header_id Int                    @id @default(autoincrement())
+    price_list_no        String                 @unique @db.VarChar(30)
+    price_list_name      String                 @db.VarChar(200)
+    price_list_date      DateTime               @db.Date
+    remark               String?                @db.VarChar(500)
+    is_active            Boolean                @default(true)
+    begin_date           DateTime               @db.Date
+    end_date             DateTime               @db.Date
     branch_id            Int?
-    branch               org_branch?          @relation(fields: [branch_id], references: [branch_id])
-    changed_date         DateTime?            @db.Date
+    branch               org_branch?            @relation(fields: [branch_id], references: [branch_id])
+    changed_date         DateTime?              @db.Date
     customer_group_id    Int?
-    customer_group       customer_group?      @relation(fields: [customer_group_id], references: [customer_group_id])
+    customer_group       customer_group?        @relation(fields: [customer_group_id], references: [customer_group_id])
     customer_id          Int?
-    customer             customer?            @relation(fields: [customer_id], references: [customer_id])
+    customer             customer?              @relation(fields: [customer_id], references: [customer_id])
     emp_dept_id          Int?
-    employee_department  employee_department? @relation(fields: [emp_dept_id], references: [emp_dept_id])
-    permit_emp_id      Int?
-    permit_emp         employees?             @relation("permit_emp_price_list", fields: [permit_emp_id], references: [employee_id])
-    save_emp_id        Int?
-    save_emp           employees?             @relation("save_emp_price_list", fields: [save_emp_id], references: [employee_id])
-    document_date      DateTime?              @db.Date
-    created_at         DateTime               @default(now())
-    updated_at         DateTime               @updatedAt
-    price_list_flag    String?                @db.VarChar(20)
-    priceListItemLines price_list_item_line[]
+    employee_department  employee_department?   @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    permit_emp_id        Int?
+    permit_emp           employees?             @relation("permit_emp_price_list", fields: [permit_emp_id], references: [employee_id])
+    save_emp_id          Int?
+    save_emp             employees?             @relation("save_emp_price_list", fields: [save_emp_id], references: [employee_id])
+    document_date        DateTime?              @db.Date
+    created_at           DateTime               @default(now())
+    updated_at           DateTime               @updatedAt
+    price_list_flag      String?                @db.VarChar(20)
+    priceListItemLines   price_list_item_line[]
 }
 
 // A12
@@ -1397,6 +1399,27 @@ model price_list_item_line {
     editflag             String?           @db.VarChar(20)
     created_at           DateTime          @default(now())
     updated_at           DateTime          @updatedAt
+}
+
+// A39
+model multi_price_item {
+    multi_price_item_id Int      @id @default(autoincrement())
+    item_from_qty       Decimal  @default(0)
+    item_id             Int
+    item                item?    @relation(fields: [item_id], references: [item_id])
+    item_price1         Decimal? @db.Decimal(18, 2)
+    item_price2         Decimal? @db.Decimal(18, 2)
+    item_price3         Decimal? @db.Decimal(18, 2)
+    item_price4         Decimal? @db.Decimal(18, 2)
+    item_price5         Decimal? @db.Decimal(18, 2)
+    item_price6         Decimal? @db.Decimal(18, 2)
+    item_price7         Decimal? @db.Decimal(18, 2)
+    item_price8         Decimal? @db.Decimal(18, 2)
+    item_price9         Decimal? @db.Decimal(18, 2)
+    item_price10        Decimal? @db.Decimal(18, 2)
+    item_to_qty         Decimal? @default(0)
+    uom_id              Int
+    uom                 uom?     @relation(fields: [uom_id], references: [uom_id])
 }
 
 ////////////
