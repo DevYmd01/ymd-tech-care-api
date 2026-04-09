@@ -3,7 +3,7 @@ import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
 
-@Controller('org-department')
+@Controller('department')
 export class DepartmentController {
     constructor(private readonly departmentService: DepartmentService) { }
 

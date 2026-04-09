@@ -13,10 +13,14 @@ import {
     IsDate,
     IsNotEmpty,
 } from 'class-validator';
-
 import { Type } from 'class-transformer';
+import { CreatePriceListLineDto } from './create-price-list-line.dto';
+
 export class CreatePriceListHeaderDto {
 
+    @IsNotEmpty()
+    @IsString()
+    price_list_no!: string; // ใช้ string แทนเลขที่ เพราะไม่มีเลขที่ใน DTO
     @IsNotEmpty()
     @IsString()
     price_list_name!: string;
@@ -56,15 +60,14 @@ export class CreatePriceListHeaderDto {
     emp_dept_id?: number;
     @IsOptional()
     @IsNumber()
-    item_brand_id?: number;
-    @IsOptional()
-    @IsNumber()
-    item_id?: number;
-    @IsOptional()
-    @IsNumber()
     permit_emp_id?: number;
     @IsOptional()
     @IsNumber()
     save_emp_id?: number;
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreatePriceListLineDto)
+    price_list_lines: CreatePriceListLineDto[];
 
 }

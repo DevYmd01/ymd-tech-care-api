@@ -41,6 +41,8 @@ export class PriceCalculator {
 
 
         return {
+          // ควร return เป็น Decimal เสมอ เพื่อให้ caller ควบคุมการปัดเศษได้เอง
+              // ถ้า return เป็น number อาจมีปัญหาเรื่องความแม่นยำ และ caller จะไม่สามารถเลือกวิธีการปัดเศษได้
             subtotal,
             discountAmount,
             netAmount,

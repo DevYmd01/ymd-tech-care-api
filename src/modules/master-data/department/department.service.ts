@@ -7,22 +7,22 @@ export class DepartmentService {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(dto: CreateDepartmentDto) {
-        return this.prisma.org_department.create({ data: dto });
+        return this.prisma.employee_department.create({ data: dto });
     }
 
     async findAll() {
-        return this.prisma.org_department.findMany();
+        return this.prisma.employee_department.findMany();
     }
 
     async findOne(id: number) {
-        return this.prisma.org_department.findUnique({ where: { department_id: id } });
+        return this.prisma.employee_department.findUnique({ where: { emp_dept_id: id } });
     }
 
     async update(id: number, dto: CreateDepartmentDto) {
-        return this.prisma.org_department.update({ where: { department_id: id }, data: dto });
+        return this.prisma.employee_department.update({ where: { emp_dept_id: id }, data: dto });
     }
 
     async delete(id: number) {
-        return this.prisma.org_department.delete({ where: { department_id: id } });
+        return this.prisma.employee_department.delete({ where: { emp_dept_id: id } });
     }
 }

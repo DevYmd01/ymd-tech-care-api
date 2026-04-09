@@ -146,8 +146,6 @@ model employee_department {
     emp_dept_nameeng String?             @db.VarChar(200)
     is_active        Boolean             @default(true)
     emp_side_id      Int
-    emp_side_name    Int
-    end_date         DateTime?
     created_at       DateTime            @default(now())
     updated_at       DateTime            @updatedAt
     side             employee_side       @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
@@ -358,7 +356,6 @@ model item {
     poLines             po_line[]
     standardCostHeaders standard_cost_header[]
     standardCostLines   standard_cost_line[]
-    priceListHeaders    price_list_header[]
     priceListItemLines  price_list_item_line[]
 
     @@index([lot_tracking_level])
@@ -488,7 +485,6 @@ model item_brand {
     updated_at          DateTime               @updatedAt
     items               item[]
     standardCostHeaders standard_cost_header[]
-    priceListHeaders    price_list_header[]
 
     @@map("item_brand")
 }
@@ -1373,11 +1369,6 @@ model price_list_header {
     customer             customer?            @relation(fields: [customer_id], references: [customer_id])
     emp_dept_id          Int?
     employee_department  employee_department? @relation(fields: [emp_dept_id], references: [emp_dept_id])
-
-    item_brand_id      Int?
-    item_brand         item_brand?            @relation(fields: [item_brand_id], references: [item_brand_id])
-    item_id            Int?
-    item               item?                  @relation(fields: [item_id], references: [item_id])
     permit_emp_id      Int?
     permit_emp         employees?             @relation("permit_emp_price_list", fields: [permit_emp_id], references: [employee_id])
     save_emp_id        Int?
@@ -1385,8 +1376,8 @@ model price_list_header {
     document_date      DateTime?              @db.Date
     created_at         DateTime               @default(now())
     updated_at         DateTime               @updatedAt
+    price_list_flag    String?                @db.VarChar(20)
     priceListItemLines price_list_item_line[]
-    
 }
 
 // A12
@@ -1406,7 +1397,6 @@ model price_list_item_line {
     editflag             String?           @db.VarChar(20)
     created_at           DateTime          @default(now())
     updated_at           DateTime          @updatedAt
-    price_list_flag      String?           @db.VarChar(20)
 }
 
 ////////////
