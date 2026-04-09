@@ -4,6 +4,9 @@ import { PriceListService } from './price-list.service';
 import { CreatePriceListHeaderRepository } from './repository/create-price-list-header.repository';
 import { CreatePriceListLineRepository } from './repository/create-price-list-line.repository';
 import { DiscountDomainService } from './domain/calculation.domain.service';
+import { UpdatePriceListHeaderRepository } from './repository/update-price-list-header.repository';
+import { UpdatePriceListLineRepository } from './repository/update-price-list-line.repository';
+
 
 @Module({
   controllers: [PriceListController],
@@ -12,6 +15,8 @@ import { DiscountDomainService } from './domain/calculation.domain.service';
     CreatePriceListHeaderRepository,
     CreatePriceListLineRepository,
     DiscountDomainService,
+    UpdatePriceListHeaderRepository,
+    UpdatePriceListLineRepository,
   ],
 })
 export class PriceListModule {}
