@@ -92,6 +92,31 @@ async function main() {
             create: f,
         });
     }
+
+    const priceLevels = [
+  { code: 'Level1', name: 'ราคาปลีก', level_no: 1 },
+  { code: 'Level2', name: 'ราคาส่ง', level_no: 2 },
+  { code: 'Level3', name: 'VIP', level_no: 3 },
+  { code: 'Level4', name: 'โครงการ', level_no: 4 },
+  { code: 'Level5', name: 'โครงการ', level_no: 5 },
+  { code: 'Level6', name: 'โครงการ', level_no: 6 },
+  { code: 'Level7', name: 'โครงการ', level_no: 7 },
+  { code: 'Level8', name: 'โครงการ', level_no: 8 },
+  { code: 'Level9', name: 'โครงการ', level_no: 9 },
+  { code: 'Level10', name: 'โครงการ', level_no: 10 },
+];
+
+for (const p of priceLevels) {
+  console.log(`→ upsert price_level ${p.code}`);
+
+  await prisma.price_level.upsert({
+    where: {
+      code: p.code, // 🔥 ใช้ unique field
+    },
+    update: p,
+    create: p,
+  });
+}
 }
 
 main()

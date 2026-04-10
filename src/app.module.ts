@@ -64,6 +64,7 @@ import { CustomerMasterModule } from './modules/master-data/customer/customer-ma
 import { PriceListModule } from './modules/pricing/price-list/price-list.module';
 import { EmployeeSideModule } from './modules/master-data/employee-side/employee-side.module';
 import { MultiPriceItemModule } from './modules/pricing/multi-price-item/multi-price-item.module';
+import { PriceLevelModule } from './modules/pricing/price-level/price-level.module';
 
 @Module({
   imports: [
@@ -128,6 +129,7 @@ import { MultiPriceItemModule } from './modules/pricing/multi-price-item/multi-p
     PriceListModule,
     EmployeeSideModule,
     MultiPriceItemModule,
+    PriceLevelModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

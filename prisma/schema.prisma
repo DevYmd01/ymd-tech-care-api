@@ -1175,6 +1175,9 @@ model customer {
     is_active         Boolean             @default(true)
     created_at        DateTime            @default(now())
     updated_at        DateTime            @updatedAt
+
+    price_level_id Int?
+        price_level    price_level?       @relation(fields: [price_level_id], references: [id])
     customerAddresses customer_address[]
     customerBranches  customer_branch[]
     priceListHeaders  price_list_header[]
@@ -1422,6 +1425,20 @@ model multi_price_item {
     uom                 uom?     @relation(fields: [uom_id], references: [uom_id])
 }
 
+// A39.1
+model price_level {
+  id        Int    @id @default(autoincrement())
+  code      String @unique @db.VarChar(20)
+  name      String @db.VarChar(50)
+  level_no  Int    @unique
+
+  customers customer[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("price_level")
+}
 ////////////
 //// EP1 Procurement
 ////////////
