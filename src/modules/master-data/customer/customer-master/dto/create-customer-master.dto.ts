@@ -80,6 +80,10 @@ export class CreateCustomerMasterDto {
   business_type_id?: number;
 
   @IsOptional()
+  @IsNumber()
+  price_level_id?: number;
+
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateCustomerAddressDto)

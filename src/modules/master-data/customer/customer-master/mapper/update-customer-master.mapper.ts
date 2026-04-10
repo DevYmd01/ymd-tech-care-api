@@ -27,6 +27,9 @@ export class UpdateCustomerMasterMapper {
      business_type: dto.business_type_id
         ? { connect: { business_type_id: dto.business_type_id } }
         : undefined,
+              price_level: dto.price_level_id
+        ? { connect: { id: dto.price_level_id } }
+        : undefined,
         };
     }
 }
