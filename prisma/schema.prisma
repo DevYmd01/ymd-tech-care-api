@@ -1323,49 +1323,49 @@ model ic_option {
     ic_option_id Int @id @default(autoincrement())
     branch_id    Int @unique
 
-    aging_expire String @db.VarChar(50)
+    aging_expire String? @db.VarChar(50)
 
-    auto_perpetual_cost String @db.Char(1)
-    barcode_flag        String @db.Char(1)
+    auto_perpetual_cost String? @db.Char(1)
+    barcode_flag        String? @db.Char(1)
 
-    check_deficit        String @db.Char(1)
-    check_deficit_option String @db.Char(1)
+    check_deficit        String? @db.Char(1)
+    check_deficit_option String? @db.Char(1)
 
-    check_max_qty  String @db.Char(1)
-    check_min_qty  String @db.Char(1)
-    check_qty_flag String @db.Char(1)
+    check_max_qty  String? @db.Char(1)
+    check_min_qty  String? @db.Char(1)
+    check_qty_flag String? @db.Char(1)
 
-    check_standcost String @db.Char(1)
+    check_standcost String? @db.Char(1)
 
-    expire_alert_flag String @db.Char(1)
-    order_alert_flag  String @db.Char(1)
+    expire_alert_flag String? @db.Char(1)
+    order_alert_flag  String? @db.Char(1)
 
-    post_cost_flag String @db.Char(1)
+    post_cost_flag String? @db.Char(1)
 
-    reorder_flag String @db.Char(1)
+    reorder_flag String? @db.Char(1)
 
-    set_autopost         String @db.Char(1)
-    set_costcn           String @db.Char(1)
-    set_costcn_ap        String @db.Char(1)
-    set_costcn_ap_refinv String @db.Char(1)
-    set_costcn_refinv    String @db.Char(1)
+    set_autopost         String? @db.Char(1)
+    set_costcn           String? @db.Char(1)
+    set_costcn_ap        String? @db.Char(1)
+    set_costcn_ap_refinv String? @db.Char(1)
+    set_costcn_refinv    String? @db.Char(1)
 
-    set_cost_return_issueref String @db.Char(1)
+    set_cost_return_issueref String? @db.Char(1)
 
-    set_goodqty String @db.Char(1)
-    set_inve    String @db.Char(1)
+    set_goodqty String? @db.Char(1)
+    set_inve    String? @db.Char(1)
 
-    set_price  String @db.Char(1)
-    set_price1 Int
-    set_price2 Int
-    set_price3 Int
-    set_price4 Int
+    set_price  String? @db.Char(1)
+    set_price1 Int?
+    set_price2 Int?
+    set_price3 Int?
+    set_price4 Int?
 
-    set_price_ic   String @db.Char(1)
-    set_price_pack String @db.Char(1)
-    set_price_po   String @db.Char(1)
+    set_price_ic   String? @db.Char(1)
+    set_price_pack String? @db.Char(1)
+    set_price_po   String? @db.Char(1)
 
-    trasfer_cost_flag String @db.Char(1)
+    trasfer_cost_flag String? @db.Char(1)
 
     branch org_branch @relation(fields: [branch_id], references: [branch_id])
 }

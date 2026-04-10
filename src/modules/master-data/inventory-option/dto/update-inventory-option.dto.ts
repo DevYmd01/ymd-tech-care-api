@@ -1,18 +1,13 @@
-import { IsString } from "class-validator";
 import {
+    IsString,
     IsOptional,
-    IsNumber,
-    IsBoolean,
-    IsArray,
-    ValidateNested,
-    IsNotEmpty,
+    IsNumber
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
-export class CreateInventoryOptionDto {
-    @IsNotEmpty()
+export class UpdateInventoryOptionDto {
+    @IsOptional()
     @IsNumber()
-    branch_id!: number;
+    branch_id?: number;
     @IsOptional()
     @IsString()
     aging_expire?: string;
