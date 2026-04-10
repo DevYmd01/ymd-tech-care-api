@@ -214,6 +214,7 @@ model org_branch {
     warehouses       warehouse[]
     poHeaders        po_header[]
     priceListHeaders price_list_header[]
+    icOption         ic_option[]
 
     @@map("org_branch")
 }
@@ -1169,15 +1170,15 @@ model customer {
     business_type_id  Int?
     business_type     business_type? @relation(fields: [business_type_id], references: [business_type_id])
 
-    bill_group_id     Int?
-    bill_group        bill_group?         @relation(fields: [bill_group_id], references: [bill_group_id])
+    bill_group_id Int?
+    bill_group    bill_group? @relation(fields: [bill_group_id], references: [bill_group_id])
     /// สถานะการใช้งาน
-    is_active         Boolean             @default(true)
-    created_at        DateTime            @default(now())
-    updated_at        DateTime            @updatedAt
+    is_active     Boolean     @default(true)
+    created_at    DateTime    @default(now())
+    updated_at    DateTime    @updatedAt
 
-    price_level_id Int?
-        price_level    price_level?       @relation(fields: [price_level_id], references: [id])
+    price_level_id    Int?
+    price_level       price_level?        @relation(fields: [price_level_id], references: [id])
     customerAddresses customer_address[]
     customerBranches  customer_branch[]
     priceListHeaders  price_list_header[]
@@ -1317,6 +1318,58 @@ model customer_branch {
     @@map("customer_branch")
 }
 
+// A41
+model ic_option {
+    ic_option_id Int @id @default(autoincrement())
+    branch_id    Int @unique
+
+    aging_expire String @db.VarChar(50)
+
+    auto_perpetual_cost String @db.Char(1)
+    barcode_flag        String @db.Char(1)
+
+    check_deficit        String @db.Char(1)
+    check_deficit_option String @db.Char(1)
+
+    check_max_qty  String @db.Char(1)
+    check_min_qty  String @db.Char(1)
+    check_qty_flag String @db.Char(1)
+
+    check_standcost String @db.Char(1)
+
+    expire_alert_flag String @db.Char(1)
+    order_alert_flag  String @db.Char(1)
+
+    post_cost_flag String @db.Char(1)
+
+    reorder_flag String @db.Char(1)
+
+    set_autopost         String @db.Char(1)
+    set_costcn           String @db.Char(1)
+    set_costcn_ap        String @db.Char(1)
+    set_costcn_ap_refinv String @db.Char(1)
+    set_costcn_refinv    String @db.Char(1)
+
+    set_cost_return_issueref String @db.Char(1)
+
+    set_goodqty String @db.Char(1)
+    set_inve    String @db.Char(1)
+
+    set_price  String @db.Char(1)
+    set_price1 Int
+    set_price2 Int
+    set_price3 Int
+    set_price4 Int
+
+    set_price_ic   String @db.Char(1)
+    set_price_pack String @db.Char(1)
+    set_price_po   String @db.Char(1)
+
+    trasfer_cost_flag String @db.Char(1)
+
+    branch org_branch @relation(fields: [branch_id], references: [branch_id])
+}
+
 ////////// Sales & Distribution (SD) //////////
 model standard_cost_header {
     standard_cost_header_id Int                  @id @default(autoincrement())
@@ -1427,18 +1480,19 @@ model multi_price_item {
 
 // A39.1
 model price_level {
-  id        Int    @id @default(autoincrement())
-  code      String @unique @db.VarChar(20)
-  name      String @db.VarChar(50)
-  level_no  Int    @unique
+    id       Int    @id @default(autoincrement())
+    code     String @unique @db.VarChar(20)
+    name     String @db.VarChar(50)
+    level_no Int    @unique
 
-  customers customer[]
+    customers customer[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 
-  @@map("price_level")
+    @@map("price_level")
 }
+
 ////////////
 //// EP1 Procurement
 ////////////
