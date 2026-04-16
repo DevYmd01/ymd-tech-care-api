@@ -69,10 +69,18 @@ async function main() {
             seq_length: 4,
             running_cycle: RunningCycle.YEAR,
         },
-                        {
+        {
             module_code: 'POA',
             document_type_code: 'POA',
             prefix: 'POA',
+            pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+            seq_length: 4,
+            running_cycle: RunningCycle.YEAR,
+        },
+        {
+            module_code: 'SQ',
+            document_type_code: 'SQ',
+            prefix: 'SQ',
             pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
             seq_length: 4,
             running_cycle: RunningCycle.YEAR,

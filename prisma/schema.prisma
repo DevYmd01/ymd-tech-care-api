@@ -1318,7 +1318,7 @@ model customer_branch {
     @@map("customer_branch")
 }
 
-// A41
+// A41 Inventory option
 model ic_option {
     ic_option_id Int @id @default(autoincrement())
     branch_id    Int @unique
