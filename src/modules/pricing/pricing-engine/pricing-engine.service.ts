@@ -71,7 +71,7 @@ export class PricingEngineService {
   }
 
   // =========================
-  // MOCK / DB CONFIG (ตอนนี้ยัง mock)
+  // GET DB CONFIG
   // =========================
   private async getPriceOption(branchId?: number) {
     const config = await this.prisma.ic_option.findFirst({
@@ -89,8 +89,8 @@ export class PricingEngineService {
 
     // Fallback if not found in DB
     return {
-      set_price1: 1,
-      set_price2: 2,
+      set_price1: null,
+      set_price2: null,
       set_price3: null,
       set_price4: null,
     };
