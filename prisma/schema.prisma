@@ -971,34 +971,35 @@ model project {
 
 model tax_code {
     /// รหัสกลุ่มภาษี
-    tax_code_id        Int                   @id @default(autoincrement())
+    tax_code_id          Int                     @id @default(autoincrement())
     /// รหัสกลุ่มภาษี
-    tax_code           String                @unique @db.VarChar(30)
+    tax_code             String                  @unique @db.VarChar(30)
     /// ชื่อกลุ่มภาษี
-    tax_name           String
+    tax_name             String
     /// รายละเอียดกลุ่มภาษี
-    description        String?
+    description          String?
     /// ประเภทภาษี
-    tax_type           String                @db.VarChar(20)
+    tax_type             String                  @db.VarChar(20)
     /// อัตราภาษี
-    tax_rate           Decimal               @db.Decimal(15, 2)
+    tax_rate             Decimal                 @db.Decimal(15, 2)
     /// รหัสกลุ่มภาษี
-    tax_group_id       Int?
-    tax_group          tax_group?            @relation(fields: [tax_group_id], references: [tax_group_id])
+    tax_group_id         Int?
+    tax_group            tax_group?              @relation(fields: [tax_group_id], references: [tax_group_id])
     /// สถานะกลุ่มภาษี (Y/N)
-    is_active          Boolean               @default(true)
-    created_at         DateTime              @default(now())
-    updated_at         DateTime              @updatedAt
-    prLines            pr_line[]
-    prHeaders          pr_header[]
-    vqHeaders          vq_header[]
-    poLines            po_line[]
-    poHeaders          po_header[]
-    items              item[]
-    vendors            vendor[]
-    prApprovals        pr_approval[]
-    poApprovals        po_approval[]
-    saleQuotationLines sale_quotation_line[]
+    is_active            Boolean                 @default(true)
+    created_at           DateTime                @default(now())
+    updated_at           DateTime                @updatedAt
+    prLines              pr_line[]
+    prHeaders            pr_header[]
+    vqHeaders            vq_header[]
+    poLines              po_line[]
+    poHeaders            po_header[]
+    items                item[]
+    vendors              vendor[]
+    prApprovals          pr_approval[]
+    poApprovals          po_approval[]
+    saleQuotationLines   sale_quotation_line[]
+    saleQuotationHeaders sale_quotation_header[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -2347,6 +2348,7 @@ model sale_quotation_header {
     quote_total_amount    Decimal   @db.Decimal(18, 2)
     /// TAX
     tax_code_id           Int?
+    tax_code              tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
     tax_rate              Decimal?  @db.Decimal(9, 4)
     base_tax_amount       Decimal?  @db.Decimal(18, 2)
     quote_tax_amount      Decimal?  @db.Decimal(18, 2)
@@ -2364,7 +2366,6 @@ model sale_quotation_header {
     project            project               @relation(fields: [project_id], references: [project_id])
     sq_status          String                @db.VarChar(20)
     status_remark      String?               @db.Text
-    ship_date          DateTime
     saleQuotationLines sale_quotation_line[]
 
     @@map("sq_header")
@@ -2410,7 +2411,7 @@ model sale_quotation_line {
     // จำนวนที่ยังค้างอยู่จากการอนุมัติ
     remaining_qty Decimal @default(0)
 
-    uom      uom      @relation(fields: [uom_id], references: [uom_id])
+    uom      uom       @relation(fields: [uom_id], references: [uom_id])
     tax_code tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
 
     @@index([sq_id])
