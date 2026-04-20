@@ -61,7 +61,7 @@ async function main() {
             seq_length: 4,
             running_cycle: RunningCycle.YEAR,
         },
-                {
+        {
             module_code: 'AV',
             document_type_code: 'AV',
             prefix: 'AV',
@@ -85,6 +85,14 @@ async function main() {
             seq_length: 4,
             running_cycle: RunningCycle.YEAR,
         },
+        {
+            module_code: 'AQ',
+            document_type_code: 'AQ',
+            prefix: 'AQ',
+            pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+            seq_length: 4,
+            running_cycle: RunningCycle.YEAR,
+        },
     ];
     console.log('🌱 Start seeding document_format...');
     for (const f of formats) {
@@ -102,29 +110,29 @@ async function main() {
     }
 
     const priceLevels = [
-  { code: 'Level1', name: 'ราคาปลีก', level_no: 1 },
-  { code: 'Level2', name: 'ราคาส่ง', level_no: 2 },
-  { code: 'Level3', name: 'VIP', level_no: 3 },
-  { code: 'Level4', name: 'โครงการ', level_no: 4 },
-  { code: 'Level5', name: 'โครงการ', level_no: 5 },
-  { code: 'Level6', name: 'โครงการ', level_no: 6 },
-  { code: 'Level7', name: 'โครงการ', level_no: 7 },
-  { code: 'Level8', name: 'โครงการ', level_no: 8 },
-  { code: 'Level9', name: 'โครงการ', level_no: 9 },
-  { code: 'Level10', name: 'โครงการ', level_no: 10 },
-];
+        { code: 'Level1', name: 'ราคาปลีก', level_no: 1 },
+        { code: 'Level2', name: 'ราคาส่ง', level_no: 2 },
+        { code: 'Level3', name: 'VIP', level_no: 3 },
+        { code: 'Level4', name: 'โครงการ', level_no: 4 },
+        { code: 'Level5', name: 'โครงการ', level_no: 5 },
+        { code: 'Level6', name: 'โครงการ', level_no: 6 },
+        { code: 'Level7', name: 'โครงการ', level_no: 7 },
+        { code: 'Level8', name: 'โครงการ', level_no: 8 },
+        { code: 'Level9', name: 'โครงการ', level_no: 9 },
+        { code: 'Level10', name: 'โครงการ', level_no: 10 },
+    ];
 
-for (const p of priceLevels) {
-  console.log(`→ upsert price_level ${p.code}`);
+    for (const p of priceLevels) {
+        console.log(`→ upsert price_level ${p.code}`);
 
-  await prisma.price_level.upsert({
-    where: {
-      code: p.code, // 🔥 ใช้ unique field
-    },
-    update: p,
-    create: p,
-  });
-}
+        await prisma.price_level.upsert({
+            where: {
+                code: p.code, // 🔥 ใช้ unique field
+            },
+            update: p,
+            create: p,
+        });
+    }
 }
 
 main()
