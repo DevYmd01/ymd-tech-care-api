@@ -1,6 +1,8 @@
 import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe} from '@nestjs/common';
 import { SaleQuotationService } from './sale-quotation.service';
 import { CreateSaleQuotationHeaderDto } from './dto/create-sale-quotation-header.dto';
+import { UpdateSaleQuotationHeaderDto } from './dto/update-sale-quotation-header.dto';
+
 @Controller('sale-quotation')
 export class SaleQuotationController {
   constructor(private readonly saleQuotationService: SaleQuotationService) {}
@@ -20,6 +22,13 @@ export class SaleQuotationController {
   findAll() {
     return this.saleQuotationService.findAll();
   }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateSaleQuotationDto: UpdateSaleQuotationHeaderDto) {
+    return this.saleQuotationService.update(+id, updateSaleQuotationDto);
+  }
+
+
 
 
 

@@ -11,6 +11,12 @@ import { CreateSaleQuotationHeaderMapper } from './mapper/create-sale-quotation-
 import { CreateSaleQuotationHeaderRepository } from './repository/create-sale-quotation-header.repository';
 import { CreateSaleQuotationLineMapper } from './mapper/create-sale-quotation-line.mapper';
 import { CreateSaleQuotationLineRepository } from './repository/create-sale-quotation-line.repository';
+import { UpdateSaleQuotationHeaderMapper } from './mapper/update-sale-quotation-header.mapper';
+import { UpdateSaleQuotationHeaderRepository } from './repository/update-sale-quotation-header.repository';
+import { UpdateSaleQuotationLineMapper } from './mapper/update-sale-quotation-line.mapper';
+import { UpdateSaleQuotationLineRepository } from './repository/update-sale-quotation-line.repository';
+
+
 
 @Module({
   imports: [DocumentNumberModule, PricingEngineModule],
@@ -24,7 +30,11 @@ import { CreateSaleQuotationLineRepository } from './repository/create-sale-quot
     CreateSaleQuotationHeaderMapper,
     CreateSaleQuotationHeaderRepository,
     CreateSaleQuotationLineMapper,
-    CreateSaleQuotationLineRepository
+    CreateSaleQuotationLineRepository,
+    UpdateSaleQuotationHeaderMapper,
+    UpdateSaleQuotationHeaderRepository,
+    UpdateSaleQuotationLineMapper,
+    UpdateSaleQuotationLineRepository
   ]
 })
 export class SaleQuotationModule {}
