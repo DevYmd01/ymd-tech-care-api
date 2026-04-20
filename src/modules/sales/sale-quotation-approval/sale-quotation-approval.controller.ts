@@ -12,7 +12,10 @@ export class SaleQuotationApprovalController {
     return this.saleQuotationApprovalService.create(createSaleQuotationHeaderDto, req.user);
   }
 
-
+  @Get()
+  findAll() {
+    return this.saleQuotationApprovalService.findAll();
+  }
 
   // แสดงข้อมูล sale-quotation ที่รออนุมัติ
 @Get('pending-approval')

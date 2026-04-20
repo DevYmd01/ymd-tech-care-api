@@ -252,6 +252,22 @@ export class SaleQuotationApprovalService {
         });
     }
 
+    async findAll(){
+        return this.prisma.sale_quotation_approval_header.findMany({
+          include: {
+            sq_header: true,
+            saleQuotationApprovalLines: {
+              include: {
+                sq_line: true,
+              },
+            },
+          },
+        
+    })
+    }
+
+
+
     async findPendingApproval(id: number) {
         return this.prisma.sale_quotation_header.findUnique({
             where: {
