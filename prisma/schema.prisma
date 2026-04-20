@@ -12,57 +12,58 @@ datasource db {
 ////////////
 
 model employees {
-    employee_id                Int                     @id @default(autoincrement())
-    branch_id                  Int?
-    employee_code              String                  @unique @db.VarChar(20)
-    employee_title_th          String                  @db.VarChar(20)
-    employee_title_en          String                  @db.VarChar(20)
-    employee_firstname_th      String                  @db.VarChar(200)
-    employee_lastname_th       String                  @db.VarChar(200)
-    employee_firstname_en      String?                 @db.VarChar(200)
-    employee_lastname_en       String?                 @db.VarChar(200)
-    employee_fullname          String                  @db.VarChar(400)
-    employee_startdate         DateTime
-    employee_resigndate        DateTime?
-    employee_status            String                  @db.VarChar(20)
-    phone                      String?                 @db.VarChar(20)
-    email                      String                  @db.VarChar(255)
-    remark                     String?
-    tax_idcard                 String?                 @db.VarChar(20)
-    tax_id                     String?                 @db.VarChar(20)
-    emp_type                   Boolean                 @default(false)
-    position_id                Int?
-    department_id              Int?
-    is_active                  Boolean                 @default(true)
-    employee_head_id           Int?
-    employee_head_code         String?                 @db.VarChar(25)
-    created_at                 DateTime                @default(now())
-    updated_at                 DateTime                @default(now()) @updatedAt
-    employeeAddresses          employee_address[]
-    employeeAuths              employee_auth?
-    branch                     org_branch?             @relation(fields: [branch_id], references: [branch_id])
-    department                 org_department?         @relation(fields: [department_id], references: [department_id])
-    employeeHead               employees?              @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
-    employees                  employees[]             @relation("EmployeeManager")
-    position                   org_position?           @relation(fields: [position_id], references: [position_id])
-    requested_pr               pr_header[]             @relation("requester_user")
-    approved_pr                pr_header[]             @relation("approved_by_user")
-    rfqHeaders                 rfq_header[]            @relation("requested_by_user")
-    createdVqHeaders           vq_header[]             @relation("VQCreatedBy")
-    updatedVqHeaders           vq_header[]             @relation("VQUpdatedBy")
-    createdQcHeaders           qc_header[]             @relation("QCCreatedBy")
-    updatedQcHeaders           qc_header[]             @relation("QCUpdatedBy")
-    createdPoHeaders           po_header[]             @relation("poCreatedBy")
-    updatedPoHeaders           po_header[]             @relation("poUpdatedBy")
-    regnHeaders                grn_header[]
-    prApprovals                pr_approval[]
-    poApprovals                po_approval[]
-    employeeSaleTargets        employee_sale_target[]
-    standardCostHeaders_permit standard_cost_header[]  @relation("permit_emp")
-    standardCostHeaders_save   standard_cost_header[]  @relation("save_emp")
-    priceListHeaders_permit    price_list_header[]     @relation("permit_emp_price_list")
-    priceListHeaders_save      price_list_header[]     @relation("save_emp_price_list")
-    saleQuotationHeaders       sale_quotation_header[]
+    employee_id                  Int                              @id @default(autoincrement())
+    branch_id                    Int?
+    employee_code                String                           @unique @db.VarChar(20)
+    employee_title_th            String                           @db.VarChar(20)
+    employee_title_en            String                           @db.VarChar(20)
+    employee_firstname_th        String                           @db.VarChar(200)
+    employee_lastname_th         String                           @db.VarChar(200)
+    employee_firstname_en        String?                          @db.VarChar(200)
+    employee_lastname_en         String?                          @db.VarChar(200)
+    employee_fullname            String                           @db.VarChar(400)
+    employee_startdate           DateTime
+    employee_resigndate          DateTime?
+    employee_status              String                           @db.VarChar(20)
+    phone                        String?                          @db.VarChar(20)
+    email                        String                           @db.VarChar(255)
+    remark                       String?
+    tax_idcard                   String?                          @db.VarChar(20)
+    tax_id                       String?                          @db.VarChar(20)
+    emp_type                     Boolean                          @default(false)
+    position_id                  Int?
+    department_id                Int?
+    is_active                    Boolean                          @default(true)
+    employee_head_id             Int?
+    employee_head_code           String?                          @db.VarChar(25)
+    created_at                   DateTime                         @default(now())
+    updated_at                   DateTime                         @default(now()) @updatedAt
+    employeeAddresses            employee_address[]
+    employeeAuths                employee_auth?
+    branch                       org_branch?                      @relation(fields: [branch_id], references: [branch_id])
+    department                   org_department?                  @relation(fields: [department_id], references: [department_id])
+    employeeHead                 employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
+    employees                    employees[]                      @relation("EmployeeManager")
+    position                     org_position?                    @relation(fields: [position_id], references: [position_id])
+    requested_pr                 pr_header[]                      @relation("requester_user")
+    approved_pr                  pr_header[]                      @relation("approved_by_user")
+    rfqHeaders                   rfq_header[]                     @relation("requested_by_user")
+    createdVqHeaders             vq_header[]                      @relation("VQCreatedBy")
+    updatedVqHeaders             vq_header[]                      @relation("VQUpdatedBy")
+    createdQcHeaders             qc_header[]                      @relation("QCCreatedBy")
+    updatedQcHeaders             qc_header[]                      @relation("QCUpdatedBy")
+    createdPoHeaders             po_header[]                      @relation("poCreatedBy")
+    updatedPoHeaders             po_header[]                      @relation("poUpdatedBy")
+    regnHeaders                  grn_header[]
+    prApprovals                  pr_approval[]
+    poApprovals                  po_approval[]
+    employeeSaleTargets          employee_sale_target[]
+    standardCostHeaders_permit   standard_cost_header[]           @relation("permit_emp")
+    standardCostHeaders_save     standard_cost_header[]           @relation("save_emp")
+    priceListHeaders_permit      price_list_header[]              @relation("permit_emp_price_list")
+    priceListHeaders_save        price_list_header[]              @relation("save_emp_price_list")
+    saleQuotationHeaders         sale_quotation_header[]
+    saleQuotationApprovalHeaders sale_quotation_approval_header[]
 }
 
 model employee_group {
@@ -2432,6 +2433,7 @@ model sale_quotation_approval_header {
     created_at        DateTime              @default(now())
     updated_at        DateTime              @updatedAt
     approval_emp_id   Int
+    approval_emp      employees             @relation(fields: [approval_emp_id], references: [employee_id])
     approval_emp_name String                @db.VarChar(255)
 
     /// สกุลเงินหลักของระบบ (Functional Currency)
@@ -2483,7 +2485,7 @@ model sale_quotation_approval_line {
 
     /// DOCUMENT DISCOUNT    /// ส่วนลด
     discount_expression String?  @db.VarChar(20)
-    discount_amount     Decimal  @db.Decimal(18, 2)
+    discount_amount     Decimal? @db.Decimal(18, 2)
     discount_rate       Decimal? @db.Decimal(9, 4)
 
     net_amount Decimal @db.Decimal(18, 2)
