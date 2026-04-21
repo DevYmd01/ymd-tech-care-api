@@ -17,8 +17,17 @@ export class EmployeesController {
         return this.employeesService.findAll();
     }
 
+    // แสดงข้อมูลพนักงานขายทั้งหมดเท่านั้น
+    @Get('emp-sale-all')
+    findAllSale() {
+        return this.employeesService.findAllSale();
+    }
+
     @Get(':employee_id')
     findOne(@Param('employee_id') employee_id: number) {
         return this.employeesService.findOne(+employee_id);
     }
+
+
+
 }

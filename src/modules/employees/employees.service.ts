@@ -110,4 +110,20 @@ export class EmployeesService {
             },
         });
     }
+
+    findAllSale() {
+        return this.prisma.employees.findMany({
+            where: { 
+                emp_type: true,
+                // employee_status: "ACTIVE",
+            },
+            include: {
+                employeeAddresses: true,
+                department: true,
+                position: true,
+                branch: true,
+            },
+        });
+    }
+
 }
