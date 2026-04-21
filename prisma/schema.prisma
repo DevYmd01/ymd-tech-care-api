@@ -64,6 +64,7 @@ model employees {
     priceListHeaders_save        price_list_header[]              @relation("save_emp_price_list")
     saleQuotationHeaders         sale_quotation_header[]
     saleQuotationApprovalHeaders sale_quotation_approval_header[]
+    saleReservationHeaders       sale_reservation_header[]
 }
 
 model employee_group {
@@ -75,11 +76,12 @@ model employee_group {
 }
 
 model employee_sale_area {
-    sale_area_id      Int     @id @default(autoincrement())
-    sale_area_code    String  @unique @db.VarChar(30)
-    sale_area_name    String  @db.VarChar(200)
-    sale_area_nameeng String? @db.VarChar(200)
-    is_active         Boolean @default(true)
+    sale_area_id         Int                     @id @default(autoincrement())
+    sale_area_code       String                  @unique @db.VarChar(30)
+    sale_area_name       String                  @db.VarChar(200)
+    sale_area_nameeng    String?                 @db.VarChar(200)
+    is_active            Boolean                 @default(true)
+    saleQuotationHeaders sale_quotation_header[]
 }
 
 model employee_position {
@@ -142,17 +144,18 @@ model employee_side {
 
 // แผนกของพนักงาน
 model employee_department {
-    emp_dept_id          Int                     @id @default(autoincrement())
-    emp_dept_code        String                  @unique @db.VarChar(30)
-    emp_dept_name        String                  @db.VarChar(200)
-    emp_dept_nameeng     String?                 @db.VarChar(200)
-    is_active            Boolean                 @default(true)
-    emp_side_id          Int
-    created_at           DateTime                @default(now())
-    updated_at           DateTime                @updatedAt
-    side                 employee_side           @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
-    priceListHeaders     price_list_header[]
-    saleQuotationHeaders sale_quotation_header[]
+    emp_dept_id            Int                       @id @default(autoincrement())
+    emp_dept_code          String                    @unique @db.VarChar(30)
+    emp_dept_name          String                    @db.VarChar(200)
+    emp_dept_nameeng       String?                   @db.VarChar(200)
+    is_active              Boolean                   @default(true)
+    emp_side_id            Int
+    created_at             DateTime                  @default(now())
+    updated_at             DateTime                  @updatedAt
+    side                   employee_side             @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+    priceListHeaders       price_list_header[]
+    saleQuotationHeaders   sale_quotation_header[]
+    saleReservationHeaders sale_reservation_header[]
 
     @@unique([emp_dept_id])
 }
@@ -205,20 +208,21 @@ model employee_address {
 
 /// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_code          String                  @unique @db.VarChar(20)
-    branch_name          String                  @db.VarChar(200)
-    is_active            Boolean                 @default(true)
-    branch_id            Int                     @id @default(autoincrement())
-    created_at           DateTime                @default(now())
-    updated_at           DateTime                @updatedAt
-    employees            employees[]
-    prHeaders            pr_header[]
-    rfqHeaders           rfq_header[]
-    warehouses           warehouse[]
-    poHeaders            po_header[]
-    priceListHeaders     price_list_header[]
-    icOption             ic_option[]
-    saleQuotationHeaders sale_quotation_header[]
+    branch_code            String                    @unique @db.VarChar(20)
+    branch_name            String                    @db.VarChar(200)
+    is_active              Boolean                   @default(true)
+    branch_id              Int                       @id @default(autoincrement())
+    created_at             DateTime                  @default(now())
+    updated_at             DateTime                  @updatedAt
+    employees              employees[]
+    prHeaders              pr_header[]
+    rfqHeaders             rfq_header[]
+    warehouses             warehouse[]
+    poHeaders              po_header[]
+    priceListHeaders       price_list_header[]
+    icOption               ic_option[]
+    saleQuotationHeaders   sale_quotation_header[]
+    saleReservationHeaders sale_reservation_header[]
 
     @@map("org_branch")
 }
@@ -950,23 +954,24 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code         String                  @unique @db.VarChar(30)
+    project_code           String                    @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name         String                  @db.VarChar(200)
+    project_name           String                    @db.VarChar(200)
     /// รหัสโครงการ
-    project_id           Int                     @id @default(autoincrement())
+    project_id             Int                       @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount        Decimal?                @db.Decimal(15, 2)
+    budget_amount          Decimal?                  @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
-    description          String?
+    description            String?
     /// วันที่สิ้นสุดโครงการ
-    end_date             DateTime?
+    end_date               DateTime?
     /// วันที่เริ่มต้นโครงการ
-    start_date           DateTime?
+    start_date             DateTime?
     /// สถานะโครงการ
-    is_active            Boolean                 @default(true)
-    prHeaders            pr_header[]
-    saleQuotationHeaders sale_quotation_header[]
+    is_active              Boolean                   @default(true)
+    prHeaders              pr_header[]
+    saleQuotationHeaders   sale_quotation_header[]
+    saleReservationHeaders sale_reservation_header[]
 
     @@map("project")
 }
@@ -1188,12 +1193,13 @@ model customer {
     created_at    DateTime    @default(now())
     updated_at    DateTime    @updatedAt
 
-    price_level_id       Int?
-    price_level          price_level?            @relation(fields: [price_level_id], references: [id])
-    customerAddresses    customer_address[]
-    customerBranches     customer_branch[]
-    priceListHeaders     price_list_header[]
-    saleQuotationHeaders sale_quotation_header[]
+    price_level_id         Int?
+    price_level            price_level?              @relation(fields: [price_level_id], references: [id])
+    customerAddresses      customer_address[]
+    customerBranches       customer_branch[]
+    priceListHeaders       price_list_header[]
+    saleQuotationHeaders   sale_quotation_header[]
+    saleReservationHeaders sale_reservation_header[]
 
     @@map("customer")
 }
@@ -2361,8 +2367,10 @@ model sale_quotation_header {
     base_discount_amount  Decimal?  @db.Decimal(18, 2)
     quote_discount_amount Decimal?  @db.Decimal(18, 2)
 
-    emp_area_id                  Int?
-    emp_area                     employees?                       @relation(fields: [emp_area_id], references: [employee_id])
+    emp_sale_id                  Int?
+    emp_sale                     employees?                       @relation(fields: [emp_sale_id], references: [employee_id])
+    sale_area_id                 Int?
+    sale_area                    employee_sale_area?              @relation(fields: [sale_area_id], references: [sale_area_id])
     emp_dept_id                  Int
     emp_dept                     employee_department              @relation(fields: [emp_dept_id], references: [emp_dept_id])
     project_id                   Int
@@ -2491,6 +2499,35 @@ model sale_quotation_approval_line {
     net_amount Decimal @db.Decimal(18, 2)
 
     remarks String? @db.Text
+}
+
+model sale_reservation_header {
+    reservation_id    Int                 @id @default(autoincrement())
+    reservation_no    String              @unique
+    reservation_date  DateTime            @default(now())
+    lead_id           Int
+    customer_id       Int
+    customer          customer            @relation(fields: [customer_id], references: [customer_id])
+    branch_id         Int
+    branch            org_branch          @relation(fields: [branch_id], references: [branch_id])
+    status            String
+    ship_days         Int
+    remarks           String
+    payment_term_days Int
+    onhold            String
+    emp_area_id       Int
+    emp_area          employees           @relation(fields: [emp_area_id], references: [employee_id])
+    emp_dept_id       Int
+    emp_dept          employee_department @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    project_id        Int
+    project           project             @relation(fields: [project_id], references: [project_id])
+    status_remark     String
+}
+
+model item_lot {
+    lot_id  Int    @id @default(autoincrement())
+    lot_no  String @unique @db.VarChar(30)
+    item_id Int
 }
 
 ////////////

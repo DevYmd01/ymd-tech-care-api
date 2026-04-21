@@ -52,7 +52,12 @@ export class CreateSaleQuotationHeaderDto {
 
   @IsOptional()
   @IsInt()
-  emp_area_id?: number;
+  emp_sale_id?: number;
+
+  
+  @IsOptional()
+  @IsInt()
+  sale_area_id?: number;
 
   @IsNotEmpty()
   @IsInt()

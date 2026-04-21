@@ -54,8 +54,13 @@ export class UpdateSaleQuotationHeaderMapper {
       quote_discount_amount:
         headerDocTotals.discountAmount?.toNumber() ?? 0,
 
-      emp_area: {
-        connect: { employee_id: data.emp_area_id },
+
+emp_sale: {
+        connect: { employee_id: data.emp_sale_id },
+      },
+
+sale_area: {
+        connect: { sale_area_id: data.sale_area_id },
       },
 
       emp_dept: {
