@@ -235,11 +235,11 @@ export class SaleQuotationApprovalService {
                 customer: true,
                 branch: true,
                 saleQuotationLines: {
-                    where: {
-                        status: {
-                            in: ['PENDING', 'PARTIAL'],
-                        },
-                    },
+                    // where: {
+                    //     status: {
+                    //         in: ['PENDING', 'PARTIAL'],
+                    //     }, 
+                    // },
                     include: {
                         item: true,
                         uom: true,
@@ -280,11 +280,11 @@ export class SaleQuotationApprovalService {
                 customer: true,
                 branch: true,
                 saleQuotationLines: {
-                    where: {
-                        status: {
-                            in: ['PENDING', 'PARTIAL'],
-                        },
-                    },
+                    // where: {
+                    //     status: {
+                    //         in: ['PENDING', 'PARTIAL'],
+                    //     },
+                    // },
                     include: {
                         item: true,
                         uom: true,

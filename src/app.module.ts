@@ -69,6 +69,7 @@ import { InventoryOptionModule } from './modules/master-data/inventory-option/in
 import { PricingEngineModule } from './modules/pricing/pricing-engine/pricing-engine.module';
 import { SaleQuotationModule } from './modules/sales/sale-quotation/sale-quotation.module';
 import { SaleQuotationApprovalModule } from './modules/sales/sale-quotation-approval/sale-quotation-approval.module';
+import { ItemLotModule } from './modules/inventory-control/item-lot/item-lot.module';
 
 @Module({
   imports: [
@@ -138,6 +139,7 @@ import { SaleQuotationApprovalModule } from './modules/sales/sale-quotation-appr
     PricingEngineModule,
     SaleQuotationModule,
     SaleQuotationApprovalModule,
+    ItemLotModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
