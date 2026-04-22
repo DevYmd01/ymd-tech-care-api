@@ -23,11 +23,11 @@ export class CreateInventoryOptionDto {
     @IsString()
     barcode_flag?: string;
     @IsOptional()
-    @IsString()
-    check_deficit?: string;
+    @IsNumber()
+    check_deficit?: number;
     @IsOptional()
-    @IsString()
-    check_deficit_option?: string;
+    @IsNumber()
+    check_deficit_option?: number;
     @IsOptional()
     @IsString()
     check_max_qty?: string;
@@ -35,8 +35,8 @@ export class CreateInventoryOptionDto {
     @IsString()
     check_min_qty?: string;
     @IsOptional()
-    @IsString()
-    check_qty_flag?: string;
+    @IsNumber()
+    check_qty_flag?: number;
     @IsOptional()
     @IsString()
     check_standcost?: string;

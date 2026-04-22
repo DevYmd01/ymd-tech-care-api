@@ -141,6 +141,113 @@ async function main() {
             create: p,
         });
     }
+
+   
+const salesDocuments = [
+  {
+    system_document_code: 'INQ',
+    system_document_name: 'สำรวจความต้องการ',
+    system_document_name_eng: 'Inquiry',
+    sort_order: 1,
+    is_active: true,
+  },
+  {
+    system_document_code: 'EST',
+    system_document_name: 'ประมาณการราคา',
+    system_document_name_eng: 'Estimate',
+    sort_order: 2,
+    is_active: true,
+  },
+  {
+    system_document_code: 'QT',
+    system_document_name: 'ใบเสนอราคา',
+    system_document_name_eng: 'Quotation',
+    sort_order: 3,
+    is_active: true,
+  },
+  {
+    system_document_code: 'QTA',
+    system_document_name: 'อนุมัติใบเสนอราคา',
+    system_document_name_eng: 'Approve Quotation',
+    sort_order: 4,
+    is_active: true,
+  },
+  {
+    system_document_code: 'RSV',
+    system_document_name: 'ใบสั่งจอง',
+    system_document_name_eng: 'Reservation',
+    sort_order: 5,
+    is_active: true,
+  },
+  {
+    system_document_code: 'SO',
+    system_document_name: 'คำสั่งขาย',
+    system_document_name_eng: 'Sales Order',
+    sort_order: 6,
+    is_active: true,
+  },
+  {
+    system_document_code: 'SOA',
+    system_document_name: 'อนุมัติใบสั่งขาย',
+    system_document_name_eng: 'Approve Sales Order',
+    sort_order: 7,
+    is_active: true,
+  },
+  {
+    system_document_code: 'DO',
+    system_document_name: 'จัดส่งสินค้า',
+    system_document_name_eng: 'Delivery Order',
+    sort_order: 8,
+    is_active: true,
+  },
+  {
+    system_document_code: 'INV',
+    system_document_name: 'วางบิล/ใบแจ้งหนี้',
+    system_document_name_eng: 'Invoice',
+    sort_order: 9,
+    is_active: true,
+  },
+  {
+    system_document_code: 'SRT',
+    system_document_name: 'รับคืนสินค้า/ลดหนี้',
+    system_document_name_eng: 'Sales Return',
+    sort_order: 10,
+    is_active: true,
+  },
+  {
+    system_document_code: 'PRM',
+    system_document_name: 'เงื่อนไขราคา/โปรโมชัน',
+    system_document_name_eng: 'Pricing / Promotion',
+    sort_order: 11,
+    is_active: true,
+  },
+  {
+    system_document_code: 'SRP',
+    system_document_name: 'รายงานขาย',
+    system_document_name_eng: 'Sales Reports',
+    sort_order: 12,
+    is_active: true,
+  },
+]
+
+for (const d of salesDocuments) {
+  console.log(`→ upsert system_document ${d.system_document_code}`)
+
+  await prisma.system_document.upsert({
+    where: {
+      system_document_code: d.system_document_code,
+    },
+    update: {
+      system_document_name: d.system_document_name,
+      system_document_name_eng: d.system_document_name_eng,
+      sort_order: d.sort_order,
+      is_active: d.is_active,
+    },
+    create: d,
+  })
+}
+
+
 }
 
 main()

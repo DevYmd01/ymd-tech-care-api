@@ -28,7 +28,7 @@ export class CreateInventoryOptionMapper {
             order_alert_flag: dto.order_alert_flag,
             post_cost_flag: dto.post_cost_flag,
             reorder_flag: dto.reorder_flag,
-            trasfer_cost_flag: dto.trasfer_cost_flag,
+            transfer_cost_flag: dto.trasfer_cost_flag,
         };
     }   
 }

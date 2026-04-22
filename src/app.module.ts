@@ -70,6 +70,7 @@ import { PricingEngineModule } from './modules/pricing/pricing-engine/pricing-en
 import { SaleQuotationModule } from './modules/sales/sale-quotation/sale-quotation.module';
 import { SaleQuotationApprovalModule } from './modules/sales/sale-quotation-approval/sale-quotation-approval.module';
 import { ItemLotModule } from './modules/inventory-control/item-lot/item-lot.module';
+import { SaleReservationModule } from './modules/sales/sale-reservation/sale-reservation.module';
 
 @Module({
   imports: [
@@ -140,6 +141,7 @@ import { ItemLotModule } from './modules/inventory-control/item-lot/item-lot.mod
     SaleQuotationModule,
     SaleQuotationApprovalModule,
     ItemLotModule,
+    SaleReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

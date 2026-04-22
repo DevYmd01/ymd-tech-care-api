@@ -36,7 +36,7 @@ export class UpdateInventoryOptionMapper {
             set_price_ic: dto.set_price_ic,
             set_price_pack: dto.set_price_pack,
             set_price_po: dto.set_price_po,
-            trasfer_cost_flag: dto.trasfer_cost_flag,
+            transfer_cost_flag: dto.trasfer_cost_flag,
         };
     }   
 }
