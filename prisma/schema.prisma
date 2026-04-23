@@ -1399,6 +1399,7 @@ model ic_option {
     icOptionLists ic_option_list[]
 }
 
+// A41.1 ตั้งค่าการจัดการตัดยอดสินค้าตาม...
 model ic_option_list {
     option_list_id Int @id @default(autoincrement())
 
