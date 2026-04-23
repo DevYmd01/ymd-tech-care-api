@@ -71,6 +71,8 @@ import { SaleQuotationModule } from './modules/sales/sale-quotation/sale-quotati
 import { SaleQuotationApprovalModule } from './modules/sales/sale-quotation-approval/sale-quotation-approval.module';
 import { ItemLotModule } from './modules/inventory-control/item-lot/item-lot.module';
 import { SaleReservationModule } from './modules/sales/sale-reservation/sale-reservation.module';
+import { SystemDocumentModule } from './modules/configuration/system-document/system-document.module';
+import { IcOptionListModule } from './modules/configuration/ic-option-list/ic-option-list.module';
 
 @Module({
   imports: [
@@ -142,6 +144,8 @@ import { SaleReservationModule } from './modules/sales/sale-reservation/sale-res
     SaleQuotationApprovalModule,
     ItemLotModule,
     SaleReservationModule,
+    SystemDocumentModule,
+    IcOptionListModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
