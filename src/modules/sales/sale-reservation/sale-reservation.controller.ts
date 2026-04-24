@@ -13,15 +13,15 @@ export class SaleReservationController {
     return this.saleReservationService.create(createSaleReservationHeaderDto);
   }
 
-//   @Get()
-//   async findAll() {
-//     return this.saleReservationService.findAll();
-//   }
+  @Get()
+  async findAll() {
+    return this.saleReservationService.findAll();
+  }
 
-//   @Get(':id')
-//   async findOne(@Param('id') id: string) {
-//     return this.saleReservationService.findOne(+id);
-//   }
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.saleReservationService.findOne(+id);
+  }
 
 
   @Get('available-approvals')

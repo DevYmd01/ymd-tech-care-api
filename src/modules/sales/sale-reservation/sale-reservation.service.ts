@@ -175,4 +175,22 @@ async sqApprovalPending() {
     return row;
   }
 
+
+  async findAll() {
+    return this.prisma.sale_reservation_header.findMany({
+      include: {
+        saleReservationLines: true,
+      },
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.sale_reservation_header.findUnique({
+      where: { reservation_id: id },
+      include: {
+        saleReservationLines: true,
+      },
+    });
+  }
+
 }
