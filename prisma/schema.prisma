@@ -224,6 +224,10 @@ model org_branch {
     icOption               ic_option[]
     saleQuotationHeaders   sale_quotation_header[]
     saleReservationHeaders sale_reservation_header[]
+    itemStockBalances      item_stock_balance[]
+    stockTransactions      stock_transaction[]
+    itemLotBalances        item_lot_balance[]
+    lotTransactions        lot_transaction[]
 
     @@map("org_branch")
 }
@@ -276,6 +280,10 @@ model warehouse {
     poHeaders            po_header[]
     regnHeaders          grn_header[]
     saleReservationLines sale_reservation_line[]
+    itemStockBalances    item_stock_balance[]
+    stockTransactions    stock_transaction[]
+    itemLotBalances      item_lot_balance[]
+    lotTransactions      lot_transaction[]
 
     @@map("warehouse")
 }
@@ -294,6 +302,10 @@ model location {
     shelf                shelf?                  @relation(fields: [shelf_id], references: [shelf_id])
     prLines              pr_line[]
     saleReservationLines sale_reservation_line[]
+    itemStockBalances    item_stock_balance[]
+    stockTransactions    stock_transaction[]
+    itemLotBalances      item_lot_balance[]
+    lotTransactions      lot_transaction[]
 
     @@map("location")
 }
@@ -373,6 +385,10 @@ model item {
     saleQuotationLines   sale_quotation_line[]
     saleReservationLines sale_reservation_line[]
     itemLots             item_lot[]
+    itemStockBalances    item_stock_balance[]
+    stockTransactions    stock_transaction[]
+    itemLotBalances      item_lot_balance[]
+    lotTransactions      lot_transaction[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -2659,37 +2675,159 @@ model sale_reservation_line {
     net_amount Decimal @db.Decimal(18, 2)
 }
 
-// M4
+// =========================
+// ITEM STOCK BALANCE
+// =========================
+model item_stock_balance {
+    stock_balance_id Int @id @default(autoincrement())
+
+    item_id      Int
+    branch_id    Int?
+    warehouse_id Int
+    location_id  Int?
+
+    qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
+    qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
+    qty_available Decimal @default(0) @db.Decimal(18, 6)
+
+    updated_at DateTime @updatedAt
+
+    item      item        @relation(fields: [item_id], references: [item_id])
+    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
+    warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
+    location  location?   @relation(fields: [location_id], references: [location_id])
+
+    @@unique([item_id, branch_id, warehouse_id, location_id])
+    @@index([item_id])
+    @@index([warehouse_id])
+}
+
+// =========================
+// STOCK TRANSACTION (ITEM LEVEL)
+// =========================
+model stock_transaction {
+    stock_transaction_id Int @id @default(autoincrement())
+
+    item_id      Int
+    branch_id    Int?
+    warehouse_id Int
+    location_id  Int?
+
+    qty Decimal @db.Decimal(18, 6)
+
+    trans_type String
+    // RECEIVE / ISSUE / ADJUST / TRANSFER / RESERVE
+
+    ref_doc_type String?
+    ref_doc_no   String?
+    ref_line_id  Int?
+
+    created_at DateTime @default(now())
+
+    item      item        @relation(fields: [item_id], references: [item_id])
+    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
+    warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
+    location  location?   @relation(fields: [location_id], references: [location_id])
+
+    @@index([item_id])
+    @@index([warehouse_id])
+    @@index([ref_doc_type, ref_doc_no])
+}
+
+// =========================
+// ITEM LOT (MASTER)
+// =========================
 model item_lot {
     lot_id Int @id @default(autoincrement())
 
-    lot_no String @db.VarChar(30)
-
     item_id Int
-    item    item @relation(fields: [item_id], references: [item_id])
+    lot_no  String
 
-    supplier_vendor_id Int
-    supplier_vendor    vendor @relation(fields: [supplier_vendor_id], references: [vendor_id])
+    supplier_vendor_id Int?
 
     mfg_date    DateTime?
     expiry_date DateTime?
 
     status String @db.VarChar(20)
 
-    note String? @db.Text
+    note String?
 
-    qty_issued    Decimal @default(0) @db.Decimal(18, 6)
-    qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
-    qty_stock     Decimal @default(0) @db.Decimal(18, 6)
-    qty_available Decimal @default(0) @db.Decimal(18, 6)
+    item            item    @relation(fields: [item_id], references: [item_id])
+    supplier_vendor vendor? @relation(fields: [supplier_vendor_id], references: [vendor_id])
 
-    created_at           DateTime                @default(now())
-    updated_at           DateTime                @updatedAt
+    balances             item_lot_balance[]
+    transactions         lot_transaction[]
     saleReservationLines sale_reservation_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
     @@index([expiry_date])
+}
+
+// =========================
+// ITEM LOT BALANCE
+// =========================
+model item_lot_balance {
+    lot_balance_id Int @id @default(autoincrement())
+
+    lot_id  Int
+    item_id Int
+
+    branch_id    Int?
+    warehouse_id Int
+    location_id  Int?
+
+    qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
+    qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
+    qty_available Decimal @default(0) @db.Decimal(18, 6)
+
+    updated_at DateTime @updatedAt
+
+    lot       item_lot    @relation(fields: [lot_id], references: [lot_id])
+    item      item        @relation(fields: [item_id], references: [item_id])
+    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
+    warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
+    location  location?   @relation(fields: [location_id], references: [location_id])
+
+    @@unique([lot_id, warehouse_id, location_id])
+    @@index([item_id])
+    @@index([warehouse_id])
+}
+
+// =========================
+// LOT TRANSACTION
+// =========================
+model lot_transaction {
+    lot_transaction_id Int @id @default(autoincrement())
+
+    lot_id  Int
+    item_id Int
+
+    branch_id    Int?
+    warehouse_id Int
+    location_id  Int?
+
+    qty Decimal @db.Decimal(18, 6)
+
+    trans_type String
+    // RECEIVE / ISSUE / RESERVE / ADJUST
+
+    ref_doc_type String?
+    ref_doc_no   String?
+    ref_line_id  Int?
+
+    created_at DateTime @default(now())
+
+    lot       item_lot    @relation(fields: [lot_id], references: [lot_id])
+    item      item        @relation(fields: [item_id], references: [item_id])
+    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
+    warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
+    location  location?   @relation(fields: [location_id], references: [location_id])
+
+    @@index([lot_id])
+    @@index([item_id])
+    @@index([warehouse_id])
+    @@index([ref_doc_type, ref_doc_no])
 }
 
 ////////////
