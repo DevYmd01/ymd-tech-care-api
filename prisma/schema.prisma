@@ -2591,7 +2591,6 @@ model sale_reservation_header {
     sq_header         sale_quotation_header?         @relation(fields: [sq_id], references: [sq_id])
     aq_id             Int
     aq_header         sale_quotation_approval_header @relation(fields: [aq_id], references: [aq_id])
-    lead_id           Int
     customer_id       Int
     customer          customer                       @relation(fields: [customer_id], references: [customer_id])
     branch_id         Int
@@ -2678,6 +2677,7 @@ model sale_reservation_line {
 // =========================
 // ITEM STOCK BALANCE
 // =========================
+// M4.4
 model item_stock_balance {
     stock_balance_id Int @id @default(autoincrement())
 
@@ -2705,6 +2705,7 @@ model item_stock_balance {
 // =========================
 // STOCK TRANSACTION (ITEM LEVEL)
 // =========================
+// M4.3
 model stock_transaction {
     stock_transaction_id Int @id @default(autoincrement())
 
@@ -2737,6 +2738,7 @@ model stock_transaction {
 // =========================
 // ITEM LOT (MASTER)
 // =========================
+// M4
 model item_lot {
     lot_id Int @id @default(autoincrement())
 
@@ -2767,6 +2769,7 @@ model item_lot {
 // =========================
 // ITEM LOT BALANCE
 // =========================
+// M4.1
 model item_lot_balance {
     lot_balance_id Int @id @default(autoincrement())
 
@@ -2797,6 +2800,7 @@ model item_lot_balance {
 // =========================
 // LOT TRANSACTION
 // =========================
+// M4.2
 model lot_transaction {
     lot_transaction_id Int @id @default(autoincrement())
 

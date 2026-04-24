@@ -3,8 +3,8 @@ import { CreateSaleQuotationHeaderDto } from './dto/create-sale-quotation-header
 import { CreateSaleQuotationLineDto } from './dto/create-sale-quotation-line.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
-import { TaxService } from './domain/tax.domain.service';
-import { CalculationDomainService } from './domain/calculation.domain.service';
+import { TaxService } from './domain/service/tax.domain.service';
+import { CalculationDomainService } from './domain/service/calculation.domain.service';
 import { CreateSaleQuotationHeaderRepository } from './repository/create-sale-quotation-header.repository';
 import { CreateSaleQuotationLineRepository } from './repository/create-sale-quotation-line.repository';
 import { CreateSaleQuotationHeaderMapper } from './mapper/create-sale-quotation-header.mapper';

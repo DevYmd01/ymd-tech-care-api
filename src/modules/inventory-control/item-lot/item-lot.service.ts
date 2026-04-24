@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateItemLotRepository } from './repository/create-item-lot.repository';
 import { CreateItemLotMapper } from './mapper/create-item-lot.mapper';
@@ -15,8 +15,9 @@ export class ItemLotService {
     private readonly updateItemLotRepository: UpdateItemLotRepository,
   ) {}
 
-  async create(data: CreateItemLotDto) {
-    return this.prisma.$transaction(async () => {
+async create(data: CreateItemLotDto) {
+  try {
+    return await this.prisma.$transaction(async () => {
       const payload =
         CreateItemLotMapper.toPrismaCreateInput(data);
 
@@ -24,7 +25,19 @@ export class ItemLotService {
         payload,
       );
     });
+  } catch (error: any) {
+    if (
+      error.code === 'P2002' &&
+      error.meta?.target?.includes('item_id') &&
+      error.meta?.target?.includes('lot_no')
+    ) {
+      throw new ConflictException(
+        'lot_no นี้มีอยู่แล้วในสินค้านี้',
+      );
+    }
+    throw error;
   }
+}
 
   async findAll() {
     return this.prisma.item_lot.findMany({
