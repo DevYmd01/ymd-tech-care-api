@@ -18,7 +18,7 @@ export class SaleReservationController {
     return this.saleReservationService.findAll();
   }
 
-  
+
     @Get('available-approvals')
   async sqApprovalPending() {
     return this.saleReservationService.sqApprovalPending();
@@ -31,14 +31,11 @@ export class SaleReservationController {
   }
 
 
-
-
   @Get('available-approvals/:id')
   async sqApprovalPendingById(@Param('id', ParseIntPipe) aq_id: number) {
     return this.saleReservationService.sqApprovalPendingById(aq_id);
   }
 
-  
 
 
 }
