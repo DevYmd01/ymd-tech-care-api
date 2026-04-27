@@ -18,16 +18,20 @@ export class SaleReservationController {
     return this.saleReservationService.findAll();
   }
 
+  
+    @Get('available-approvals')
+  async sqApprovalPending() {
+    return this.saleReservationService.sqApprovalPending();
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.saleReservationService.findOne(+id);
   }
 
 
-  @Get('available-approvals')
-  async sqApprovalPending() {
-    return this.saleReservationService.sqApprovalPending();
-  }
+
 
   @Get('available-approvals/:id')
   async sqApprovalPendingById(@Param('id', ParseIntPipe) aq_id: number) {
