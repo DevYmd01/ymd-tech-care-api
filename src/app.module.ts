@@ -73,6 +73,7 @@ import { ItemLotModule } from './modules/inventory-control/item-lot/item-lot.mod
 import { SaleReservationModule } from './modules/sales/sale-reservation/sale-reservation.module';
 import { SystemDocumentModule } from './modules/configuration/system-document/system-document.module';
 import { IcOptionListModule } from './modules/configuration/ic-option-list/ic-option-list.module';
+import { SaleOrderModule } from './modules/sales/sale-order/sale-order.module';
 
 @Module({
   imports: [
@@ -146,6 +147,7 @@ import { IcOptionListModule } from './modules/configuration/ic-option-list/ic-op
     SaleReservationModule,
     SystemDocumentModule,
     IcOptionListModule,
+    SaleOrderModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

@@ -36,6 +36,12 @@ export class SaleReservationController {
     return this.saleReservationService.sqApprovalPendingById(aq_id);
   }
 
+  // แสดงข้อมูล item ที่ผ่านการอนุมัติ quotation
+  @Get('available-items/:id')
+  async getAvailableItems(@Param('id', ParseIntPipe) id: number) {
+    return this.saleReservationService.getAvailableItems(id);
+  }
+
 
 
 }

@@ -193,4 +193,12 @@ async sqApprovalPending() {
     });
   }
 
+async getAvailableItems(id: number) {
+  return this.prisma.sale_quotation_approval_line.findMany({
+    where: {
+      aq_id: id,
+    },
+  });
+}
+
 } 
