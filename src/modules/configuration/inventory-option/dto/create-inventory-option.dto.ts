@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+
 import {
     IsOptional,
     IsNumber,
@@ -6,6 +6,7 @@ import {
     IsArray,
     ValidateNested,
     IsNotEmpty,
+    IsString
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

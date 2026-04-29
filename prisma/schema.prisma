@@ -2783,7 +2783,7 @@ model sale_order_line {
 // =========================
 // ITEM STOCK BALANCE
 // =========================
-// M4.4
+// M4.4 ยังไม่ใช้เนื่องจากปัญหาทีมสับสนและระยะเวลา
 model item_stock_balance {
     stock_balance_id Int @id @default(autoincrement())
 
@@ -2811,7 +2811,7 @@ model item_stock_balance {
 // =========================
 // STOCK TRANSACTION (ITEM LEVEL)
 // =========================
-// M4.3
+// M4.3 ยังไม่ใช้เนื่องจากปัญหาทีมสับสนและระยะเวลา
 model stock_transaction {
     stock_transaction_id Int @id @default(autoincrement())
 
@@ -2885,10 +2885,12 @@ model item_lot_balance {
 
     branch_id    Int?
     warehouse_id Int
-    location_id  Int?
-
+    location_id  Int
+    // จำนวนคงเหลือจริงที่มีอยู่ใน lot / location นี้
     qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
+    // จำนวนที่ถูกจองไว้แล้ว เช่น Sale Order / Reservation / Pending Issue
     qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
+    // จำนวนที่พร้อมใช้งานจริง = qty_on_hand - qty_reserved
     qty_available Decimal @default(0) @db.Decimal(18, 6)
 
     updated_at DateTime @updatedAt
@@ -2897,7 +2899,7 @@ model item_lot_balance {
     item      item        @relation(fields: [item_id], references: [item_id])
     branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
     warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
-    location  location?   @relation(fields: [location_id], references: [location_id])
+    location  location   @relation(fields: [location_id], references: [location_id])
 
     @@unique([lot_id, warehouse_id, location_id])
     @@index([item_id])
@@ -2916,7 +2918,7 @@ model lot_transaction {
 
     branch_id    Int?
     warehouse_id Int
-    location_id  Int?
+    location_id  Int
 
     qty Decimal @db.Decimal(18, 6)
 
@@ -2939,6 +2941,7 @@ model lot_transaction {
     @@index([item_id])
     @@index([warehouse_id])
     @@index([ref_doc_type, ref_doc_no])
+    
 }
 
 ////////////
