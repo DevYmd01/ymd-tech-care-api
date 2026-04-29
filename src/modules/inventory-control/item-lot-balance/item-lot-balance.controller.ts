@@ -28,6 +28,9 @@ export class ItemLotBalanceController {
         return this.itemLotBalanceService.update(+id, updateItemLotBalanceDto);
     }
 
-
+    @Get('item/:item_id')
+    findByItem(@Param('item_id') item_id: string) {
+        return this.itemLotBalanceService.findByItem(+item_id);
+    }
     
 }

@@ -342,4 +342,16 @@ export class ItemLotBalanceService {
 
     throw error;
   }
+
+//   แสดง lot ที่มีตาม item_id
+  async findByItem(item_id: number) {
+    return await this.prisma.item_lot.findMany({
+      where: {
+        item_id: item_id,
+      },
+      orderBy: {
+        lot_id: 'desc',
+      },
+    });
+  }
 }
