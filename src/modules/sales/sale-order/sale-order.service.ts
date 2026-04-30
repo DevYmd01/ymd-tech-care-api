@@ -10,6 +10,7 @@ import { CreateSaleOrderHeaderRepository } from './repository/create-sale-order-
 import { CreateSaleOrderLineRepository } from './repository/create-sale-order-line.repository';
 import { CreateSaleOrderHeaderMapper } from './mapper/create-sale-order-header.mapper';
 import { CreateSaleOrderLineMapper } from './mapper/create-sale-order-line.mapper';
+import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 
 @Injectable()
 export class SaleOrderService {
@@ -26,7 +27,7 @@ export class SaleOrderService {
     ) { }
 
 
- async create(createSaleOrderDto: CreateSaleReservationHeaderDto) {
+    async create(createSaleOrderDto: CreateSaleReservationHeaderDto) {
         return this.prisma.$transaction(async (tx) => {
             // 1. สร้าง Sale Order document number
             const documentNo = await this.documentNumberService.generate({
@@ -150,13 +151,108 @@ export class SaleOrderService {
 
 
 
-    async findAll(){
+    async findAll() {
         return this.prisma.sale_order_header.findMany();
     }
 
-    async findOne(id: number){
+    async findOne(id: number) {
         return this.prisma.sale_order_header.findUnique({
             where: { so_id: id },
         });
     }
+
+
+    async stockOptionsQuery(
+        stockOptionQueryDto: StockOptionQueryDto,
+    ) {
+        const {
+            page = 1,
+            limit = 20,
+            item_id,
+            branch_id,
+            warehouse_id,
+            location_id,
+            qty,
+        } = stockOptionQueryDto;
+
+        const skip = (page - 1) * limit;
+
+        // ===============================
+        // WHERE CONDITION
+        // ===============================
+        const where: any = {
+            qty_available: {
+                gt: 0,
+            },
+        };
+
+        if (item_id) {
+            where.item_id = item_id;
+        }
+
+        if (branch_id) {
+            where.branch_id = branch_id;
+        }
+
+        if (warehouse_id) {
+            where.warehouse_id = warehouse_id;
+        }
+
+        if (location_id) {
+            where.location_id = location_id;
+        }
+
+        // ===============================
+        // TOTAL COUNT
+        // ===============================
+        const total =
+            await this.prisma.item_lot_balance.count({
+                where,
+            });
+
+        // ===============================
+        // DATA QUERY
+        // ===============================
+        const rows =
+            await this.prisma.item_lot_balance.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: {
+                    updated_at: 'desc',
+                },
+                include: {
+                    lot: true,
+                    warehouse: true,
+                    location: true,
+                },
+            });
+
+        // ===============================
+        // AUTO PICK QTY (optional)
+        // ===============================
+        const data = rows.map((row) => {
+            const available = Number(row.qty_available);
+
+            return {
+                ...row,
+                pick_qty: qty
+                    ? Math.min(available, qty)
+                    : 0,
+            };
+        });
+
+        // ===============================
+        // RESPONSE
+        // ===============================
+        return {
+            page,
+            limit,
+            total,
+            total_page: Math.ceil(total / limit),
+            data,
+        };
+    }
+
+
 }

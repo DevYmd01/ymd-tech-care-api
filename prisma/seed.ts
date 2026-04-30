@@ -236,6 +236,13 @@ const salesDocuments = [
     sort_order: 12,
     is_active: true,
   },
+    {
+    system_document_code: 'RS',
+    system_document_name: 'รายงายการสั่งจอง',
+    system_document_name_eng: 'Sales Reservation Reports',
+    sort_order: 12,
+    is_active: true,
+  },
 ]
 
 for (const d of salesDocuments) {

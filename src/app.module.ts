@@ -76,6 +76,8 @@ import { IcOptionListModule } from './modules/configuration/ic-option-list/ic-op
 import { SaleOrderModule } from './modules/sales/sale-order/sale-order.module';
 import { LotModule } from './common/inventory/lot/lot.module';
 import { ItemLotBalanceModule } from './modules/inventory-control/item-lot-balance/item-lot-balance.module';
+import { InventoryStocksModule } from './modules/inventory-control/inventory-stocks/inventory-stocks.module';
+import { StockOptionsModule } from './common/inventory/stock-options/stock-options.module';
 
 @Module({
   imports: [
@@ -152,6 +154,8 @@ import { ItemLotBalanceModule } from './modules/inventory-control/item-lot-balan
     SaleOrderModule,
     LotModule,
     ItemLotBalanceModule,
+    InventoryStocksModule,
+    StockOptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe} from '@nestjs/common';
 import { SaleReservationService } from './sale-reservation.service';
 import { CreateSaleReservationHeaderDto } from './dto/create-sale-reservation-header.dto';
+import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 
 
 @Controller('sale-reservation')
@@ -24,6 +25,10 @@ export class SaleReservationController {
     return this.saleReservationService.sqApprovalPending();
   }
 
+      @Get('stock-options-query')
+    async stockOptionsQuery(@Param() stockOptionQueryDto: StockOptionQueryDto) {
+      return this.saleReservationService.stockOptionsQuery(stockOptionQueryDto);
+    }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -42,6 +47,20 @@ export class SaleReservationController {
     return this.saleReservationService.getAvailableItems(id);
   }
 
+ @Get('warehouse-stock/:item_id')
+  async getStock(@Param('item_id') itemId: string) {
+    return this.saleReservationService.getStockByWarehouse(Number(itemId));
+  }
 
+@Get('location-in-warehouse-stock/:item_id/:warehouse_id')
+async getStockByLocationInWarehouse(
+  @Param('item_id') itemId: string,
+  @Param('warehouse_id') warehouseId: string,
+) {
+  return this.saleReservationService.getStockByLocationInWarehouse(
+    Number(warehouseId),
+    Number(itemId),
+  );
+}
 
 }

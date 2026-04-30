@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
 import { SaleOrderService } from './sale-order.service';
 import { CreateSaleReservationHeaderDto } from './dto/create-sale-order-header.dto';
+import { StockOptionQueryDto } from './dto/stock-options-query.dto';
+import { Query } from '@nestjs/common';
+
 
 @Controller('sale-order')
 export class SaleOrderController {
@@ -15,6 +18,11 @@ export class SaleOrderController {
   @Get()
   findAll() {
     return this.saleOrderService.findAll();
+  }
+
+    @Get('stock-options-query')
+  async stockOptionsQuery(@Param() stockOptionQueryDto: StockOptionQueryDto) {
+    return this.saleOrderService.stockOptionsQuery(stockOptionQueryDto);
   }
 
   @Get('available-rs')
@@ -33,6 +41,9 @@ async sqReservationPendingById(
   findOne(@Param('id') id: string) {
     return this.saleOrderService.findOne(+id);
   }
+
+
+
 
 
 
