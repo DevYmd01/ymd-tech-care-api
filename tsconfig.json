@@ -2,19 +2,17 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-
     "target": "ES2021",
     "outDir": "./dist",
-
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
-
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-
     "strictNullChecks": true,
     "skipLibCheck": true
   }
@@ -48,6 +46,5 @@
 //     "strictBindCallApply": false,
 //     "noFallthroughCasesInSwitch": false,
 //     // "strict": true,
- 
 //   }
 // }

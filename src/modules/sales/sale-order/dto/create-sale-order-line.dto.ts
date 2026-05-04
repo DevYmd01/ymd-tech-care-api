@@ -18,19 +18,21 @@ import { Type } from 'class-transformer';
 export class CreateSaleOrderLineDto {
 
     @IsNumber()
-    so_id: number;
+    so_id!: number;
 
     @IsNumber()
-    reservation_line_id: number;
+    reservation_line_id!: number;
 
     @IsNumber()
-    item_id: number;
+    item_id!: number;
 
+    @IsOptional()
     @IsNumber()
-    warehouse_id: number;
+    warehouse_id?: number;
 
+    @IsOptional()
     @IsNumber()
-    location_id: number;
+    location_id?: number;
 
     @IsOptional()
     @IsNumber()
@@ -41,14 +43,14 @@ export class CreateSaleOrderLineDto {
     note?: string;
 
     @IsNumber({ maxDecimalPlaces: 2 })
-    qty: number;
+    qty!: number;
 
     @IsNumber()
     @IsNotEmpty()
     uom_id!: number;
 
     @IsNumber({ maxDecimalPlaces: 2 })
-    unit_price: number;
+    unit_price!: number;
 
     // LINE DISCOUNT
     @IsOptional()
@@ -63,6 +65,7 @@ export class CreateSaleOrderLineDto {
     @IsNumber({ maxDecimalPlaces: 2 })
     discount_amount?: number;
 
+    @IsOptional()
     @IsNumber({ maxDecimalPlaces: 2 })
-    net_amount: number;
+    net_amount?: number;
 }

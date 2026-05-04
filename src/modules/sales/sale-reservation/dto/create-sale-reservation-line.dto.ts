@@ -16,13 +16,13 @@ import { Type } from 'class-transformer';
 //
 export class CreateSaleReservationLineDto {
   @IsInt()
-  item_id: number;
-
+  item_id!: number;
+@IsOptional()
   @IsInt()
-  warehouse_id: number;
-
+  warehouse_id?: number;
+@IsOptional()
   @IsInt()
-  location_id: number;
+  location_id?: number;
 
   @IsOptional()
   @IsInt()
@@ -33,13 +33,13 @@ export class CreateSaleReservationLineDto {
   note?: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  qty: number;
+  qty!: number;
 
   @IsInt()
-  uom_id: number;
+  uom_id!: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  unit_price: number;
+  unit_price!: number;
 
   // LINE DISCOUNT
   @IsOptional()
@@ -54,6 +54,7 @@ export class CreateSaleReservationLineDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   discount_amount?: number;
 
+      @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
-  net_amount: number;
+  net_amount?: number;
 }

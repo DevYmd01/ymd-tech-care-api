@@ -1,4 +1,23 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
+import { SaleOrderApprovalService } from './sale-order-approval.service';
+import { CreateSaleOrderApprovalHeaderDto } from './dto/create-sale-order-ap-header.dto';
 
 @Controller('sale-order-approval')
-export class SaleOrderApprovalController {}
+export class SaleOrderApprovalController {
+    constructor(private readonly saleOrderApprovalService: SaleOrderApprovalService) {}
+
+    @Post()
+    async create(@Body() createSaleOrderApprovalHeaderDto: CreateSaleOrderApprovalHeaderDto) {
+        return this.saleOrderApprovalService.create(createSaleOrderApprovalHeaderDto);
+    }
+
+    @Get()
+    async findAll() {
+        return this.saleOrderApprovalService.findAll();
+    }
+
+    @Get('pending-approval')
+    async soApprovalPending() {
+        return this.saleOrderApprovalService.soApprovalPending();
+    }
+}

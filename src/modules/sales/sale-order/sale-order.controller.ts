@@ -29,6 +29,12 @@ export class SaleOrderController {
   async sqReservationPending() {
     return this.saleOrderService.sqReservationPending();
   }
+  
+    @Patch(':so_id/pending')
+    pending(@Param('so_id') so_id: number) {
+        return this.saleOrderService.pending(+so_id);
+    }
+
 
 @Get('available-rs/:id')
 async sqReservationPendingById(

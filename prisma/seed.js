@@ -102,13 +102,14 @@ async function main() {
             running_cycle: client_2.RunningCycle.YEAR,
         },
         {
-            module_code: 'SO',
-            document_type_code: 'SO',
-            prefix: 'SO',
+            module_code: 'SOA',
+            document_type_code: 'SOA',
+            prefix: 'SOA',
             pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
             seq_length: 4,
             running_cycle: client_2.RunningCycle.YEAR,
         },
+
     ];
     console.log('🌱 Start seeding document_format...');
     for (const f of formats) {

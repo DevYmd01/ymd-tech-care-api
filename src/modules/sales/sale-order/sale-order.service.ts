@@ -254,5 +254,10 @@ export class SaleOrderService {
         };
     }
 
-
+    async pending(id: number) {
+        return this.prisma.sale_order_header.update({
+            where: { so_id: id },
+            data: { status: 'PENDING' },
+        });
+    }
 }
