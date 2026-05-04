@@ -66,7 +66,9 @@ model employees {
     saleQuotationApprovalHeaders sale_quotation_approval_header[]
     saleReservationHeaders       sale_reservation_header[]
     saleOrderHeaders             sale_order_header[]
-    saleOrderApprovalHeaders     sale_order_approval_header[]
+    // saleOrderApprovalHeaders     sale_order_approval_header[]
+    saleOrderApprovalHeaders     sale_order_approval_header[] @relation("emp_so_approval_header")
+    saleOrderSaleHeaders     sale_order_approval_header[] @relation("emp_so_sale_header")
 }
 
 model employee_group {
@@ -78,14 +80,15 @@ model employee_group {
 }
 
 model employee_sale_area {
-    sale_area_id           Int                       @id @default(autoincrement())
-    sale_area_code         String                    @unique @db.VarChar(30)
-    sale_area_name         String                    @db.VarChar(200)
-    sale_area_nameeng      String?                   @db.VarChar(200)
-    is_active              Boolean                   @default(true)
-    saleQuotationHeaders   sale_quotation_header[]
-    saleReservationHeaders sale_reservation_header[]
-    saleOrderHeaders       sale_order_header[]
+    sale_area_id             Int                          @id @default(autoincrement())
+    sale_area_code           String                       @unique @db.VarChar(30)
+    sale_area_name           String                       @db.VarChar(200)
+    sale_area_nameeng        String?                      @db.VarChar(200)
+    is_active                Boolean                      @default(true)
+    saleQuotationHeaders     sale_quotation_header[]
+    saleReservationHeaders   sale_reservation_header[]
+    saleOrderHeaders         sale_order_header[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 }
 
 model employee_position {
@@ -148,19 +151,20 @@ model employee_side {
 
 // แผนกของพนักงาน
 model employee_department {
-    emp_dept_id            Int                       @id @default(autoincrement())
-    emp_dept_code          String                    @unique @db.VarChar(30)
-    emp_dept_name          String                    @db.VarChar(200)
-    emp_dept_nameeng       String?                   @db.VarChar(200)
-    is_active              Boolean                   @default(true)
-    emp_side_id            Int
-    created_at             DateTime                  @default(now())
-    updated_at             DateTime                  @updatedAt
-    side                   employee_side             @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
-    priceListHeaders       price_list_header[]
-    saleQuotationHeaders   sale_quotation_header[]
-    saleReservationHeaders sale_reservation_header[]
-    saleOrderHeaders       sale_order_header[]
+    emp_dept_id              Int                          @id @default(autoincrement())
+    emp_dept_code            String                       @unique @db.VarChar(30)
+    emp_dept_name            String                       @db.VarChar(200)
+    emp_dept_nameeng         String?                      @db.VarChar(200)
+    is_active                Boolean                      @default(true)
+    emp_side_id              Int
+    created_at               DateTime                     @default(now())
+    updated_at               DateTime                     @updatedAt
+    side                     employee_side                @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+    priceListHeaders         price_list_header[]
+    saleQuotationHeaders     sale_quotation_header[]
+    saleReservationHeaders   sale_reservation_header[]
+    saleOrderHeaders         sale_order_header[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 
     @@unique([emp_dept_id])
 }
@@ -213,26 +217,27 @@ model employee_address {
 
 /// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_code            String                    @unique @db.VarChar(20)
-    branch_name            String                    @db.VarChar(200)
-    is_active              Boolean                   @default(true)
-    branch_id              Int                       @id @default(autoincrement())
-    created_at             DateTime                  @default(now())
-    updated_at             DateTime                  @updatedAt
-    employees              employees[]
-    prHeaders              pr_header[]
-    rfqHeaders             rfq_header[]
-    warehouses             warehouse[]
-    poHeaders              po_header[]
-    priceListHeaders       price_list_header[]
-    icOption               ic_option[]
-    saleQuotationHeaders   sale_quotation_header[]
-    saleReservationHeaders sale_reservation_header[]
-    itemStockBalances      item_stock_balance[]
-    stockTransactions      stock_transaction[]
-    itemLotBalances        item_lot_balance[]
-    lotTransactions        lot_transaction[]
-    saleOrderHeaders       sale_order_header[]
+    branch_code              String                       @unique @db.VarChar(20)
+    branch_name              String                       @db.VarChar(200)
+    is_active                Boolean                      @default(true)
+    branch_id                Int                          @id @default(autoincrement())
+    created_at               DateTime                     @default(now())
+    updated_at               DateTime                     @updatedAt
+    employees                employees[]
+    prHeaders                pr_header[]
+    rfqHeaders               rfq_header[]
+    warehouses               warehouse[]
+    poHeaders                po_header[]
+    priceListHeaders         price_list_header[]
+    icOption                 ic_option[]
+    saleQuotationHeaders     sale_quotation_header[]
+    saleReservationHeaders   sale_reservation_header[]
+    itemStockBalances        item_stock_balance[]
+    stockTransactions        stock_transaction[]
+    itemLotBalances          item_lot_balance[]
+    lotTransactions          lot_transaction[]
+    saleOrderHeaders         sale_order_header[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 
     @@map("org_branch")
 }
@@ -988,25 +993,26 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code           String                    @unique @db.VarChar(30)
+    project_code             String                       @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name           String                    @db.VarChar(200)
+    project_name             String                       @db.VarChar(200)
     /// รหัสโครงการ
-    project_id             Int                       @id @default(autoincrement())
+    project_id               Int                          @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount          Decimal?                  @db.Decimal(15, 2)
+    budget_amount            Decimal?                     @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
-    description            String?
+    description              String?
     /// วันที่สิ้นสุดโครงการ
-    end_date               DateTime?
+    end_date                 DateTime?
     /// วันที่เริ่มต้นโครงการ
-    start_date             DateTime?
+    start_date               DateTime?
     /// สถานะโครงการ
-    is_active              Boolean                   @default(true)
-    prHeaders              pr_header[]
-    saleQuotationHeaders   sale_quotation_header[]
-    saleReservationHeaders sale_reservation_header[]
-    saleOrderHeaders       sale_order_header[]
+    is_active                Boolean                      @default(true)
+    prHeaders                pr_header[]
+    saleQuotationHeaders     sale_quotation_header[]
+    saleReservationHeaders   sale_reservation_header[]
+    saleOrderHeaders         sale_order_header[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 
     @@map("project")
 }
@@ -1231,14 +1237,15 @@ model customer {
     created_at    DateTime    @default(now())
     updated_at    DateTime    @updatedAt
 
-    price_level_id         Int?
-    price_level            price_level?              @relation(fields: [price_level_id], references: [id])
-    customerAddresses      customer_address[]
-    customerBranches       customer_branch[]
-    priceListHeaders       price_list_header[]
-    saleQuotationHeaders   sale_quotation_header[]
-    saleReservationHeaders sale_reservation_header[]
-    saleOrderHeaders       sale_order_header[]
+    price_level_id           Int?
+    price_level              price_level?                 @relation(fields: [price_level_id], references: [id])
+    customerAddresses        customer_address[]
+    customerBranches         customer_branch[]
+    priceListHeaders         price_list_header[]
+    saleQuotationHeaders     sale_quotation_header[]
+    saleReservationHeaders   sale_reservation_header[]
+    saleOrderHeaders         sale_order_header[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 
     @@map("customer")
 }
@@ -2663,9 +2670,9 @@ model sale_reservation_line {
     item_id             Int
     item                item                    @relation(fields: [item_id], references: [item_id])
     warehouse_id        Int?
-    warehouse           warehouse?               @relation(fields: [warehouse_id], references: [warehouse_id])
+    warehouse           warehouse?              @relation(fields: [warehouse_id], references: [warehouse_id])
     location_id         Int?
-    location            location?                @relation(fields: [location_id], references: [location_id])
+    location            location?               @relation(fields: [location_id], references: [location_id])
     note                String?                 @db.Text
     lot_id              Int?
     lot                 item_lot?               @relation(fields: [lot_id], references: [lot_id])
@@ -2758,15 +2765,15 @@ model sale_order_line {
     item_id             Int
     item                item                  @relation(fields: [item_id], references: [item_id])
     warehouse_id        Int?
-    warehouse           warehouse?             @relation(fields: [warehouse_id], references: [warehouse_id])
+    warehouse           warehouse?            @relation(fields: [warehouse_id], references: [warehouse_id])
     location_id         Int?
-    location            location?              @relation(fields: [location_id], references: [location_id])
+    location            location?             @relation(fields: [location_id], references: [location_id])
     note                String?               @db.Text
     lot_id              Int?
     lot                 item_lot?             @relation(fields: [lot_id], references: [lot_id])
 
     /// สถานะ
-    status     String   @db.VarChar(20) @default("PENDING")
+    status     String   @default("PENDING") @db.VarChar(20)
     /// วันที่สร้าง
     created_at DateTime @default(now())
     /// วันที่แก้ไขล่าสุด
@@ -2784,9 +2791,9 @@ model sale_order_line {
     discount_amount     Decimal? @db.Decimal(18, 6)
     discount_rate       Decimal? @db.Decimal(9, 6)
 
-    net_amount             Decimal                    @db.Decimal(18, 6)
+    net_amount Decimal @db.Decimal(18, 6)
 
-        // จำนวนที่อนุมัติ
+    // จำนวนที่อนุมัติ
     approved_qty  Decimal @default(0)
     // จำนวนที่ปฏิเสธ
     rejected_qty  Decimal @default(0)
@@ -2811,10 +2818,26 @@ model sale_order_approval_header {
     updated_at DateTime @updatedAt
 
     approval_emp_id   Int
-    approval_emp      employees @relation(fields: [approval_emp_id], references: [employee_id])
+    approval_emp      employees @relation("emp_so_approval_header", fields: [approval_emp_id], references: [employee_id])
     approval_emp_name String    @db.VarChar(255)
 
-   
+    customer_id       Int
+    customer          customer            @relation(fields: [customer_id], references: [customer_id])
+    branch_id         Int
+    branch            org_branch          @relation(fields: [branch_id], references: [branch_id])
+    ship_days         Int                 @default(0)
+    payment_term_days Int                 @default(0)
+    onhold            String
+    emp_sale_id       Int?
+    emp_sale          employees?          @relation("emp_so_sale_header", fields: [emp_sale_id], references: [employee_id])
+    sale_area_id      Int
+    sale_area         employee_sale_area  @relation(fields: [sale_area_id], references: [sale_area_id])
+    emp_dept_id       Int
+    emp_dept          employee_department @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    project_id        Int
+    project           project             @relation(fields: [project_id], references: [project_id])
+    status_remark     String
+
     /// สกุลเงินหลักของระบบ (Functional Currency)
     base_currency_code    String?   @db.VarChar(3)
     /// สกุลเงินตามใบเสนอราคา (Vendor Currency)
@@ -2839,7 +2862,6 @@ model sale_order_approval_header {
     base_discount_amount  Decimal?  @db.Decimal(18, 2)
     quote_discount_amount Decimal?  @db.Decimal(18, 2)
 
-
     saleOrderApprovalLines sale_order_approval_line[]
 }
 
@@ -2856,11 +2878,10 @@ model sale_order_approval_line {
 
     remarks String? @db.Text
 
-
-/// จำนวนที่อนุมัติ
+    /// จำนวนที่อนุมัติ
     approved_qty Decimal @db.Decimal(18, 3)
 
-     /// วันที่สร้าง
+    /// วันที่สร้าง
     created_at DateTime @default(now())
     /// วันที่แก้ไขล่าสุด
     updated_at DateTime @updatedAt
@@ -2877,7 +2898,7 @@ model sale_order_approval_line {
     discount_amount     Decimal? @db.Decimal(18, 6)
     discount_rate       Decimal? @db.Decimal(9, 6)
 
-    net_amount             Decimal                    @db.Decimal(18, 6)
+    net_amount Decimal @db.Decimal(18, 6)
 }
 
 // =========================

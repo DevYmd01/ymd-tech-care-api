@@ -21,13 +21,45 @@ export class CreateSaleOrderApprovalHeaderDto {
     @IsInt()
     so_id!: number;
 
-    @IsNotEmpty()
+  @IsInt()
+    customer_id!: number;
+
+    @IsInt()
+    branch_id!: number;
+
     @IsString()
-    status!: string;
+    status?: string;
 
     @IsOptional()
+    @IsInt()
+    ship_days?: number;
+
     @IsString()
     remarks?: string;
+
+    @IsOptional()
+    @IsInt()
+    payment_term_days?: number;
+
+    @IsString()
+    onhold?: string;
+
+    @IsOptional()
+    @IsInt()
+    emp_sale_id?: number;
+
+    @IsInt()
+    sale_area_id!: number;
+
+    @IsInt()
+    emp_dept_id!: number;
+
+    @IsInt()
+    project_id!: number;
+
+    @IsString()
+    status_remark?: string;
+
 
     @IsNotEmpty()
     @IsInt()
