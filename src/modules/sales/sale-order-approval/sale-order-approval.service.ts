@@ -275,4 +275,19 @@ async soApprovalPending() {
     });
 }
 
+async findOne(id: number) {
+    return this.prisma.sale_order_approval_header.findUnique({
+        where: { so_approval_id: id },
+        include: { saleOrderApprovalLines: true },
+    });
+
+}
+
+async findPendingApproval(id: number) {
+    return this.prisma.sale_order_header.findUnique({
+        where: { so_id: id },
+        include: { saleOrderLines: true },
+    });
+}
+
 }
