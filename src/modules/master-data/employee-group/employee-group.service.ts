@@ -20,7 +20,7 @@ export class EmployeeGroupService {
 
     async findAll() {
         return this.prisma.employee_group.findMany({
-            where: { is_active: true },
+            // where: { is_active: true },
             orderBy: { employee_group_id: 'desc' }
         });
     }
