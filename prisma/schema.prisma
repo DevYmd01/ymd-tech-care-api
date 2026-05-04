@@ -66,6 +66,7 @@ model employees {
     saleQuotationApprovalHeaders sale_quotation_approval_header[]
     saleReservationHeaders       sale_reservation_header[]
     saleOrderHeaders             sale_order_header[]
+    saleOrderApprovalHeaders     sale_order_approval_header[]
 }
 
 model employee_group {
@@ -365,37 +366,38 @@ model item {
     item_color_id         Int?
     item_grade_id         Int?
 
-    itemBrand            item_brand?             @relation(fields: [item_brand_id], references: [item_brand_id])
-    itemCategory         item_category?          @relation(fields: [item_category_id], references: [item_category_id])
-    itemClass            item_class?             @relation(fields: [item_class_id], references: [item_class_id])
-    itemDesign           item_design?            @relation(fields: [item_design_id], references: [item_design_id])
-    itemGroup            item_group?             @relation(fields: [item_group_id], references: [item_group_id])
-    itemPattern          item_pattern?           @relation(fields: [item_pattern_id], references: [item_pattern_id])
-    itemSize             item_size?              @relation(fields: [item_size_id], references: [item_size_id])
-    itemType             item_type?              @relation(fields: [item_type_id], references: [item_type_id])
-    baseUom              uom?                    @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
-    saleUom              uom?                    @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
-    itemColor            item_color?             @relation(fields: [item_color_id], references: [item_color_id])
-    itemGrade            item_grade?             @relation(fields: [item_grade_id], references: [item_grade_id])
-    taxCode              tax_code?               @relation(fields: [tax_code_id], references: [tax_code_id])
-    itemBarcodes         item_barcode[]
-    itemUoms             item_uom[]
-    prLines              pr_line[]
-    rfqLines             rfq_line[]
-    vqLines              vq_line[]
-    poLines              po_line[]
-    standardCostHeaders  standard_cost_header[]
-    standardCostLines    standard_cost_line[]
-    priceListItemLines   price_list_item_line[]
-    multiPriceItems      multi_price_item[]
-    saleQuotationLines   sale_quotation_line[]
-    saleReservationLines sale_reservation_line[]
-    itemLots             item_lot[]
-    itemStockBalances    item_stock_balance[]
-    stockTransactions    stock_transaction[]
-    itemLotBalances      item_lot_balance[]
-    lotTransactions      lot_transaction[]
-    saleOrderLines       sale_order_line[]
+    itemBrand              item_brand?                @relation(fields: [item_brand_id], references: [item_brand_id])
+    itemCategory           item_category?             @relation(fields: [item_category_id], references: [item_category_id])
+    itemClass              item_class?                @relation(fields: [item_class_id], references: [item_class_id])
+    itemDesign             item_design?               @relation(fields: [item_design_id], references: [item_design_id])
+    itemGroup              item_group?                @relation(fields: [item_group_id], references: [item_group_id])
+    itemPattern            item_pattern?              @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    itemSize               item_size?                 @relation(fields: [item_size_id], references: [item_size_id])
+    itemType               item_type?                 @relation(fields: [item_type_id], references: [item_type_id])
+    baseUom                uom?                       @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    saleUom                uom?                       @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    itemColor              item_color?                @relation(fields: [item_color_id], references: [item_color_id])
+    itemGrade              item_grade?                @relation(fields: [item_grade_id], references: [item_grade_id])
+    taxCode                tax_code?                  @relation(fields: [tax_code_id], references: [tax_code_id])
+    itemBarcodes           item_barcode[]
+    itemUoms               item_uom[]
+    prLines                pr_line[]
+    rfqLines               rfq_line[]
+    vqLines                vq_line[]
+    poLines                po_line[]
+    standardCostHeaders    standard_cost_header[]
+    standardCostLines      standard_cost_line[]
+    priceListItemLines     price_list_item_line[]
+    multiPriceItems        multi_price_item[]
+    saleQuotationLines     sale_quotation_line[]
+    saleReservationLines   sale_reservation_line[]
+    itemLots               item_lot[]
+    itemStockBalances      item_stock_balance[]
+    stockTransactions      stock_transaction[]
+    itemLotBalances        item_lot_balance[]
+    lotTransactions        lot_transaction[]
+    saleOrderLines         sale_order_line[]
+    saleOrderApprovalLines sale_order_approval_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -428,6 +430,7 @@ model uom {
     saleQuotationApprovalLines sale_quotation_approval_line[]
     saleReservationLines       sale_reservation_line[]
     saleOrderLines             sale_order_line[]
+    saleOrderApprovalLines     sale_order_approval_line[]
 
     @@map("uom")
 }
@@ -1042,6 +1045,7 @@ model tax_code {
     saleQuotationApprovalHeaders sale_quotation_approval_header[]
     saleReservationHeaders       sale_reservation_header[]
     saleOrderHeaders             sale_order_header[]
+    saleOrderApprovalHeaders     sale_order_approval_header[]
 
     @@index([tax_group_id])
     @@map("tax_code")
@@ -2740,7 +2744,8 @@ model sale_order_header {
     cust_po_no   String?
     cust_po_date DateTime?
 
-    saleOrderLines sale_order_line[]
+    saleOrderLines           sale_order_line[]
+    saleOrderApprovalHeaders sale_order_approval_header[]
 }
 
 // D10
@@ -2765,19 +2770,98 @@ model sale_order_line {
     /// วันที่แก้ไขล่าสุด
     updated_at DateTime @updatedAt
     /// จำนวนที่สั่งซื้อ
-    qty        Decimal  @db.Decimal(18, 2)
+    qty        Decimal  @db.Decimal(18, 6)
     /// หน่วยนับ
     uom_id     Int
     uom        uom      @relation(fields: [uom_id], references: [uom_id])
     /// ราคาต่อหน่วย
-    unit_price Decimal  @db.Decimal(18, 2)
+    unit_price Decimal  @db.Decimal(18, 6)
 
     /// DOCUMENT DISCOUNT    /// ส่วนลด
     discount_expression String?  @db.VarChar(20)
-    discount_amount     Decimal? @db.Decimal(18, 2)
-    discount_rate       Decimal? @db.Decimal(9, 4)
+    discount_amount     Decimal? @db.Decimal(18, 6)
+    discount_rate       Decimal? @db.Decimal(9, 6)
 
-    net_amount Decimal @db.Decimal(18, 2)
+    net_amount             Decimal                    @db.Decimal(18, 6)
+    saleOrderApprovalLines sale_order_approval_line[]
+}
+
+model sale_order_approval_header {
+    so_approval_id   Int      @id @default(autoincrement())
+    so_approval_no   String   @unique @db.VarChar(30)
+    so_approval_date DateTime @db.Date
+
+    so_id     Int
+    so_header sale_order_header @relation(fields: [so_id], references: [so_id])
+
+    status  String  @db.VarChar(20)
+    remarks String? @db.Text
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    approval_emp_id   Int
+    approval_emp      employees @relation(fields: [approval_emp_id], references: [employee_id])
+    approval_emp_name String    @db.VarChar(255)
+
+    base_currency_code  String?   @db.VarChar(3)
+    order_currency_code String?   @db.VarChar(3)
+    exchange_rate       Decimal?  @db.Decimal(18, 6)
+    exchange_rate_date  DateTime?
+
+    base_total_amount  Decimal @db.Decimal(18, 2)
+    order_total_amount Decimal @db.Decimal(18, 2)
+
+    tax_code_id      Int?
+    tax_code         tax_code? @relation(fields: [tax_code_id], references: [tax_code_id])
+    tax_rate         Decimal?  @db.Decimal(9, 6)
+    base_tax_amount  Decimal?  @db.Decimal(18, 6)
+    order_tax_amount Decimal?  @db.Decimal(18, 6)
+
+    discount_expression   String?  @db.VarChar(20)
+    discount_rate         Decimal? @db.Decimal(9, 6)
+    base_discount_amount  Decimal? @db.Decimal(18, 6)
+    order_discount_amount Decimal? @db.Decimal(18, 6)
+
+    saleOrderApprovalLines sale_order_approval_line[]
+}
+
+model sale_order_approval_line {
+    so_approval_line_id Int @id @default(autoincrement())
+
+    so_approval_id Int
+    so_approval    sale_order_approval_header @relation(fields: [so_approval_id], references: [so_approval_id])
+
+    so_line_id Int
+    so_line    sale_order_line @relation(fields: [so_line_id], references: [so_line_id])
+    item_id    Int
+    item       item            @relation(fields: [item_id], references: [item_id])
+
+    /// จำนวนที่อนุมัติ
+    approved_qty Decimal @db.Decimal(18, 3)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    /// จำนวนสั่งซื้อ
+    qty Decimal @db.Decimal(18, 6)
+
+    /// หน่วยนับ
+    uom_id Int
+    uom    uom @relation(fields: [uom_id], references: [uom_id])
+
+    /// ราคาต่อหน่วย
+    unit_price Decimal @db.Decimal(18, 2)
+
+    /// 💸 Discount (Line)
+    discount_expression String?  @db.VarChar(20)
+    discount_amount     Decimal? @db.Decimal(18, 6)
+    discount_rate       Decimal? @db.Decimal(9, 6)
+
+    /// 💰 ยอดสุทธิ
+    net_amount Decimal @db.Decimal(18, 6)
+
+    remarks String? @db.Text
 }
 
 // =========================
@@ -2883,9 +2967,9 @@ model item_lot_balance {
     lot_id  Int
     item_id Int
 
-    branch_id    Int?
-    warehouse_id Int
-    location_id  Int
+    branch_id     Int?
+    warehouse_id  Int
+    location_id   Int
     // จำนวนคงเหลือจริงที่มีอยู่ใน lot / location นี้
     qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
     // จำนวนที่ถูกจองไว้แล้ว เช่น Sale Order / Reservation / Pending Issue
@@ -2899,7 +2983,7 @@ model item_lot_balance {
     item      item        @relation(fields: [item_id], references: [item_id])
     branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
     warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
-    location  location   @relation(fields: [location_id], references: [location_id])
+    location  location    @relation(fields: [location_id], references: [location_id])
 
     @@unique([lot_id, warehouse_id, location_id])
     @@index([item_id])
@@ -2941,7 +3025,6 @@ model lot_transaction {
     @@index([item_id])
     @@index([warehouse_id])
     @@index([ref_doc_type, ref_doc_no])
-    
 }
 
 ////////////

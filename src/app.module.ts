@@ -78,6 +78,7 @@ import { LotModule } from './common/inventory/lot/lot.module';
 import { ItemLotBalanceModule } from './modules/inventory-control/item-lot-balance/item-lot-balance.module';
 import { InventoryStocksModule } from './modules/inventory-control/inventory-stocks/inventory-stocks.module';
 import { StockOptionsModule } from './common/inventory/stock-options/stock-options.module';
+import { SaleOrderApprovalModule } from './modules/sales/sale-order-approval/sale-order-approval.module';
 
 @Module({
   imports: [
@@ -156,6 +157,7 @@ import { StockOptionsModule } from './common/inventory/stock-options/stock-optio
     ItemLotBalanceModule,
     InventoryStocksModule,
     StockOptionsModule,
+    SaleOrderApprovalModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
