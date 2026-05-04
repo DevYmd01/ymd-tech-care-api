@@ -1591,6 +1591,14 @@ model multi_price_item {
     item_to_qty         Decimal? @default(0)
     uom_id              Int
     uom                 uom?     @relation(fields: [uom_id], references: [uom_id])
+    created_at          DateTime @default(now())
+    updated_at          DateTime? @updatedAt
+    is_active           Boolean  @default(true)
+
+    @@index([item_id])
+    @@index([uom_id])
+    @@map("multi_price_item")
+
 }
 
 // A39.1

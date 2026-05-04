@@ -23,7 +23,14 @@ export class MultiPriceItemService {
     }
 
     async findAll() {
-        return this.prisma.multi_price_item.findMany();
+        return this.prisma.multi_price_item.findMany(
+            {
+                where: {
+                    is_active: true,
+                },
+                orderBy: { created_at: 'desc' },
+            }
+        );
     }
 
     async findOne(id: number) {
@@ -41,6 +48,15 @@ export class MultiPriceItemService {
                 multiPriceItemData
             );
             return multiPriceItem;
+        });
+    }
+
+        async updateIsActive(id: number) {
+        return this.prisma.multi_price_item.update({
+            where: { multi_price_item_id: id },
+            data: {
+                is_active: false,
+            },
         });
     }
 }

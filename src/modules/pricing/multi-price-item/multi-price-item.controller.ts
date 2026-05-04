@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MultiPriceItemService } from './multi-price-item.service';
 import { CreateMultiPriceItemDto } from './dto/create-multi-price-item.dto';
-import { Body, Post, Request, Get, Param, Patch } from '@nestjs/common';
+import { Body, Post, Request, Get, Param, Patch, Delete } from '@nestjs/common';
 import path from 'path';
 
 
@@ -14,10 +14,17 @@ export class MultiPriceItemController {
         return this.multiPriceItemService.create(createMultiPriceItemDto);
     }
 
+@Delete(':id')
+deactivate(@Param('id') id: string) {
+    return this.multiPriceItemService.updateIsActive(+id);
+}
+
     @Patch(':multi_price_item_id')
     update(@Param('multi_price_item_id') id: number, @Body() createMultiPriceItemDto: CreateMultiPriceItemDto, @Request() req: any) {
         return this.multiPriceItemService.update(+id, createMultiPriceItemDto);
     }
+
+
     
     @Get(':multi_price_item_id')
     findOne(@Param('multi_price_item_id') id: number) {
@@ -28,5 +35,7 @@ export class MultiPriceItemController {
     findAll() {
         return this.multiPriceItemService.findAll();
     }
+
+
 
 }

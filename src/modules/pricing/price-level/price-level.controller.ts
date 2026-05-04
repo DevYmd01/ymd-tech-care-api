@@ -20,4 +20,6 @@ export class PriceLevelController {
     update(@Param('id') id: string, @Body() updatePriceLevelDto: UpdatePriceLevelDto, @Request() req: any) {
         return this.priceLevelService.update(+id, updatePriceLevelDto);
     }
+
+
 }
