@@ -158,6 +158,7 @@ export class SaleOrderService {
     async findOne(id: number) {
         return this.prisma.sale_order_header.findUnique({
             where: { so_id: id },
+            include: { saleOrderLines: true },
         });
     }
 
