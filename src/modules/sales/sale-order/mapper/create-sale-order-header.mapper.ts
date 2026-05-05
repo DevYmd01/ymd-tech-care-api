@@ -21,7 +21,7 @@ export class CreateSaleOrderHeaderMapper {
       payment_term_days: data.payment_term_days,
       onhold: data.onhold || "N",
       status_remark: data.status_remark || "",
-
+      ship_date: data.ship_date,
       base_currency_code: data.base_currency_code,
       quote_currency_code: data.quote_currency_code,
       exchange_rate: data.exchange_rate,

@@ -2719,6 +2719,7 @@ model sale_order_header {
     branch             org_branch              @relation(fields: [branch_id], references: [branch_id])
     status             String
     ship_days          Int                     @default(0)
+    ship_date          DateTime?               @db.Date
     remarks            String
     payment_term_days  Int                     @default(0)
     onhold             String

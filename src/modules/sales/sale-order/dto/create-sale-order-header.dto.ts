@@ -33,43 +33,48 @@ export class CreateSaleReservationHeaderDto {
     reservation_id?: number;
 
     @IsInt()
-    customer_id: number;
+    customer_id!: number;
 
     @IsInt()
-    branch_id: number;
+    branch_id!: number;
+
 
     @IsString()
-    status: string;
+    status!: string;
 
     @IsOptional()
     @IsInt()
     ship_days?: number;
-
+@IsOptional()
+    @IsDate()
+    @Type(() => Date)
+    ship_date?: Date;
+@IsOptional()
     @IsString()
-    remarks: string;
+    remarks?: string;
 
     @IsOptional()
     @IsInt()
     payment_term_days?: number;
-
+@IsOptional()
     @IsString()
-    onhold: string;
+    onhold?: string;
 
     @IsOptional()
     @IsInt()
     emp_sale_id?: number;
 
     @IsInt()
-    sale_area_id: number;
+    sale_area_id!: number;
 
     @IsInt()
-    emp_dept_id: number;
+    emp_dept_id!: number;
 
     @IsInt()
-    project_id: number;
+    project_id!: number;
 
     @IsString()
-    status_remark: string;
+    status_remark?: string;
 
 
     @IsNotEmpty()
@@ -104,5 +109,5 @@ export class CreateSaleReservationHeaderDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreateSaleOrderLineDto)
-    saleReservationLines: CreateSaleOrderLineDto[];
+    saleReservationLines!: CreateSaleOrderLineDto[];
 }
