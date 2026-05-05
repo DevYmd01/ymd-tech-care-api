@@ -9,8 +9,9 @@ import { CreateSaleReservationHeaderRepository } from './repository/create-sale-
 import { CreateSaleReservationLineRepository } from './repository/create-sale-reservation-line.repository';
 import { CreateSaleReservationHeaderMapper } from './mapper/create-sale-reservation-header.mapper';
 import { CreateSaleReservationLineMapper } from './mapper/create-sale-reservation-line.mapper';
-import { StockOptionsModule } 
-from '@/common/inventory/stock-options/stock-options.module';
+import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
+import { UpdateSaleReservationHeaderRepository } from './repository/update-sale-reservation-header.repository';
+import { UpdateSaleReservationLineRepository } from './repository/update-sale-reservation-line.repository'; // Keep this, it's a repository
 
 @Module({
   controllers: [SaleReservationController],
@@ -22,7 +23,9 @@ from '@/common/inventory/stock-options/stock-options.module';
     CreateSaleReservationHeaderRepository,
     CreateSaleReservationLineRepository,
     CreateSaleReservationHeaderMapper,
-    CreateSaleReservationLineMapper
+    CreateSaleReservationLineMapper,
+    UpdateSaleReservationHeaderRepository,
+    UpdateSaleReservationLineRepository, // Keep this, it's a repository
   ],
   imports: [DocumentNumberModule, StockOptionsModule]
 })

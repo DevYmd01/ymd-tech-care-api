@@ -2,7 +2,7 @@ import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe} from 
 import { SaleReservationService } from './sale-reservation.service';
 import { CreateSaleReservationHeaderDto } from './dto/create-sale-reservation-header.dto';
 import { StockOptionQueryDto } from './dto/stock-options-query.dto';
-
+import { UpdateSaleReservationHeaderDto } from './dto/update-sale-reservation-header.dto';
 
 @Controller('sale-reservation')
 export class SaleReservationController {
@@ -35,6 +35,13 @@ export class SaleReservationController {
     return this.saleReservationService.findOne(+id);
   }
 
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateSaleReservationHeaderDto: UpdateSaleReservationHeaderDto
+  ) {
+    return this.saleReservationService.update(id, updateSaleReservationHeaderDto);
+  }
 
   @Get('available-approvals/:id')
   async sqApprovalPendingById(@Param('id', ParseIntPipe) aq_id: number) {
@@ -62,5 +69,7 @@ async getStockByLocationInWarehouse(
     Number(itemId),
   );
 }
+
+
 
 }

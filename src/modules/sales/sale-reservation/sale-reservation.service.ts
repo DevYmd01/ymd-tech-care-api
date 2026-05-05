@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateSaleReservationHeaderDto } from './dto/create-sale-reservation-header.dto';
@@ -15,6 +15,13 @@ import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 import { IcOptionResolverService, StockValidationService, LotAllocationService } 
 from '@/common/inventory/stock-options';
 
+import { UpdateSaleReservationHeaderRepository } from './repository/update-sale-reservation-header.repository';
+import { UpdateSaleReservationLineRepository } from './repository/update-sale-reservation-line.repository';
+import { UpdateSaleReservationHeaderMapper } from './mapper/update-sale-reservation-header.mapper';
+import { UpdateSaleReservationLineMapper } from './mapper/update-sale-reservation-line.mapper';
+import { UpdateSaleReservationHeaderDto } from './dto/update-sale-reservation-header.dto';
+import { UpdateSaleReservationLineDto } from './dto/update-sale-reservation-line.dto';
+
 
 @Injectable()
 export class SaleReservationService {
@@ -29,6 +36,8 @@ export class SaleReservationService {
     private readonly icOptionResolverService: IcOptionResolverService,
     private readonly stockValidationService: StockValidationService,
     private readonly lotAllocationService: LotAllocationService,
+    private readonly updateSaleReservationHeaderRepository: UpdateSaleReservationHeaderRepository,
+    private readonly updateSaleReservationLineRepository: UpdateSaleReservationLineRepository,
   ) { }
 
   async create(createSaleReservationHeaderDto: CreateSaleReservationHeaderDto) {
@@ -444,261 +453,114 @@ export class SaleReservationService {
 }
 
 
-  // async stockOptionsQuery(
-  //   stockOptionQueryDto: StockOptionQueryDto,
-  // ) {
-  //   const {
-  //     page = 1,
-  //     limit = 20,
-  //     item_id,
-  //     branch_id,
-  //     warehouse_id,
-  //     location_id,
-  //     qty,
-  //   } = stockOptionQueryDto;
+async update(id: number, updateSaleReservationHeaderDto: UpdateSaleReservationHeaderDto) {
+        return this.prisma.$transaction(async (tx) => {
+            // 1. ค้นหา Header เดิมเพื่อเช็คการมีอยู่
+            const existingHeader = await tx.sale_reservation_header.findUnique({
+                where: { reservation_id: id }, // Corrected to reservation_id
+                include: { saleReservationLines: true }, // Corrected to saleReservationLines
+            });
 
-  //   const skip = (page - 1) * limit;
+            if (!existingHeader) {
+                throw new BadRequestException(`Sale Reservation with ID ${id} not found`); // Corrected message
+            }
 
-  //   // =====================================
-  //   // 1. LOAD IC OPTION
-  //   // =====================================
-  //   const setting =
-  //     await this.prisma.ic_option_list.findFirst({
-  //       where: {
-  //         ic_option: {
-  //           branch_id: branch_id,
-  //         },
-  //         system_document: {
-  //           system_document_code: 'RS',
-  //         },
-  //       },
-  //       include: {
-  //         ic_option: true,
-          
-  //       },
-  //     });
+            // 2. ดึงข้อมูลภาษี
+            const taxConfig = await this.taxService.getTaxById(
+                updateSaleReservationHeaderDto.tax_code_id
+            );
+            const taxRate = new Prisma.Decimal(taxConfig.tax_rate).div(100);
 
-  //   if (!setting) {
-  //     throw new Error('ไม่พบ IC Option');
-  //   }
+            let subtotal = new Prisma.Decimal(0);
+            let discountAmount = new Prisma.Decimal(0);
+            let netAmount = new Prisma.Decimal(0);
 
-  //   // =====================================
-  //   // 2. RESOLVE CONFIG (fallback)
-  //   // =====================================
-  //   const resolveZero = (
-  //     val: number,
-  //     def: number,
-  //   ) => (val === 0 ? def : val);
+            const calculatedLines: {
+                line: UpdateSaleReservationLineDto;
+                calc: any;
+            }[] = [];
 
-  //   const negativeStockCheck = resolveZero(
-  //     setting.negative_stock_check,
-  //     setting.ic_option.check_deficit,
-  //   );
+            // 3. คำนวณแต่ละบรรทัดก่อน
+            for (const line of updateSaleReservationHeaderDto.saleReservationLines || []) {
+                const lineAmount = this.calculationDomainService.calculateLine({
+                    qty: line.qty,
+                    unit_price: line.unit_price,
+                    discount_expression: line.discount_expression
+                        ? String(line.discount_expression)
+                        : undefined,
+                });
 
-  //   const negativeStockMode = resolveZero(
-  //     setting.negative_stock_mode,
-  //     setting.ic_option.check_deficit_option,
-  //   );
+                subtotal = subtotal.plus(lineAmount.subtotal);
+                discountAmount = discountAmount.plus(lineAmount.discountAmount);
+                netAmount = netAmount.plus(lineAmount.netAmount);
 
-  //   const qtyValidationFlag = resolveZero(
-  //     setting.quantity_validation_flag,
-  //     setting.ic_option.check_qty_flag,
-  //   );
+                calculatedLines.push({ line, calc: lineAmount });
+            }
 
-  //   // =====================================
-  //   // 3. WHERE
-  //   // =====================================
-  //   const where: any = {};
+            // 4. คำนวณ Header Totals
+            const headerDocTotals = this.calculationDomainService.calculateHeaderTotal({
+                subtotal: netAmount.toNumber(),
+                exchange_rate: updateSaleReservationHeaderDto.exchange_rate,
+                discount_expression: updateSaleReservationHeaderDto.discount_expression
+                    ? String(updateSaleReservationHeaderDto.discount_expression)
+                    : undefined,
+                tax_rate: taxRate.toNumber(),
+            });
 
-  //   if (item_id) where.item_id = item_id;
-  //   if (branch_id) where.branch_id = branch_id;
-  //   if (warehouse_id)
-  //     where.warehouse_id = warehouse_id;
-  //   if (location_id)
-  //     where.location_id = location_id;
+            // 5. อัปเดต Header (ใช้ Mapper และ Repository ที่ถูกต้อง)
+            const updateHeaderData = UpdateSaleReservationHeaderMapper.toPrismaUpdateInput(
+                updateSaleReservationHeaderDto,
+                headerDocTotals
+            );
+            await this.updateSaleReservationHeaderRepository.update(tx, updateHeaderData, id); // ใช้ repository ที่ถูกต้อง
 
-  //   // =====================================
-  //   // 4. LOAD DATA
-  //   // =====================================
-  //   const rows =
-  //     await this.prisma.item_lot_balance.findMany({
-  //       where,
-  //       include: {
-  //         lot: true,
-  //         warehouse: true,
-  //         location: true,
-  //       },
-  //       orderBy: {
-  //         updated_at: 'desc',
-  //       },
-  //     });
+            // 6. ใช้ diffById จัดการกับรายการเพิ่ม-ลบ-แก้ไขบรรทัด (saleReservationLines)
+            const existingLines = existingHeader.saleReservationLines || []; // ใช้ saleReservationLines
+            const diff = diffById(
+                existingLines,
+                updateSaleReservationHeaderDto.saleReservationLines || [], // ใช้ saleReservationLines
+                'reservation_line_id' // ใช้ reservation_line_id
+            );
 
-  //   // =====================================
-  //   // 5. MAP DISPLAY QTY
-  //   // =====================================
-  //   const mapped = rows.map((row) => {
-  //     let display_qty = 0;
+            // 7. ลบรายการที่ถูกเอาออก (Delete)
+            if (diff.toDelete.length > 0) {
+                await tx.sale_reservation_line.deleteMany({ // ใช้ sale_reservation_line
+                    where: {
+                        reservation_line_id: { in: diff.toDelete.map((l: any) => l.reservation_line_id) }, // ใช้ reservation_line_id
+                    },
+                });
+            }
 
-  //     if (qtyValidationFlag === 1) {
-  //       display_qty = Number(row.qty_available);
-  //     }
+            // 8. อัปเดตรายการเดิม (Update)
+            for (const line of diff.toUpdate) {
+                const calcObj = calculatedLines.find(l => l.line.reservation_line_id === line.reservation_line_id)?.calc; // ใช้ reservation_line_id
+                if (!calcObj) continue;
+                
+                const updateLineData = UpdateSaleReservationLineMapper.toPrismaUpdateInput(line, calcObj); // ใช้ mapper ที่ถูกต้อง
+                await this.updateSaleReservationLineRepository.update(tx, updateLineData, line.reservation_line_id!); // ใช้ repository และ ID ที่ถูกต้อง
+            }
 
-  //     if (qtyValidationFlag === 2) {
-  //       display_qty = Number(row.qty_reserved);
-  //     }
+            // 9. สร้างรายการใหม่ (Create)
+            for (const line of diff.toCreate) {
+                const calcObj = calculatedLines.find(l => l.line === line)?.calc;
+                if (!calcObj) continue;
+                
+                const createLineData = CreateSaleReservationLineMapper.toPrismaCreateInput(line as any, calcObj, id); // ใช้ mapper ที่ถูกต้อง, id คือ reservation_id
+                await this.createSaleReservationLineRepository.create(tx, createLineData); // ใช้ repository ที่ถูกต้อง
+            }
 
-  //     return {
-  //       ...row,
-  //       display_qty,
-  //     };
-  //   });
+            // 10. ส่งคืนข้อมูล Sale Quotation ที่ทำการอัปเดตเรียบร้อยแล้ว
+            return tx.sale_reservation_header.findUnique({
+                where: { reservation_id: id },
+                include: {
+                    saleReservationLines: true,
+                },
+            });
+        });
+    }
 
-  //   // =====================================
-  //   // 6. GROUP BY MODE
-  //   // =====================================
-  //   let grouped: any[] = [];
 
-  //   // 1 = รวมคลัง
-  //   if (negativeStockMode === 1) {
-  //     const total = mapped.reduce(
-  //       (sum, r) => sum + r.display_qty,
-  //       0,
-  //     );
 
-  //     grouped = [
-  //       {
-  //         item_id,
-  //         display_qty: total,
-  //       },
-  //     ];
-  //   }
-
-  //   // 2 = แยกคลัง
-  //   if (negativeStockMode === 2) {
-  //     const map = new Map();
-
-  //     for (const r of mapped) {
-  //       const key = r.warehouse_id;
-
-  //       if (!map.has(key)) {
-  //         map.set(key, {
-  //           warehouse_id: r.warehouse_id,
-  //           warehouse: r.warehouse,
-  //           display_qty: 0,
-  //         });
-  //       }
-
-  //       map.get(key).display_qty +=
-  //         r.display_qty;
-  //     }
-
-  //     grouped = Array.from(map.values());
-  //   }
-
-  //   // 3 = แยกคลัง + location
-  //   if (negativeStockMode === 3) {
-  //     const map = new Map();
-
-  //     for (const r of mapped) {
-  //       const key =
-  //         `${r.warehouse_id}_${r.location_id}`;
-
-  //       if (!map.has(key)) {
-  //         map.set(key, {
-  //           warehouse_id: r.warehouse_id,
-  //           warehouse: r.warehouse,
-  //           location_id: r.location_id,
-  //           location: r.location,
-  //           display_qty: 0,
-  //         });
-  //       }
-
-  //       map.get(key).display_qty +=
-  //         r.display_qty;
-  //     }
-
-  //     grouped = Array.from(map.values());
-  //   }
-
-  //   // default
-  //   if (negativeStockMode === 0) {
-  //     grouped = mapped;
-  //   }
-
-  //   // =====================================
-  //   // 7. NEGATIVE STOCK LOGIC (UPDATED)
-  //   // =====================================
-  //   let can_use = true;
-  //   let warning_message = null;
-
-  //   const totalQty = grouped.reduce(
-  //     (sum, r) =>
-  //       sum + Number(r.display_qty || 0),
-  //     0,
-  //   );
-
-  //   if (qty && qty > totalQty) {
-  //     // 1 = ห้ามติดลบ
-  //     if (negativeStockCheck === 1) {
-  //       can_use = false;
-  //       warning_message ==
-  //         'สินค้าไม่พอ ไม่อนุญาตติดลบ';
-  //     }
-
-  //     // 2 = ติดลบได้
-  //     if (negativeStockCheck === 2) {
-  //       can_use = true;
-  //       warning_message = null;
-  //     }
-
-  //     // 3 = ถามก่อนใช้
-  //     if (negativeStockCheck === 3) {
-  //       can_use = true;
-  //       warning_message ==
-  //         'สินค้าไม่พอ ต้องการดำเนินการต่อหรือไม่';
-  //     }
-
-  //     // 4 = ตามรายตัวสินค้า
-  //     if (negativeStockCheck === 4) {
-  //       can_use = true;
-  //       warning_message ==
-  //         'ตรวจสอบตามการตั้งค่ารายสินค้า';
-  //     }
-  //   }
-
-  //   // =====================================
-  //   // 8. PAGINATION
-  //   // =====================================
-  //   const total = grouped.length;
-
-  //   const data = grouped.slice(
-  //     skip,
-  //     skip + limit,
-  //   );
-
-  //   // =====================================
-  //   // 9. RESPONSE
-  //   // =====================================
-  //   return {
-  //     page,
-  //     limit,
-  //     total,
-  //     total_page: Math.ceil(total / limit),
-
-  //     config: {
-  //       negative_stock_check:
-  //         negativeStockCheck,
-  //       negative_stock_mode:
-  //         negativeStockMode,
-  //       quantity_validation_flag:
-  //         qtyValidationFlag,
-  //     },
-
-  //     can_use,
-  //     warning_message,
-
-  //     data,
-  //   };
-  // }
+  
 
 } 
