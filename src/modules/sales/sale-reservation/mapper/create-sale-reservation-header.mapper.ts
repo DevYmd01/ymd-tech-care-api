@@ -7,6 +7,7 @@ export class CreateSaleReservationHeaderMapper {
     rs_no: string,
     headerDocTotals: any,
   ): Prisma.sale_reservation_headerCreateInput {
+  // headerDocTotals should ideally be typed more strictly
     return {
       reservation_no: rs_no,
       reservation_date: data.reservation_date || new Date(),
@@ -31,17 +32,17 @@ export class CreateSaleReservationHeaderMapper {
       exchange_rate: data.exchange_rate,
       exchange_rate_date: data.exchange_rate_date,
 
-      base_total_amount: headerDocTotals.baseGrandTotal ?? headerDocTotals.grandTotal,
-      quote_total_amount: headerDocTotals.grandTotal,
+      base_total_amount: headerDocTotals.baseGrandTotal ?? headerDocTotals.grandTotal ?? new Prisma.Decimal(0),
+      quote_total_amount: headerDocTotals.grandTotal ?? new Prisma.Decimal(0),
 
       tax_code: { connect: { tax_code_id: data.tax_code_id } },
-      tax_rate: headerDocTotals.taxRate?.toNumber() ?? 0,
-      base_tax_amount: headerDocTotals.baseTaxAmount?.toNumber() ?? 0,
-      quote_tax_amount: headerDocTotals.taxAmount?.toNumber() ?? 0,
+      tax_rate: headerDocTotals.taxRate ?? new Prisma.Decimal(0),
+      base_tax_amount: headerDocTotals.baseTaxAmount ?? new Prisma.Decimal(0),
+      quote_tax_amount: headerDocTotals.taxAmount ?? new Prisma.Decimal(0),
 
       discount_expression: data.discount_expression,
-      base_discount_amount: headerDocTotals.baseDiscountAmount?.toNumber() ?? 0,
-      quote_discount_amount: headerDocTotals.discountAmount?.toNumber() ?? 0,
+      base_discount_amount: headerDocTotals.baseDiscountAmount ?? new Prisma.Decimal(0),
+      quote_discount_amount: headerDocTotals.discountAmount ?? new Prisma.Decimal(0),
 
       ...(data.emp_sale_id
         ? { emp_sale: { connect: { employee_id: data.emp_sale_id } } }

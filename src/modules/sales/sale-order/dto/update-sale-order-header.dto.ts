@@ -12,17 +12,17 @@ import {
     Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ArrayMinSize } from 'class-validator';
+
 //
 // D6 LINE DTO
 //
 
-import { CreateSaleOrderLineDto } from './create-sale-order-line.dto';
+import { UpdateSaleOrderLineDto } from './update-sale-order-line.dto';
 
 //
 // D5 HEADER DTO
 //
-export class CreateSaleOrderHeaderDto {
+export class UpdateSaleOrderHeaderDto {
 
     @IsDate()
     @Type(() => Date)
@@ -106,9 +106,9 @@ export class CreateSaleOrderHeaderDto {
     //
     // LINES
     //
+@IsOptional()
 @IsArray()
-@ArrayMinSize(1)
 @ValidateNested({ each: true })
-@Type(() => CreateSaleOrderLineDto)
-saleOrderLines: CreateSaleOrderLineDto[] = [];
+@Type(() => UpdateSaleOrderLineDto)
+saleOrderLines?: UpdateSaleOrderLineDto[]; // Renamed for consistency
 }

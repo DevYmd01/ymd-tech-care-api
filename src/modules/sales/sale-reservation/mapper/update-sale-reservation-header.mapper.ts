@@ -15,14 +15,7 @@ export class UpdateSaleReservationHeaderMapper {
             baseGrandTotal?: Prisma.Decimal | null;
             grandTotal?: Prisma.Decimal | null;
         },
-    ): Prisma.sale_reservation_headerUpdateInput { 
-        // Helper function to safely convert Decimal | null | undefined to number, defaulting to 0
-        const safeToNumber = (decimalValue: Prisma.Decimal | null | undefined): number => {
-            if (decimalValue instanceof Prisma.Decimal) {
-                return decimalValue.toNumber();
-            }
-            return 0;
-        };
+    ): Prisma.sale_reservation_headerUpdateInput {
         return {
             ...(data.reservation_date !== undefined && {
                 reservation_date: data.reservation_date
@@ -53,20 +46,20 @@ export class UpdateSaleReservationHeaderMapper {
             exchange_rate: data.exchange_rate,
             exchange_rate_date: data.exchange_rate_date,
 
-            base_total_amount: safeToNumber(headerDocTotals.baseGrandTotal ?? headerDocTotals.grandTotal),
-            quote_total_amount: safeToNumber(headerDocTotals.grandTotal),
+            base_total_amount: headerDocTotals.baseGrandTotal ?? headerDocTotals.grandTotal ?? new Prisma.Decimal(0),
+            quote_total_amount: headerDocTotals.grandTotal ?? new Prisma.Decimal(0),
 
             ...(data.tax_code_id && {
                 tax_code: { connect: { tax_code_id: data.tax_code_id } }
             }),
 
-            tax_rate: safeToNumber(headerDocTotals.taxRate),
-            base_tax_amount: safeToNumber(headerDocTotals.baseTaxAmount),
-            quote_tax_amount: safeToNumber(headerDocTotals.taxAmount),
+            tax_rate: headerDocTotals.taxRate ?? new Prisma.Decimal(0),
+            base_tax_amount: headerDocTotals.baseTaxAmount ?? new Prisma.Decimal(0),
+            quote_tax_amount: headerDocTotals.taxAmount ?? new Prisma.Decimal(0),
 
             discount_expression: data.discount_expression,
-            base_discount_amount: headerDocTotals.baseDiscountAmount?.toNumber() ?? 0,
-            quote_discount_amount: headerDocTotals.discountAmount?.toNumber() ?? 0,
+            base_discount_amount: headerDocTotals.baseDiscountAmount ?? new Prisma.Decimal(0),
+            quote_discount_amount: headerDocTotals.discountAmount ?? new Prisma.Decimal(0),
 
             ...(data.emp_sale_id
                 ? { emp_sale: { connect: { employee_id: data.emp_sale_id } } }

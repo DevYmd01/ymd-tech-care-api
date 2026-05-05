@@ -8,7 +8,12 @@ import { CreateSaleOrderHeaderRepository } from './repository/create-sale-order-
 import { CreateSaleOrderLineRepository } from './repository/create-sale-order-line.repository';
 import { CreateSaleOrderHeaderMapper } from './mapper/create-sale-order-header.mapper';
 import { CreateSaleOrderLineMapper } from './mapper/create-sale-order-line.mapper';
-
+import { PrismaService } from '@/prisma/prisma.service';
+import { UpdateSaleOrderHeaderRepository } from './repository/update-sale-order-header.repository';
+import { UpdateSaleOrderLineRepository } from './repository/update-sale-order-line.repository';
+import { UpdateSaleOrderHeaderMapper } from './mapper/update-sale-order-header.mapper';
+import { UpdateSaleOrderLineMapper } from './mapper/update-sale-order-line.mapper';
+import { PrismaModule } from '@/prisma/prisma.module';
 
 
 @Module({
@@ -20,10 +25,16 @@ import { CreateSaleOrderLineMapper } from './mapper/create-sale-order-line.mappe
     CreateSaleOrderHeaderRepository,
     CreateSaleOrderLineRepository,
     CreateSaleOrderHeaderMapper,
-    CreateSaleOrderLineMapper
+    CreateSaleOrderLineMapper,
+    PrismaService,
+    UpdateSaleOrderHeaderRepository,
+    UpdateSaleOrderLineRepository,
+    UpdateSaleOrderHeaderMapper,
+    UpdateSaleOrderLineMapper,
   ],
+  
   imports: [
-    DocumentNumberModule
+    DocumentNumberModule,PrismaModule
   ]
 })
 export class SaleOrderModule {}
