@@ -1,92 +1,126 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateEmployeesDto } from './dto/create-employees.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateAddressDto } from './dto/creact-address.dto';
 import { UpdateEmployeesDto } from './dto/update-employees.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 
+import { EmployeesRepository } from './repository/employees.repository';
+import { AddressRepository } from './repository/address.repository';
+import { EmployeesMapper } from './mapper/employees.mapper';
+import { AddressMapper } from './mapper/address.mapper';
+import { Prisma } from '@prisma/client';
+import { diffById } from '@/common/utils';
+
 @Injectable()
 export class EmployeesService {
-    constructor(private prisma: PrismaService) { }
-    create(dto: CreateEmployeesDto) {
-        return this.prisma.employees.create({
-            data: {
-                branch_id: dto.branch_id!,
-                employee_code: dto.employee_code!,
-                employee_title_th: dto.employee_title_th!,
-                employee_title_en: dto.employee_title_en!,
-                employee_firstname_th: dto.employee_firstname_th!,
-                employee_lastname_th: dto.employee_lastname_th!,
-                employee_firstname_en: dto.employee_firstname_en!,
-                employee_lastname_en: dto.employee_lastname_en!,
-                employee_fullname: dto.employee_fullname!,
-                employee_startdate: dto.employee_startdate!,
-                employee_resigndate: dto.employee_resigndate!,
-                employee_status: dto.employee_status!,
-                phone: dto.phone!,
-                email: dto.email!,
-                remark: dto.remark!,
-                tax_id: dto.tax_id!,
-                emp_type: dto.emp_type!,
-                position_id: dto.position_id!,
-                emp_dept_id: dto.department_id!,
-                is_active: dto.is_active!,
-                employee_head_id: dto.manager_employee_id!,
-                employeeAddresses: {
-                    create: dto.addresses?.map((address: CreateAddressDto) => ({
-                        address_type: address.address_type!,
-                        address: address.address!,
-                        district: address.district!,
-                        province: address.province!,
-                        postal_code: address.postal_code!,
-                        country: address.country!,
-                        contact_person: address.contact_person!,
-                    })),
-                },
+    constructor(
+        private prisma: PrismaService, // Keep PrismaService for other methods not yet refactored
+        private readonly employeesRepository: EmployeesRepository,
+        private readonly employeesMapper: EmployeesMapper,
+        private readonly addressRepository: AddressRepository,
+        private readonly addressMapper: AddressMapper,
+    ) { }
+
+    async create(dto: CreateEmployeesDto) {
+        try {
+            return this.prisma.$transaction(async (tx) => {
+                const employeeData = this.employeesMapper.toPrismaCreateInput(dto);
+
+                const employee = await this.employeesRepository.create(tx, employeeData);
+
+                if (dto.addresses?.length) {
+                    await Promise.all(
+                        dto.addresses.map(addr => {
+                            const addressData = this.addressMapper.toPrismaCreateInput(addr, employee.employee_id);
+                            return this.addressRepository.create(tx, addressData);
+                        })
+                    );
+                }
+
+                return employee;
+            });
+        } catch (error: any) {
+            if (error?.code === 'P2002') {
+                const field = error.meta?.target?.join(', ') || 'Unique field';
+                throw new BadRequestException(`${field} already exists`);
             }
-        });
+
+            throw error;
+        }
     }
 
-    update(id: number, dto: UpdateEmployeesDto) {
-        return this.prisma.employees.update({
+
+async update(id: number, dto: UpdateEmployeesDto) {
+    return this.prisma.$transaction(async (tx) => {
+        // 1. ดึงข้อมูลเดิม
+        const existingEmployee = await tx.employees.findUnique({
             where: { employee_id: id },
-            data: {
-                branch_id: dto.branch_id!,
-                employee_code: dto.employee_code!,
-                employee_title_th: dto.employee_title_th!,
-                employee_title_en: dto.employee_title_en!,
-                employee_firstname_th: dto.employee_firstname_th!,
-                employee_lastname_th: dto.employee_lastname_th!,
-                employee_firstname_en: dto.employee_firstname_en!,
-                employee_lastname_en: dto.employee_lastname_en!,
-                employee_fullname: dto.employee_fullname!,
-                employee_startdate: dto.employee_startdate!,
-                employee_resigndate: dto.employee_resigndate!,
-                employee_status: dto.employee_status!,
-                phone: dto.phone!,
-                email: dto.email!,
-                remark: dto.remark!,
-                tax_id: dto.tax_id!,
-                emp_type: dto.emp_type!,
-                position_id: dto.position_id!,
-                emp_dept_id: dto.department_id!,
-                is_active: dto.is_active!,
-                employee_head_id: dto.manager_employee_id!,
-                employeeAddresses: {
-                    create: dto.addresses?.map((address: UpdateAddressDto) => ({
-                        employee_address_id: address.employee_address_id!,
-                        address_type: address.address_type!,
-                        address: address.address!,
-                        district: address.district!,
-                        province: address.province!,
-                        postal_code: address.postal_code!,
-                        country: address.country!,
-                        contact_person: address.contact_person!,
-                    })),
-                },
-            }
+            include: { employeeAddresses: true },
         });
-    }
+
+        if (!existingEmployee) {
+            throw new BadRequestException(`Employee with ID ${id} not found.`);
+        }
+
+        // 2. update employee
+        const employeeData = this.employeesMapper.toPrismaUpdateInput(dto);
+        const updatedEmployee = await this.employeesRepository.update(tx, id, employeeData);
+
+        // 3. handle addresses
+        if (Array.isArray(dto.addresses)) {
+            const oldAddresses = existingEmployee.employeeAddresses;
+
+            const { toCreate, toUpdate, toDelete } = diffById(
+                oldAddresses,
+                dto.addresses,
+                'employee_address_id'
+            );
+
+            // ✅ CREATE
+            await Promise.all(
+                toCreate.map(addr => {
+                    return this.addressRepository.create(
+                        tx,
+                        this.addressMapper.toPrismaCreateInput(addr, id)
+                    );
+                })
+            );
+
+            // ✅ UPDATE
+            await Promise.all(
+                toUpdate.map(addr => {
+                    if (!addr.employee_address_id) {
+                        throw new BadRequestException('Missing employee_address_id for update');
+                    }
+
+                    return this.addressRepository.update(
+                        tx,
+                        addr.employee_address_id,
+                        this.addressMapper.toPrismaUpdateInput(addr)
+                    );
+                })
+            );
+
+            // ✅ DELETE
+            await Promise.all(
+                toDelete.map(addr => {
+                    if (!addr.employee_address_id) {
+                        throw new BadRequestException('Missing employee_address_id for delete');
+                    }
+
+                    return this.addressRepository.delete(
+                        tx,
+                        addr.employee_address_id
+                    );
+                })
+            );
+        }
+
+        return updatedEmployee;
+    });
+}
+
 
     findAll() {
         return this.prisma.employees.findMany({
@@ -113,8 +147,8 @@ export class EmployeesService {
 
     findAllSale() {
         return this.prisma.employees.findMany({
-            where: { 
-                emp_type: true,
+            where: {
+                emp_type: "S",
                 // employee_status: "ACTIVE",
             },
             include: {

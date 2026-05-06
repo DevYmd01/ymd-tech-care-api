@@ -44,19 +44,16 @@ export class CreateEmployeesDto {
     @MaxLength(200)
     employee_lastname_en!: string;
 
-    @IsString()
-    @MaxLength(400)
-    employee_fullname!: string;
-
     @IsDateString()
     employee_startdate!: string;
 
-    @IsOptional()
+        @IsOptional()
     @IsDateString()
     employee_resigndate?: string;
 
-    @IsString()
-    employee_status!: string;
+      @IsOptional()
+    @IsNumber()
+    employee_status: number;
 
     @IsString()
     @MaxLength(20)
@@ -74,14 +71,15 @@ export class CreateEmployeesDto {
     @IsString()
     tax_id?: string;
 
-    @IsBoolean()
-    emp_type!: boolean;
+    @IsString()
+    @IsOptional()
+    emp_type?: string;
 
     @IsNumber()
     position_id!: number;
 
     @IsNumber()
-    department_id!: number;
+    emp_dept_id!: number;
 
     @IsOptional()
     @IsBoolean()
@@ -89,7 +87,7 @@ export class CreateEmployeesDto {
 
     @IsOptional()
     @IsNumber()
-    manager_employee_id?: number;
+    employee_head_id?: number;
 
     @IsOptional()
     @Type(() => CreateAddressDto)

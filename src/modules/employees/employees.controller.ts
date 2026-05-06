@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeesDto } from './dto/create-employees.dto';
-import { Post, Body, Get, Param } from '@nestjs/common';
+import { UpdateEmployeesDto } from './dto/update-employees.dto';
+import { Post, Body, Get, Param, Patch } from '@nestjs/common';
 
 @Controller('employees')
 export class EmployeesController {
@@ -21,6 +22,11 @@ export class EmployeesController {
     @Get('emp-sale-all')
     findAllSale() {
         return this.employeesService.findAllSale();
+    }
+
+    @Patch(':employee_id')
+    update(@Param('employee_id') employee_id: number, @Body() dto: UpdateEmployeesDto) {
+        return this.employeesService.update(+employee_id, dto);
     }
 
     @Get(':employee_id')

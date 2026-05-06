@@ -50,10 +50,6 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
     @MaxLength(100)
     employee_lastname_en: string;
 
-    @IsOptional()
-    @IsString()
-    @MaxLength(200)
-    employee_fullname: string;
 
     @IsOptional()
     @IsDateString()
@@ -64,9 +60,8 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
     employee_resigndate: string;
 
     @IsOptional()
-    @IsString()
-    @MaxLength(20)
-    employee_status: string;
+    @IsNumber()
+    employee_status?: number;
 
     @IsOptional()
     @IsString()
@@ -89,8 +84,9 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
     tax_id: string;
 
     @IsOptional()
-    @IsBoolean()
-    emp_type: boolean;
+    @IsString()
+    @MaxLength(10)
+    emp_type: string;
 
     @IsOptional()
     @IsNumber()
@@ -98,7 +94,7 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
 
     @IsOptional()
     @IsNumber()
-    department_id: number;
+    emp_dept_id: number;
 
     @IsOptional()
     @IsBoolean()
@@ -106,7 +102,7 @@ export class UpdateEmployeesDto extends PartialType(CreateEmployeesDto) {
 
     @IsOptional()
     @IsNumber()
-    manager_employee_id: number;
+    employee_head_id: number;
 
     @IsOptional()
     @Type(() => UpdateAddressDto)

@@ -21,19 +21,20 @@ model employees {
     employee_lastname_th         String                           @db.VarChar(200)
     employee_firstname_en        String?                          @db.VarChar(200)
     employee_lastname_en         String?                          @db.VarChar(200)
-    employee_fullname            String                           @db.VarChar(400)
-    employee_startdate           DateTime
+    employee_fullname            String?                          @db.VarChar(400)
+    employee_fullname_en         String?                          @db.VarChar(400)
+    employee_startdate           DateTime? @default(now())
     employee_resigndate          DateTime?
-    employee_status              String                           @db.VarChar(20)
+    employee_status              Int                              @default(1) 
     phone                        String?                          @db.VarChar(20)
     email                        String                           @db.VarChar(255)
     remark                       String?
     tax_idcard                   String?                          @db.VarChar(20)
     tax_id                       String?                          @db.VarChar(20)
-    emp_type                     Boolean                          @default(false)
+    emp_type                     String?                          @db.Char(10) @default("G") 
     position_id                  Int?
-    emp_dept_id                Int?
-    is_active                    Boolean                          @default(true)
+    emp_dept_id                  Int?
+    is_active                    Boolean                          @default(true) 
     employee_head_id             Int?
     employee_head_code           String?                          @db.VarChar(25)
     created_at                   DateTime                         @default(now())
@@ -44,7 +45,7 @@ model employees {
     department                   employee_department?             @relation(fields: [emp_dept_id], references: [emp_dept_id])
     employeeHead                 employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
     employees                    employees[]                      @relation("EmployeeManager")
-    position                     employee_position?                    @relation(fields: [position_id], references: [position_id])
+    position                     employee_position?               @relation(fields: [position_id], references: [position_id])
     requested_pr                 pr_header[]                      @relation("requester_user")
     approved_pr                  pr_header[]                      @relation("approved_by_user")
     rfqHeaders                   rfq_header[]                     @relation("requested_by_user")
@@ -92,11 +93,13 @@ model employee_sale_area {
 }
 
 model employee_position {
-    position_id      Int     @id @default(autoincrement())
-    position_code    String  @unique @db.VarChar(30)
-    position_name    String  @db.VarChar(200)
-    position_nameeng String? @db.VarChar(200)
-    is_active        Boolean @default(true)
+    position_id      Int         @id @default(autoincrement())
+    position_code    String      @unique @db.VarChar(30)
+    position_name    String      @db.VarChar(200)
+    position_nameeng String?     @db.VarChar(200)
+    is_active        Boolean     @default(true)
+    created_at       DateTime    @default(now())
+    updated_at       DateTime?
     employees        employees[]
 }
 
@@ -244,8 +247,6 @@ model org_branch {
 
     @@map("org_branch")
 }
-
-
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
