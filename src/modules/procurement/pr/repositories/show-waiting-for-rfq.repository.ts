@@ -47,13 +47,13 @@ export class ShowWaitingForRFQRepository {
                             employee_code: true,
                             employee_firstname_th: true,
                             employee_lastname_th: true,
-                            department: {
-                                select: {
-                                    department_id: true,
-                                    department_code: true,
-                                    department_name: true
-                                }
-                            }
+                            // department: {
+                            //     select: {
+                            //         department_id: true,
+                            //         department_code: true,
+                            //         department_name: true
+                            //     }
+                            // }
                         }
                     },
                 },

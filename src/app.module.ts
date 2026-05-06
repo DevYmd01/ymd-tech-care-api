@@ -50,7 +50,6 @@ import { PrApprovalService } from './modules/procurement/pr-approval/pr-approval
 import { PrApprovalModule } from './modules/procurement/pr-approval/pr-approval.module';
 import { PoApprovalModule } from './modules/procurement/po-approval/po-approval.module';
 import { ItemBarcodeModule } from './modules/master-data/item/item-barcode/item-barcode.module';
-import { PositionModule } from './modules/master-data/organization/position/position.module';
 import { EmployeeGroupModule } from './modules/master-data/employee-group/employee-group.module';
 import { EmployeeSaleAreaModule } from './modules/master-data/employee-sale-area/employee-sale-area.module';
 import { EmployeeSaleChannelModule } from './modules/master-data/employee-sale-channel/employee-sale-channel.module';
@@ -129,7 +128,6 @@ import { SaleOrderApprovalModule } from './modules/sales/sale-order-approval/sal
     PrApprovalModule,
     PoApprovalModule,
     ItemBarcodeModule,
-    PositionModule,
     EmployeeGroupModule,
     EmployeeSaleAreaModule,
     EmployeeSaleChannelModule,

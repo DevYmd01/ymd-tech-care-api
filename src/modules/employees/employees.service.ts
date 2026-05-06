@@ -29,7 +29,7 @@ export class EmployeesService {
                 tax_id: dto.tax_id!,
                 emp_type: dto.emp_type!,
                 position_id: dto.position_id!,
-                department_id: dto.department_id!,
+                emp_dept_id: dto.department_id!,
                 is_active: dto.is_active!,
                 employee_head_id: dto.manager_employee_id!,
                 employeeAddresses: {
@@ -69,7 +69,7 @@ export class EmployeesService {
                 tax_id: dto.tax_id!,
                 emp_type: dto.emp_type!,
                 position_id: dto.position_id!,
-                department_id: dto.department_id!,
+                emp_dept_id: dto.department_id!,
                 is_active: dto.is_active!,
                 employee_head_id: dto.manager_employee_id!,
                 employeeAddresses: {

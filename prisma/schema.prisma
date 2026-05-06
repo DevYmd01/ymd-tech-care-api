@@ -32,7 +32,7 @@ model employees {
     tax_id                       String?                          @db.VarChar(20)
     emp_type                     Boolean                          @default(false)
     position_id                  Int?
-    department_id                Int?
+    emp_dept_id                Int?
     is_active                    Boolean                          @default(true)
     employee_head_id             Int?
     employee_head_code           String?                          @db.VarChar(25)
@@ -41,10 +41,10 @@ model employees {
     employeeAddresses            employee_address[]
     employeeAuths                employee_auth?
     branch                       org_branch?                      @relation(fields: [branch_id], references: [branch_id])
-    department                   org_department?                  @relation(fields: [department_id], references: [department_id])
+    department                   employee_department?             @relation(fields: [emp_dept_id], references: [emp_dept_id])
     employeeHead                 employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
     employees                    employees[]                      @relation("EmployeeManager")
-    position                     org_position?                    @relation(fields: [position_id], references: [position_id])
+    position                     employee_position?                    @relation(fields: [position_id], references: [position_id])
     requested_pr                 pr_header[]                      @relation("requester_user")
     approved_pr                  pr_header[]                      @relation("approved_by_user")
     rfqHeaders                   rfq_header[]                     @relation("requested_by_user")
@@ -67,8 +67,8 @@ model employees {
     saleReservationHeaders       sale_reservation_header[]
     saleOrderHeaders             sale_order_header[]
     // saleOrderApprovalHeaders     sale_order_approval_header[]
-    saleOrderApprovalHeaders     sale_order_approval_header[] @relation("emp_so_approval_header")
-    saleOrderSaleHeaders     sale_order_approval_header[] @relation("emp_so_sale_header")
+    saleOrderApprovalHeaders     sale_order_approval_header[]     @relation("emp_so_approval_header")
+    saleOrderSaleHeaders         sale_order_approval_header[]     @relation("emp_so_sale_header")
 }
 
 model employee_group {
@@ -97,6 +97,7 @@ model employee_position {
     position_name    String  @db.VarChar(200)
     position_nameeng String? @db.VarChar(200)
     is_active        Boolean @default(true)
+    employees        employees[]
 }
 
 model employee_sale_channel {
@@ -165,6 +166,8 @@ model employee_department {
     saleReservationHeaders   sale_reservation_header[]
     saleOrderHeaders         sale_order_header[]
     saleOrderApprovalHeaders sale_order_approval_header[]
+    employees                employees[]
+    qcHeaders                qc_header[]
 
     @@unique([emp_dept_id])
 }
@@ -242,37 +245,7 @@ model org_branch {
     @@map("org_branch")
 }
 
-/// ตารางเก็บข้อมูลตำแหน่ง 
-model org_position {
-    position_id      Int         @id @default(autoincrement())
-    position_code    String      @unique @db.VarChar(20)
-    position_name    String      @db.VarChar(200)
-    position_name_en String      @db.VarChar(200)
-    is_active        Boolean     @default(true)
-    created_at       DateTime    @default(now())
-    updated_at       DateTime    @updatedAt
-    employees        employees[]
-}
 
-/// ตารางเก็บข้อมูลแผนก
-model org_department {
-    /// รหัสแผนก
-    department_id      Int         @id @default(autoincrement())
-    /// รหัสแผนก
-    department_code    String      @unique @db.VarChar(20)
-    /// ชื่อแผนก
-    department_name    String      @db.VarChar(200)
-    /// ชื่อแผนก (ภาษาอังกฤษ)
-    department_name_en String      @db.VarChar(200)
-    /// สถานะ
-    is_active          Boolean     @default(true)
-    /// วันที่สร้าง
-    created_at         DateTime    @default(now())
-    /// วันที่แก้ไข
-    updated_at         DateTime    @updatedAt
-    employees          employees[]
-    qcHeaders          qc_header[]
-}
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
@@ -1574,31 +1547,30 @@ model price_list_item_line {
 
 // A39
 model multi_price_item {
-    multi_price_item_id Int      @id @default(autoincrement())
-    item_from_qty       Decimal  @default(0)
+    multi_price_item_id Int       @id @default(autoincrement())
+    item_from_qty       Decimal   @default(0)
     item_id             Int
-    item                item?    @relation(fields: [item_id], references: [item_id])
-    item_price1         Decimal? @db.Decimal(18, 2)
-    item_price2         Decimal? @db.Decimal(18, 2)
-    item_price3         Decimal? @db.Decimal(18, 2)
-    item_price4         Decimal? @db.Decimal(18, 2)
-    item_price5         Decimal? @db.Decimal(18, 2)
-    item_price6         Decimal? @db.Decimal(18, 2)
-    item_price7         Decimal? @db.Decimal(18, 2)
-    item_price8         Decimal? @db.Decimal(18, 2)
-    item_price9         Decimal? @db.Decimal(18, 2)
-    item_price10        Decimal? @db.Decimal(18, 2)
-    item_to_qty         Decimal? @default(0)
+    item                item?     @relation(fields: [item_id], references: [item_id])
+    item_price1         Decimal?  @db.Decimal(18, 2)
+    item_price2         Decimal?  @db.Decimal(18, 2)
+    item_price3         Decimal?  @db.Decimal(18, 2)
+    item_price4         Decimal?  @db.Decimal(18, 2)
+    item_price5         Decimal?  @db.Decimal(18, 2)
+    item_price6         Decimal?  @db.Decimal(18, 2)
+    item_price7         Decimal?  @db.Decimal(18, 2)
+    item_price8         Decimal?  @db.Decimal(18, 2)
+    item_price9         Decimal?  @db.Decimal(18, 2)
+    item_price10        Decimal?  @db.Decimal(18, 2)
+    item_to_qty         Decimal?  @default(0)
     uom_id              Int
-    uom                 uom?     @relation(fields: [uom_id], references: [uom_id])
-    created_at          DateTime @default(now())
+    uom                 uom?      @relation(fields: [uom_id], references: [uom_id])
+    created_at          DateTime  @default(now())
     updated_at          DateTime? @updatedAt
-    is_active           Boolean  @default(true)
+    is_active           Boolean   @default(true)
 
     @@index([item_id])
     @@index([uom_id])
     @@map("multi_price_item")
-
 }
 
 // A39.1
@@ -2093,9 +2065,9 @@ model vq_line {
 
 model qc_header {
     /// รหัสใบเปรียบเทียบราคา (PK)
-    qc_id            Int             @id @default(autoincrement())
+    qc_id            Int                  @id @default(autoincrement())
     /// เลขที่ใบเปรียบเทียบราคา
-    qc_no            String          @unique @db.VarChar(30)
+    qc_no            String               @unique @db.VarChar(30)
     /// รหัสใบขอซื้อ (FK)
     pr_id            Int
     /// รหัสใบขอซื้อ (FK)
@@ -2105,21 +2077,21 @@ model qc_header {
     /// รหัสใบขอซื้อ (FK) ผู้ชนะ
     winning_vq_id    Int
     /// หมายเหตุ
-    remarks          String?         @db.Text
+    remarks          String?              @db.Text
     /// สถานะ
-    status           String          @db.VarChar(20)
+    status           String               @db.VarChar(20)
     /// วันที่สร้าง
-    created_at       DateTime        @default(now())
+    created_at       DateTime             @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at       DateTime        @updatedAt
+    updated_at       DateTime             @updatedAt
     created_by       Int?
     updated_by       Int?
-    pr               pr_header       @relation(fields: [pr_id], references: [pr_id])
-    rfq              rfq_header      @relation(fields: [rfq_id], references: [rfq_id])
-    createdQcHeaders employees?      @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
-    updatedQcHeaders employees?      @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
-    winningVq        vq_header?      @relation(fields: [winning_vq_id], references: [vq_header_id])
-    department       org_department? @relation(fields: [department_id], references: [department_id])
+    pr               pr_header            @relation(fields: [pr_id], references: [pr_id])
+    rfq              rfq_header           @relation(fields: [rfq_id], references: [rfq_id])
+    createdQcHeaders employees?           @relation("QCCreatedBy", fields: [created_by], references: [employee_id])
+    updatedQcHeaders employees?           @relation("QCUpdatedBy", fields: [updated_by], references: [employee_id])
+    winningVq        vq_header?           @relation(fields: [winning_vq_id], references: [vq_header_id])
+    department       employee_department? @relation(fields: [department_id], references: [emp_dept_id])
     poHeaders        po_header[]
 }
 

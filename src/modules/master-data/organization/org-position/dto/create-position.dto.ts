@@ -2,17 +2,17 @@ import { IsNotEmpty, IsString, IsBoolean, IsOptional } from "class-validator";
 export class CreatePositionDto {
     @IsNotEmpty()
     @IsString()
-    position_code: string;
+    position_code!: string;
 
     @IsNotEmpty()
     @IsString()
-    position_name: string;
+    position_name!: string;
 
     @IsNotEmpty()
     @IsString()
-    position_name_en: string;
+    position_nameeng!: string;
 
     @IsOptional()
     @IsBoolean()
-    is_active: boolean;
+    is_active!: boolean;
 }

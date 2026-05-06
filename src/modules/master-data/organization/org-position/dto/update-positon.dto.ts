@@ -2,15 +2,15 @@ import { IsNotEmpty, IsString, IsBoolean, IsOptional } from "class-validator";
 export class UpdatePositionDto {
 
     @IsString()
-    position_code: string;
+    position_code!: string;
 
     @IsString()
-    position_name: string;
+    position_name!: string;
 
     @IsString()
-    position_name_en: string;
+    position_nameeng!: string;
 
     @IsOptional()
     @IsBoolean()
-    is_active: boolean;
+    is_active!: boolean;
 }

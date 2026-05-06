@@ -10,7 +10,7 @@ export class QCHeaderMapper {
             qc_no: qc_no,
             pr: { connect: { pr_id: dto.pr_id } },
             rfq: { connect: { rfq_id: dto.rfq_id } },
-            department: { connect: { department_id: dto.department_id } },
+            department: { connect: { emp_dept_id: dto.department_id } },
             status: 'DRAFT',
             remarks: dto.remarks,
             created_at: new Date(),
