@@ -19,44 +19,44 @@ export class CreateDeliveryHeaderDto {
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
-delivery_date!: Date;
+    delivery_date!: Date;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-so_id!: number;
+    so_id!: number;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-customer_id!: number;
+    customer_id!: number;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-branch_id!: number;
+    branch_id!: number;
     @IsOptional()
     @IsString()
-ship_to_address?: string;
+    ship_to_address?: string;
     @IsOptional()
     @IsString()
-ship_method?: string;
+    ship_method?: string;
     @IsOptional()
     @IsString()
-carrier?: string;
+    carrier?: string;
     @IsOptional()
     @IsString()
-tracking_no?: string;
+    tracking_no?: string;
     @IsNotEmpty()
     @IsString()
-status!: string;
+    status!: string;
     @IsOptional()
     @IsInt()
-    @Type(() => Number) 
-ship_by_emp?: number;
+    @Type(() => Number)
+    ship_by_emp?: number;
     @IsOptional()
     @IsString()
-docu_date?: Date;
+    docu_date?: Date;
     @IsOptional()
     @IsString()
-remarks?: string;
+    remarks?: string;
 
     @IsArray()
     @ValidateNested({ each: true })
@@ -68,44 +68,45 @@ export class UpdateDeliveryHeaderDto {
     @IsNotEmpty()
     @IsDate()
     @Type(() => Date)
-delivery_date!: Date;
+    delivery_date!: Date;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-so_id!: number;
+    so_id!: number;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-customer_id!: number;
+    customer_id!: number;
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-branch_id!: number;
+    branch_id!: number;
     @IsOptional()
     @IsString()
-ship_to_address?: string;
+    ship_to_address?: string;
     @IsOptional()
     @IsString()
-ship_method?: string;
+    ship_method?: string;
     @IsOptional()
     @IsString()
-carrier?: string;
+    carrier?: string;
     @IsOptional()
     @IsString()
-tracking_no?: string;
+    tracking_no?: string;
     @IsNotEmpty()
     @IsString()
-status!: string;
+    status!: string;
     @IsOptional()
     @IsInt()
-    @Type(() => Number) 
-ship_by_emp?: number;
+    @Type(() => Number)
+    ship_by_emp?: number;
+    @IsOptional()
+    @IsDate()
+    @Type(() => Date)
+    docu_date?: Date;
     @IsOptional()
     @IsString()
-docu_date?: Date;
-    @IsOptional()
-    @IsString()
-remarks?: string;
+    remarks?: string;
 
     @IsArray()
     @ValidateNested({ each: true })

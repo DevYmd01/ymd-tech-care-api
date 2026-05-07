@@ -21,7 +21,7 @@ export class CreateDeliveryLineDto {
     @IsInt()
     @IsNotEmpty()
     item_id!: number;
-    @IsDecimal()
+    @IsNumber()
     @IsNotEmpty()
     qty_shipped!: number;
     @IsInt()
@@ -54,8 +54,9 @@ export class UpdateDeliveryLineDto {
     @IsInt()
     @IsNotEmpty()
     item_id!: number;
-    @IsDecimal()
+    @IsNumber()
     @IsNotEmpty()
+    @Type(() => Number)
     qty_shipped!: number;
     @IsInt()
     @IsNotEmpty()

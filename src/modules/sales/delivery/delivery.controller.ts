@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Post, Body, Patch } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Patch, Param } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { CreateDeliveryHeaderDto, UpdateDeliveryHeaderDto } from './dto/delivery-header.dto';
 
@@ -15,16 +15,24 @@ export class DeliveryController {
   async findAll() {
     return this.deliveryService.findAll();
   }
+
   
   @Get('pending-deliveries')
   async getPendingDeliveries( ) {
     return this.deliveryService.getPendingDeliveries();
   }
 
-  @Patch(':delivery_id')
-  async update(@Query('delivery_id') delivery_id: number, @Body() updateDeliveryHeaderDto: UpdateDeliveryHeaderDto) {
-    return this.deliveryService.update(delivery_id, updateDeliveryHeaderDto);
-  }
+@Patch(':delivery_id')
+async update(
+  @Param('delivery_id') delivery_id: string,
+  @Body() updateDeliveryHeaderDto: UpdateDeliveryHeaderDto,
+) {
+  return this.deliveryService.update(
+    +delivery_id,
+    updateDeliveryHeaderDto,
+  );
+}
+
 
   @Get(':so_id/pending-deliveries')
   async getPendingDeliveriesBySoId(@Query('so_id') so_id: number) {
