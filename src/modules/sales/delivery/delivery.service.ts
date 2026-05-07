@@ -7,6 +7,7 @@ import { DeliveryHeaderRepository } from './repository/delivery-header.repositor
 import { DeliveryLineRepository } from './repository/delivery-line.repository';
 import { DeliveryHeaderMapper } from './mapper/delivery-header.mapper';
 import { DeliveryLineMapper } from './mapper/delivery-line.mapper';
+import { diffById } from '@/common/utils';
 
 @Injectable()
 export class DeliveryService {
@@ -27,8 +28,8 @@ export class DeliveryService {
                     // Generate document number
                     const delivery_no =
                         await this.documentNumberService.generate({
-                            module_code: 'DLIVERY',
-                            document_type_code: 'DLIVERY',
+                            module_code: 'DLVRY',
+                            document_type_code: 'DLVRY',
                             branch_id: 0,
                         });
 
