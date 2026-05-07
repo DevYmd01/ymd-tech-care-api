@@ -21,6 +21,8 @@ export const multerOptions: MulterOptions = {
                 uploadPath = join(process.cwd(), 'uploads/logo/company');
             } else if (file.fieldname === 'attachment') {
                 uploadPath = join(process.cwd(), 'uploads/attachments');
+            } else if (file.fieldname === 'emp_signature') {
+                uploadPath = join(process.cwd(), 'uploads/emp_signatures');
             }
 
             ensureDir(uploadPath);
