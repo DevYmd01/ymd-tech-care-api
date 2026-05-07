@@ -13,6 +13,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ArrayMinSize } from 'class-validator';
+import { CreateDeliveryLineDto, UpdateDeliveryLineDto } from './delivery-line.dto';
 
 export class CreateDeliveryHeaderDto {
     @IsNotEmpty()
@@ -56,6 +57,11 @@ docu_date?: Date;
     @IsOptional()
     @IsString()
 remarks?: string;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateDeliveryLineDto)
+    deliveryLines!: CreateDeliveryLineDto[];
 }
 
 export class UpdateDeliveryHeaderDto {
@@ -100,4 +106,10 @@ docu_date?: Date;
     @IsOptional()
     @IsString()
 remarks?: string;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => UpdateDeliveryLineDto)
+    deliveryLines!: UpdateDeliveryLineDto[];
+
 }
