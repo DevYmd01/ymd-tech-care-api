@@ -18,7 +18,7 @@ export class DeliveryService {
         private readonly deliveryLineRepository: DeliveryLineRepository,
     ) { }
 
-     async create(
+    async create(
         createDeliveryHeaderDto: CreateDeliveryHeaderDto,
     ) {
         try {
@@ -52,19 +52,20 @@ export class DeliveryService {
                         createDeliveryHeaderDto.deliveryLines &&
                         createDeliveryHeaderDto.deliveryLines.length > 0
                     ) {
-                        for (const line of createDeliveryHeaderDto.deliveryLines) {
-
-                            const lineData =
-                                DeliveryLineMapper.toPrismaCreateInput(
-                                    line,
-                                    deliveryHeader.delivery_id,
+                        // Use Promise.all for concurrent creation of delivery lines
+                        await Promise.all(
+                            createDeliveryHeaderDto.deliveryLines.map(async (line) => {
+                                const lineData =
+                                    DeliveryLineMapper.toPrismaCreateInput(
+                                        line,
+                                        deliveryHeader.delivery_id,
+                                    );
+                                await this.deliveryLineRepository.create(
+                                    prisma,
+                                    lineData,
                                 );
-
-                            await this.deliveryLineRepository.create(
-                                prisma,
-                                lineData,
-                            );
-                        }
+                            }),
+                        );
                     }
 
                     // Return complete document
@@ -96,6 +97,100 @@ export class DeliveryService {
                 );
             }
 
+            throw error;
+        }
+    }
+
+    async update(
+        delivery_id: number,
+        updateDeliveryHeaderDto: UpdateDeliveryHeaderDto,
+    ) {
+        try {
+            return await this.prismaService.$transaction(
+                async (prisma) => {
+                    // 1. Fetch the existing delivery header and its lines
+                    const existingDelivery = await prisma.delivery_header.findUnique({
+                        where: { delivery_id },
+                        include: { deliveryLines: true },
+                    });
+
+                    if (!existingDelivery) {
+                        throw new Error(`Delivery header with ID ${delivery_id} not found.`);
+                    }
+
+                    // 2. Update the delivery header
+                    const deliveryHeaderUpdateData = DeliveryHeaderMapper.toPrismaUpdateInput(
+                        updateDeliveryHeaderDto,
+                    );
+                    await this.deliveryHeaderRepository.update(
+                        prisma,
+                        delivery_id,
+                        deliveryHeaderUpdateData,
+                    );
+
+                    // 3. Handle delivery lines (create, update, delete)
+                    const incomingDeliveryLines = updateDeliveryHeaderDto.deliveryLines || [];
+
+                    // Use diffById to determine which lines to create, update, or delete
+                    // Assuming 'delivery_line_id' is the unique identifier for delivery lines
+                    const { toCreate, toUpdate, toDelete } = diffById(
+                        existingDelivery.deliveryLines,
+                        incomingDeliveryLines,
+                        'delivery_line_id',
+                    );
+
+                    // Delete lines that are no longer present in the incoming DTO
+                    await Promise.all(toDelete.map(async (lineToDelete) => {
+                        await this.deliveryLineRepository.delete(
+                            prisma,
+                            lineToDelete.delivery_line_id,
+                        );
+                    }));
+
+                    // Update existing lines
+                    await Promise.all(toUpdate.map(async (lineToUpdate) => {
+                        const lineUpdateData = DeliveryLineMapper.toPrismaUpdateInput(
+                            lineToUpdate as UpdateDeliveryLineDto, // Cast for type safety
+                        );
+                        await this.deliveryLineRepository.update(
+                            prisma,
+                            lineToUpdate.delivery_line_id!,
+                            lineUpdateData,
+                        );
+                    }));
+
+                    // Create new lines
+                    await Promise.all(toCreate.map(async (lineToCreate) => {
+                        const lineCreateData = DeliveryLineMapper.toPrismaCreateInput(
+                            lineToCreate as CreateDeliveryLineDto, // Cast for type safety
+                            delivery_id,
+                        );
+                        await this.deliveryLineRepository.create(
+                            prisma,
+                            lineCreateData,
+                        );
+                    }));
+
+                    // 4. Return the complete updated delivery header with its lines
+                    const updatedDelivery = await prisma.delivery_header.findUnique({
+                        where: { delivery_id },
+                        include: { deliveryLines: true },
+                    });
+
+                    if (!updatedDelivery) {
+                        // This case should ideally not happen if the update was successful
+                        throw new Error(`Failed to retrieve updated delivery header with ID ${delivery_id}.`);
+                    }
+
+                    return updatedDelivery;
+                }
+            );
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(
+                    `Error updating delivery: ${error.message}`,
+                );
+            }
             throw error;
         }
     }
