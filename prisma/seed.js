@@ -111,8 +111,10 @@ async function main() {
         },
 
     ];
+    
     console.log('🌱 Start seeding document_format...');
     for (const f of formats) {
+        console.log(f);
         console.log(`→ upsert ${f.module_code}`);
         await prisma.document_format.upsert({
             where: {

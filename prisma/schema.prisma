@@ -2814,8 +2814,8 @@ model sale_order_approval_header {
 
     customer_id       Int
     customer          customer            @relation(fields: [customer_id], references: [customer_id])
-    branch_id         Int
-    branch            org_branch          @relation(fields: [branch_id], references: [branch_id])
+    branch_id         Int?
+    branch            org_branch?          @relation(fields: [branch_id], references: [branch_id])
     ship_days         Int                 @default(0)
     payment_term_days Int                 @default(0)
     onhold            String
