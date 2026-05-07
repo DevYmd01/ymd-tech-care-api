@@ -4,38 +4,44 @@ import { CreateDeliveryHeaderDto, UpdateDeliveryHeaderDto } from './dto/delivery
 
 @Controller('delivery')
 export class DeliveryController {
-  constructor(private readonly deliveryService: DeliveryService) {}
+    constructor(private readonly deliveryService: DeliveryService) { }
 
-  @Post()
-  async create(@Body() createDeliveryHeaderDto: CreateDeliveryHeaderDto) {
-    return this.deliveryService.create(createDeliveryHeaderDto);
-  }
+    @Post()
+    async create(@Body() createDeliveryHeaderDto: CreateDeliveryHeaderDto) {
+        return this.deliveryService.create(createDeliveryHeaderDto);
+    }
 
-  @Get()
-  async findAll() {
-    return this.deliveryService.findAll();
-  }
-
-  
-  @Get('pending-deliveries')
-  async getPendingDeliveries( ) {
-    return this.deliveryService.getPendingDeliveries();
-  }
-
-@Patch(':delivery_id')
-async update(
-  @Param('delivery_id') delivery_id: string,
-  @Body() updateDeliveryHeaderDto: UpdateDeliveryHeaderDto,
-) {
-  return this.deliveryService.update(
-    +delivery_id,
-    updateDeliveryHeaderDto,
-  );
-}
+    @Get()
+    async findAll() {
+        return this.deliveryService.findAll();
+    }
 
 
-  @Get(':so_id/pending-deliveries')
-  async getPendingDeliveriesBySoId(@Query('so_id') so_id: number) {
-    return this.deliveryService.getPendingDeliveriesBySoId(so_id);
-  }
+    @Get('pending-deliveries')
+    async getPendingDeliveries() {
+        return this.deliveryService.getPendingDeliveries();
+    }
+
+    @Patch(':delivery_id')
+    async update(
+        @Param('delivery_id') delivery_id: string,
+        @Body() updateDeliveryHeaderDto: UpdateDeliveryHeaderDto,
+    ) {
+        return this.deliveryService.update(
+            +delivery_id,
+            updateDeliveryHeaderDto,
+        );
+    }
+
+
+    @Get(':delivery_id')
+    async findOne(@Param('delivery_id') delivery_id: string) {
+        return this.deliveryService.findOne(+delivery_id);
+    }
+
+
+    @Get(':so_id/pending-deliveries')
+    async getPendingDeliveriesBySoId(@Param('so_id') so_id: number) {
+        return this.deliveryService.getPendingDeliveriesBySoId(so_id);
+    }
 }

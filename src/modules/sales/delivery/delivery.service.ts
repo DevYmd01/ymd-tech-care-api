@@ -203,6 +203,16 @@ export class DeliveryService {
         });
     }
 
+    async findOne(delivery_id: number) {
+        return this.prismaService.delivery_header.findUnique({
+            where: { delivery_id },
+            include: {
+                deliveryLines: true,
+            },
+        });
+    }
+
+
     async getPendingDeliveries() {
         return this.prismaService.sale_order_header.findMany({
             where: {
