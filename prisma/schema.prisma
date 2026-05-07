@@ -23,18 +23,18 @@ model employees {
     employee_lastname_en         String?                          @db.VarChar(200)
     employee_fullname            String?                          @db.VarChar(400)
     employee_fullname_en         String?                          @db.VarChar(400)
-    employee_startdate           DateTime? @default(now())
+    employee_startdate           DateTime?                        @default(now())
     employee_resigndate          DateTime?
-    employee_status              Int                              @default(1) 
+    employee_status              Int                              @default(1)
     phone                        String?                          @db.VarChar(20)
     email                        String                           @db.VarChar(255)
     remark                       String?
     tax_idcard                   String?                          @db.VarChar(20)
     tax_id                       String?                          @db.VarChar(20)
-    emp_type                     String?                          @db.Char(10) @default("G") 
+    emp_type                     String?                          @default("G") @db.Char(10)
     position_id                  Int?
     emp_dept_id                  Int?
-    is_active                    Boolean                          @default(true) 
+    is_active                    Boolean                          @default(true)
     employee_head_id             Int?
     employee_head_code           String?                          @db.VarChar(25)
     created_at                   DateTime                         @default(now())
@@ -70,6 +70,7 @@ model employees {
     // saleOrderApprovalHeaders     sale_order_approval_header[]
     saleOrderApprovalHeaders     sale_order_approval_header[]     @relation("emp_so_approval_header")
     saleOrderSaleHeaders         sale_order_approval_header[]     @relation("emp_so_sale_header")
+    deliveryHeaders              delivery_header[]
 }
 
 model employee_group {
@@ -244,6 +245,7 @@ model org_branch {
     lotTransactions          lot_transaction[]
     saleOrderHeaders         sale_order_header[]
     saleOrderApprovalHeaders sale_order_approval_header[]
+    deliveryHeaders          delivery_header[]
 
     @@map("org_branch")
 }
@@ -269,6 +271,7 @@ model warehouse {
     itemLotBalances      item_lot_balance[]
     lotTransactions      lot_transaction[]
     saleOrderLines       sale_order_line[]
+    deliveryLines        delivery_line[]
 
     @@map("warehouse")
 }
@@ -292,6 +295,7 @@ model location {
     itemLotBalances      item_lot_balance[]
     lotTransactions      lot_transaction[]
     saleOrderLines       sale_order_line[]
+    deliveryLines        delivery_line[]
 
     @@map("location")
 }
@@ -377,6 +381,7 @@ model item {
     lotTransactions        lot_transaction[]
     saleOrderLines         sale_order_line[]
     saleOrderApprovalLines sale_order_approval_line[]
+    deliveryLines          delivery_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -410,6 +415,7 @@ model uom {
     saleReservationLines       sale_reservation_line[]
     saleOrderLines             sale_order_line[]
     saleOrderApprovalLines     sale_order_approval_line[]
+    deliveryLines              delivery_line[]
 
     @@map("uom")
 }
@@ -1220,6 +1226,7 @@ model customer {
     saleReservationHeaders   sale_reservation_header[]
     saleOrderHeaders         sale_order_header[]
     saleOrderApprovalHeaders sale_order_approval_header[]
+    deliveryHeaders          delivery_header[]
 
     @@map("customer")
 }
@@ -2735,6 +2742,7 @@ model sale_order_header {
 
     saleOrderLines           sale_order_line[]
     saleOrderApprovalHeaders sale_order_approval_header[]
+    deliveryHeaders          delivery_header[]
 }
 
 // D10
@@ -2783,6 +2791,7 @@ model sale_order_line {
     remaining_qty Decimal @default(0)
 
     saleOrderApprovalLines sale_order_approval_line[]
+    deliveryLines          delivery_line[]
 }
 
 model sale_order_approval_header {
@@ -2883,6 +2892,56 @@ model sale_order_approval_line {
     net_amount Decimal @db.Decimal(18, 6)
 }
 
+//  D11 delivery order 
+model delivery_header {
+    delivery_id     Int               @id @default(autoincrement())
+    delivery_no     String            @unique
+    delivery_date   DateTime          @default(now())
+    so_id           Int
+    so_header       sale_order_header @relation(fields: [so_id], references: [so_id])
+    customer_id     Int
+    customer        customer          @relation(fields: [customer_id], references: [customer_id])
+    branch_id       Int
+    branch          org_branch        @relation(fields: [branch_id], references: [branch_id])
+    ship_to_address String            @db.Text
+    ship_method     String            @db.VarChar(50)
+    carrier         String            @db.VarChar(250)
+    tracking_no     String            @db.VarChar(50)
+    status          String            @db.VarChar(20)
+    ship_by_emp     Int?
+    ship_by         employees?        @relation(fields: [ship_by_emp], references: [employee_id])
+    docu_date       DateTime?         @default(now())
+    remarks         String?           @db.Text
+    created_at      DateTime          @default(now())
+    updated_at      DateTime          @updatedAt
+    deliveryLines   delivery_line[]
+}
+
+// D12 delivery line
+model delivery_line {
+    delivery_line_id Int             @id @default(autoincrement())
+    delivery_id      Int
+    delivery_header  delivery_header @relation(fields: [delivery_id], references: [delivery_id])
+    so_line_id       Int
+    so_line          sale_order_line @relation(fields: [so_line_id], references: [so_line_id])
+    item_id          Int
+    item             item            @relation(fields: [item_id], references: [item_id])
+    qty_shipped      Decimal         @db.Decimal(18, 6)
+    uom_id           Int
+    uom              uom             @relation(fields: [uom_id], references: [uom_id])
+    warehouse_id     Int?
+    warehouse        warehouse?      @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id      Int?
+    location         location?       @relation(fields: [location_id], references: [location_id])
+    lot_id           Int?
+    lot              item_lot?       @relation(fields: [lot_id], references: [lot_id])
+    remarks          String?         @db.Text
+    serial_no        String?         @db.VarChar(50)
+    created_at       DateTime        @default(now())
+    updated_at       DateTime        @updatedAt
+    status           String          @default("PENDING") @db.VarChar(20)
+}
+
 // =========================
 // ITEM STOCK BALANCE
 // =========================
@@ -2970,6 +3029,7 @@ model item_lot {
     transactions         lot_transaction[]
     saleReservationLines sale_reservation_line[]
     saleOrderLines       sale_order_line[]
+    deliveryLines        delivery_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
