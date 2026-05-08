@@ -82,7 +82,9 @@ export class CustomerMasterService {
     return this.prismaService.customer.findMany({
       where: { is_active: true },
       include: {
-        customerAddresses: true,
+        customerAddresses: {
+          where: { is_active: true, is_deleted: false },
+        },
       },
     });
   }
@@ -92,7 +94,7 @@ export class CustomerMasterService {
       where: { customer_id: id },
       include: {
         customerAddresses: {
-          where: { is_active: true },
+          where: { is_active: true, is_deleted: false },
         },
       },
     });
@@ -142,7 +144,7 @@ async update(id: number, dto: UpdateCustomerMasterDto, context: any) {
           where: {
             customer_address_id: { in: toDelete.map(a => a.customer_address_id) }
           },
-          data: { is_active: false }
+          data: { is_active: false , is_deleted: true }
         });
       }
 
@@ -176,7 +178,7 @@ async update(id: number, dto: UpdateCustomerMasterDto, context: any) {
     return tx.customer.findUnique({
       where: { customer_id: id },
       include: { customerAddresses:{
-            where: { is_active: true }
+            where: { is_active: true, is_deleted: false }
       } },
     });
   });
@@ -184,7 +186,7 @@ async update(id: number, dto: UpdateCustomerMasterDto, context: any) {
 
  async findCustomerAddress(customerID: number) {
     return this.prismaService.customer_address.findMany({
-      where: { customer_id: customerID, is_active: true },
+      where: { customer_id: customerID, is_active: true, is_deleted: false },
     });
   }
 
