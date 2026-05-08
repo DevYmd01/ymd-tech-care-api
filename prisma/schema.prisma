@@ -77,11 +77,11 @@ model employees {
 model employee_signature {
     emp_signature_id Int @id @default(autoincrement())
 
-    employee_id   Int
-    employee employees @relation(fields: [employee_id], references: [employee_id])
-    signature_original_name String? @db.VarChar(255)
-    signature_url  String  @db.VarChar(500)
-    signature_name String? @db.VarChar(255)
+    employee_id             Int
+    employee                employees @relation(fields: [employee_id], references: [employee_id])
+    signature_original_name String?   @db.VarChar(255)
+    signature_url           String    @db.VarChar(500)
+    signature_name          String?   @db.VarChar(255)
 
     is_active  Boolean @default(true)
     is_deleted Boolean @default(false)
@@ -219,13 +219,15 @@ model company {
 
 /// ตารางเก็บข้อมูลการ login
 model employee_auth {
-    employee_id Int       @id
-    username    String    @unique
-    password    String
-    is_active   Boolean   @default(true)
-    created_at  DateTime  @default(now())
-    updated_at  DateTime  @updatedAt
-    employee    employees @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
+    employee_id        Int       @id
+    username           String    @unique
+    password           String
+    is_active          Boolean   @default(true)
+    failed_login_count Int       @default(0)
+    locked_until       DateTime?
+    created_at         DateTime  @default(now())
+    updated_at         DateTime  @updatedAt
+    employee           employees @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade)
 }
 
 model employee_address {
@@ -1328,38 +1330,38 @@ model bill_group {
 }
 
 model customer_address {
-    customer_address_id Int      @id @default(autoincrement())
+    customer_address_id Int       @id @default(autoincrement())
     customer_id         Int
     /// REGISTERED / CONTACT / BILLING / SHIPPING
-    address_type        String   @db.VarChar(20)
+    address_type        String    @db.VarChar(20)
     /// ที่อยู่
     address             String
     /// ตำบล
-    sub_district        String?  @db.VarChar(100)
+    sub_district        String?   @db.VarChar(100)
     /// อำเภอ
-    district            String?  @db.VarChar(100)
+    district            String?   @db.VarChar(100)
     /// จังหวัด
-    province            String?  @db.VarChar(100)
+    province            String?   @db.VarChar(100)
     /// รหัสไปรษณีย์
-    postal_code         String?  @db.VarChar(10)
+    postal_code         String?   @db.VarChar(10)
     /// ประเทศ
-    country             String   @db.VarChar(100)
+    country             String    @db.VarChar(100)
     /// ผู้ติดต่อ
-    contact_person      String?  @db.VarChar(255)
+    contact_person      String?   @db.VarChar(255)
     /// เบอร์โทรศัพท์
-    phone               String?  @db.VarChar(20)
+    phone               String?   @db.VarChar(20)
     /// ต่อ
-    phone_extension     String?  @db.VarChar(20)
+    phone_extension     String?   @db.VarChar(20)
     /// อีเมล
-    email               String?  @db.VarChar(255)
+    email               String?   @db.VarChar(255)
     /// สถานะ
-    is_default          Boolean  @default(false)
+    is_default          Boolean   @default(false)
     /// สถานะ
-    is_active           Boolean  @default(true)
-    is_deleted          Boolean  @default(false)
-    created_at          DateTime @default(now())
+    is_active           Boolean   @default(true)
+    is_deleted          Boolean   @default(false)
+    created_at          DateTime  @default(now())
     updated_at          DateTime? @updatedAt
-    customer            customer @relation(fields: [customer_id], references: [customer_id])
+    customer            customer  @relation(fields: [customer_id], references: [customer_id])
 
     @@index([customer_id])
     @@map("customer_address")
