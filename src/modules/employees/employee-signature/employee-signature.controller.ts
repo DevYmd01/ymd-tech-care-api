@@ -1,4 +1,4 @@
-import { Controller, Post, Param, UseInterceptors, UploadedFile, Res, Put } from '@nestjs/common';
+import { Controller, Post, Param, UseInterceptors, UploadedFile, Get, ParseIntPipe } from '@nestjs/common';
 import { EmployeeSignatureService } from './employee-signature.service';
 
 import { multerOptions } from '@/common/middleware/upload.middleware';
@@ -20,6 +20,12 @@ export class EmployeeSignatureController {
         });
     }
 
-    // @Put(':employee_id')
-
+    @Get(':employee_id')
+findActive(
+  @Param('employee_id', ParseIntPipe)
+  employee_id: number,
+) {
+  return this.employeeSignatureService
+    .findActiveByEmployee(employee_id);
+}
 }

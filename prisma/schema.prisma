@@ -79,7 +79,7 @@ model employee_signature {
 
     employee_id   Int
     employee employees @relation(fields: [employee_id], references: [employee_id])
-
+    signature_original_name String? @db.VarChar(255)
     signature_url  String  @db.VarChar(500)
     signature_name String? @db.VarChar(255)
 
