@@ -29,6 +29,11 @@ export class CustomerMasterController {
         return this.customerMasterService.update(+id, dto, req.context);
     }
 
+    @Get('customer-address/:customerID')
+    async findCustomerAddress(@Param('customerID') customerID: string) {
+        return this.customerMasterService.findCustomerAddress(+customerID);
+    }
+
 
     
 }

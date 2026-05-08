@@ -181,4 +181,11 @@ async update(id: number, dto: UpdateCustomerMasterDto, context: any) {
     });
   });
 }
+
+ async findCustomerAddress(customerID: number) {
+    return this.prismaService.customer_address.findMany({
+      where: { customer_id: customerID, is_active: true },
+    });
+  }
+
 }
