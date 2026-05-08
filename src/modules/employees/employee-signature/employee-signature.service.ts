@@ -43,24 +43,24 @@ export class EmployeeSignatureService {
         });
     }
 
-//     async findActiveByEmployee(employee_id: number) {
-//   const signature =
-//     await this.prisma.employee_signature.findFirst({
-//       where: {
-//         employee_id,
-//         is_active: true,
-//         is_deleted: false,
-//       },
-//     });
+    async findActiveByEmployee(employee_id: number) {
+  const signature =
+    await this.prisma.employee_signature.findFirst({
+      where: {
+        employee_id,
+        is_active: true,
+        is_deleted: false,
+      },
+    });
 
-//   if (!signature) {
-//     return null;
-//   }
+  if (!signature) {
+    return null;
+  }
 
-//   return {
-//     ...signature,
-//     signature_url:signature.signature_url,
-//   };
-// }
+  return {
+    ...signature,
+    signature_url:signature.signature_url,
+  };
+}
 
 }

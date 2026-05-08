@@ -24,7 +24,7 @@ export class EmployeeSignatureController {
 findActive(
   @Param('employee_id', ParseIntPipe)
   employee_id: number,
-) {
+) { 
   return this.employeeSignatureService
     .findActiveByEmployee(employee_id);
 }
