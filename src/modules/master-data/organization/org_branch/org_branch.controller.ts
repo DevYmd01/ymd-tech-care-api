@@ -2,7 +2,10 @@ import { Body, Controller, Post, Get, Param, Put } from '@nestjs/common';
 import { OrgBranchService } from './org_branch.service';
 import { CreateOrgBranchDto, UpdateOrgBranchDto } from './dto/create-org-branch.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('org-branches')
 export class OrgBranchController {
     constructor(private readonly orgBranchService: OrgBranchService) { }

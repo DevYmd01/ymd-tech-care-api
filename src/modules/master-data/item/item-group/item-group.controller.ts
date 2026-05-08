@@ -2,7 +2,10 @@ import { Controller } from '@nestjs/common';
 import { ItemGroupService } from './item-group.service';
 import { CreateItemGroupDto } from './dto/cerate-item-group.dto';
 import { Body, Delete, Get, Param, Post, Patch } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-group')
 export class ItemGroupController {
     constructor(private readonly itemGroupService: ItemGroupService) { }

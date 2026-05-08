@@ -3,7 +3,10 @@ import { OrgPositionService } from './org-position.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { Post, Body, Get, Param, Put } from '@nestjs/common';
 import { UpdatePositionDto } from './dto/update-positon.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('org-position')
 export class OrgPositionController {
     constructor(private readonly orgPositionService: OrgPositionService) { }

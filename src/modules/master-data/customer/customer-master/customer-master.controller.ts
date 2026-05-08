@@ -5,7 +5,11 @@ import { Body, Get, Param, Post, Patch, Delete, Request} from '@nestjs/common';
 import { CustomerMasterService } from './customer-master.service';
 import { UpdateCustomerMasterDto } from './dto/update-customer-master.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 @Controller('customer-master')
+@UseGuards(AuthGuard('jwt'))
 export class CustomerMasterController {
   constructor(private readonly customerMasterService: CustomerMasterService) {}
 

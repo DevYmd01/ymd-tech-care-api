@@ -1,7 +1,10 @@
 import { Controller, Get, Query, Post, Body, Patch, Param } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { CreateDeliveryHeaderDto, UpdateDeliveryHeaderDto } from './dto/delivery-header.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('delivery')
 export class DeliveryController {
     constructor(private readonly deliveryService: DeliveryService) { }

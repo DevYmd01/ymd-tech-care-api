@@ -2,7 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ShelfService } from './shelf.service';
 import { CreateShelfDto } from './dto/create-shelf.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('shelf')
 export class ShelfController {
     constructor(private readonly ShelfService: ShelfService) { }

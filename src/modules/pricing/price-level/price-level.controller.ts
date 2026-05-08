@@ -1,7 +1,10 @@
 import { Controller, Get, Patch, Param, Body, Request} from '@nestjs/common';
 import { PriceLevelService } from './price-level.service';
 import { UpdatePriceLevelDto } from './dto/update-price-level.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('price-level')
 export class PriceLevelController {
   constructor(private readonly priceLevelService: PriceLevelService) {}

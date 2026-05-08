@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemSizeService } from './item-size.service';
 import { CreateItemSizeDto } from './dto/create-item-size.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-size')
 export class ItemSizeController {
     constructor(private readonly itemSizeService: ItemSizeService) { }

@@ -2,7 +2,10 @@ import { Controller, Get, Body, Post, Request, Query, Param } from '@nestjs/comm
 import { PrApprovalService } from './pr-approval.service';
 import { createPrApprovalDto } from './dto/creacte-pr-approval.dto';
 import { SearchPRAppointmentDto} from './dto/search-approval.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('pr-approval')
 export class PrApprovalController {
 

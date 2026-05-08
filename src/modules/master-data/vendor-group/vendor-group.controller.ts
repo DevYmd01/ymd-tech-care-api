@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Post, Put, Param, Delete } from '@nestjs/common';
 import { VendorGroupService } from './vendor-group.service';
 import { CreateVendorGroupDTO } from './dto/creacte-gruop.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('vendor-group')
 export class VendorGroupController {
     constructor(private readonly vendorGroupService: VendorGroupService) { }

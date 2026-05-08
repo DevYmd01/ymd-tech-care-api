@@ -7,7 +7,10 @@ import { Body } from '@nestjs/common';
 import { Put } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { UpdateVendorTypeDTO } from './dto/update-vendor-type.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('vendor-type')
 export class VendorTypeController {
 

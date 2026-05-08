@@ -3,7 +3,10 @@ import { PrService } from './pr.service';
 import { CreatePRHeaderDTO } from './dto/creacte-pr-header.dto'
 import { UpdatePRHeaderDTO } from './dto/update-pr-header.dto';
 import { SearchPrDto } from './dto/search-pr.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 
 @Controller('pr')
 export class PrController {

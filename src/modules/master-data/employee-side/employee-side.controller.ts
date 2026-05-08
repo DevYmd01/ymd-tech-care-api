@@ -2,7 +2,10 @@ import { Controller, Patch, Post, Body, Get, Param, Delete} from '@nestjs/common
 import { EmployeeSideService } from './employee-side.service';
 import { CreateEmployeeSideDto } from './dto/create-employee-side.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employee-side')
 export class EmployeeSideController {
     constructor(private readonly employeeSideService: EmployeeSideService) { }

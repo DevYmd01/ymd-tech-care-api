@@ -2,7 +2,10 @@ import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe} from 
 import { SaleQuotationService } from './sale-quotation.service';
 import { CreateSaleQuotationHeaderDto } from './dto/create-sale-quotation-header.dto';
 import { UpdateSaleQuotationHeaderDto } from './dto/update-sale-quotation-header.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('sale-quotation')
 export class SaleQuotationController {
   constructor(private readonly saleQuotationService: SaleQuotationService) {}

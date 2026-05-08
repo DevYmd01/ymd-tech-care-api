@@ -3,7 +3,10 @@ import { CreateBusinessTypeDto } from './dto/create-business-type.dto';
 import { UpdateBusinessTypeDto } from './dto/update-business-type.dto';
 import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
 import { BusinessTypeService } from './business-type.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('business-type')
 export class BusinessTypeController {
     constructor(private readonly businessTypeService: BusinessTypeService) { }

@@ -3,7 +3,10 @@ import { DocumentFormatService } from './document-format.service';
 import { Body } from '@nestjs/common';
 import { UpdateDocumentFormatDto } from './dto/update-document-format.dto';
 import { Get, Param, Patch } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('document-format')
 export class DocumentFormatController {
     constructor(private readonly documentFormatService: DocumentFormatService) { }

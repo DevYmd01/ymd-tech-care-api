@@ -1,7 +1,10 @@
 import { Controller, Get, Body, Post, Request, Query, Param } from '@nestjs/common';
 import { SaleQuotationApprovalService } from './sale-quotation-approval.service';
 import { CreateHeaderDto } from './dto/create-header.dto';  
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('sale-quotation-approval')
 export class SaleQuotationApprovalController {
     

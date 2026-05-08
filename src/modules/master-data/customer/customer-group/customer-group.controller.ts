@@ -3,7 +3,10 @@ import { CreateCustomerGroupDto } from './dto/create-customer-group.dto';
 import { UpdateCustomerGroupDto } from './dto/update-customer-group.dto';
 import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
 import { CustomerGroupService } from './customer-group.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('customer-group')
 export class CustomerGroupController {
     constructor(private readonly customerGroupService: CustomerGroupService) { }

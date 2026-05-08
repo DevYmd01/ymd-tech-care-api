@@ -2,7 +2,10 @@ import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common'
 import { EmployeeSaleChannelService } from './employee-sale-channel.service';
 import { CreateSaleChannelDto } from './dto/creact-sale-channel.dto';
 import { UpdateSaleChannelDto } from './dto/update-sale-channel.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employee-sale-channel')
 export class EmployeeSaleChannelController {
     constructor(private readonly employeeSaleChannelService: EmployeeSaleChannelService) {}

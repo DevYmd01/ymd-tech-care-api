@@ -4,7 +4,10 @@ import { CreatePriceListHeaderDto } from './dto/create-price-list-header.dto';
 import { UpdatePriceListHeaderDto } from './dto/update-price-list-header.dto';
 import { Body, Post, Request, Get, Param} from '@nestjs/common';
 import path from 'path';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('price-list')
 export class PriceListController {
     constructor(private readonly priceListService: PriceListService) {}

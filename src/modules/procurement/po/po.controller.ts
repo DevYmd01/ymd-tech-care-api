@@ -2,7 +2,10 @@ import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe } from
 import { CreatePOHeaderDTO } from './dto/create-po-header.dto';
 import { UpdatePOHeaderDTO } from './dto/update-po-header.dto';
 import { PoService } from './po.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('po')
 export class PoController {
   constructor(private readonly poService: PoService) {}

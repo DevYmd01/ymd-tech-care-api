@@ -3,7 +3,10 @@ import { EmployeeGroupService } from './employee-group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employee-group')
 export class EmployeeGroupController {
     constructor(private readonly employeeGroupService: EmployeeGroupService) { }

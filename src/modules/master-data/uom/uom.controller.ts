@@ -2,7 +2,10 @@ import { Controller } from '@nestjs/common';
 import { UomService } from './uom.service';
 import { Body, Delete, Get, Param, Post, Patch } from '@nestjs/common';
 import { CreateUomDto } from './dto/creat-uom.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('uom')
 export class UomController {
     constructor(private readonly uomService: UomService) { }

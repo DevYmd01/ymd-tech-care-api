@@ -3,7 +3,10 @@ import { MultiPriceItemService } from './multi-price-item.service';
 import { CreateMultiPriceItemDto } from './dto/create-multi-price-item.dto';
 import { Body, Post, Request, Get, Param, Patch, Delete } from '@nestjs/common';
 import path from 'path';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 
 @Controller('multi-price-item')
 export class MultiPriceItemController {

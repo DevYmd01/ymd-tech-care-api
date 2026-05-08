@@ -1,7 +1,10 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { SaleOrderApprovalService } from './sale-order-approval.service';
 import { CreateSaleOrderApprovalHeaderDto } from './dto/create-sale-order-ap-header.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('sale-order-approval')
 export class SaleOrderApprovalController {
     constructor(private readonly saleOrderApprovalService: SaleOrderApprovalService) {}

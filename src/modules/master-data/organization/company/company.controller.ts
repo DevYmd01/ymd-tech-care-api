@@ -14,7 +14,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { multerOptions } from '@/common/middleware/upload.middleware';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('company')
 export class CompanyController {
     constructor(private readonly companyService: CompanyService) { }

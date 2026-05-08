@@ -4,7 +4,10 @@ import { CreateSalePeriodDto } from './dto/create-sale-period.dto';
 import { UpdateSalePeriodDto } from './dto/update-sale-period.dto';
 import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employees-sale-period')
 export class EmployeesSalePeriodController {
     constructor(private readonly employeesSalePeriodService: EmployeesSalePeriodService) { }

@@ -2,7 +2,10 @@ import { Controller } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('department')
 export class DepartmentController {
     constructor(private readonly departmentService: DepartmentService) { }

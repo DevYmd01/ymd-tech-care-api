@@ -6,7 +6,10 @@ import { Post } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Put } from '@nestjs/common';
 import { Param } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-type')
 export class ItemTypeController {
 

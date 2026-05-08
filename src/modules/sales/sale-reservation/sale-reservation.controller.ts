@@ -3,7 +3,10 @@ import { SaleReservationService } from './sale-reservation.service';
 import { CreateSaleReservationHeaderDto } from './dto/create-sale-reservation-header.dto';
 import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 import { UpdateSaleReservationHeaderDto } from './dto/update-sale-reservation-header.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('sale-reservation')
 export class SaleReservationController {
     

@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemDesignService } from './item-design.service';
 import { CreateDesignDto } from './dto/create-design.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-design')
 export class ItemDesignController {
     constructor(private readonly itemDesignService: ItemDesignService) { }

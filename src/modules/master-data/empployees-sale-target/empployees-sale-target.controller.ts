@@ -3,7 +3,10 @@ import { EmpployeesSaleTargetService } from './empployees-sale-target.service';
 import { CreateSaleTargetDto } from './dto/create-sale-target.dto';
 import { UpdateSaleTargetDto } from './dto/update-sale-target.dto';
 import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('empployees-sale-target')
 export class EmpployeesSaleTargetController {
     constructor(private readonly employeesSaleTargetService: EmpployeesSaleTargetService) { }

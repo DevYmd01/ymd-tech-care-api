@@ -2,7 +2,10 @@ import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common'
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('project')
 export class ProjectController {
     constructor(private readonly projectService: ProjectService) { }

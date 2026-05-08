@@ -3,7 +3,10 @@ import { InventoryOptionService } from './inventory-option.service';
 import { CreateInventoryOptionDto } from './dto/create-inventory-option.dto';
 import { UpdateInventoryOptionDto } from './dto/update-inventory-option.dto';
 import { Body, Post, Request, Get, Param, Patch } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('inventory-option')
 export class InventoryOptionController {
     constructor(private readonly inventoryOptionService: InventoryOptionService) {}

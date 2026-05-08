@@ -2,7 +2,10 @@ import { Controller, Post, Body, Request, Patch, Param, Get, ParseIntPipe} from 
 import { IcOptionListService } from './ic-option-list.service';
 import { CreateICOptionDto } from './dto/create-ic-option-list.dto';
 import { UpDateICOptionDto } from './dto/update-ic-option-list.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('ic-option-list')
 export class IcOptionListController {
     constructor(private readonly icOptionListService: IcOptionListService) {}

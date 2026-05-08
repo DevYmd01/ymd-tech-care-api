@@ -2,6 +2,9 @@ import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Get, Param, Pu
 import { TaxGroupService } from './tax-group.service';
 import { CreateTaxGroupDTO } from './dto/create-tax-group.dto';
 
+import { AuthGuard } from '@nestjs/passport';
+
+@UseGuards(AuthGuard('jwt'))
 @Controller('tax-group')
 export class TaxGroupController {
     constructor(private readonly taxGroupService: TaxGroupService) { }

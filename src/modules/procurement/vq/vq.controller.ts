@@ -3,7 +3,10 @@ import { CreateVQHeaderDTO } from './dto/create-vq-header.bto';
 import { UpdateVQHeaderDTO } from './dto/update-vq-header.dto';
 import { VqService } from './vq.service';
 import { SearchVQDto } from './dto/search-vq.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('vq')
 export class VqController {
 

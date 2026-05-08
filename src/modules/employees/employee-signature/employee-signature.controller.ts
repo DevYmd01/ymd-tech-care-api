@@ -3,7 +3,10 @@ import { EmployeeSignatureService } from './employee-signature.service';
 
 import { multerOptions } from '@/common/middleware/upload.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employee-signature')
 export class EmployeeSignatureController {
     constructor(private readonly employeeSignatureService: EmployeeSignatureService) { }

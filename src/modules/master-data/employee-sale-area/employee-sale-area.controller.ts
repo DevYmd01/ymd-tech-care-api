@@ -2,7 +2,10 @@ import { Controller, Post, Body, Get, Param, Put, Delete  } from '@nestjs/common
 import { EmployeeSaleAreaService } from './employee-sale-area.service';
 import { CreateSaleAreaDto } from './dto/create-sale-area.dto';
 import { UpdateSaleAreaDto } from './dto/update-sale-area.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('employee-sale-area')
 export class EmployeeSaleAreaController {
     constructor(private readonly employeeSaleAreaService: EmployeeSaleAreaService) {}

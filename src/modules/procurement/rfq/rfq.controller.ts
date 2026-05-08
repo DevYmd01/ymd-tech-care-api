@@ -5,7 +5,10 @@ import { CreateRFQHeaderDTO } from './dto/create-rfq-header.dto';
 import { UpdateRFQHeaderDTO } from './dto/update-rfq-header.dto';
 import { SendMailRFQDTO } from './dto/send-to-vendor.dto';
 import { SearchRfqDto } from './dto/search-rfq.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('rfq')
 export class RfqController {
     constructor(private readonly rfqService: RfqService) { }

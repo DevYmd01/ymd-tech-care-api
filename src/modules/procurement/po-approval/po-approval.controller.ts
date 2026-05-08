@@ -2,7 +2,10 @@ import { Controller, Get, Body, Post, Param, Request, Patch, Query} from '@nestj
 import { PoApprovalService } from './po-approval.service';
 import { createPoApprovalDto } from './dto/create-po-approval.dto';
 import { SearchPoApprovalDto } from './dto/search-po-approval.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('po-approval')
 export class PoApprovalController {
 constructor(private readonly poApprovalService: PoApprovalService) {}

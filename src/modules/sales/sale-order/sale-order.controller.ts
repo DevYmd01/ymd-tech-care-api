@@ -5,7 +5,10 @@ import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 import { Query } from '@nestjs/common';
 import { UpdateSaleOrderHeaderDto } from './dto/update-sale-order-header.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('sale-order')
 export class SaleOrderController {
     

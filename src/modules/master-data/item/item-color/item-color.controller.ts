@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemColorService } from './item-color.service';
 import { CreateItemColorDto } from './dto/create-item-color.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-color')
 export class ItemColorController {
     constructor(private readonly itemColorService: ItemColorService) { }

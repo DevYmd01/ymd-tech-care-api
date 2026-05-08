@@ -11,7 +11,10 @@ import {
 import { ItemBarcodeService } from './item-barcode.service';
 import { CreateItemBarcodeDto } from './dto/create-item-barcode.dto';
 import { UpdateItemBarcodeDto } from './dto/update-item-barcode.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-barcodes')
 export class ItemBarcodeController {
   constructor(private readonly itemBarcodeService: ItemBarcodeService) {}

@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemGradeService } from './item-grade.service';
 import { CreateItemGradeDto } from './dto/create-item-grade.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-grade')
 export class ItemGradeController {
     constructor(private readonly itemGradeService: ItemGradeService) { }

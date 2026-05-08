@@ -1,7 +1,9 @@
 import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Get, Param, Put } from '@nestjs/common';
 import { TaxCodeService } from './tax-code.service';
 import { CreateTaxCodeDTO } from './dto/create-tax-code.dto';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('tax-code')
 export class TaxCodeController {
     constructor(private readonly taxCodeService: TaxCodeService) { }

@@ -3,7 +3,10 @@ import { VendorsService } from './vendors.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
 import { SearchVendorDto } from './dto/search-vendor.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('vendors')
 export class VendorsController {
     constructor(private readonly vendorService: VendorsService) { }

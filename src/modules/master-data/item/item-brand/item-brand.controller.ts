@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Patch,  Put } from '@nestjs/common';
 import { ItemBrandService } from './item-brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-brand')
 export class ItemBrandController {
     constructor(private readonly itemBrandService: ItemBrandService) { }

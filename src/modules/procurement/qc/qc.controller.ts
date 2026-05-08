@@ -2,7 +2,10 @@ import { Controller, Get, Body, Post, Param, Request, Patch, Query } from '@nest
 import { QcService } from './qc.service';
 import { CreateQcHeaderDTO } from './dto/create-qc-header.dto';
 import { UpdateQcHeaderDTO } from './dto/update-qc-header.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('qc')
 export class QcController {
 

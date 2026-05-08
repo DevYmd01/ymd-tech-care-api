@@ -3,7 +3,10 @@ import { Body, Get, Param, Post, Patch, Delete} from '@nestjs/common';
 import { CreateCustomerTypeDto } from './dto/create-customer-type.dto';
 import { UpdateCustomerTypeDto } from './dto/update-customer-type.dto';
 import { CustomerTypeService } from './customer-type.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('customer-type')
 export class CustomerTypeController {
     constructor(private readonly customerTypeService: CustomerTypeService) {}

@@ -9,7 +9,10 @@ import { CreateSaleOrderApprovalLineRepository } from './repository/create-sale-
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateSaleOrderApprovalHeaderMapper } from './mapper/create-sale-order-ap-header.mapper';
 import { CreateSaleOrderApprovalLineMapper } from './mapper/create-sale-order-ap-line.mapper';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Module({
   controllers: [SaleOrderApprovalController],
   providers: [

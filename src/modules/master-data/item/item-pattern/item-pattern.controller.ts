@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemPatternService } from './item-pattern.service';
 import { CreatePatternDto } from './dto/create-pattern.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('item-pattern')
 export class ItemPatternController {
     constructor(private readonly itemPatternService: ItemPatternService) { }

@@ -2,7 +2,10 @@ import { Controller, Post } from '@nestjs/common';
 import { DocumentNumberService } from './document-number.service';
 import { Body } from '@nestjs/common';
 import { GenerateDocNumberDto } from './dto/generate-doc-number.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('document-number')
 export class DocumentNumberController {
     constructor(private readonly documentNumberService: DocumentNumberService) { }

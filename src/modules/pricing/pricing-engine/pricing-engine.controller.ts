@@ -1,7 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { PricingEngineService } from './pricing-engine.service';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('pricing-engine')
 export class PricingEngineController {
   constructor(

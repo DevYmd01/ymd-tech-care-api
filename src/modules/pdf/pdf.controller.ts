@@ -1,7 +1,10 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import express from 'express';
 import { PdfService } from '@/modules/pdf/pdf.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('pdf')
 export class PdfController {
 
