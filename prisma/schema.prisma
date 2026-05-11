@@ -457,7 +457,7 @@ model uom {
 }
 
 model item_uom {
-    item_uom_id     String   @id @default(uuid())
+    item_uom_id     Int   @id @default(autoincrement())
     item_id         Int
     from_uom_id     Int
     to_uom_id       Int
@@ -468,8 +468,8 @@ model item_uom {
     fromUom         uom      @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
     item            item     @relation(fields: [item_id], references: [item_id])
     toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
-
-    @@unique([item_id, from_uom_id, to_uom_id])
+    is_active       Boolean  @default(true)
+    @@unique([item_id, from_uom_id, to_uom_id, is_active])
     @@map("item_uom")
 }
 

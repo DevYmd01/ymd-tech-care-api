@@ -83,6 +83,7 @@ import { ApiLogMiddleware } from './common/middleware/api-log.middleware';
 import { ApiLogCleanupModule } from './common/jobs/api-log-cleanup/api-log-cleanup.module';
 // 
 import { ScheduleModule } from '@nestjs/schedule';
+import { ItemUomModule } from './modules/master-data/item-uom/item-uom.module';
 
 @Module({
   imports: [
@@ -164,6 +165,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     SaleOrderApprovalModule,
     DeliveryModule,
     ApiLogCleanupModule,
+    ItemUomModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

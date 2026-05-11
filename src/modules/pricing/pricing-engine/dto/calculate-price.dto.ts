@@ -4,11 +4,11 @@ import { IsInt, IsOptional, IsString } from 'class-validator';
 export class CalculatePriceDto {
   // ===== INPUT =====
   @IsString()
-  itemId: string;
+  itemId!: string;
 
   @Type(() => Number)
   @IsInt()
-  qty: number;
+  qty!: number;
 
   @IsOptional()
   @IsString()

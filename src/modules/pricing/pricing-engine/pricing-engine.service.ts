@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
 import { getPriceByPriority } from './engine/price-engine';
 import { PricingContext } from './types/pricing-context';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class PricingEngineService {
