@@ -15,13 +15,14 @@ export class CreateSaleReservationLineMapper {
       reservation_header: { connect: { reservation_id: rs_id } },
       
       item: { connect: { item_id: data.item_id } },
-      warehouse: { connect: { warehouse_id: data.warehouse_id } },
-      location: { connect: { location_id: data.location_id } },
+      ...(data.warehouse_id ? { warehouse: { connect: { warehouse_id: data.warehouse_id } } } : {}),
+      ...(data.location_id ? { location: { connect: { location_id: data.location_id } } } : {}),
+      ...(data.lot_id ? { lot: { connect: { lot_id: data.lot_id } } } : {}),
       
-      // เชื่อม Lot เฉพาะเมื่อมีข้อมูลส่งมา
-      ...(data.lot_id 
-        ? { lot: { connect: { lot_id: data.lot_id } } } 
-        : {}),
+      // // เชื่อม Lot เฉพาะเมื่อมีข้อมูลส่งมา
+      // ...(data.lot_id 
+      //   ? { lot: { connect: { lot_id: data.lot_id } } } 
+      //   : {}),
         
       uom: { connect: { uom_id: data.uom_id } },
 

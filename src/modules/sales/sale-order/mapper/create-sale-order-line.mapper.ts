@@ -26,13 +26,9 @@ export class CreateSaleOrderLineMapper {
         connect: { item_id: data.item_id },
       },
 
-      warehouse: {
-        connect: { warehouse_id: data.warehouse_id },
-      },
-
-      location: {
-        connect: { location_id: data.location_id },
-      },
+      ...(data.warehouse_id ? { warehouse: { connect: { warehouse_id: data.warehouse_id } } } : {}),
+      ...(data.location_id ? { location: { connect: { location_id: data.location_id } } } : {}),
+      
 
       ...(data.lot_id
         ? {
