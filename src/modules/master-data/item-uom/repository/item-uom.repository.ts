@@ -46,4 +46,21 @@ export class ItemUomRepository {
             data,
         });
     }
+
+    async findByItemUomsByItemId(
+        item_id: number,
+    ) {
+        return this.prisma.item_uom.findMany({
+            where: {
+                item_id,
+            },
+            include: {
+                fromUom: true,
+                toUom: true,
+            },
+            orderBy: {
+                item_uom_id: 'asc',
+            },
+        });
+    }
 }

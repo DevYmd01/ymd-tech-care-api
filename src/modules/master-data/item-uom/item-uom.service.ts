@@ -59,4 +59,14 @@ export class ItemUomService {
             ItemUomMapper.toResponse(item)
         );
     }
+
+    async getItemByItemIdUoms(item_id: number) {
+
+        const list = await this.itemUomRepository.findByItemUomsByItemId(item_id);
+
+        return list.map(item =>
+            ItemUomMapper.toResponseWithItem(item)
+        );
+    }
+
 }

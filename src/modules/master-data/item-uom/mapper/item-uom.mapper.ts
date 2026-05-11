@@ -84,4 +84,14 @@ export class ItemUomMapper {
       updated_at: data.updated_at,
     };
   }
+
+static toResponseWithItem(data: any) {
+    return {
+      item_id: data.item_id,
+      uom_id: data.from_uom_id,
+      uom_name: data.fromUom?.uom_name,
+      factor: data.factor,
+    };
+  }
+
 }
