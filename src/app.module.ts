@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrgBranchModule } from './modules/master-data/organization/org_branch/org_branch.module';
@@ -79,9 +79,14 @@ import { InventoryStocksModule } from './modules/inventory-control/inventory-sto
 import { StockOptionsModule } from './common/inventory/stock-options/stock-options.module';
 import { SaleOrderApprovalModule } from './modules/sales/sale-order-approval/sale-order-approval.module';
 import { DeliveryModule } from './modules/sales/delivery/delivery.module';
+import { ApiLogMiddleware } from './common/middleware/api-log.middleware';
+import { ApiLogCleanupModule } from './common/jobs/api-log-cleanup/api-log-cleanup.module';
+// 
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -158,6 +163,7 @@ import { DeliveryModule } from './modules/sales/delivery/delivery.module';
     StockOptionsModule,
     SaleOrderApprovalModule,
     DeliveryModule,
+    ApiLogCleanupModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
@@ -166,8 +172,11 @@ import { DeliveryModule } from './modules/sales/delivery/delivery.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(RequestContextMiddleware)
-      .forRoutes('{*path}');
+      .apply(
+        RequestContextMiddleware,
+        ApiLogMiddleware,
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL })
   }
 
 }

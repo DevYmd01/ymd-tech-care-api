@@ -7,6 +7,21 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+/////////////
+//// System
+/////////////
+model api_log {
+  id            Int      @id @default(autoincrement())
+  employee_id   Int?
+  method        String   @db.VarChar(10)
+  path          String   @db.VarChar(255)
+  status_code   Int
+  response_ms   Int
+  ip_address    String?  @db.VarChar(100)
+  created_at    DateTime @default(now())
+  @@index([created_at])
+}
+
 ////////////
 //// EP0 Master-data
 ////////////

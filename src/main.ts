@@ -11,7 +11,7 @@ async function bootstrap() {
   });
 
   // -----------------------------
-  // Global Validation
+  // Validation
   // -----------------------------
   app.useGlobalPipes(
     new ValidationPipe({
@@ -22,23 +22,19 @@ async function bootstrap() {
   );
 
   // -----------------------------
-  // CORS CONFIG (FIXED VERSION)
+  // CORS
   // -----------------------------
   const allowedOrigins =
     process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [];
 
   app.enableCors({
     origin: (origin, callback) => {
-      // allow server-to-server / curl
       if (!origin) return callback(null, true);
 
-      if (
-        allowedOrigins.length === 0 || // ถ้าไม่ได้ตั้งค่า .env ให้ผ่านหมด (dev)
-        allowedOrigins.includes(origin)
-      ) {
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
+        callback(new Error(`CORS blocked: ${origin}`));
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -46,22 +42,19 @@ async function bootstrap() {
   });
 
   // -----------------------------
-  // Static Files
+  // Static files
   // -----------------------------
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });
 
   // -----------------------------
-  // Global Prefix
+  // Global prefix (CLEAN VERSION)
   // -----------------------------
   app.setGlobalPrefix('api', {
-    exclude: ['/uploads/*path'],
+    exclude: ['/uploads'], // ✅ ห้ามใช้ *path
   });
 
-  // -----------------------------
-  // START SERVER (IMPORTANT)
-  // -----------------------------
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
