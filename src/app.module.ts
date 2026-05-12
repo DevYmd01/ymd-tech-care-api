@@ -84,6 +84,8 @@ import { ApiLogCleanupModule } from './common/jobs/api-log-cleanup/api-log-clean
 // 
 import { ScheduleModule } from '@nestjs/schedule';
 import { ItemUomModule } from './modules/master-data/item-uom/item-uom.module';
+import { StockBalanceModule } from './common/inventory/stock-balance/stock-balance.module';
+import { StockTransactionModule } from './common/inventory/stock-transaction/stock-transaction.module';
 
 @Module({
   imports: [
@@ -166,6 +168,8 @@ import { ItemUomModule } from './modules/master-data/item-uom/item-uom.module';
     DeliveryModule,
     ApiLogCleanupModule,
     ItemUomModule,
+    StockBalanceModule,
+    StockTransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

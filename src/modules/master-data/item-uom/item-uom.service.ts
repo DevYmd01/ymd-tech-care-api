@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ItemUomRepository } from './repository/item-uom.repository';
 import { ItemUomMapper } from './mapper/item-uom.mapper';
 import { CreateItemUomDto } from './dto/item-uom.dto';
+import { Prisma } from '@prisma/client';
+import { ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class ItemUomService {
@@ -11,13 +13,22 @@ export class ItemUomService {
     ) {}
 
     async createItemUom(dto: CreateItemUomDto) {
-
+        try {
         const data = ItemUomMapper.toCreate(dto);
 
         const created = await this.itemUomRepository.create(data);
 
         return ItemUomMapper.toResponse(created);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('Duplicate entry for item_id, from_uom_id, to_uom_id');
+                }
+            }
+            throw error;
+        }
     }
+
 
     async getAllItemUom() {
 

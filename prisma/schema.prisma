@@ -469,7 +469,7 @@ model item_uom {
     item            item     @relation(fields: [item_id], references: [item_id])
     toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
     is_active       Boolean  @default(true)
-    @@unique([item_id, from_uom_id, to_uom_id, is_active])
+    @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
 }
 
@@ -2984,7 +2984,7 @@ model delivery_line {
 // =========================
 // ITEM STOCK BALANCE
 // =========================
-// M4.4 ยังไม่ใช้เนื่องจากปัญหาทีมสับสนและระยะเวลา
+// M4.4 เกิดขึ้นเพื่อเก็บข้อมูลยอดคงเหลือของสินค้าในแต่ละ location ซึ่งจะมีการอัพเดตทุกครั้งที่มีการเคลื่อนไหวของสินค้า เช่น การรับเข้า การจ่ายออก การปรับปรุง หรือการโอนย้าย โดยจะบันทึกข้อมูลเกี่ยวกับจำนวนคงเหลือจริง จำนวนที่ถูกจองไว้ และจำนวนที่พร้อมใช้งาน เพื่อใช้ในการตรวจสอบและวางแผนการจัดการสินค้าคงคลังได้อย่างมีประสิทธิภาพ
 model item_stock_balance {
     stock_balance_id Int @id @default(autoincrement())
 
@@ -3012,7 +3012,7 @@ model item_stock_balance {
 // =========================
 // STOCK TRANSACTION (ITEM LEVEL)
 // =========================
-// M4.3 ยังไม่ใช้เนื่องจากปัญหาทีมสับสนและระยะเวลา
+// M4.  เกิดขึ้น sale reservation ทุกครั้งที่มีการเคลื่อนไหวของสินค้า ไม่ว่าจะเป็นการรับเข้า การจ่ายออก การปรับปรุง หรือการโอนย้าย โดยจะบันทึกข้อมูลเกี่ยวกับรายการนั้นๆ เช่น จำนวนที่เคลื่อนไหว ประเภทของการเคลื่อนไหว เอกสารอ้างอิง และอื่นๆ เพื่อใช้ในการติดตามประวัติการเคลื่อนไหวของสินค้าในระบบ
 model stock_transaction {
     stock_transaction_id Int @id @default(autoincrement())
 
@@ -3048,19 +3048,13 @@ model stock_transaction {
 // M4
 model item_lot {
     lot_id Int @id @default(autoincrement())
-
     item_id Int
     lot_no  String
-
     supplier_vendor_id Int?
-
     mfg_date    DateTime?
     expiry_date DateTime?
-
     status String @db.VarChar(20)
-
     note String?
-
     item            item    @relation(fields: [item_id], references: [item_id])
     supplier_vendor vendor? @relation(fields: [supplier_vendor_id], references: [vendor_id])
 
