@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsNumber,
   IsNotEmpty,
+  IsBoolean,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
