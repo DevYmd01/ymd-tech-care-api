@@ -123,7 +123,7 @@ export class ReleaseStockService {
 
           ref_doc_no: data.ref_doc_no,
 
-          remark: data.remark,
+          remarks: data.remark,
         },
       });
 

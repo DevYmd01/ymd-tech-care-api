@@ -3030,6 +3030,7 @@ model stock_transaction {
     ref_doc_no   String?
     ref_line_id  Int?
 
+remarks String? @db.Text
     created_at DateTime @default(now())
 
     item      item        @relation(fields: [item_id], references: [item_id])

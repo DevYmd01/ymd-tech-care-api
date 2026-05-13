@@ -9,6 +9,7 @@ import { ReleaseStockService } from './domain/service/movements/release-stock.se
 import { IssueStockService } from './domain/service/movements/issue-stock.service';
 import { TransferStockService } from './domain/service/movements/transfer-stock.service';
 import { AdjustStockService } from './domain/service/movements/adjust-stock.service';
+import { StockTransactionModule } from '../stock-transaction/stock-transaction.module';
 
 @Module({
   controllers: [StockBalanceController],
@@ -32,5 +33,6 @@ import { AdjustStockService } from './domain/service/movements/adjust-stock.serv
     TransferStockService,
     AdjustStockService,
   ],
+  imports: [StockTransactionModule],
 })
 export class StockBalanceModule {}
