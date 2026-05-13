@@ -219,6 +219,20 @@ async function main() {
       sort_order: 1,
       is_active: true,
     },
+        {
+      system_document_code: 'RS',
+      system_document_name: 'รายการจองสินค้า',
+      system_document_name_eng: 'Reservation',
+      sort_order: 1,
+      is_active: true,
+    },
+            {
+      system_document_code: 'SO',
+      system_document_name: 'รายการสั่งขาย',
+      system_document_name_eng: 'Sales Order',
+      sort_order: 1,
+      is_active: true,
+    },
   ]
 
   for (const d of salesDocuments) {
