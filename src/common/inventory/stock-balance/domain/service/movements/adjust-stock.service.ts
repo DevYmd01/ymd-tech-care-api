@@ -12,6 +12,9 @@ export class AdjustStockService {
     private readonly stockBalanceService: StockBalanceService,
   ) {}
 
+//   ======================================================
+//   EXECUTE ADJUSTMENT
+//   ======================================================
   async execute(data: {
     item_id: number;
     warehouse_id: number;
