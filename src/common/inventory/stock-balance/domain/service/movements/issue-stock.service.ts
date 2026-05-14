@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { StockTransactionType } from '../../../enums/stock-balance-type.enum';
+import { StockTransactionType, StockRefDocType } from '../../../enums/stock-balance-type.enum';
 import { AdjustStockService } from './adjust-stock.service';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class IssueStockService {
   branch_id: number;
   qty: number;
   remark?: string;
-  ref_doc_type?: string;
+  ref_doc_type?: StockRefDocType;
   ref_doc_no?: string;
 }) {
   if (data.qty <= 0) {
@@ -41,8 +41,8 @@ export class IssueStockService {
         branch_id: data.branch_id,
         qty: adjustmentQty,
         remark: data.remark,
-        ref_doc_type:
-          data.ref_doc_type ?? 'ISSUE_STOCK',
+        trans_type: StockTransactionType.ISSUE,   // ✔ FIXED
+        ref_doc_type: data.ref_doc_type ?? StockRefDocType.ISSUE_STOCK,     // ✔ FIXED
         ref_doc_no: data.ref_doc_no,
       },
       tx,

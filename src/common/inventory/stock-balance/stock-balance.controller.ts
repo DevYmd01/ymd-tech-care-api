@@ -6,6 +6,7 @@ import { ReleaseStockService } from './domain/service/movements/release-stock.se
 import { IssueStockService } from './domain/service/movements/issue-stock.service';
 import { TransferStockService } from './domain/service/movements/transfer-stock.service';
 import { AdjustStockService } from './domain/service/movements/adjust-stock.service';
+import { StockTransactionType } from './enums/stock-balance-type.enum';
 
 @Controller('stock-balance')
 export class StockBalanceController {
@@ -26,7 +27,10 @@ async test() {
     warehouse_id: 1,
     location_id: 1,
     branch_id: 1,
-    qty: 100,
+    qty: 200,
+    trans_type: StockTransactionType.RECEIVE,
+    ref_doc_no: 'RCV-001',
+    remark: 'Test receive stock',
   });    
  }
 

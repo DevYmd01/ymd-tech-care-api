@@ -86,6 +86,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ItemUomModule } from './modules/master-data/item-uom/item-uom.module';
 import { StockBalanceModule } from './common/inventory/stock-balance/stock-balance.module';
 import { StockTransactionModule } from './common/inventory/stock-transaction/stock-transaction.module';
+import { LotTransactionModule } from './common/inventory/lot-transaction/lot-transaction.module';
 
 @Module({
   imports: [
@@ -170,6 +171,7 @@ import { StockTransactionModule } from './common/inventory/stock-transaction/sto
     ItemUomModule,
     StockBalanceModule,
     StockTransactionModule,
+    LotTransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

@@ -63,11 +63,12 @@ export class ReserveStockService {
         stock.qty_available,
       );
 
-      if (availableQty < data.qty) {
-        throw new BadRequestException(
-          'Insufficient available stock',
-        );
-      }
+    //   เช็คว่าสินค้าเกินจำนวนที่ใช้ได้ไหม
+    //   if (availableQty < data.qty) {
+    //     throw new BadRequestException(
+    //       'Insufficient available stock',
+    //     );
+    //   }
 
       // ======================================================
       // UPDATE RESERVED / AVAILABLE

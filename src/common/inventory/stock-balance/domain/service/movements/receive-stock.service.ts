@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { StockTransactionType } from '../../../enums/stock-balance-type.enum';
+import { StockTransactionType, StockRefDocType } from '../../../enums/stock-balance-type.enum';
 import { AdjustStockService } from './adjust-stock.service';
 
 @Injectable()
@@ -20,13 +20,14 @@ export class ReceiveStockService {
     branch_id: number;
     qty: number;
     remark?: string;
-    ref_doc_type?: string;
+    ref_doc_type?: StockRefDocType;
+    trans_type?: StockTransactionType;
     ref_doc_no?: string;
   }) {
     if (data.qty <= 0) {
       throw new BadRequestException('Receive quantity must be greater than 0');
     }
-
+// console.log('ReceiveStockService.execute - data:', data);
     return this.prisma.$transaction(async (tx) => {
       // RECEIVE = เพิ่ม stock → ใช้ +qty
       const result = await this.adjustStockService.execute(
@@ -36,8 +37,9 @@ export class ReceiveStockService {
           location_id: data.location_id,
           branch_id: data.branch_id,
           qty: Math.abs(data.qty), // + เพิ่ม stock
-          remark: data.remark,
-          ref_doc_type: data.ref_doc_type ?? 'RECEIVE_STOCK',
+          remark: data.remark, 
+          trans_type: data.trans_type ?? StockTransactionType.RECEIVE,
+          ref_doc_type: data.ref_doc_type ?? StockRefDocType.RECEIVE_STOCK,
           ref_doc_no: data.ref_doc_no,
         },
         tx,
