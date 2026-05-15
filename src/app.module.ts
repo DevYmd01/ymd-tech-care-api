@@ -87,6 +87,9 @@ import { ItemUomModule } from './modules/master-data/item-uom/item-uom.module';
 import { StockBalanceModule } from './common/inventory/stock-balance/stock-balance.module';
 import { StockTransactionModule } from './common/inventory/stock-transaction/stock-transaction.module';
 import { LotTransactionModule } from './common/inventory/lot-transaction/lot-transaction.module';
+import { InventoryEngineModule } from './common/inventory/inventory-engine/inventory-engine.module';
+import { LotBalanceModule } from './common/inventory/lot-balance/lot-balance.module';
+import { DocLinkIcModule } from './modules/configuration/doc-link-ic/doc-link-ic.module';
 
 @Module({
   imports: [
@@ -172,6 +175,9 @@ import { LotTransactionModule } from './common/inventory/lot-transaction/lot-tra
     StockBalanceModule,
     StockTransactionModule,
     LotTransactionModule,
+    InventoryEngineModule,
+    LotBalanceModule,
+    DocLinkIcModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

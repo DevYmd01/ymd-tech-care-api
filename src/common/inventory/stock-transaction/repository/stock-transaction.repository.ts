@@ -19,6 +19,15 @@ export class StockTransactionRepository {
     });
   }
 
+  async findAll(): Promise<stock_transaction[]> {
+    return this.prisma.stock_transaction.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+  }
+
+
   async findManyByItem(
     item_id: number,
   ): Promise<stock_transaction[]> {

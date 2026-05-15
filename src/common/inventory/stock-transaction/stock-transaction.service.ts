@@ -49,6 +49,16 @@ export class StockTransactionService {
     return StockTransactionMapper.toResponse(transaction);
   }
 
+
+// ====
+// GET ALL 
+// ====
+
+async findAll() {
+  return this.stockTransactionRepository.findAll();
+}
+
+
   // ======================================================
   // GET TRANSACTION BY ID
   // ======================================================

@@ -11,15 +11,16 @@ datasource db {
 //// System
 /////////////
 model api_log {
-  id            Int      @id @default(autoincrement())
-  employee_id   Int?
-  method        String   @db.VarChar(10)
-  path          String   @db.VarChar(255)
-  status_code   Int
-  response_ms   Int
-  ip_address    String?  @db.VarChar(100)
-  created_at    DateTime @default(now())
-  @@index([created_at])
+    id          Int      @id @default(autoincrement())
+    employee_id Int?
+    method      String   @db.VarChar(10)
+    path        String   @db.VarChar(255)
+    status_code Int
+    response_ms Int
+    ip_address  String?  @db.VarChar(100)
+    created_at  DateTime @default(now())
+
+    @@index([created_at])
 }
 
 ////////////
@@ -457,7 +458,7 @@ model uom {
 }
 
 model item_uom {
-    item_uom_id     Int   @id @default(autoincrement())
+    item_uom_id     Int      @id @default(autoincrement())
     item_id         Int
     from_uom_id     Int
     to_uom_id       Int
@@ -469,6 +470,7 @@ model item_uom {
     item            item     @relation(fields: [item_id], references: [item_id])
     toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
     is_active       Boolean  @default(true)
+
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
 }
@@ -1481,6 +1483,16 @@ model ic_option_list {
     @@index([system_document_id])
     @@index([sort_order])
     @@map("ic_option_list")
+}
+
+model doc_link_ic {
+    doc_link_ic_id     Int     @id @default(autoincrement())
+    system_document_id Int
+    docu_desc          String? @db.VarChar(255)
+    remark             String? @db.VarChar(255)
+    // เป็นค่า defule ISSUE STOCK และ 0 = NONE, 1 = IN, 2 = OUT
+    stock_effect_ic    Int     @default(0)
+    is_active          Boolean @default(true)
 }
 
 model system_document {
@@ -3030,7 +3042,7 @@ model stock_transaction {
     ref_doc_no   String?
     ref_line_id  Int?
 
-remarks String? @db.Text
+    remarks    String?  @db.Text
     created_at DateTime @default(now())
 
     item      item        @relation(fields: [item_id], references: [item_id])
@@ -3048,16 +3060,16 @@ remarks String? @db.Text
 // =========================
 // M4
 model item_lot {
-    lot_id Int @id @default(autoincrement())
-    item_id Int
-    lot_no  String
+    lot_id             Int       @id @default(autoincrement())
+    item_id            Int
+    lot_no             String
     supplier_vendor_id Int?
-    mfg_date    DateTime?
-    expiry_date DateTime?
-    status String @db.VarChar(20)
-    note String?
-    item            item    @relation(fields: [item_id], references: [item_id])
-    supplier_vendor vendor? @relation(fields: [supplier_vendor_id], references: [vendor_id])
+    mfg_date           DateTime?
+    expiry_date        DateTime?
+    status             String    @db.VarChar(20)
+    note               String?
+    item               item      @relation(fields: [item_id], references: [item_id])
+    supplier_vendor    vendor?   @relation(fields: [supplier_vendor_id], references: [vendor_id])
 
     balances             item_lot_balance[]
     transactions         lot_transaction[]
@@ -3126,6 +3138,7 @@ model lot_transaction {
     ref_doc_no   String?
     ref_line_id  Int?
 
+    remarks    String?  @db.Text
     created_at DateTime @default(now())
 
     lot       item_lot    @relation(fields: [lot_id], references: [lot_id])
@@ -3179,11 +3192,10 @@ enum RunningCycle {
 }
 
 enum StockTransactionType {
-  RECEIVE 
-  ISSUE 
-  RESERVE 
-  RELEASE 
-  ADJUST 
-  TRANSFER 
+    RECEIVE
+    ISSUE
+    RESERVE
+    RELEASE
+    ADJUST
+    TRANSFER
 }
-

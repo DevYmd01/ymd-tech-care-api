@@ -26,6 +26,14 @@ export class StockTransactionController {
     return this.stockTransactionService.create(dto);
   }
 
+// ====
+// GET ALL 
+// ====
+  @Get()
+  async findAll() {
+    return this.stockTransactionService.findAll();
+  }
+
   // ======================================================
   // GET TRANSACTION BY ID
   // ======================================================
