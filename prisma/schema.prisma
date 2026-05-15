@@ -1486,13 +1486,14 @@ model ic_option_list {
 }
 
 model doc_link_ic {
-    doc_link_ic_id     Int     @id @default(autoincrement())
+    doc_link_ic_id     Int             @id @default(autoincrement())
     system_document_id Int
-    docu_desc          String? @db.VarChar(255)
-    remark             String? @db.VarChar(255)
+    system_document    system_document @relation(fields: [system_document_id], references: [system_document_id])
+    docu_desc          String?         @db.VarChar(255)
+    remark             String?         @db.VarChar(255)
     // เป็นค่า defule ISSUE STOCK และ 0 = NONE, 1 = IN, 2 = OUT
-    stock_effect_ic    Int     @default(0)
-    is_active          Boolean @default(true)
+    stock_effect_ic    Int             @default(0)
+    is_active          Boolean         @default(true)
 }
 
 model system_document {
@@ -1510,6 +1511,7 @@ model system_document {
     updated_at DateTime @updatedAt
 
     ic_option_lists ic_option_list[]
+    docLinkIcs      doc_link_ic[]
 
     @@index([system_document_code])
     @@index([sort_order])

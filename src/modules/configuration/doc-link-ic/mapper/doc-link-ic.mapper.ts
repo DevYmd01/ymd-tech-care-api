@@ -12,7 +12,11 @@ export class DocLinkIcMapper {
     dto: DocLinkIcDto,
   ): Prisma.doc_link_icCreateInput {
     return {
-      system_document_id: dto.system_document_id,
+      system_document: {
+        connect: {
+          system_document_id: dto.system_document_id,
+        },
+      },
 
       docu_desc: dto.docu_desc ?? null,
 
@@ -56,11 +60,19 @@ export class DocLinkIcMapper {
   // ======================================================
   // TO RESPONSE
   // ======================================================
-  static toResponse(data: any): DocLinkIcDto {
+  static toResponse(data: any) {
     return {
       doc_link_ic_id: data.doc_link_ic_id,
 
       system_document_id: data.system_document_id,
+
+      system_document: data.system_document
+      ? {
+          docu_no: data.system_document.system_document_code,
+          docu_name: data.system_document.system_document_name,
+          docu_nameeng: data.system_document.system_document_name_eng,
+        }
+      : null,
 
       docu_desc: data.docu_desc,
 

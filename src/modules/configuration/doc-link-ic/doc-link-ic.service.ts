@@ -11,11 +11,13 @@ import { DocLinkIcRepository } from './repository/doc-link-ic.repository';
 import { DocLinkIcMapper } from './mapper/doc-link-ic.mapper';
 
 import { DocLinkIcDto } from './dto/doc-link-ic.dto';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class DocLinkIcService {
   constructor(
     private readonly docLinkIcRepository: DocLinkIcRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   // ======================================================
@@ -96,15 +98,22 @@ export class DocLinkIcService {
   // ======================================================
   // FIND ALL
   // ======================================================
-  async findAll() {
-    const result =
-      await this.docLinkIcRepository.findAll();
+//   async findAll() {
+//     const result =
+//       await this.docLinkIcRepository.findAll();
 
-    return result.map((item) =>
-      DocLinkIcMapper.toResponse(item),
-    );
-  }
+//     return result.map((item) =>
+//       DocLinkIcMapper.toResponse(item),
+//     );
+//   }
 
+async findAll() {
+  return this.prisma.doc_link_ic.findMany({
+       include: {
+      system_document: true,
+    },
+  });
+}
   // ======================================================
   // FIND ONE
   // ======================================================
