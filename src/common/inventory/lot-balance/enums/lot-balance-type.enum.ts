@@ -1,4 +1,4 @@
-export enum StockTransactionType {
+export enum LotTransactionType {
   RECEIVE = 'RECEIVE',   // ของเข้า
   ISSUE = 'ISSUE',       // ของออก
   RESERVE = 'RESERVE',   // จองของ
@@ -7,7 +7,7 @@ export enum StockTransactionType {
   ADJUST = 'ADJUST',     // ปรับยอด (ตรวจนับ / แก้ไข)
 }
 
-export enum StockRefDocType {
+export enum LotRefDocType {
   PURCHASE_ORDER = 'PURCHASE_ORDER',     // ซื้อของ
   SALES_ORDER = 'SALES_ORDER',           // ขายของ
   TRANSFER_IN = 'TRANSFER_IN',           // รับโอน

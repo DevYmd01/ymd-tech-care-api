@@ -3116,7 +3116,7 @@ model item_lot_balance {
     warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
     location  location    @relation(fields: [location_id], references: [location_id])
 
-    @@unique([lot_id, warehouse_id, location_id])
+    @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])
     @@index([warehouse_id])
 }

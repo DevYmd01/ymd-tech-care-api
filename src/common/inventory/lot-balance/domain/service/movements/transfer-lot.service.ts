@@ -1,102 +1,220 @@
-// import { BadRequestException, Injectable } from '@nestjs/common';
-// import { PrismaService } from '@/prisma/prisma.service';
-// import {
-//   StockTransactionType,
-//   StockRefDocType,
-// } from '../../../enums/lot-balance-type.enum';
-// import { AdjustStockService } from './adjust-lot.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '@/prisma/prisma.service';
 
-// @Injectable()
-// export class TransferStockService {
-//   constructor(
-//     private readonly prisma: PrismaService,
-//     private readonly adjustStockService: AdjustStockService,
-//   ) {}
+import {
+  LotTransactionType,
+  LotRefDocType,
+} from '../../../enums/lot-balance-type.enum';
 
-//   async execute(data: {
-//     item_id: number;
+import { AdjustLotService } from './adjust-lot.service';
 
-//     from_warehouse_id: number;
-//     from_location_id: number;
-//     from_branch_id: number;
+import { Prisma } from '@prisma/client';
 
-//     to_warehouse_id: number;
-//     to_location_id: number;
-//     to_branch_id: number;
+@Injectable()
+export class TransferLotService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly adjustLotService: AdjustLotService,
+  ) {}
 
-//     qty: number;
+  // ======================================================
+  // PUBLIC EXECUTE
+  // ======================================================
+  async execute(
+    data: {
+      item_id: number;
 
-//     remark?: string;
-//     ref_doc_no?: string;
-//   }) {
-//     if (data.qty <= 0) {
-//       throw new BadRequestException(
-//         'Transfer quantity must be greater than 0',
-//       );
-//     }
+      from_warehouse_id: number;
+      from_location_id: number;
+      from_branch_id: number;
+      from_lot_id: number;
 
-//     return this.prisma.$transaction(async (tx) => {
-      
-//       // ==================================================
-//       // STEP 1: TRANSFER OUT (ลด stock)
-//       // ==================================================
-//       await this.adjustStockService.execute(
-//         {
-//           item_id: data.item_id,
+      to_warehouse_id: number;
+      to_location_id: number;
+      to_branch_id: number;
+      to_lot_id: number;
 
-//           warehouse_id: data.from_warehouse_id,
-//           location_id: data.from_location_id,
-//           branch_id: data.from_branch_id,
+      qty: number;
 
-//           qty: -Math.abs(data.qty),
+      remark?: string;
+      ref_doc_no?: string;
 
-//           trans_type: StockTransactionType.TRANSFER,
-//           ref_doc_type: StockRefDocType.TRANSFER_OUT,
+      trans_type?: LotTransactionType;
+      ref_doc_type?: LotRefDocType;
+    },
+    tx?: Prisma.TransactionClient,
+  ) {
+    // ======================================================
+    // VALIDATE
+    // ======================================================
+    if (data.qty <= 0) {
+      throw new BadRequestException(
+        'Transfer quantity must be greater than 0',
+      );
+    }
 
-//           ref_doc_no: data.ref_doc_no,
-//           remark: data.remark,
-//         },
-//         tx,
-//       );
+    // ======================================================
+    // SAME LOCATION CHECK
+    // ======================================================
+    if (
+      data.from_warehouse_id ===
+        data.to_warehouse_id &&
+      data.from_location_id ===
+        data.to_location_id &&
+      data.from_branch_id ===
+        data.to_branch_id &&
+      data.from_lot_id ===
+        data.to_lot_id
+    ) {
+      throw new BadRequestException(
+        'Cannot transfer to same location and lot',
+      );
+    }
 
-//       // ==================================================
-//       // STEP 2: TRANSFER IN (เพิ่ม stock)
-//       // ==================================================
-//       await this.adjustStockService.execute(
-//         {
-//           item_id: data.item_id,
+    // ======================================================
+    // USE EXISTING TRANSACTION
+    // ======================================================
+    if (tx) {
+      return this.executeInternal(data, tx);
+    }
 
-//           warehouse_id: data.to_warehouse_id,
-//           location_id: data.to_location_id,
-//           branch_id: data.to_branch_id,
+    // ======================================================
+    // CREATE NEW TRANSACTION
+    // ======================================================
+    return this.prisma.$transaction(async (trx) => {
+      return this.executeInternal(data, trx);
+    });
+  }
 
-//           qty: Math.abs(data.qty),
+  // ======================================================
+  // INTERNAL EXECUTE
+  // ======================================================
+  private async executeInternal(
+    data: {
+      item_id: number;
 
-//           trans_type: StockTransactionType.TRANSFER,
-//           ref_doc_type: StockRefDocType.TRANSFER_IN,
+      from_warehouse_id: number;
+      from_location_id: number;
+      from_branch_id: number;
+      from_lot_id: number;
 
-//           ref_doc_no: data.ref_doc_no,
-//           remark: data.remark,
-//         },
-//         tx,
-//       );
+      to_warehouse_id: number;
+      to_location_id: number;
+      to_branch_id: number;
+      to_lot_id: number;
 
-//       return {
-//         success: true,
-//         message: 'Stock transferred successfully',
-//         item_id: data.item_id,
-//         transfer_qty: data.qty,
-//         from: {
-//           warehouse_id: data.from_warehouse_id,
-//           location_id: data.from_location_id,
-//           branch_id: data.from_branch_id,
-//         },
-//         to: {
-//           warehouse_id: data.to_warehouse_id,
-//           location_id: data.to_location_id,
-//           branch_id: data.to_branch_id,
-//         },
-//       };
-//     });
-//   }
-// }
+      qty: number;
+
+      remark?: string;
+      ref_doc_no?: string;
+
+      trans_type?: LotTransactionType;
+      ref_doc_type?: LotRefDocType;
+    },
+    tx: Prisma.TransactionClient,
+  ) {
+    // ==================================================
+    // STEP 1: TRANSFER OUT
+    // ==================================================
+    await this.adjustLotService.execute(
+      {
+        item_id: data.item_id,
+
+        warehouse_id:
+          data.from_warehouse_id,
+
+        location_id:
+          data.from_location_id,
+
+        branch_id:
+          data.from_branch_id,
+
+        lot_id: data.from_lot_id,
+
+        qty: -Math.abs(data.qty),
+
+        trans_type:
+          data.trans_type ??
+          LotTransactionType.TRANSFER,
+
+        ref_doc_type:
+          LotRefDocType.TRANSFER_OUT,
+
+        ref_doc_no: data.ref_doc_no,
+
+        remark: data.remark,
+      },
+      tx,
+    );
+
+    // ==================================================
+    // STEP 2: TRANSFER IN
+    // ==================================================
+    await this.adjustLotService.execute(
+      {
+        item_id: data.item_id,
+
+        warehouse_id:
+          data.to_warehouse_id,
+
+        location_id:
+          data.to_location_id,
+
+        branch_id:
+          data.to_branch_id,
+
+        lot_id: data.to_lot_id,
+
+        qty: Math.abs(data.qty),
+
+        trans_type:
+          data.trans_type ??
+          LotTransactionType.TRANSFER,
+
+        ref_doc_type:
+          LotRefDocType.TRANSFER_IN,
+
+        ref_doc_no: data.ref_doc_no,
+
+        remark: data.remark,
+      },
+      tx,
+    );
+
+    return {
+      success: true,
+      message:
+        'Lot stock transferred successfully',
+
+      item_id: data.item_id,
+
+      transfer_qty: data.qty,
+
+      from: {
+        warehouse_id:
+          data.from_warehouse_id,
+
+        location_id:
+          data.from_location_id,
+
+        branch_id:
+          data.from_branch_id,
+
+        lot_id: data.from_lot_id,
+      },
+
+      to: {
+        warehouse_id:
+          data.to_warehouse_id,
+
+        location_id:
+          data.to_location_id,
+
+        branch_id:
+          data.to_branch_id,
+
+        lot_id: data.to_lot_id,
+      },
+    };
+  }
+}

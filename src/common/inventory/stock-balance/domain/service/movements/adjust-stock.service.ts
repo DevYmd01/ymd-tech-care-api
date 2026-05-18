@@ -53,7 +53,7 @@ export class AdjustStockService {
                 );
             }
         }
-// console.log('ReceiveStockService.execute - data:', data); 
+// console.log('AdjustStockService.execute - data:', data); 
         // CREATE TRANSACTION
         await this.stockTransactionService.create(
             {

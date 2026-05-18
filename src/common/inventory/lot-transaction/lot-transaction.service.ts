@@ -33,5 +33,9 @@ export class LotTransactionService {
         return LotTransactionMapper.toResponse(transaction);
   }
 
+  async findAll() {
+    return this.lotTransactionRepository.findAll();
+  }
+
 
 }

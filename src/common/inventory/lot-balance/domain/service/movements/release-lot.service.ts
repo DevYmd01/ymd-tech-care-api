@@ -1,145 +1,191 @@
-// import { BadRequestException, Injectable } from '@nestjs/common';
-// import { PrismaService } from '@/prisma/prisma.service';
-// import { AdjustStockService } from './adjust-lot.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '@/prisma/prisma.service';
 
-// @Injectable()
-// export class ReleaseStockService {
-//   constructor(
-//     private readonly prisma: PrismaService,
-//     private readonly adjustStockService: AdjustStockService,
-//   ) {}
+import {
+  LotTransactionType,
+  LotRefDocType,
+} from '../../../enums/lot-balance-type.enum';
 
-//   // ======================================================
-//   // RELEASE RESERVED STOCK
-//   // ======================================================
-//   // ใช้สำหรับ:
-//   // - ยกเลิก reservation
-//   // - ยกเลิก order
-//   // - คืน reserved กลับ available
-//   //
-//   // RESULT:
-//   // reserved  ลด
-//   // available เพิ่ม
-//   // on_hand   เท่าเดิม
-//   // ======================================================
-//   async execute(data: {
-//     item_id: number;
-//     warehouse_id: number;
-//     location_id: number;
-//     branch_id: number;
-//     qty: number;
+import { LotBalanceService } from '../../../lot-balance.service';
 
-//     remark?: string;
+import { Prisma } from '@prisma/client';
 
-//     ref_doc_type?: string;
+@Injectable()
+export class ReleaseLotService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly lotBalanceService: LotBalanceService,
+  ) {}
 
-//     ref_doc_no?: string;
-//   }) {
-//     if (data.qty <= 0) {
-//       throw new BadRequestException(
-//         'Release quantity must be greater than 0',
-//       );
-//     }
+  // ======================================================
+  // INTERNAL EXECUTE
+  // ======================================================
+  private async executeInternal(
+    data: {
+      item_id: number;
+      warehouse_id: number;
+      location_id: number;
+      branch_id: number;
+      lot_id: number;
 
-//     return this.prisma.$transaction(async (tx) => {
-//       // ==================================================
-//       // FIND BALANCE
-//       // ==================================================
-//       const balance =
-//         await tx.item_stock_balance.findUnique({
-//           where: {
-//             item_id_branch_id_warehouse_id_location_id:
-//               {
-//                 item_id: data.item_id,
-//                 warehouse_id: data.warehouse_id,
-//                 location_id: data.location_id,
-//                 branch_id: data.branch_id,
-//               },
-//           },
-//         });
+      qty: number;
 
-//       if (!balance) {
-//         throw new BadRequestException(
-//           'Stock balance not found',
-//         );
-//       }
+      remark?: string;
+      ref_doc_no?: string;
 
-//       // ==================================================
-//       // CHECK RESERVED QTY
-//       // ==================================================
-//       if (
-//         Number(balance.qty_reserved) < data.qty
-//       ) {
-//         throw new BadRequestException(
-//           'Insufficient reserved quantity',
-//         );
-//       }
+      trans_type?: LotTransactionType;
+      ref_doc_type?: LotRefDocType;
+    },
+    tx: Prisma.TransactionClient,
+  ) {
+    // ======================================================
+    // FIND BALANCE
+    // ======================================================
+    const balance =
+      await this.lotBalanceService.findOne(
+        {
+          item_id: data.item_id,
+          warehouse_id: data.warehouse_id,
+          location_id: data.location_id,
+          branch_id: data.branch_id,
+          lot_id: data.lot_id,
+        },
+        tx,
+      );
 
-//       // ==================================================
-//       // UPDATE RESERVED
-//       // ==================================================
-//       await tx.item_stock_balance.update({
-//         where: {
-//           item_id_branch_id_warehouse_id_location_id:
-//             {
-//               item_id: data.item_id,
-//               warehouse_id: data.warehouse_id,
-//               location_id: data.location_id,
-//               branch_id: data.branch_id,
-//             },
-//         },
+    if (!balance) {
+      throw new BadRequestException(
+        'Lot balance not found',
+      );
+    }
 
-//         data: {
-//           qty_reserved: {
-//             decrement: data.qty,
-//           },
+    // ======================================================
+    // CHECK RESERVED QTY
+    // ======================================================
+    if (
+      Number(balance.qty_reserved) <
+      Math.abs(data.qty)
+    ) {
+      throw new BadRequestException(
+        'Insufficient reserved quantity',
+      );
+    }
 
-//           qty_available: {
-//             increment: data.qty,
-//           },
-//         },
-//       });
+    // ======================================================
+    // RELEASE RESERVED STOCK
+    // ======================================================
+    const result =
+      await tx.item_lot_balance.update({
+        where: {
+          item_id_lot_id_warehouse_id_location_id_branch_id:
+            {
+              item_id: data.item_id,
+              lot_id: data.lot_id,
+              warehouse_id: data.warehouse_id,
+              location_id: data.location_id,
+              branch_id: data.branch_id,
+            },
+        },
 
-//       // ==================================================
-//       // CREATE TRANSACTION LOG
-//       // ==================================================
-//       await tx.stock_transaction.create({
-//         data: {
-//           item_id: data.item_id,
+        data: {
+          qty_reserved: {
+            decrement: new Prisma.Decimal(
+              Math.abs(data.qty),
+            ),
+          },
 
-//           warehouse_id: data.warehouse_id,
+          qty_available: {
+            increment: new Prisma.Decimal(
+              Math.abs(data.qty),
+            ),
+          },
+        },
+      });
 
-//           location_id: data.location_id,
+    // ======================================================
+    // CREATE LOT TRANSACTION
+    // ======================================================
+    await tx.lot_transaction.create({
+      data: {
+        item_id: data.item_id,
+        lot_id: data.lot_id,
 
-//           branch_id: data.branch_id,
+        warehouse_id: data.warehouse_id,
+        location_id: data.location_id,
+        branch_id: data.branch_id,
 
-//           qty: data.qty,
+        qty: new Prisma.Decimal(data.qty),
 
-//           trans_type: 'RELEASE',
+        trans_type:
+          data.trans_type ??
+          LotTransactionType.RELEASE,
 
-//           ref_doc_type:
-//             data.ref_doc_type ??
-//             'RELEASE_STOCK',
+        ref_doc_type:
+          data.ref_doc_type ??
+          LotRefDocType.SYSTEM,
 
-//           ref_doc_no: data.ref_doc_no,
+        ref_doc_no: data.ref_doc_no,
 
-//           remarks: data.remark,
-//         },
-//       });
+        remarks: data.remark,
+      },
+    });
 
-//       // ==================================================
-//       // RETURN RESULT
-//       // ==================================================
-//       return {
-//         success: true,
+    return {
+      success: true,
+      message:
+        'Reserved lot stock released successfully',
 
-//         message:
-//           'Reserved stock released successfully',
+      item_id: data.item_id,
+      lot_id: data.lot_id,
 
-//         item_id: data.item_id,
+      released_qty: data.qty,
 
-//         released_qty: data.qty,
-//       };
-//     });
-//   }
-// }
+      result,
+    };
+  }
+
+  // ======================================================
+  // PUBLIC EXECUTE
+  // ======================================================
+  async execute(
+    data: {
+      item_id: number;
+      warehouse_id: number;
+      location_id: number;
+      branch_id: number;
+      lot_id: number;
+
+      qty: number;
+
+      remarks?: string;
+      ref_doc_no?: string;
+
+      trans_type?: LotTransactionType;
+      ref_doc_type?: LotRefDocType;
+    },
+    tx?: Prisma.TransactionClient,
+  ) {
+    // ======================================================
+    // VALIDATE
+    // ======================================================
+    if (data.qty <= 0) {
+      throw new BadRequestException(
+        'Release quantity must be greater than 0',
+      );
+    }
+
+    // ======================================================
+    // USE EXISTING TRANSACTION
+    // ======================================================
+    if (tx) {
+      return this.executeInternal(data, tx);
+    }
+
+    // ======================================================
+    // CREATE NEW TRANSACTION
+    // ======================================================
+    return this.prisma.$transaction(async (trx) => {
+      return this.executeInternal(data, trx);
+    });
+  }
+}

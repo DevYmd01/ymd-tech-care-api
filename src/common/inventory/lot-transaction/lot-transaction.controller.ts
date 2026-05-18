@@ -18,5 +18,9 @@ export class LotTransactionController {
     return this.lotTransactionService.create(dto);
   }
 
+  @Get()
+  async findAll() {
+    return this.lotTransactionService.findAll();
+  }
 
 }
