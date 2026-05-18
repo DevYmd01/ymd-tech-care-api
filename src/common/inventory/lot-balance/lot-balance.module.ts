@@ -1,13 +1,58 @@
-// src/common/inventory/lot-balance/lot-balance.module.ts
 import { Module } from '@nestjs/common';
-import { LotBalanceService } from './lot-balance.service';
+
 import { LotBalanceController } from './lot-balance.controller';
+import { LotBalanceService } from './lot-balance.service';
+
 import { PrismaService } from '@/prisma/prisma.service';
 
+// ======================================================
+// MOVEMENT SERVICES
+// ======================================================
+import { AdjustLotService } from './domain/service/movements/adjust-lot.service';
+import { ReceiveLotService } from './domain/service/movements/receive-lot.service';
+import { IssueLotService } from './domain/service/movements/issue-lot.service';
+import { ReserveLotService } from './domain/service/movements/reserve-lot.service';
+import { ReleaseLotService } from './domain/service/movements/release-lot.service';
+import { TransferLotService } from './domain/service/movements/transfer-lot.service';
+
+// ======================================================
+// TRANSACTION MODULE
+// ======================================================
+import { LotTransactionModule } from '../lot-transaction/lot-transaction.module';
+
 @Module({
-  imports: [],
-  providers: [LotBalanceService, PrismaService],
-  controllers: [LotBalanceController],
-  exports: [LotBalanceService],
+  imports: [
+    LotTransactionModule,
+  ],
+
+  controllers: [
+    LotBalanceController,
+  ],
+
+  providers: [
+    PrismaService,
+
+    // MAIN SERVICE
+    LotBalanceService,
+
+    // MOVEMENTS
+    AdjustLotService,
+    ReceiveLotService,
+    IssueLotService,
+    ReserveLotService,
+    ReleaseLotService,
+    TransferLotService,
+  ],
+
+  exports: [
+    LotBalanceService,
+
+    AdjustLotService,
+    ReceiveLotService,
+    IssueLotService,
+    ReserveLotService,
+    ReleaseLotService,
+    TransferLotService,
+  ],
 })
 export class LotBalanceModule {}

@@ -9,7 +9,7 @@ import {
 import { AdjustLotService } from './adjust-lot.service';
 
 @Injectable()
-export class ReceiveStockService {
+export class ReceiveLotService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly adjustStockService: AdjustLotService,
