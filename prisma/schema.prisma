@@ -1491,7 +1491,7 @@ model doc_link_ic {
     system_document    system_document @relation(fields: [system_document_id], references: [system_document_id])
     docu_desc          String?         @db.VarChar(255)
     remark             String?         @db.VarChar(255)
-    // เป็นค่า defule ISSUE STOCK และ 0 = NONE, 1 = IN, 2 = OUT
+    // เป็นค่า defule ISSUE STOCK และ 0 = NONE, 1 = IN, 2 = OUT1
     stock_effect_ic    Int             @default(0)
     doc_type_name      String?         @db.VarChar(255)
     doc_type_no         Int @default(0)

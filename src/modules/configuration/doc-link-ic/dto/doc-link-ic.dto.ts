@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -45,6 +46,16 @@ export class DocLinkIcDto {
   @IsNotEmpty()
   @IsEnum(StockEffectType)
   stock_effect_ic!: StockEffectType;
+
+  @IsOptional()
+  @IsNumber()
+  doc_type_no?: number;
+  @IsOptional()
+  @IsString()
+  doc_type_name?: string;
+
+  doc_type_name_eng?: string;
+
 
   // ======================================================
   // STATUS

@@ -23,7 +23,8 @@ export class DocLinkIcMapper {
       remark: dto.remark ?? null,
 
       stock_effect_ic: dto.stock_effect_ic,
-
+      doc_type_no: dto.doc_type_no,
+      doc_type_name: dto.doc_type_name,
       is_active: dto.is_active ?? true,
     };
   }
@@ -54,6 +55,13 @@ export class DocLinkIcMapper {
       ...(dto.is_active !== undefined && {
         is_active: dto.is_active,
       }),
+
+      ...(dto.doc_type_no !== undefined && {
+        doc_type_no: dto.doc_type_no,
+      }),
+      ...(dto.doc_type_name !== undefined && {
+        doc_type_name: dto.doc_type_name,
+      })
     };
   }
 
@@ -67,14 +75,18 @@ export class DocLinkIcMapper {
       system_document_id: data.system_document_id,
 
       system_document: data.system_document
-      ? {
+        ? {
           docu_no: data.system_document.system_document_code,
           docu_name: data.system_document.system_document_name,
           docu_nameeng: data.system_document.system_document_name_eng,
         }
-      : null,
+        : null,
 
       docu_desc: data.docu_desc,
+
+      doc_type_no: data.doc_type_no,
+      doc_type_name: data.doc_type_name,
+
 
       remark: data.remark,
 
