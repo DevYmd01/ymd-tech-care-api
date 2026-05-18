@@ -18,7 +18,7 @@ export class DocLinkIcService {
   constructor(
     private readonly docLinkIcRepository: DocLinkIcRepository,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   // ======================================================
   // CREATE
@@ -27,16 +27,29 @@ export class DocLinkIcService {
     dto: DocLinkIcDto,
     tx?: Prisma.TransactionClient,
   ) {
-    const payload =
-      DocLinkIcMapper.toCreate(dto);
+    try {
+      const payload =
+        DocLinkIcMapper.toCreate(dto);
 
-    const result =
-      await this.docLinkIcRepository.create(
-        payload,
-        tx,
-      );
+      const result =
+        await this.docLinkIcRepository.create(
+          payload,
+          tx,
+        );
 
-    return DocLinkIcMapper.toResponse(result);
+      return DocLinkIcMapper.toResponse(result);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const field = (error.meta?.target as string[])?.join(', ');
+
+        throw new BadRequestException(
+          `ข้อมูลซ้ำในฟิลด์: ${field}`,
+        );
+      }
+    }
   }
 
   // ======================================================
@@ -98,22 +111,22 @@ export class DocLinkIcService {
   // ======================================================
   // FIND ALL
   // ======================================================
-//   async findAll() {
-//     const result =
-//       await this.docLinkIcRepository.findAll();
+  //   async findAll() {
+  //     const result =
+  //       await this.docLinkIcRepository.findAll();
 
-//     return result.map((item) =>
-//       DocLinkIcMapper.toResponse(item),
-//     );
-//   }
+  //     return result.map((item) =>
+  //       DocLinkIcMapper.toResponse(item),
+  //     );
+  //   }
 
-async findAll() {
-  return this.prisma.doc_link_ic.findMany({
-       include: {
-      system_document: true,
-    },
-  });
-}
+  async findAll() {
+    return this.prisma.doc_link_ic.findMany({
+      include: {
+        system_document: true,
+      },
+    });
+  }
   // ======================================================
   // FIND ONE
   // ======================================================
