@@ -9,6 +9,7 @@ export class PolicyBuilder {
 
   static build(config: {
     stock_effect_ic: number;
+    document_type?: string;
     transaction_type?: TransactionType;
   }) {
 
@@ -69,6 +70,8 @@ export class PolicyBuilder {
       // AVAILABLE
       available_sign:
         availableSign,
+
+    document_type: config.document_type,
     };
   }
 
