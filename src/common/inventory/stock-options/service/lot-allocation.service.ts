@@ -24,7 +24,7 @@ interface AllocationResult {
 
 @Injectable()
 export class LotAllocationService {
-
+ 
   allocateLots(input: AllocateInput): AllocationResult {
     const {
       lots,

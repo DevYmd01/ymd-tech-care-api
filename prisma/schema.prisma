@@ -3159,6 +3159,48 @@ model lot_transaction {
     @@index([ref_doc_type, ref_doc_no])
 }
 
+model stock_ledger {
+  stock_ledger_id   Int      @id @default(autoincrement())
+
+  item_id           Int
+  warehouse_id      Int?
+  location_id       Int?
+  lot_id            Int?
+
+  document_type     String   // ISSUE / RECEIVE / ADJUST / TRANSFER
+  reference_no      String?  // เลขเอกสาร (issue_req_no ฯลฯ)
+
+  qty_in            Decimal  @default(0)
+  qty_out           Decimal  @default(0)
+
+  balance_on_hand   Decimal
+  balance_reserved  Decimal
+  balance_available Decimal
+
+  created_at        DateTime @default(now())
+}
+
+model lot_stock_ledger {
+  id Int @id @default(autoincrement())
+
+  lot_id Int
+  item_id Int
+
+  warehouse_id Int?
+  location_id Int?
+
+  document_type String
+  reference_no String?
+
+  qty Decimal
+
+  balance_on_hand Decimal
+  balance_reserved Decimal
+  balance_available Decimal
+
+  created_at DateTime @default(now())
+}
+
 ////////////
 //// Enum
 ////////////
