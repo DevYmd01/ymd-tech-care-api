@@ -12,12 +12,6 @@ export class StockService {
    */
   async processTransaction(input: any) {
 
-    // STEP 1: build policy
-    // const policy = PolicyBuilder.build({
-    //   stock_effect_ic: input.stock_effect_ic,
-    //   document_type: input.document_type,
-    //   transaction_type: input.transaction_type,
-    // });
 
      const policy = PolicyBuilder.build(input);
 

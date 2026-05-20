@@ -90,6 +90,7 @@ import { LotTransactionModule } from './common/inventory/lot-transaction/lot-tra
 import { InventoryEngineModule } from './common/inventory/inventory-engine/inventory-engine.module';
 import { LotBalanceModule } from './common/inventory/lot-balance/lot-balance.module';
 import { DocLinkIcModule } from './modules/configuration/doc-link-ic/doc-link-ic.module';
+import { PreviewModule } from './common/inventory/preview/preview.module';
 
 @Module({
   imports: [
@@ -178,6 +179,7 @@ import { DocLinkIcModule } from './modules/configuration/doc-link-ic/doc-link-ic
     InventoryEngineModule,
     LotBalanceModule,
     DocLinkIcModule,
+    PreviewModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
