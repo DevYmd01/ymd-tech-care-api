@@ -6,14 +6,14 @@ async function test() {
 
   const result =
     await service.validate({
-      system_document_code: 'SO',
+      system_document_code: 'DLVRY',
       context: {
         item_id: 1,
         warehouse_id: 1,
         location_id: 1,
-        qty: 95,
+        qty: 2295,
         // available_qty: 5,
-        system_document_code: 'SO',
+        system_document_code: 'DLVRY',
         // system_document_id: 105,
       },
     });

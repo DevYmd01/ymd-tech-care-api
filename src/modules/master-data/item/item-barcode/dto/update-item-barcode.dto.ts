@@ -3,16 +3,22 @@ import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
 export class UpdateItemBarcodeDto {
     @IsString()
     @IsNotEmpty()
-    barcode: string;
+    barcode!: string;
 
     @IsNotEmpty()
     item_id!: number;
 
     @IsNotEmpty()
-    uom_id!: number;
+    item_uom_id!: number;
 
     @IsBoolean()
     @IsNotEmpty()
     is_primary!: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    is_active?: boolean;
+
+
 
 }

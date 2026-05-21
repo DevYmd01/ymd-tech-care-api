@@ -5,27 +5,27 @@ import { Type } from 'class-transformer';
 class NestedCreateItemBarcodeDto {
     @IsString()
     @IsNotEmpty()
-    barcode: string;
+    barcode!: string;
 
     @IsNotEmpty()
     @IsInt()
-    uom_id: number;
+    item_uom_id!: number;
 
     @IsBoolean()
     @IsNotEmpty()
-    is_primary: boolean;
+    is_primary!: boolean;
 }
 
 export class CreateItemMasterDto {
     @IsNotEmpty()
     @IsString()
     @MaxLength(50)
-    item_code: string;
+    item_code!: string;
 
     @IsNotEmpty()
     @IsString()
     @MaxLength(255)
-    item_name: string;
+    item_name!: string;
 
     @IsOptional()
     @IsInt()

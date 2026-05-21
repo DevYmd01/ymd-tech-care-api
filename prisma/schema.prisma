@@ -437,7 +437,6 @@ model uom {
     updated_at                 DateTime                       @updatedAt
     baseItems                  item[]                         @relation("BaseUom")
     saleItems                  item[]                         @relation("SaleUom")
-    itemBarcodes               item_barcode[]
     fromItemUoms               item_uom[]                     @relation("ItemUomFrom")
     toItemUoms                 item_uom[]                     @relation("ItemUomTo")
     prLines                    pr_line[]
@@ -458,18 +457,19 @@ model uom {
 }
 
 model item_uom {
-    item_uom_id     Int      @id @default(autoincrement())
+    item_uom_id     Int            @id @default(autoincrement())
     item_id         Int
     from_uom_id     Int
     to_uom_id       Int
-    factor          Decimal  @db.Decimal(18, 6)
-    is_purchase_uom Boolean  @default(false)
-    created_at      DateTime @default(now())
-    updated_at      DateTime @updatedAt
-    fromUom         uom      @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
-    item            item     @relation(fields: [item_id], references: [item_id])
-    toUom           uom      @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
-    is_active       Boolean  @default(true)
+    factor          Decimal        @db.Decimal(18, 6)
+    is_purchase_uom Boolean        @default(false)
+    created_at      DateTime       @default(now())
+    updated_at      DateTime       @updatedAt
+    fromUom         uom            @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
+    item            item           @relation(fields: [item_id], references: [item_id])
+    toUom           uom            @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
+    is_active       Boolean        @default(true)
+    itemBarcodes    item_barcode[]
 
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
@@ -502,7 +502,7 @@ model item_barcode {
     /// รหัสสินค้า
     item_id         Int
     /// รหัสหน่วยนับ
-    uom_id          Int
+    item_uom_id     Int
     /// บาร์โค้ดหลักหรือไม่
     is_primary      Boolean  @default(false)
     /// วันที่สร้างบาร์โค้ด
@@ -511,7 +511,7 @@ model item_barcode {
     /// วันที่แก้ไขบาร์โค้ด
     updated_at      DateTime @updatedAt
     item            item     @relation(fields: [item_id], references: [item_id])
-    uom             uom      @relation(fields: [uom_id], references: [uom_id])
+    itemUom         item_uom @relation(fields: [item_uom_id], references: [item_uom_id])
 
     @@map("item_barcode")
 }
@@ -1494,7 +1494,7 @@ model doc_link_ic {
     // เป็นค่า defule ISSUE STOCK และ 0 = NONE, 1 = IN, 2 = OUT1
     stock_effect_ic    Int             @default(0)
     doc_type_name      String?         @db.VarChar(255)
-    doc_type_no         Int @default(0)
+    doc_type_no        Int             @default(0)
     is_active          Boolean         @default(true)
 
     @@unique([system_document_id, doc_type_no, is_active])
@@ -3160,45 +3160,45 @@ model lot_transaction {
 }
 
 model stock_ledger {
-  stock_ledger_id   Int      @id @default(autoincrement())
+    stock_ledger_id Int @id @default(autoincrement())
 
-  item_id           Int
-  warehouse_id      Int?
-  location_id       Int?
-  lot_id            Int?
+    item_id      Int
+    warehouse_id Int?
+    location_id  Int?
+    lot_id       Int?
 
-  document_type     String   // ISSUE / RECEIVE / ADJUST / TRANSFER
-  reference_no      String?  // เลขเอกสาร (issue_req_no ฯลฯ)
+    document_type String // ISSUE / RECEIVE / ADJUST / TRANSFER
+    reference_no  String? // เลขเอกสาร (issue_req_no ฯลฯ)
 
-  qty_in            Decimal  @default(0)
-  qty_out           Decimal  @default(0)
+    qty_in  Decimal @default(0)
+    qty_out Decimal @default(0)
 
-  balance_on_hand   Decimal
-  balance_reserved  Decimal
-  balance_available Decimal
+    balance_on_hand   Decimal
+    balance_reserved  Decimal
+    balance_available Decimal
 
-  created_at        DateTime @default(now())
+    created_at DateTime @default(now())
 }
 
 model lot_stock_ledger {
-  id Int @id @default(autoincrement())
+    id Int @id @default(autoincrement())
 
-  lot_id Int
-  item_id Int
+    lot_id  Int
+    item_id Int
 
-  warehouse_id Int?
-  location_id Int?
+    warehouse_id Int?
+    location_id  Int?
 
-  document_type String
-  reference_no String?
+    document_type String
+    reference_no  String?
 
-  qty Decimal
+    qty Decimal
 
-  balance_on_hand Decimal
-  balance_reserved Decimal
-  balance_available Decimal
+    balance_on_hand   Decimal
+    balance_reserved  Decimal
+    balance_available Decimal
 
-  created_at DateTime @default(now())
+    created_at DateTime @default(now())
 }
 
 ////////////

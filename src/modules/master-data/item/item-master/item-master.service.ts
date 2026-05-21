@@ -35,7 +35,7 @@ async create(createItemMasterDto: CreateItemMasterDto) {
                 data: incomingBarcodes.map(b => ({
                     item_id: item.item_id,
                     barcode: b.barcode,
-                    uom_id: b.uom_id,
+                    item_uom_id: b.item_uom_id,
                     is_primary: b.is_primary,
                     is_active: true
                 }))

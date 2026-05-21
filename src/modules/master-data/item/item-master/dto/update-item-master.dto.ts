@@ -10,15 +10,15 @@ class NestedUpdateItemBarcodeDto {
 
     @IsString()
     @IsNotEmpty()
-    barcode: string;
+    barcode!: string;
 
     @IsNotEmpty()
     @IsInt()
-    uom_id: number;
+    item_uom_id!: number;
 
     @IsBoolean()
     @IsNotEmpty()
-    is_primary: boolean;
+    is_primary!: boolean;
 }
 
 export class UpdateItemMasterDto extends PartialType(CreateItemMasterDto) {

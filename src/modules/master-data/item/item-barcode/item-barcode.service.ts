@@ -14,12 +14,32 @@ export class ItemBarcodeService {
   }
 
   async findAll() {
-    return this.prisma.item_barcode.findMany();
+    return this.prisma.item_barcode.findMany(
+      {
+        include: {
+          itemUom: {
+            include: {
+              fromUom: true,
+              toUom: true,
+            },
+          },
+        },
+        orderBy: { item_barcode_id: 'asc' },
+      }
+    );
   }
 
   async findOne(id: number) {
     const data = await this.prisma.item_barcode.findUnique({
       where: { item_barcode_id: id },
+      include: {
+        itemUom: {
+          include: {
+            fromUom: true,
+            toUom: true,
+          },
+        },
+      },
     });
 
     if (!data) {

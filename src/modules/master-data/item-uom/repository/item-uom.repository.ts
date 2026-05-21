@@ -24,6 +24,14 @@ export class ItemUomRepository {
             where: {
                 item_id,
             },
+            include: {
+                fromUom: true,
+                toUom: true,
+            },
+            orderBy: {
+                item_uom_id: 'asc',
+            },
+
         });
     }
 
