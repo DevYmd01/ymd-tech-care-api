@@ -4,6 +4,8 @@ import { IcOptionRules } from '../domain/ic-option.rules';
 import { IcOptionContext } from '../domain/ic-option.types';
 import { BalanceReader } from '../../lot-balance/domain/balance.reader';
 import {  IcOptionValidationResult } from '../result/ic-option-validation.result';
+import { IcOptionContextDto } from '../dto/option-validation.dto';
+
 
 @Injectable()
 export class IcOptionValidationService {
@@ -19,8 +21,8 @@ export class IcOptionValidationService {
   // =========================================================
 
   async validate(params: {
-    system_document_id: number;
-    context: IcOptionContext;
+    system_document_code: string;
+    context: IcOptionContextDto;
   }): Promise<IcOptionValidationResult> {
 
     // =====================================================
@@ -29,7 +31,7 @@ export class IcOptionValidationService {
 
     const option =
       await IcOptionReader.getOption(
-        params.system_document_id,
+        params.system_document_code,
       );
 
     // =====================================================
@@ -64,8 +66,8 @@ export class IcOptionValidationService {
     );
 
     const ctx: IcOptionContext = {
-      system_document_id:
-        params.system_document_id,
+      system_document_code:
+        params.system_document_code,
 
       item_id:
         params.context.item_id,

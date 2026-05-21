@@ -1,30 +1,44 @@
-export interface IcOptionContext {
+import { IsNumber, IsString, IsOptional, IsNotEmpty } from 'class-validator';
+
+
+
+export class IcOptionContextDto {
 
   // =========================================================
   // CORE IDENTIFIER
   // =========================================================
 
-  system_document_code: string;
+  @IsString()
+  @IsNotEmpty()
+  system_document_code!: string;
 
-  item_id: number;
+  @IsNumber()
+  item_id!: number;
 
   // =========================================================
   // SCOPE
   // =========================================================
 
+  @IsOptional()
+  @IsNumber()
   warehouse_id?: number;
 
+  @IsOptional()
+  @IsNumber()
   location_id?: number;
 
+  @IsOptional()
+  @IsNumber()
   uom_id?: number;
-
 
   // =========================================================
   // STOCK INFO (current state)
   // =========================================================
 
-  qty: number;
+  @IsNumber()
+  qty!: number;
 
-  available_qty: number;
+//   @IsNumber()
+//   available_qty!: number;
 
 }

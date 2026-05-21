@@ -13,7 +13,20 @@ export class IcOptionReader {
   // - return normalized object สำหรับ rules engine
   // =========================================================
 
-  static async getOption(system_document_id: number) {
+  static async getOption(system_document_code: string) {
+
+    const systemDocument =
+      await prisma.system_document.findFirst({
+
+        where: {
+          system_document_code,
+        },
+
+      });
+
+    if (!systemDocument) {
+      return null;
+    }
 
     // =====================================================
     // 1. DOCUMENT LEVEL OPTION (highest priority)
@@ -23,7 +36,8 @@ export class IcOptionReader {
       await prisma.ic_option_list.findFirst({
 
         where: {
-          system_document_id,
+          system_document_id:
+            systemDocument.system_document_id,
         },
 
         include: {
@@ -38,20 +52,33 @@ export class IcOptionReader {
     // =====================================================
 
     if (docOption?.ic_option) {
+
       return {
+
         source: 'DOCUMENT',
-        // ลำดับความสำคัญ: Document Override > Global Default
+
+        // ลำดับความสำคัญ:
+        // Document Override > Global Default
         ...docOption.ic_option,
-        negative_stock_check: 
-          docOption.negative_stock_check ?? docOption.ic_option.check_deficit,
-        negative_stock_mode: 
-          docOption.negative_stock_mode ?? docOption.ic_option.check_deficit_option,
-        quantity_validation_flag: 
-          docOption.quantity_validation_flag ?? docOption.ic_option.check_qty_flag,
+
+        negative_stock_check:
+          docOption.negative_stock_check ??
+          docOption.ic_option.check_deficit,
+
+        negative_stock_mode:
+          docOption.negative_stock_mode ??
+          docOption.ic_option.check_deficit_option,
+
+        quantity_validation_flag:
+          docOption.quantity_validation_flag ??
+          docOption.ic_option.check_qty_flag,
 
         // optional metadata
-        system_document_id,
-        option_list_id: docOption.option_list_id,
+        system_document_id:
+          systemDocument.system_document_id,
+
+        option_list_id:
+          docOption.option_list_id,
 
       };
 
@@ -62,9 +89,7 @@ export class IcOptionReader {
     // =====================================================
 
     const defaultOption =
-      await prisma.ic_option.findFirst({
-
-      });
+      await prisma.ic_option.findFirst({});
 
     if (!defaultOption) {
 
@@ -73,6 +98,7 @@ export class IcOptionReader {
       // ===================================================
 
       return {
+
         source: 'SYSTEM_DEFAULT_MISSING',
 
         negative_stock_check: 0,
@@ -90,9 +116,14 @@ export class IcOptionReader {
 
       ...defaultOption,
 
-      negative_stock_check: defaultOption.check_deficit,
-      negative_stock_mode: defaultOption.check_deficit_option,
-      quantity_validation_flag: defaultOption.check_qty_flag,
+      negative_stock_check:
+        defaultOption.check_deficit,
+
+      negative_stock_mode:
+        defaultOption.check_deficit_option,
+
+      quantity_validation_flag:
+        defaultOption.check_qty_flag,
 
     };
 

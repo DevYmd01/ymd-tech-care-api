@@ -1,26 +1,19 @@
-import { Controller, Post, Body} from '@nestjs/common';
-import { IcOptionContext } from './domain/ic-option.types';
+import { Controller, Post, Body } from '@nestjs/common';
 import { IcOptionValidationService } from './application/ic-option-validation.service';
-
-
+import { ValidateOptionRequestDto } from './dto/validate-option-request.dto';
 
 @Controller('option')
 export class OptionController {
-    
+
   constructor(
     private readonly icOptionValidationService: IcOptionValidationService,
   ) {}
 
-//   ตรวจสอบแล้วแต้งเตือนการเลือกใช้งาน lot ตามการตั้งค่าของ ic 
   @Post('validate')
   async validate(
-    @Body()
-    params: {
-      system_document_id: number;
-      context: IcOptionContext;
-    },
+    @Body() params: ValidateOptionRequestDto,
   ) {
-    return await this.icOptionValidationService.validate(params);
+    return this.icOptionValidationService.validate(params);
   }
 
 }
