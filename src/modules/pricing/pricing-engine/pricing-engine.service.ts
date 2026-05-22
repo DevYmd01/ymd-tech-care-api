@@ -25,7 +25,7 @@ export class PricingEngineService {
       prisma: this.prisma,
       item_id: Number(itemId),
       qty,
-      uom_id: uomId ? Number(uomId) : undefined,
+      item_uom_id: uomId ? Number(uomId) : undefined,
       customer_id: customerId ? Number(customerId) : undefined,
       branch_id: branchId ? Number(branchId) : undefined,
       date: date ? new Date(date) : new Date(),

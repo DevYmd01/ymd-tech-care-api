@@ -19,7 +19,7 @@ export interface PricingContext {
   /**
    * หน่วยขาย เช่น ชิ้น / กล่อง / ลัง
    */
-  uom_id?: number
+  item_uom_id?: number
 
   /**
    * สาขาที่ทำรายการ

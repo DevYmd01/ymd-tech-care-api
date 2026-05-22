@@ -19,7 +19,7 @@ export async function getPriceFromPriceList(
         prisma, 
         item_id,
         customer_id,
-        uom_id,
+        item_uom_id,
         branch_id,
         date,
     } = ctx
@@ -63,7 +63,7 @@ export async function getPriceFromPriceList(
             priceListItemLines: {
                 some: {
                     item_id,
-                    ...(uom_id ? { uom_id } : {}),
+                    ...(item_uom_id ? { item_uom_id } : {}),
                 }
             }
         },
@@ -87,7 +87,7 @@ export async function getPriceFromPriceList(
             priceListItemLines: {
                 where: {
                     item_id,
-                    ...(uom_id ? { uom_id } : {}),
+                    ...(item_uom_id ? { item_uom_id } : {}),
                 },
                 take: 1
             }

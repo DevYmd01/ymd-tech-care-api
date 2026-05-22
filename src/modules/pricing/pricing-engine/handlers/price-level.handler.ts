@@ -16,7 +16,7 @@ export async function getPriceFromPriceLevel(
     prisma,
     item_id,
     customer_id,
-    uom_id,
+    item_uom_id,
     qty = 1,
   } = ctx
 
@@ -56,7 +56,7 @@ export async function getPriceFromPriceLevel(
     where: {
       item_id,
 
-      ...(uom_id ? { uom_id } : {}),
+      ...(item_uom_id ? { item_uom_id } : {}),
 
       item_from_qty: {
         lte: qty,
