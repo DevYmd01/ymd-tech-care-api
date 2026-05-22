@@ -16,7 +16,17 @@ export class ItemUomRepository {
     }
 
     async findAll() {
-        return this.prisma.item_uom.findMany();
+        return this.prisma.item_uom.findMany({
+              include: {
+                fromUom: true,
+                toUom: true,
+                itemBarcodes: true,
+                customer: true,
+            },
+            orderBy: {
+                item_uom_id: 'asc',
+            },
+        });
     }
 
     async findByItemId(item_id: number) {
@@ -28,6 +38,7 @@ export class ItemUomRepository {
                 fromUom: true,
                 toUom: true,
                 itemBarcodes: true,
+                customer: true,
             },
             orderBy: {
                 item_uom_id: 'asc',
@@ -41,6 +52,13 @@ export class ItemUomRepository {
             where: {
                 item_uom_id,
             },
+            include: {
+                fromUom: true,
+                toUom: true,
+                itemBarcodes: true,
+                customer: true,
+            },
+            
         });
     }
 

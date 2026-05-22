@@ -80,6 +80,8 @@ export class ItemUomMapper {
       from_uom: data.fromUom ?? null,
       to_uom: data.toUom ?? null,
       barcodes: data.itemBarcodes ?? null,
+      customer: data.customer ?? null,
+
 
       created_at: data.created_at,
       updated_at: data.updated_at,

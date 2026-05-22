@@ -463,15 +463,18 @@ model item_uom {
     is_purchase_uom    Boolean                @default(false)
     created_at         DateTime               @default(now())
     updated_at         DateTime               @updatedAt
+    customer_id        Int?
+    customer           customer?              @relation(fields: [customer_id], references: [customer_id])
     fromUom            uom                    @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
     item               item                   @relation(fields: [item_id], references: [item_id])
     toUom              uom                    @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
     is_active          Boolean                @default(true)
+    is_deleted         Boolean                @default(false)
     itemBarcodes       item_barcode[]
     priceListItemLines price_list_item_line[]
     multiPriceItems    multi_price_item[]
 
-    @@unique([item_id, from_uom_id, to_uom_id])
+    @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
 }
 
@@ -1265,6 +1268,7 @@ model customer {
     saleOrderHeaders         sale_order_header[]
     saleOrderApprovalHeaders sale_order_approval_header[]
     deliveryHeaders          delivery_header[]
+    itemUoms                 item_uom[]
 
     @@map("customer")
 }

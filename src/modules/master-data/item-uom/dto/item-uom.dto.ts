@@ -25,6 +25,10 @@ export class CreateItemUomDto {
     @IsNumber()
     factor!: number;
 
+    @IsOptional()
+    @IsNumber()
+    customer_id?: number;
+
     @IsNotEmpty()
     @IsBoolean()
     is_active!: boolean;
