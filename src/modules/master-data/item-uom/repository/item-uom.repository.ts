@@ -7,7 +7,7 @@ export class ItemUomRepository {
 
     constructor(
         private readonly prisma: PrismaService
-    ) {}
+    ) { }
 
     async create(data: Prisma.item_uomCreateInput) {
         return this.prisma.item_uom.create({
@@ -27,6 +27,7 @@ export class ItemUomRepository {
             include: {
                 fromUom: true,
                 toUom: true,
+                itemBarcodes: true,
             },
             orderBy: {
                 item_uom_id: 'asc',
