@@ -42,5 +42,5 @@ item_price10?: number
 item_to_qty?: number
 @IsOptional()
 @IsNumber()
-uom_id!: number
+item_uom_id!: number
 }

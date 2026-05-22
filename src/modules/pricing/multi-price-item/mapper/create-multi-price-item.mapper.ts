@@ -17,7 +17,8 @@ export class CreateMultiPriceItemMapper {
       ...(dto.item_price9 !== undefined ? { item_price9: dto.item_price9 } : {}),
       ...(dto.item_price10 !== undefined ? { item_price10: dto.item_price10 } : {}),
       item_to_qty: dto.item_to_qty,
-      ...(dto.uom_id ? { uom: { connect: { uom_id: dto.uom_id } } } : {}),
+      item_uom: { connect: { item_uom_id: dto.item_uom_id } }
+      // ...(dto.item_uom_id ? { item_uom: { connect: { item_uom_id: dto.item_uom_id } } } : {}),
     };
   }
 }

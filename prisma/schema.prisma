@@ -444,7 +444,6 @@ model uom {
     vqLines                    vq_line[]
     poLines                    po_line[]
     standardCostLines          standard_cost_line[]
-    multiPriceItems            multi_price_item[]
     saleQuotationLines         sale_quotation_line[]
     saleQuotationApprovalLines sale_quotation_approval_line[]
     saleReservationLines       sale_reservation_line[]
@@ -470,6 +469,7 @@ model item_uom {
     is_active          Boolean                @default(true)
     itemBarcodes       item_barcode[]
     priceListItemLines price_list_item_line[]
+    multiPriceItems    multi_price_item[]
 
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
@@ -1627,14 +1627,14 @@ model multi_price_item {
     item_price9         Decimal?  @db.Decimal(18, 2)
     item_price10        Decimal?  @db.Decimal(18, 2)
     item_to_qty         Decimal?  @default(0)
-    uom_id              Int
-    uom                 uom?      @relation(fields: [uom_id], references: [uom_id])
+    item_uom_id         Int
+    item_uom            item_uom  @relation(fields: [item_uom_id], references: [item_uom_id])
     created_at          DateTime  @default(now())
     updated_at          DateTime? @updatedAt
     is_active           Boolean   @default(true)
 
     @@index([item_id])
-    @@index([uom_id])
+    @@index([item_uom_id])
     @@map("multi_price_item")
 }
 
