@@ -71,6 +71,6 @@ export class CreatePriceListHeaderDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreatePriceListLineDto)
-    price_list_lines: CreatePriceListLineDto[];
+    price_list_lines?: CreatePriceListLineDto[];
 
 }

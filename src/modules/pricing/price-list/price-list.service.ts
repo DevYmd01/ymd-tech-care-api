@@ -52,7 +52,7 @@ export class PriceListService {
             }[] = [];
 
             for (const line of dto.price_list_lines) {
-                const key = `${line.item_id}_${line.uom_id}`;
+                const key = `${line.item_id}_${line.item_uom_id}`;
 
                 // ❌ duplicate
                 if (duplicateCheck.has(key)) {
@@ -145,7 +145,7 @@ export class PriceListService {
             }[] = [];
 
             for (const line of dto.price_list_lines) {
-                const key = `${line.item_id}_${line.uom_id}`;
+                const key = `${line.item_id}_${line.item_uom_id}`;
                 // ❌ duplicate
                 if (duplicateCheck.has(key)) {
                     throw new BadRequestException(`Duplicate item + uom: ${key}`);

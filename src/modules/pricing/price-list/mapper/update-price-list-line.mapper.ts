@@ -14,7 +14,7 @@ export class UpdatePriceListLineMapper {
             price_list_header: { connect: { price_list_header_id } },
             remarks: dto.remarks,
             item: { connect: { item_id: dto.item_id } },
-            uom: { connect: { uom_id: dto.uom_id } },
+            item_uom: { connect: { item_uom_id: dto.item_uom_id } },
             unit_price: dto.unit_price,
             line_discount_rate: dto.line_discount_rate,
             line_discount_amount: calc.discountAmount,

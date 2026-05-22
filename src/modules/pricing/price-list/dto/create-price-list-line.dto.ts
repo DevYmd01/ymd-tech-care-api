@@ -30,7 +30,7 @@ export class CreatePriceListLineDto {
     @IsNotEmpty()
     @Type(() => Number)
     @IsNumber()
-    uom_id!: number;
+    item_uom_id!: number;
     @IsOptional()
     @Type(() => Number)
     @IsNumber()

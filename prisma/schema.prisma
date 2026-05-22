@@ -444,7 +444,6 @@ model uom {
     vqLines                    vq_line[]
     poLines                    po_line[]
     standardCostLines          standard_cost_line[]
-    priceListItemLines         price_list_item_line[]
     multiPriceItems            multi_price_item[]
     saleQuotationLines         sale_quotation_line[]
     saleQuotationApprovalLines sale_quotation_approval_line[]
@@ -457,19 +456,20 @@ model uom {
 }
 
 model item_uom {
-    item_uom_id     Int            @id @default(autoincrement())
-    item_id         Int
-    from_uom_id     Int
-    to_uom_id       Int
-    factor          Decimal        @db.Decimal(18, 6)
-    is_purchase_uom Boolean        @default(false)
-    created_at      DateTime       @default(now())
-    updated_at      DateTime       @updatedAt
-    fromUom         uom            @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
-    item            item           @relation(fields: [item_id], references: [item_id])
-    toUom           uom            @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
-    is_active       Boolean        @default(true)
-    itemBarcodes    item_barcode[]
+    item_uom_id        Int                    @id @default(autoincrement())
+    item_id            Int
+    from_uom_id        Int
+    to_uom_id          Int
+    factor             Decimal                @db.Decimal(18, 6)
+    is_purchase_uom    Boolean                @default(false)
+    created_at         DateTime               @default(now())
+    updated_at         DateTime               @updatedAt
+    fromUom            uom                    @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
+    item               item                   @relation(fields: [item_id], references: [item_id])
+    toUom              uom                    @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
+    is_active          Boolean                @default(true)
+    itemBarcodes       item_barcode[]
+    priceListItemLines price_list_item_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id])
     @@map("item_uom")
@@ -1599,8 +1599,8 @@ model price_list_item_line {
     remarks              String?           @db.VarChar(500)
     item_id              Int?
     item                 item?             @relation(fields: [item_id], references: [item_id])
-    uom_id               Int?
-    uom                  uom?              @relation(fields: [uom_id], references: [uom_id])
+    item_uom_id          Int?
+    item_uom             item_uom?         @relation(fields: [item_uom_id], references: [item_uom_id])
     unit_price           Decimal?          @db.Decimal(18, 2)
     line_discount_rate   String?           @db.VarChar(30)
     line_discount_amount Decimal?          @db.Decimal(18, 2)
