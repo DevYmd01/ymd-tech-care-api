@@ -31,5 +31,12 @@ export class PriceListController {
         return this.priceListService.findOne(+id);
     }
 
+    @Patch(':price_list_header_id/approve')
+    approve(@Param('price_list_header_id') id: string, @Request() req: any) {
+        return this.priceListService.approve(+id);
+    }
+
+
+
 
 }

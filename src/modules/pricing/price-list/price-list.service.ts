@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreatePriceListHeaderRepository } from './repository/create-price-list-header.repository';
 import { CreatePriceListLineRepository } from './repository/create-price-list-line.repository';
 import { CreatePriceListHeaderMapper } from './mapper/create-price-list-header.mapper';
@@ -243,4 +243,43 @@ export class PriceListService {
             },
         });
     }
+
+    async approve(id: number) {
+
+  const doc =
+    await this.prisma.price_list_header.findUnique({
+      where: {
+        price_list_header_id: id,
+      },
+    });
+
+  if (!doc) {
+    throw new NotFoundException(
+      'Document not found',
+    );
+  }
+
+  if (doc.status === 'APPROVED') {
+    throw new BadRequestException(
+      'Document already approved',
+    );
+  }
+
+  return this.prisma.price_list_header.update({
+    where: {
+      price_list_header_id: id,
+    },
+
+    data: {
+      status: 'APPROVED',
+
+    //   permit_emp_id:
+    //     user.employee_id,
+
+      approved_at:
+        new Date(),
+    },
+  });
+}
+
 }

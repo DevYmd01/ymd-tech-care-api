@@ -1585,6 +1585,8 @@ model price_list_header {
     emp_dept_id          Int?
     employee_department  employee_department?   @relation(fields: [emp_dept_id], references: [emp_dept_id])
     permit_emp_id        Int?
+    is_permit            Boolean?               @default(false)
+    approved_at          DateTime?              @db.Date
     permit_emp           employees?             @relation("permit_emp_price_list", fields: [permit_emp_id], references: [employee_id])
     save_emp_id          Int?
     save_emp             employees?             @relation("save_emp_price_list", fields: [save_emp_id], references: [employee_id])
@@ -1592,6 +1594,7 @@ model price_list_header {
     created_at           DateTime               @default(now())
     updated_at           DateTime               @updatedAt
     price_list_flag      String?                @db.VarChar(20)
+    status               String?                @db.VarChar(20) 
     priceListItemLines   price_list_item_line[]
 }
 

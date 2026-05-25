@@ -15,7 +15,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreatePriceListLineDto } from './create-price-list-line.dto';
-
+// status	ความหมาย
+// DRAFT	กำลังแก้ไข
+// WAIT_APPROVE	รออนุมัติ
+// APPROVED	อนุมัติแล้ว
+// REJECTED	ไม่อนุมัติ
+// CANCELLED	ยกเลิก
+// CLOSED	ปิดเอกสาร
 export class CreatePriceListHeaderDto {
 
     @IsNotEmpty()
