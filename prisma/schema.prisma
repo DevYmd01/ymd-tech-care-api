@@ -444,7 +444,6 @@ model uom {
     vqLines                    vq_line[]
     poLines                    po_line[]
     standardCostLines          standard_cost_line[]
-    saleQuotationLines         sale_quotation_line[]
     saleQuotationApprovalLines sale_quotation_approval_line[]
     saleReservationLines       sale_reservation_line[]
     saleOrderLines             sale_order_line[]
@@ -473,6 +472,7 @@ model item_uom {
     itemBarcodes       item_barcode[]
     priceListItemLines price_list_item_line[]
     multiPriceItems    multi_price_item[]
+    saleQuotationLines sale_quotation_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -2572,7 +2572,7 @@ model sale_quotation_line {
     // จำนวนที่ยังค้างอยู่จากการอนุมัติ
     remaining_qty Decimal @default(0)
 
-    uom                        uom                            @relation(fields: [uom_id], references: [uom_id])
+    uom                        item_uom                       @relation(fields: [uom_id], references: [item_uom_id])
     tax_code                   tax_code?                      @relation(fields: [tax_code_id], references: [tax_code_id])
     saleQuotationApprovalLines sale_quotation_approval_line[]
 

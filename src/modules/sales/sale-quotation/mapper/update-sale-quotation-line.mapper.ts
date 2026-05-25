@@ -16,7 +16,7 @@ export class UpdateSaleQuotationLineMapper {
                     item: { connect: { item_id: data.item_id } },
                     note: data.note,
                     qty: data.qty,
-                    uom: { connect: { uom_id: data.uom_id } },
+                    uom: { connect: { item_uom_id: data.uom_id } },
                     unit_price: data.unit_price,
                     ...(data.tax_code_id
   ? {
