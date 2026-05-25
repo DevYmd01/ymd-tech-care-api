@@ -11,7 +11,7 @@ async function test() {
         item_id: 1,
         warehouse_id: 1,
         location_id: 1,
-        qty: 1,
+        qty: 200,
         item_uom_id: 20,
         // available_qty: 5,
         system_document_code: 'DLVRY',
