@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PoController } from './po.controller';
 import { PoService } from './po.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { DocumentNumberModule } from '@/modules/document-number/document-number.module';
 import { AuditService } from '@/modules/audit/audit.service';
 import { CreatePOHeaderRepository } from './repository/create-po-header.repository';

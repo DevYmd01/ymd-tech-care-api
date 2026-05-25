@@ -1,8 +1,16 @@
 import { Module } from '@nestjs/common';
-import { UomConversionService } from './item-uom/service/uom-conversion.service';
+
+import { PrismaModule }
+from '@/prisma/prisma.module';
+
+import { UomConversionService }
+from './item-uom/service/uom-conversion.service';
 
 @Module({
+  imports: [PrismaModule],
+
   providers: [UomConversionService],
+
   exports: [UomConversionService],
 })
-export class CommonUomModule  {}
+export class CommonUomModule {}

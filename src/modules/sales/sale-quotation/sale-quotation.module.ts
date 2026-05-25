@@ -19,22 +19,30 @@ import { UpdateSaleQuotationLineRepository } from './repository/update-sale-quot
 
 
 @Module({
-  imports: [DocumentNumberModule, PricingEngineModule],
+  imports: [
+    DocumentNumberModule,
+    PricingEngineModule,
+  ],
+
   controllers: [SaleQuotationController],
+
   providers: [
     SaleQuotationService,
     TaxService,
     CalculationDomainService,
-    PricingEngineService,
     PrismaService,
+
     CreateSaleQuotationHeaderMapper,
     CreateSaleQuotationHeaderRepository,
+
     CreateSaleQuotationLineMapper,
     CreateSaleQuotationLineRepository,
+
     UpdateSaleQuotationHeaderMapper,
     UpdateSaleQuotationHeaderRepository,
+
     UpdateSaleQuotationLineMapper,
-    UpdateSaleQuotationLineRepository
-  ]
+    UpdateSaleQuotationLineRepository,
+  ],
 })
 export class SaleQuotationModule {}

@@ -5,7 +5,6 @@ import { DocumentNumberModule } from '@/modules/document-number/document-number.
 import { TaxService } from './domain/tax.domain.service';
 import { CalculationDomainService } from './domain/calculation.domain.service';
 import { PricingEngineModule } from '@/modules/pricing/pricing-engine/pricing-engine.module';
-import { PricingEngineService } from '@/modules/pricing/pricing-engine/pricing-engine.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateHeaderMapper } from './mapper/create-header.mapper';
 import { CreateHeaderRepository } from './repository/create-header.repository';
@@ -15,18 +14,26 @@ import { CreateLineRepository } from './repository/create-line.repository';
 
 
 @Module({
-  imports: [DocumentNumberModule, PricingEngineModule],
-  controllers: [SaleQuotationApprovalController],
+  imports: [
+    DocumentNumberModule,
+    PricingEngineModule,
+  ],
+
+  controllers: [
+    SaleQuotationApprovalController,
+  ],
+
   providers: [
     SaleQuotationApprovalService,
     TaxService,
     CalculationDomainService,
-    PricingEngineService,
     PrismaService,
+
     CreateHeaderMapper,
     CreateHeaderRepository,
+
     CreateLineMapper,
-    CreateLineRepository
-  ]
+    CreateLineRepository,
+  ],
 })
 export class SaleQuotationApprovalModule {}
