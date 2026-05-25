@@ -5,4 +5,4 @@ import { UomConversionService } from './item-uom/service/uom-conversion.service'
   providers: [UomConversionService],
   exports: [UomConversionService],
 })
-export class UomModule {}
+export class CommonUomModule  {}

@@ -92,7 +92,7 @@ import { LotBalanceModule } from './common/inventory/lot-balance/lot-balance.mod
 import { DocLinkIcModule } from './modules/configuration/doc-link-ic/doc-link-ic.module';
 import { PreviewModule } from './common/inventory/preview/preview.module';
 import { OptionModule } from './common/inventory/option/option.module';
-import { UomModule } from './common/uom/uom.module';
+import { CommonUomModule  } from './common/uom/uom.module';
 
 @Module({
   imports: [
@@ -183,6 +183,7 @@ import { UomModule } from './common/uom/uom.module';
     DocLinkIcModule,
     PreviewModule,
     OptionModule,
+    CommonUomModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
