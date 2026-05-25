@@ -29,7 +29,7 @@ export class IcOptionContextDto {
 
   @IsOptional()
   @IsNumber()
-  uom_id?: number;
+  item_uom_id?: number;
 
   // =========================================================
   // STOCK INFO (current state)

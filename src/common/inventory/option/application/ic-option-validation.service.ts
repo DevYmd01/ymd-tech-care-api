@@ -3,8 +3,10 @@ import { IcOptionReader } from '../infrastructure/ic-option.reader';
 import { IcOptionRules } from '../domain/ic-option.rules';
 import { IcOptionContext } from '../domain/ic-option.types';
 import { BalanceReader } from '../../lot-balance/domain/balance.reader';
-import {  IcOptionValidationResult } from '../result/ic-option-validation.result';
+import { IcOptionValidationResult } from '../result/ic-option-validation.result';
 import { IcOptionContextDto } from '../dto/option-validation.dto';
+import { UomConversionReader } from '../infrastructure/uom-conversion';
+
 
 
 @Injectable()
@@ -61,9 +63,20 @@ export class IcOptionValidationService {
 
     // รวมยอด available จากทุก Lot ใน Scope ที่กำหนด
     const actualAvailableQty = balances.reduce(
-      (sum, b) => sum + Number(b.qty_available), 
+      (sum, b) => sum + Number(b.qty_available),
       0
     );
+
+    if (!params.context.item_uom_id) {
+      throw new Error('item_uom_id is required');
+    }
+
+    // หาค่าจริงของหน่วยทั้งหมด
+    const baseQty = await UomConversionReader.toBaseQty(
+      params.context.item_uom_id,
+      params.context.qty,
+    );
+
 
     const ctx: IcOptionContext = {
       system_document_code:
@@ -79,7 +92,9 @@ export class IcOptionValidationService {
         params.context.location_id,
 
       qty:
-        Number(params.context.qty),
+        baseQty,
+
+      // Number(params.context.qty),
 
       available_qty:
         actualAvailableQty,
