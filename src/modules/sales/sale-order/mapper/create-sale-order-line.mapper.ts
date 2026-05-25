@@ -39,7 +39,7 @@ export class CreateSaleOrderLineMapper {
         : {}),
 
       uom: {
-        connect: { uom_id: data.uom_id },
+        connect: { item_uom_id: data.uom_id },
       },
 
       note: data.note,

@@ -53,7 +53,7 @@ export class UpdateSaleOrderLineMapper {
 
       ...(data.uom_id && {
         uom: {
-          connect: { uom_id: data.uom_id },
+          connect: { item_uom_id: data.uom_id },
         },
       }),
 

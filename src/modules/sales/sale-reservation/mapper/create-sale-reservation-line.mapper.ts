@@ -24,7 +24,7 @@ export class CreateSaleReservationLineMapper {
       //   ? { lot: { connect: { lot_id: data.lot_id } } } 
       //   : {}),
         
-      uom: { connect: { uom_id: data.uom_id } },
+      uom: { connect: { item_uom_id: data.uom_id } },
 
       note: data.note,
       qty: data.qty,

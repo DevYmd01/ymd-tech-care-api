@@ -14,7 +14,7 @@ export class UpdateSaleReservationLineMapper { // Renamed file, class name remai
             ...(data.item_id && { item: { connect: { item_id: data.item_id } } }),
             ...(data.warehouse_id && { warehouse: { connect: { warehouse_id: data.warehouse_id } } }),
             ...(data.location_id && { location: { connect: { location_id: data.location_id } } }),
-            ...(data.uom_id && { uom: { connect: { uom_id: data.uom_id } } }),
+            ...(data.uom_id && { uom: { connect: { item_uom_id: data.uom_id } } }),
 
             ...(data.lot_id === null && { lot: { disconnect: true } }),
             ...(data.lot_id && { lot: { connect: { lot_id: data.lot_id } } }),
