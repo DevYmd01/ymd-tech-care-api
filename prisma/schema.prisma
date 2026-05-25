@@ -428,51 +428,51 @@ model item {
 
 /// ตารางเก็บข้อมูลหน่วยนับ
 model uom {
-    uom_id                     Int                            @id @default(autoincrement())
-    uom_code                   String                         @unique @db.VarChar(20)
-    uom_name                   String                         @db.VarChar(100)
-    is_active                  Boolean?                       @default(true)
-    created_at                 DateTime                       @default(now())
-    uom_nameeng                String?                        @db.VarChar(100)
-    updated_at                 DateTime                       @updatedAt
-    baseItems                  item[]                         @relation("BaseUom")
-    saleItems                  item[]                         @relation("SaleUom")
-    fromItemUoms               item_uom[]                     @relation("ItemUomFrom")
-    toItemUoms                 item_uom[]                     @relation("ItemUomTo")
-    prLines                    pr_line[]
-    rfqLines                   rfq_line[]
-    vqLines                    vq_line[]
-    poLines                    po_line[]
-    standardCostLines          standard_cost_line[]
-    saleQuotationApprovalLines sale_quotation_approval_line[]
-    saleReservationLines       sale_reservation_line[]
-    saleOrderLines             sale_order_line[]
-    saleOrderApprovalLines     sale_order_approval_line[]
-    deliveryLines              delivery_line[]
+    uom_id                 Int                        @id @default(autoincrement())
+    uom_code               String                     @unique @db.VarChar(20)
+    uom_name               String                     @db.VarChar(100)
+    is_active              Boolean?                   @default(true)
+    created_at             DateTime                   @default(now())
+    uom_nameeng            String?                    @db.VarChar(100)
+    updated_at             DateTime                   @updatedAt
+    baseItems              item[]                     @relation("BaseUom")
+    saleItems              item[]                     @relation("SaleUom")
+    fromItemUoms           item_uom[]                 @relation("ItemUomFrom")
+    toItemUoms             item_uom[]                 @relation("ItemUomTo")
+    prLines                pr_line[]
+    rfqLines               rfq_line[]
+    vqLines                vq_line[]
+    poLines                po_line[]
+    standardCostLines      standard_cost_line[]
+    saleReservationLines   sale_reservation_line[]
+    saleOrderLines         sale_order_line[]
+    saleOrderApprovalLines sale_order_approval_line[]
+    deliveryLines          delivery_line[]
 
     @@map("uom")
 }
 
 model item_uom {
-    item_uom_id        Int                    @id @default(autoincrement())
-    item_id            Int
-    from_uom_id        Int
-    to_uom_id          Int
-    factor             Decimal                @db.Decimal(18, 6)
-    is_purchase_uom    Boolean                @default(false)
-    created_at         DateTime               @default(now())
-    updated_at         DateTime               @updatedAt
-    customer_id        Int?
-    customer           customer?              @relation(fields: [customer_id], references: [customer_id])
-    fromUom            uom                    @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
-    item               item                   @relation(fields: [item_id], references: [item_id])
-    toUom              uom                    @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
-    is_active          Boolean                @default(true)
-    is_deleted         Boolean                @default(false)
-    itemBarcodes       item_barcode[]
-    priceListItemLines price_list_item_line[]
-    multiPriceItems    multi_price_item[]
-    saleQuotationLines sale_quotation_line[]
+    item_uom_id                Int                            @id @default(autoincrement())
+    item_id                    Int
+    from_uom_id                Int
+    to_uom_id                  Int
+    factor                     Decimal                        @db.Decimal(18, 6)
+    is_purchase_uom            Boolean                        @default(false)
+    created_at                 DateTime                       @default(now())
+    updated_at                 DateTime                       @updatedAt
+    customer_id                Int?
+    customer                   customer?                      @relation(fields: [customer_id], references: [customer_id])
+    fromUom                    uom                            @relation("ItemUomFrom", fields: [from_uom_id], references: [uom_id])
+    item                       item                           @relation(fields: [item_id], references: [item_id])
+    toUom                      uom                            @relation("ItemUomTo", fields: [to_uom_id], references: [uom_id])
+    is_active                  Boolean                        @default(true)
+    is_deleted                 Boolean                        @default(false)
+    itemBarcodes               item_barcode[]
+    priceListItemLines         price_list_item_line[]
+    multiPriceItems            multi_price_item[]
+    saleQuotationLines         sale_quotation_line[]
+    saleQuotationApprovalLines sale_quotation_approval_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -2639,7 +2639,7 @@ model sale_quotation_approval_line {
     qty        Decimal  @db.Decimal(18, 2)
     /// หน่วยนับ
     uom_id     Int
-    uom        uom      @relation(fields: [uom_id], references: [uom_id])
+    uom        item_uom @relation(fields: [uom_id], references: [item_uom_id])
     /// ราคาต่อหน่วย
     unit_price Decimal  @db.Decimal(18, 2)
 

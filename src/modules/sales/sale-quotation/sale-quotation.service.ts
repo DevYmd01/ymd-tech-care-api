@@ -150,6 +150,8 @@ export class SaleQuotationService {
                 saleQuotationLines: true,
             },
         });
+
+        return header;
     }
 
     async findAll() {

@@ -16,15 +16,16 @@ export class SaleQuotationController {
   }
 
  
+  @Get()
+  findAll() {
+    return this.saleQuotationService.findAll();
+  }
+  
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.saleQuotationService.findOne(id);
   }
 
-  @Get()
-  findAll() {
-    return this.saleQuotationService.findAll();
-  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSaleQuotationDto: UpdateSaleQuotationHeaderDto) {

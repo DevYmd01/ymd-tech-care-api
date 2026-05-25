@@ -16,7 +16,7 @@ export class CreateLineMapper {
             sq_line: { connect: { sq_line_id: data.sq_line_id } },
             approved_qty: data.approved_qty,
             qty: data.qty,
-            uom: { connect: { uom_id: data.uom_id } },
+            uom: { connect: { item_uom_id: data.uom_id } },
             unit_price: data.unit_price,
             discount_expression: data.discount_expression,
             discount_amount: calc.discountAmount,
