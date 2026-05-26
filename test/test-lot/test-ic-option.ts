@@ -1,4 +1,4 @@
-import { IcOptionValidationService } from './src/common/inventory/option/application/ic-option-validation.service';
+import { IcOptionValidationService } from '../../src/common/inventory/option/application/ic-option-validation.service';
 
 async function test() {
 

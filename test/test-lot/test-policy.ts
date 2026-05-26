@@ -1,7 +1,7 @@
 // // test-policy.ts
 
 import { PolicyBuilder }
-from './src/common/inventory/inventory-policy/policy-builder';
+from '../../src/common/inventory/inventory-policy/policy-builder';
 
 
 // IN

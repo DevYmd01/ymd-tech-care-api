@@ -1,5 +1,5 @@
 import { StockCommitService }
-from './src/common/inventory/lot-balance/commit/stock-commit.service';
+from '../../src/common/inventory/lot-balance/commit/stock-commit.service';
 
 async function main() {
 
