@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { AllocationLine, CommitPolicy }
-from './allocation.types';
+  from './allocation.types';
 
 const prisma = new PrismaClient();
 
@@ -27,15 +27,30 @@ export class StockCommitService {
           // FIND BALANCE
           // ==================================================
 
-          const balance =
-            await tx.item_lot_balance.findUnique({
+          const balances =
+  await tx.$queryRaw<
+    any[]
+  >`
 
-              where: {
-                lot_balance_id:
-                  row.item_lot_balance_id,
-              },
+    SELECT *
+    FROM item_lot_balance
+    WHERE lot_balance_id =
+      ${row.item_lot_balance_id}
+    FOR UPDATE
 
-            });
+  `;
+
+          const balance = balances[0];
+
+          // const balance =
+          //   await tx.item_lot_balance.findUnique({
+
+          //     where: {
+          //       lot_balance_id:
+          //         row.item_lot_balance_id,
+          //     },
+
+          //   });
 
           // ==================================================
           // BALANCE NOT FOUND
@@ -118,44 +133,53 @@ export class StockCommitService {
           // ==================================================
           // INSERT TRANSACTION LOG
           // ==================================================
+          if (policy.on_hand_sign !== 0) {
 
-          await tx.lot_transaction.create({
+            await tx.lot_transaction.create({
 
-            data: {
+              data: {
 
-              lot_id:
-                row.lot_id,
+                lot_id:
+                  row.lot_id,
 
-              item_id:
-                balance.item_id,
+                item_id:
+                  balance.item_id,
 
-              warehouse_id:
-                balance.warehouse_id,
+                warehouse_id:
+                  balance.warehouse_id,
 
-              location_id:
-                balance.location_id,
+                location_id:
+                  balance.location_id,
 
-              branch_id:
-                balance.branch_id,
+                branch_id:
+                  balance.branch_id,
 
-               qty:
+                qty:
 
-      Number(row.qty) *
+                  Number(row.qty) *
 
-      Number(policy.on_hand_sign),
+                  Number(policy.on_hand_sign),
 
-              trans_type:
-                policy.document_type,
+                trans_type:
+                  policy.transaction_type,
 
-            },
+                ref_doc_type:
+                  policy.document_type,
 
-          });
+                ref_doc_no:
+                  policy.reference_no,
 
+              },
+
+            });
+
+          }
+
+          
         }
 
         return true;
       }
-
     );
 
   }

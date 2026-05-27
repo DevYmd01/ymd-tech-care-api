@@ -25,13 +25,13 @@ async function main() {
       {
         document_type: 'TEST',
 
-        transaction_type: 'OUT',
+        transaction_type: 'IN',
 
-        on_hand_sign: -1,
+        on_hand_sign: 1,
 
         reserved_sign: 0,
 
-        available_sign: -1,
+        available_sign: 1,
       },
 
     );
