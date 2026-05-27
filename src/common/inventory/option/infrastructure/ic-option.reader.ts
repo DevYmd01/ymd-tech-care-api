@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { LotTransactionType } from '../../lot-transaction/enums/lot-balance-type.enum';
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ export class IcOptionReader {
   // - return normalized object สำหรับ rules engine
   // =========================================================
 
-  static async getOption(system_document_code: string) {
+  static async getOption(system_document_code: string, doc_type_no?: number ) {
   const systemDocument =
     await prisma.system_document.findFirst({
       where: { system_document_code },
@@ -30,6 +31,29 @@ export class IcOptionReader {
         ic_option: true, // 👈 สำคัญมาก
       },
     });
+
+     if(!doc_type_no){
+      doc_type_no= 0
+    }
+
+  const docLink =
+    await prisma.doc_link_ic.findFirst({
+      where: {
+        system_document: {
+          system_document_code,
+        },
+        doc_type_no,
+      },
+      include: {
+        system_document: true,
+      },
+    });
+
+let transaction_type = LotTransactionType
+if (docLink?.stock_effect_ic === 1){
+  
+}
+
 
   const globalOption =
     await prisma.ic_option.findFirst();
@@ -65,6 +89,13 @@ export class IcOptionReader {
       docOption?.negative_stock_mode,
       docOption?.ic_option?.check_deficit_option ?? globalOption.check_deficit_option,
     ),
+
+    //  doc_link_ic_id: docLink?.doc_link_ic_id,
+    // doc_type_no: docLink?.doc_type_no,
+    //   document_type: docLink?.system_document,
+    //   document_name: docLink?.system_document?.system_document_name,
+      stock_effect_ic: docLink?.stock_effect_ic || 0,
+
 
     quantity_validation_flag: resolve(
       docOption?.quantity_validation_flag,

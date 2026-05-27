@@ -15,7 +15,7 @@ async function main() {
 
           item_lot_balance_id: 1,
 
-          qty: 20,
+          qty: 2,
         },
       ],
 
@@ -23,7 +23,7 @@ async function main() {
       // POLICY
       // ==================================================
       {
-        document_type: 'ISSUE',
+        document_type: 'TEST',
 
         transaction_type: 'OUT',
 

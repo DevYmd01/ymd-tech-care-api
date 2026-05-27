@@ -174,4 +174,34 @@ export class DocLinkIcService {
       DocLinkIcMapper.toResponse(item),
     );
   }
+
+  async getDocLinkIC( system_document_code: string, doc_type_no: number) {
+
+    if(!doc_type_no){
+      doc_type_no= 0
+    }
+  const result =
+    await this.prisma.doc_link_ic.findFirst({
+      where: {
+        system_document: {
+          system_document_code,
+        },
+        doc_type_no,
+      },
+      include: {
+        system_document: true,
+      },
+    });
+
+    const response = {
+      doc_link_ic_id: result?.doc_link_ic_id,
+      doc_type_no: result?.doc_type_no,
+      system_document_id: result?.system_document_id,
+      system_document_code: result?.system_document?.system_document_code,
+      document_type: result?.system_document,
+      document_name: result?.system_document?.system_document_name,
+    };
+
+    return response;
+  }
 }

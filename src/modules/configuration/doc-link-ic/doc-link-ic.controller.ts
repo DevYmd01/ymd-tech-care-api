@@ -79,6 +79,8 @@ export class DocLinkIcController {
     );
   }
 
+  
+
   // ======================================================
   // UPDATE
   // ======================================================
@@ -114,4 +116,18 @@ export class DocLinkIcController {
       doc_link_ic_id,
     );
   }
+
+  @Get('get-doc-link-ic/:system_document_code/:doc_type_no')
+  async getDocLinkIC(
+    @Param('system_document_code')
+    system_document_code: string,
+    @Param('doc_type_no', ParseIntPipe)
+    doc_type_no: number,
+  ) {
+    return this.docLinkIcService.getDocLinkIC(
+      system_document_code,
+      doc_type_no,
+    );
+  }
+
 }

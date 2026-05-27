@@ -49,25 +49,6 @@ export class StockCommitService {
           }
 
           // ==================================================
-          // RECHECK STOCK
-          // ==================================================
-
-          if (
-
-            Number(balance.qty_available) <
-              Number(row.qty) ||
-
-            Number(balance.qty_on_hand) <
-              Number(row.qty)
-
-          ) {
-
-            throw new Error(
-              'INSUFFICIENT STOCK'
-            );
-          }
-
-          // ==================================================
           // CALCULATE NEXT BALANCE
           // ==================================================
 
@@ -97,6 +78,16 @@ export class StockCommitService {
               Number(row.qty) *
               Number(policy.available_sign)
             );
+
+          // ==================================================
+          // VALIDATE RESULTING BALANCE
+          // ==================================================
+
+          if (nextAvailable < 0 || nextOnHand < 0) {
+            throw new Error(
+              `INSUFFICIENT STOCK: Lot ${row.lot_id} (Available: ${balance.qty_available} -> ${nextAvailable}, OnHand: ${balance.qty_on_hand} -> ${nextOnHand})`
+            );
+          }
 
           // ==================================================
           // UPDATE BALANCE
@@ -147,11 +138,14 @@ export class StockCommitService {
               branch_id:
                 balance.branch_id,
 
-              qty:
-                row.qty,
+               qty:
+
+      Number(row.qty) *
+
+      Number(policy.on_hand_sign),
 
               trans_type:
-                policy.transaction_type,
+                policy.document_type,
 
             },
 

@@ -1,138 +1,137 @@
-export type TransactionType =
-  | 'IN'
-  | 'OUT'
-  | 'RESERVE'
-  | 'RELEASE'
-  | 'NONE';
+export enum TransactionType {
+  NONE = 0,
+  IN = 1,
+  OUT = 2,
+}
 
 export class PolicyBuilder {
 
   static build(config: {
-    stock_effect_ic: number;
+    // stock_effect_ic: number;
     document_type?: string;
     transaction_type?: TransactionType;
   }) {
 
     const transactionType =
-      config.transaction_type ?? 'NONE';
+      config.transaction_type ??
+      TransactionType.NONE;
 
-    // ==================================================
-    // 1. ON HAND LOGIC (physical stock)
-    // ==================================================
+    const transactionTypeLabel =
+      TransactionType[transactionType];
+
+    /**
+     * ============================================
+     * NO STOCK EFFECT
+     * ============================================
+     */
+
+    if (config.document_type === 'NONE' ) {
+
+      return {
+
+        stock_effect_ic: 0,
+
+        transaction_type:
+          transactionType,
+
+        transaction_type_label:
+          transactionTypeLabel,
+
+        affect_on_hand: false,
+
+        on_hand_sign: 0,
+
+        affect_reserved: false,
+
+        reserved_sign: 0,
+
+        available_sign: 0,
+
+        document_type:
+          config.document_type,
+      };
+    }
+
+    /**
+     * ============================================
+     * ON HAND
+     * ============================================
+     */
+
     const onHandSign =
-      this.getOnHandSign(transactionType);
+      this.getOnHandSign(
+        transactionType,
+      );
 
     const affectOnHand =
       onHandSign !== 0;
 
-    // ==================================================
-    // 2. RESERVED LOGIC
-    // ==================================================
-    const reservedSign =
-      this.getReservedSign(transactionType);
+    /**
+     * ============================================
+     * AVAILABLE
+     * ============================================
+     */
 
-    const affectReserved =
-      reservedSign !== 0;
-
-    // ==================================================
-    // 3. AVAILABLE (derived)
-    // ==================================================
     const availableSign =
-      this.getAvailableSign(
-        onHandSign,
-        reservedSign,
-      );
+      onHandSign;
 
-    // ==================================================
-    // RESULT
-    // ==================================================
+    /**
+     * ============================================
+     * RESULT
+     * ============================================
+     */
+
     return {
-      stock_effect_ic:
-        config.stock_effect_ic,
+
+      // stock_effect_ic:
+        // config.stock_effect_ic,
 
       transaction_type:
         transactionType,
 
-      // ON HAND
+      // transaction_type_label:
+        // transactionTypeLabel,
+
+      document_type:
+        transactionTypeLabel,
+
       affect_on_hand:
         affectOnHand,
 
       on_hand_sign:
         onHandSign,
 
-      // RESERVED
-      affect_reserved:
-        affectReserved,
+      // affect_reserved:
+      //   false,
 
-      reserved_sign:
-        reservedSign,
+      // reserved_sign:
+      //   0,
 
-      // AVAILABLE
-      available_sign:
-        availableSign,
-
-    document_type: config.document_type,
+      // available_sign:
+      //   availableSign,
     };
   }
 
-  // ==================================================
-  // ON HAND
-  // ==================================================
+  /**
+   * ============================================
+   * ON HAND
+   * ============================================
+   */
+
   private static getOnHandSign(
     type: TransactionType,
   ): number {
 
     switch (type) {
 
-      case 'IN':
+      case TransactionType.IN:
         return 1;
 
-      case 'OUT':
+      case TransactionType.OUT:
         return -1;
 
       default:
         return 0;
     }
-  }
-
-  // ==================================================
-  // RESERVED
-  // ==================================================
-  private static getReservedSign(
-    type: TransactionType,
-  ): number {
-
-    switch (type) {
-
-      case 'RESERVE':
-        return 1;
-
-      case 'RELEASE':
-        return -1;
-
-      default:
-        return 0;
-    }
-  }
-
-  // ==================================================
-  // AVAILABLE (derived rule)
-  // ==================================================
-  private static getAvailableSign(
-    onHand: number,
-    reserved: number,
-  ): number {
-
-    // priority: on_hand first
-    if (onHand !== 0) {
-      return onHand;
-    }
-
-    // reservation affects opposite side
-    if (reserved !== 0) {
-      return -reserved;
-    }
-
-    return 0;
   }
 }

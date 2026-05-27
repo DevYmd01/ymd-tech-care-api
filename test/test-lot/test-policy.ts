@@ -7,40 +7,40 @@ from '../../src/common/inventory/inventory-policy/policy-builder';
 // IN
 console.log(
   PolicyBuilder.build({
-    stock_effect_ic: 1,
-    transaction_type: 'IN',
+    // stock_effect_ic: 1, // ตั้งไว้เพื่อจัดลำดับเท่านั้น
+    transaction_type: 1, //เพื่อค่าว่ามีผลต่อคลังหรือไม่
   }),
 );
 
 // OUT
 console.log(
   PolicyBuilder.build({
-    stock_effect_ic: 2,
-    transaction_type: 'OUT',
+    // stock_effect_ic: 2,
+    transaction_type: 2,
   }),
 );
 
 // RESERVE
 console.log(
   PolicyBuilder.build({
-    stock_effect_ic: 3,
-    transaction_type: 'RESERVE',
+    // stock_effect_ic: 3,
+    transaction_type: 0,
   }),
 );
 
 // RELEASE
 console.log(
   PolicyBuilder.build({
-    stock_effect_ic: 4,
-    transaction_type: 'RELEASE',
+    // stock_effect_ic: 4,
+    transaction_type: 0,
   }),
 );
 
 // NONE
 console.log(
   PolicyBuilder.build({
-    stock_effect_ic: 0,
-    transaction_type: 'NONE',
+    // stock_effect_ic: 0,
+    transaction_type: 0,
   }),
 );
 

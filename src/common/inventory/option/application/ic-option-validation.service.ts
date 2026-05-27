@@ -24,6 +24,7 @@ export class IcOptionValidationService {
 
   async validate(params: {
     system_document_code: string;
+    doc_type_no?: number;
     context: IcOptionContextDto;
   }): Promise<IcOptionValidationResult> {
 
@@ -34,6 +35,7 @@ export class IcOptionValidationService {
     const option =
       await IcOptionReader.getOption(
         params.system_document_code,
+        params.doc_type_no,
       );
 
     // =====================================================
