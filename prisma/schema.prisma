@@ -3108,11 +3108,26 @@ model item_lot_balance {
     branch_id     Int?
     warehouse_id  Int
     location_id   Int
-    // จำนวนคงเหลือจริงที่มีอยู่ใน lot / location นี้
+
+    // ===== BASE STOCK =====
+    /// จำนวนคงเหลือจริงที่มีอยู่
     qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
-    // จำนวนที่ถูกจองไว้แล้ว เช่น Sale Order / Reservation / Pending Issue
+    
+    // ===== RESERVATIONS (breakdown) =====
+    /// จำนวนที่ถูกจองไว้ (อนุญาตให้เกิน)
+    qty_booked      Decimal @default(0) @db.Decimal(18, 6)
+    
+    /// จำนวนที่ allocate ให้ Sales Order แล้ว
+    qty_so_allocated Decimal @default(0) @db.Decimal(18, 6)
+    
+    /// จำนวนที่ pending issue (GRN / Transfer ฯลฯ)
+    qty_pending_issue Decimal @default(0) @db.Decimal(18, 6)
+    
+    // ===== CALCULATED =====
+    /// Total reserved = booked + so_allocated + pending_issue
     qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
-    // จำนวนที่พร้อมใช้งานจริง = qty_on_hand - qty_reserved
+    
+    /// Available = qty_on_hand - qty_reserved
     qty_available Decimal @default(0) @db.Decimal(18, 6)
 
     updated_at DateTime @updatedAt
