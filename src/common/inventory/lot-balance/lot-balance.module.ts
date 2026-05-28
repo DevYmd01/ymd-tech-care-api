@@ -5,6 +5,7 @@ import { LotBalanceService } from './lot-balance.service';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
+
 // ======================================================
 // MOVEMENT SERVICES
 // ======================================================
@@ -19,6 +20,12 @@ import { TransferLotService } from './domain/service/movements/transfer-lot.serv
 // TRANSACTION MODULE
 // ======================================================
 import { LotTransactionModule } from '../lot-transaction/lot-transaction.module';
+
+// ===========================
+// 
+// ==========================
+import { InventoryOrchestratorService } from './commit/Inventory-orchestrator.service';
+
 
 @Module({
   imports: [
@@ -42,6 +49,8 @@ import { LotTransactionModule } from '../lot-transaction/lot-transaction.module'
     ReserveLotService,
     ReleaseLotService,
     TransferLotService,
+
+    InventoryOrchestratorService,
   ],
 
   exports: [
@@ -53,6 +62,8 @@ import { LotTransactionModule } from '../lot-transaction/lot-transaction.module'
     ReserveLotService,
     ReleaseLotService,
     TransferLotService,
+    
+    InventoryOrchestratorService, // เป็นฟังชั่นรวมการจัดการข้อมูล
   ],
 })
 export class LotBalanceModule {}

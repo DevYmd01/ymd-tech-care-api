@@ -94,7 +94,7 @@ if (docLink?.stock_effect_ic === 1){
     // doc_type_no: docLink?.doc_type_no,
     //   document_type: docLink?.system_document,
     //   document_name: docLink?.system_document?.system_document_name,
-      stock_effect_ic: docLink?.stock_effect_ic || 0,
+      stock_effect_ic: docLink?.stock_effect_ic || 0  ,
 
 
     quantity_validation_flag: resolve(

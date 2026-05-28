@@ -9,6 +9,7 @@ console.log(
   PolicyBuilder.build({
     // stock_effect_ic: 1, // ตั้งไว้เพื่อจัดลำดับเท่านั้น
     transaction_type: 1, //เพื่อค่าว่ามีผลต่อคลังหรือไม่
+    document_type: 'SO',
   }),
 );
 
