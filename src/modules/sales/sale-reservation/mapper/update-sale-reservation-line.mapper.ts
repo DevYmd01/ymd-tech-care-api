@@ -18,6 +18,8 @@ export class UpdateSaleReservationLineMapper { // Renamed file, class name remai
 
             ...(data.lot_id === null && { lot: { disconnect: true } }),
             ...(data.lot_id && { lot: { connect: { lot_id: data.lot_id } } }),
+            ...(data.lot_balance_id === null && { lot_balance: { disconnect: true } }),
+            ...(data.lot_balance_id && { lot_balance: { connect: { lot_balance_id: data.lot_balance_id } } }),
 
             ...(data.note !== undefined && { note: data.note }),
             ...(data.qty !== undefined && { qty: data.qty }),

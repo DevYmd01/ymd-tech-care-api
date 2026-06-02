@@ -18,6 +18,7 @@ export class CreateSaleReservationLineMapper {
       ...(data.warehouse_id ? { warehouse: { connect: { warehouse_id: data.warehouse_id } } } : {}),
       ...(data.location_id ? { location: { connect: { location_id: data.location_id } } } : {}),
       ...(data.lot_id ? { lot: { connect: { lot_id: data.lot_id } } } : {}),
+      ...(data.lot_balance_id ? { lot_balance: { connect: { lot_balance_id: data.lot_balance_id } } } : {}),
       
       // // เชื่อม Lot เฉพาะเมื่อมีข้อมูลส่งมา
       // ...(data.lot_id 

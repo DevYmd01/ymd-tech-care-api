@@ -476,6 +476,8 @@ export class SaleReservationService {
 
 
   async update(id: number, updateSaleReservationHeaderDto: UpdateSaleReservationHeaderDto) {
+
+    console.log('UpdateSaleReservationHeaderDto', updateSaleReservationHeaderDto);
     return this.prisma.$transaction(async (tx) => {
       // 1. ค้นหา Header เดิมเพื่อเช็คการมีอยู่
       const existingHeader = await tx.sale_reservation_header.findUnique({
@@ -547,14 +549,20 @@ export class SaleReservationService {
       // 7. ลบรายการที่ถูกเอาออก (Delete)
       if (diff.toDelete.length > 0) {
         for (const line of diff.toDelete) {
+
+          console.log('DELETE', {
+  lot_id: (line as any).lot_id,
+  lot_balance_id: (line as any).lot_balance_id,
+  qty: (line as any).qty,
+});
           // Reverse สต็อกเดิมออกก่อนลบ
           await this.inventoryOrchestratorService.process(tx, {
             system_document_code: "RS",
-            doc_type_no: 0,
+            doc_type_no: 1,
             item_uom_id: (line as any).uom_id,
             ref_doc_no: existingHeader.reservation_no,
             lot_id: Number((line as any).lot_id),
-            item_lot_balance_id: 1,
+            item_lot_balance_id: Number((line as any).lot_balance_id),
             qty: -Number((line as any).qty), // ส่งค่าติดลบเพื่อคืนสต็อก
           });
         }
@@ -572,26 +580,35 @@ export class SaleReservationService {
 
         const oldLine = existingLines.find((l: any) => l.reservation_line_id === line.reservation_line_id);
         if (oldLine) {
+          console.log('UPDATE OLD', {
+  lot_id: (oldLine as any).lot_id,
+  lot_balance_id: (oldLine as any).lot_balance_id,
+  qty: (oldLine as any).qty,
+});
           // 1. Reverse สต็อกเดิมตามค่าเก่า
           await this.inventoryOrchestratorService.process(tx, {
             system_document_code: "RS",
-            doc_type_no: 0,
+            doc_type_no: 1,
             item_uom_id: (oldLine as any).uom_id,
             ref_doc_no: existingHeader.reservation_no,
             lot_id: Number((oldLine as any).lot_id),
-            item_lot_balance_id: 1,
+            item_lot_balance_id: Number((oldLine as any).lot_balance_id),
             qty: -Number((oldLine as any).qty),
           });
         }
-
+console.log('UPDATE NEW 1 ', {
+  lot_id: line.lot_id,
+  lot_balance_id: line.lot_balance_id,
+  qty: line.qty,
+});
         // 2. Commit สต็อกใหม่ตามค่าที่แก้ไข
         await this.inventoryOrchestratorService.process(tx, {
           system_document_code: "RS",
-          doc_type_no: 0,
+          doc_type_no: 1,
           item_uom_id: line.uom_id!,
           ref_doc_no: existingHeader.reservation_no,
           lot_id: Number(line.lot_id),
-          item_lot_balance_id: 1,
+          item_lot_balance_id: Number(line.lot_balance_id),
           qty: Number(line.qty),
         });
 
@@ -606,15 +623,19 @@ export class SaleReservationService {
 
         const createLineData = CreateSaleReservationLineMapper.toPrismaCreateInput(line as any, calcObj, id); // ใช้ mapper ที่ถูกต้อง, id คือ reservation_id
         await this.createSaleReservationLineRepository.create(tx, createLineData); // ใช้ repository ที่ถูกต้อง
-
+console.log('UPDATE NEW 2', {
+  lot_id: line.lot_id,
+  lot_balance_id: line.lot_balance_id,
+  qty: line.qty,
+});
         // Commit สต็อกสำหรับรายการที่เพิ่มใหม่
         await this.inventoryOrchestratorService.process(tx, {
           system_document_code: "RS",
-          doc_type_no: 0,
+          doc_type_no: 1,
           item_uom_id: (line as any).uom_id,
           ref_doc_no: existingHeader.reservation_no,
           lot_id: Number((line as any).lot_id),
-          item_lot_balance_id: 1,
+          item_lot_balance_id: Number((line as any).lot_balance_id),
           qty: Number((line as any).qty),
         });
       }
