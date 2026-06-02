@@ -25,7 +25,7 @@ export class CreateSaleReservationLineMapper {
       //   : {}),
         
       uom: { connect: { item_uom_id: data.uom_id } },
-
+      status: data.status ? data.status :'ACTIVE',
       note: data.note,
       qty: data.qty,
       unit_price: data.unit_price,

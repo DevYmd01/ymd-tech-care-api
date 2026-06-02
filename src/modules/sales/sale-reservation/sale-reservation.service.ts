@@ -12,8 +12,8 @@ import { CalculationDomainService } from './domain/service/calculation.domain.se
 import { diffById } from '@/common/utils';
 import { StockOptionQueryDto } from './dto/stock-options-query.dto';
 
-import { IcOptionResolverService, StockValidationService, LotAllocationService } 
-from '@/common/inventory/stock-options';
+import { IcOptionResolverService, StockValidationService, LotAllocationService }
+  from '@/common/inventory/stock-options';
 
 import { UpdateSaleReservationHeaderRepository } from './repository/update-sale-reservation-header.repository';
 import { UpdateSaleReservationLineRepository } from './repository/update-sale-reservation-line.repository';
@@ -21,6 +21,8 @@ import { UpdateSaleReservationHeaderMapper } from './mapper/update-sale-reservat
 import { UpdateSaleReservationLineMapper } from './mapper/update-sale-reservation-line.mapper';
 import { UpdateSaleReservationHeaderDto } from './dto/update-sale-reservation-header.dto';
 import { UpdateSaleReservationLineDto } from './dto/update-sale-reservation-line.dto';
+
+import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service'
 
 
 @Injectable()
@@ -38,6 +40,7 @@ export class SaleReservationService {
     private readonly lotAllocationService: LotAllocationService,
     private readonly updateSaleReservationHeaderRepository: UpdateSaleReservationHeaderRepository,
     private readonly updateSaleReservationLineRepository: UpdateSaleReservationLineRepository,
+    private readonly inventoryOrchestratorService: InventoryOrchestratorService,
   ) { }
 
   async create(createSaleReservationHeaderDto: CreateSaleReservationHeaderDto) {
@@ -109,7 +112,26 @@ export class SaleReservationService {
         );
 
         await this.createSaleReservationLineRepository.create(tx, createLineData);
+         console.log('All lines processed and stock committed', line.uom_id);
+        await this.inventoryOrchestratorService.process(tx, {
+          system_document_code: "RS",
+          doc_type_no: 1,
+
+          // ---- แปลงค่าหน่วยมาตารฐาน ----
+          item_uom_id: line.uom_id,
+
+          // doc_type: string,
+          ref_doc_no: documentNo,
+
+          // ---- commit ----
+          lot_id: Number(line.lot_id),
+          item_lot_balance_id: line.lot_balance_id,
+          qty: Number(line.qty),
+        })
+       
       }
+
+      
 
       // 7. คืนค่าข้อมูลที่ถูกสร้างเรียบร้อยแล้ว
       return tx.sale_reservation_header.findUnique({
@@ -122,7 +144,7 @@ export class SaleReservationService {
   }
 
 
-   async getStockByWarehouse(itemId: number) {
+  async getStockByWarehouse(itemId: number) {
     const result = await this.prisma.$queryRaw<
       {
         warehouse_id: number;
@@ -154,18 +176,18 @@ export class SaleReservationService {
   }
 
   async getStockByLocationInWarehouse(
-  warehouseId: number,
-  itemId: number,
-) {
-  return this.prisma.$queryRaw<
-    {
-      location_id: number;
-      location_name: string;
-      qty_on_hand: number;
-      qty_reserved: number;
-      qty_available: number;
-    }[]
-  >`
+    warehouseId: number,
+    itemId: number,
+  ) {
+    return this.prisma.$queryRaw<
+      {
+        location_id: number;
+        location_name: string;
+        qty_on_hand: number;
+        qty_reserved: number;
+        qty_available: number;
+      }[]
+    >`
     SELECT
       l.location_id,
       l.location_name,
@@ -189,7 +211,7 @@ export class SaleReservationService {
 
     ORDER BY l.location_id
   `;
-}
+  }
 
   async sqApprovalPending() {
     const rows = await this.prisma.sale_quotation_approval_header.findMany({
@@ -288,279 +310,327 @@ export class SaleReservationService {
   }
 
   async stockOptionsQuery(
-  stockOptionQueryDto: StockOptionQueryDto,
-) {
-  const {
-    page = 1,
-    limit = 20,
-    item_id,
-    branch_id,
-    warehouse_id,
-    location_id,
-    qty,
-  } = stockOptionQueryDto;
-
-  const skip = (page - 1) * limit;
-
-  // =====================================
-  // 1. RESOLVE IC OPTION
-  // =====================================
-  const setting =
-    await this.icOptionResolverService.resolveConfig(
-      branch_id!,
-      'RS',
-    );
-
-  const {
-    negative_stock_check,
-    negative_stock_mode,
-    quantity_validation_flag,
-  } = setting;
-
-  // =====================================
-  // 2. WHERE
-  // =====================================
-  const where: any = {};
-
-  if (item_id) where.item_id = item_id;
-  if (branch_id) where.branch_id = branch_id;
-  if (warehouse_id) where.warehouse_id = warehouse_id;
-  if (location_id) where.location_id = location_id;
-
-  // =====================================
-  // 3. LOAD DATA
-  // =====================================
-  const rows =
-    await this.prisma.item_lot_balance.findMany({
-      where,
-      include: {
-        lot: true,
-        warehouse: true,
-        location: true,
-      },
-      orderBy: {
-        updated_at: 'desc',
-      },
-    });
-
-  // =====================================
-  // 4. MAP DISPLAY QTY
-  // =====================================
-  const mapped = rows.map((row) => {
-    let display_qty = 0;
-
-    if (quantity_validation_flag === 1) {
-      display_qty = Number(row.qty_available);
-    }
-
-    if (quantity_validation_flag === 2) {
-      display_qty = Number(row.qty_reserved);
-    }
-
-    return {
-      ...row,
-      display_qty,
-      max_pick_qty: display_qty, // 👈 สำคัญ
-    };
-  });
-
-  // =====================================
-  // 5. GROUP (summary)
-  // =====================================
-  const grouped =
-    this.stockValidationService.groupByMode(
-      mapped,
-      negative_stock_mode,
+    stockOptionQueryDto: StockOptionQueryDto,
+  ) {
+    const {
+      page = 1,
+      limit = 20,
       item_id,
-    );
+      branch_id,
+      warehouse_id,
+      location_id,
+      qty,
+    } = stockOptionQueryDto;
 
-  // =====================================
-  // 6. TOTAL QTY
-  // =====================================
-  const totalQty = grouped.reduce(
-    (sum, r) => sum + Number(r.display_qty || 0),
-    0,
-  );
+    const skip = (page - 1) * limit;
 
-  // =====================================
-  // 7. VALIDATE
-  // =====================================
-  const {
-    can_use,
-    warning_message,
-  } = this.stockValidationService.validateStock(
-    qty,
-    totalQty,
-    negative_stock_check,
-  );
-
-  // =====================================
-  // 8. LOT DETAILS (สำหรับ UI)
-  // =====================================
-  let remaining = qty || 0;
-
-  const lots = mapped.map((lot) => {
-    let suggest_pick_qty = 0;
-
-    if (remaining > 0) {
-      suggest_pick_qty = Math.min(
-        lot.display_qty,
-        remaining,
+    // =====================================
+    // 1. RESOLVE IC OPTION
+    // =====================================
+    const setting =
+      await this.icOptionResolverService.resolveConfig(
+        branch_id!,
+        'RS',
       );
-      remaining -= suggest_pick_qty;
-    }
 
-    return {
-      ...lot,
-      suggest_pick_qty, // 👈 optional แต่ดีมาก
-    };
-  });
-
-  // =====================================
-  // 9. PAGINATION (optional: ใช้กับ lots)
-  // =====================================
-  const total = lots.length;
-
-  const pagedLots = lots.slice(
-    skip,
-    skip + limit,
-  );
-
-  // =====================================
-  // 10. RESPONSE
-  // =====================================
-  return {
-    page,
-    limit,
-    total,
-    total_page: Math.ceil(total / limit),
-
-    config: {
+    const {
       negative_stock_check,
       negative_stock_mode,
       quantity_validation_flag,
-    },
+    } = setting;
 
-    summary: {
-      required_qty: qty || 0,
-      total_available: totalQty,
+    // =====================================
+    // 2. WHERE
+    // =====================================
+    const where: any = {};
+
+    if (item_id) where.item_id = item_id;
+    if (branch_id) where.branch_id = branch_id;
+    if (warehouse_id) where.warehouse_id = warehouse_id;
+    if (location_id) where.location_id = location_id;
+
+    // =====================================
+    // 3. LOAD DATA
+    // =====================================
+    const rows =
+      await this.prisma.item_lot_balance.findMany({
+        where,
+        include: {
+          lot: true,
+          warehouse: true,
+          location: true,
+        },
+        orderBy: {
+          updated_at: 'desc',
+        },
+      });
+
+    // =====================================
+    // 4. MAP DISPLAY QTY
+    // =====================================
+    const mapped = rows.map((row) => {
+      let display_qty = 0;
+
+      if (quantity_validation_flag === 1) {
+        display_qty = Number(row.qty_available);
+      }
+
+      if (quantity_validation_flag === 2) {
+        display_qty = Number(row.qty_reserved);
+      }
+
+      return {
+        ...row,
+        display_qty,
+        max_pick_qty: display_qty, // 👈 สำคัญ
+      };
+    });
+
+    // =====================================
+    // 5. GROUP (summary)
+    // =====================================
+    const grouped =
+      this.stockValidationService.groupByMode(
+        mapped,
+        negative_stock_mode,
+        item_id,
+      );
+
+    // =====================================
+    // 6. TOTAL QTY
+    // =====================================
+    const totalQty = grouped.reduce(
+      (sum, r) => sum + Number(r.display_qty || 0),
+      0,
+    );
+
+    // =====================================
+    // 7. VALIDATE
+    // =====================================
+    const {
       can_use,
       warning_message,
-    },
+    } = this.stockValidationService.validateStock(
+      qty,
+      totalQty,
+      negative_stock_check,
+    );
 
-    lots: pagedLots,
-  };
-}
+    // =====================================
+    // 8. LOT DETAILS (สำหรับ UI)
+    // =====================================
+    let remaining = qty || 0;
+
+    const lots = mapped.map((lot) => {
+      let suggest_pick_qty = 0;
+
+      if (remaining > 0) {
+        suggest_pick_qty = Math.min(
+          lot.display_qty,
+          remaining,
+        );
+        remaining -= suggest_pick_qty;
+      }
+
+      return {
+        ...lot,
+        suggest_pick_qty, // 👈 optional แต่ดีมาก
+      };
+    });
+
+    // =====================================
+    // 9. PAGINATION (optional: ใช้กับ lots)
+    // =====================================
+    const total = lots.length;
+
+    const pagedLots = lots.slice(
+      skip,
+      skip + limit,
+    );
+
+    // =====================================
+    // 10. RESPONSE
+    // =====================================
+    return {
+      page,
+      limit,
+      total,
+      total_page: Math.ceil(total / limit),
+
+      config: {
+        negative_stock_check,
+        negative_stock_mode,
+        quantity_validation_flag,
+      },
+
+      summary: {
+        required_qty: qty || 0,
+        total_available: totalQty,
+        can_use,
+        warning_message,
+      },
+
+      lots: pagedLots,
+    };
+  }
 
 
-async update(id: number, updateSaleReservationHeaderDto: UpdateSaleReservationHeaderDto) {
-        return this.prisma.$transaction(async (tx) => {
-            // 1. ค้นหา Header เดิมเพื่อเช็คการมีอยู่
-            const existingHeader = await tx.sale_reservation_header.findUnique({
-                where: { reservation_id: id }, // Corrected to reservation_id
-                include: { saleReservationLines: true }, // Corrected to saleReservationLines
-            });
+  async update(id: number, updateSaleReservationHeaderDto: UpdateSaleReservationHeaderDto) {
+    return this.prisma.$transaction(async (tx) => {
+      // 1. ค้นหา Header เดิมเพื่อเช็คการมีอยู่
+      const existingHeader = await tx.sale_reservation_header.findUnique({
+        where: { reservation_id: id }, // Corrected to reservation_id
+        include: { saleReservationLines: true }, // Corrected to saleReservationLines
+      });
 
-            if (!existingHeader) {
-                throw new BadRequestException(`Sale Reservation with ID ${id} not found`); // Corrected message
-            }
+      if (!existingHeader) {
+        throw new BadRequestException(`Sale Reservation with ID ${id} not found`); // Corrected message
+      }
 
-            // 2. ดึงข้อมูลภาษี
-            const taxConfig = await this.taxService.getTaxById(
-                updateSaleReservationHeaderDto.tax_code_id
-            );
-            const taxRate = new Prisma.Decimal(taxConfig.tax_rate).div(100);
+      // 2. ดึงข้อมูลภาษี
+      const taxConfig = await this.taxService.getTaxById(
+        updateSaleReservationHeaderDto.tax_code_id
+      );
+      const taxRate = new Prisma.Decimal(taxConfig.tax_rate).div(100);
 
-            let subtotal = new Prisma.Decimal(0);
-            let discountAmount = new Prisma.Decimal(0);
-            let netAmount = new Prisma.Decimal(0);
+      let subtotal = new Prisma.Decimal(0);
+      let discountAmount = new Prisma.Decimal(0);
+      let netAmount = new Prisma.Decimal(0);
 
-            const calculatedLines: {
-                line: UpdateSaleReservationLineDto;
-                calc: any;
-            }[] = [];
+      const calculatedLines: {
+        line: UpdateSaleReservationLineDto;
+        calc: any;
+      }[] = [];
 
-            // 3. คำนวณแต่ละบรรทัดก่อน
-            for (const line of updateSaleReservationHeaderDto.saleReservationLines || []) {
-                const lineAmount = this.calculationDomainService.calculateLine({
-                    qty: line.qty,
-                    unit_price: line.unit_price,
-                    discount_expression: line.discount_expression
-                        ? String(line.discount_expression)
-                        : undefined,
-                });
-
-                subtotal = subtotal.plus(lineAmount.subtotal);
-                discountAmount = discountAmount.plus(lineAmount.discountAmount);
-                netAmount = netAmount.plus(lineAmount.netAmount);
-
-                calculatedLines.push({ line, calc: lineAmount });
-            }
-
-            // 4. คำนวณ Header Totals
-            const headerDocTotals = this.calculationDomainService.calculateHeaderTotal({
-                subtotal: netAmount.toNumber(),
-                exchange_rate: updateSaleReservationHeaderDto.exchange_rate,
-                discount_expression: updateSaleReservationHeaderDto.discount_expression
-                    ? String(updateSaleReservationHeaderDto.discount_expression)
-                    : undefined,
-                tax_rate: taxRate.toNumber(),
-            });
-
-            // 5. อัปเดต Header (ใช้ Mapper และ Repository ที่ถูกต้อง)
-            const updateHeaderData = UpdateSaleReservationHeaderMapper.toPrismaUpdateInput(
-                updateSaleReservationHeaderDto,
-                headerDocTotals
-            );
-            await this.updateSaleReservationHeaderRepository.update(tx, updateHeaderData, id); // ใช้ repository ที่ถูกต้อง
-
-            // 6. ใช้ diffById จัดการกับรายการเพิ่ม-ลบ-แก้ไขบรรทัด (saleReservationLines)
-            const existingLines = existingHeader.saleReservationLines || []; // ใช้ saleReservationLines
-            const diff = diffById(
-                existingLines,
-                updateSaleReservationHeaderDto.saleReservationLines || [], // ใช้ saleReservationLines
-                'reservation_line_id' // ใช้ reservation_line_id
-            );
-
-            // 7. ลบรายการที่ถูกเอาออก (Delete)
-            if (diff.toDelete.length > 0) {
-                await tx.sale_reservation_line.deleteMany({ // ใช้ sale_reservation_line
-                    where: {
-                        reservation_line_id: { in: diff.toDelete.map((l: any) => l.reservation_line_id) }, // ใช้ reservation_line_id
-                    },
-                });
-            }
-
-            // 8. อัปเดตรายการเดิม (Update)
-            for (const line of diff.toUpdate) {
-                const calcObj = calculatedLines.find(l => l.line.reservation_line_id === line.reservation_line_id)?.calc; // ใช้ reservation_line_id
-                if (!calcObj) continue;
-                
-                const updateLineData = UpdateSaleReservationLineMapper.toPrismaUpdateInput(line, calcObj); // ใช้ mapper ที่ถูกต้อง
-                await this.updateSaleReservationLineRepository.update(tx, updateLineData, line.reservation_line_id!); // ใช้ repository และ ID ที่ถูกต้อง
-            }
-
-            // 9. สร้างรายการใหม่ (Create)
-            for (const line of diff.toCreate) {
-                const calcObj = calculatedLines.find(l => l.line === line)?.calc;
-                if (!calcObj) continue;
-                
-                const createLineData = CreateSaleReservationLineMapper.toPrismaCreateInput(line as any, calcObj, id); // ใช้ mapper ที่ถูกต้อง, id คือ reservation_id
-                await this.createSaleReservationLineRepository.create(tx, createLineData); // ใช้ repository ที่ถูกต้อง
-            }
-
-            // 10. ส่งคืนข้อมูล Sale Quotation ที่ทำการอัปเดตเรียบร้อยแล้ว
-            return tx.sale_reservation_header.findUnique({
-                where: { reservation_id: id },
-                include: {
-                    saleReservationLines: true,
-                },
-            });
+      // 3. คำนวณแต่ละบรรทัดก่อน
+      for (const line of updateSaleReservationHeaderDto.saleReservationLines || []) {
+        const lineAmount = this.calculationDomainService.calculateLine({
+          qty: line.qty,
+          unit_price: line.unit_price,
+          discount_expression: line.discount_expression
+            ? String(line.discount_expression)
+            : undefined,
         });
-    }
+
+        subtotal = subtotal.plus(lineAmount.subtotal);
+        discountAmount = discountAmount.plus(lineAmount.discountAmount);
+        netAmount = netAmount.plus(lineAmount.netAmount);
+
+        calculatedLines.push({ line, calc: lineAmount });
+      }
+
+      // 4. คำนวณ Header Totals
+      const headerDocTotals = this.calculationDomainService.calculateHeaderTotal({
+        subtotal: netAmount.toNumber(),
+        exchange_rate: updateSaleReservationHeaderDto.exchange_rate,
+        discount_expression: updateSaleReservationHeaderDto.discount_expression
+          ? String(updateSaleReservationHeaderDto.discount_expression)
+          : undefined,
+        tax_rate: taxRate.toNumber(),
+      });
+
+      // 5. อัปเดต Header (ใช้ Mapper และ Repository ที่ถูกต้อง)
+      const updateHeaderData = UpdateSaleReservationHeaderMapper.toPrismaUpdateInput(
+        updateSaleReservationHeaderDto,
+        headerDocTotals
+      );
+      await this.updateSaleReservationHeaderRepository.update(tx, updateHeaderData, id); // ใช้ repository ที่ถูกต้อง
+
+      // 6. ใช้ diffById จัดการกับรายการเพิ่ม-ลบ-แก้ไขบรรทัด (saleReservationLines)
+      const existingLines = existingHeader.saleReservationLines || []; // ใช้ saleReservationLines
+      const diff = diffById(
+        existingLines,
+        updateSaleReservationHeaderDto.saleReservationLines || [], // ใช้ saleReservationLines
+        'reservation_line_id' // ใช้ reservation_line_id
+      );
+
+      // 7. ลบรายการที่ถูกเอาออก (Delete)
+      if (diff.toDelete.length > 0) {
+        for (const line of diff.toDelete) {
+          // Reverse สต็อกเดิมออกก่อนลบ
+          await this.inventoryOrchestratorService.process(tx, {
+            system_document_code: "RS",
+            doc_type_no: 0,
+            item_uom_id: (line as any).uom_id,
+            ref_doc_no: existingHeader.reservation_no,
+            lot_id: Number((line as any).lot_id),
+            item_lot_balance_id: 1,
+            qty: -Number((line as any).qty), // ส่งค่าติดลบเพื่อคืนสต็อก
+          });
+        }
+        await tx.sale_reservation_line.deleteMany({ // ใช้ sale_reservation_line
+          where: {
+            reservation_line_id: { in: diff.toDelete.map((l: any) => l.reservation_line_id) }, // ใช้ reservation_line_id
+          },
+        });
+      }
+
+      // 8. อัปเดตรายการเดิม (Update)
+      for (const line of diff.toUpdate) {
+        const calcObj = calculatedLines.find(l => l.line.reservation_line_id === line.reservation_line_id)?.calc; // ใช้ reservation_line_id
+        if (!calcObj) continue;
+
+        const oldLine = existingLines.find((l: any) => l.reservation_line_id === line.reservation_line_id);
+        if (oldLine) {
+          // 1. Reverse สต็อกเดิมตามค่าเก่า
+          await this.inventoryOrchestratorService.process(tx, {
+            system_document_code: "RS",
+            doc_type_no: 0,
+            item_uom_id: (oldLine as any).uom_id,
+            ref_doc_no: existingHeader.reservation_no,
+            lot_id: Number((oldLine as any).lot_id),
+            item_lot_balance_id: 1,
+            qty: -Number((oldLine as any).qty),
+          });
+        }
+
+        // 2. Commit สต็อกใหม่ตามค่าที่แก้ไข
+        await this.inventoryOrchestratorService.process(tx, {
+          system_document_code: "RS",
+          doc_type_no: 0,
+          item_uom_id: line.uom_id!,
+          ref_doc_no: existingHeader.reservation_no,
+          lot_id: Number(line.lot_id),
+          item_lot_balance_id: 1,
+          qty: Number(line.qty),
+        });
+
+        const updateLineData = UpdateSaleReservationLineMapper.toPrismaUpdateInput(line, calcObj); // ใช้ mapper ที่ถูกต้อง
+        await this.updateSaleReservationLineRepository.update(tx, updateLineData, line.reservation_line_id!); // ใช้ repository และ ID ที่ถูกต้อง
+      }
+
+      // 9. สร้างรายการใหม่ (Create)
+      for (const line of diff.toCreate) {
+        const calcObj = calculatedLines.find(l => l.line === line)?.calc;
+        if (!calcObj) continue;
+
+        const createLineData = CreateSaleReservationLineMapper.toPrismaCreateInput(line as any, calcObj, id); // ใช้ mapper ที่ถูกต้อง, id คือ reservation_id
+        await this.createSaleReservationLineRepository.create(tx, createLineData); // ใช้ repository ที่ถูกต้อง
+
+        // Commit สต็อกสำหรับรายการที่เพิ่มใหม่
+        await this.inventoryOrchestratorService.process(tx, {
+          system_document_code: "RS",
+          doc_type_no: 0,
+          item_uom_id: (line as any).uom_id,
+          ref_doc_no: existingHeader.reservation_no,
+          lot_id: Number((line as any).lot_id),
+          item_lot_balance_id: 1,
+          qty: Number((line as any).qty),
+        });
+      }
+
+      // 10. ส่งคืนข้อมูล Sale Reservation  ที่ทำการอัปเดตเรียบร้อยแล้ว
+      return tx.sale_reservation_header.findUnique({
+        where: { reservation_id: id },
+        include: {
+          saleReservationLines: true,
+        },
+      });
+    });
+  }
 
 
 
-  
+
 
 } 

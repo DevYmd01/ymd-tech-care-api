@@ -1594,7 +1594,7 @@ model price_list_header {
     created_at           DateTime               @default(now())
     updated_at           DateTime               @updatedAt
     price_list_flag      String?                @db.VarChar(20)
-    status               String?                @db.VarChar(20) 
+    status               String?                @db.VarChar(20)
     priceListItemLines   price_list_item_line[]
 }
 
@@ -2728,6 +2728,11 @@ model sale_reservation_line {
     note                String?                 @db.Text
     lot_id              Int?
     lot                 item_lot?               @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id      Int?
+    lot_balance         item_lot_balance?       @relation(fields: [lot_balance_id], references: [lot_balance_id])
+
+    /// สถานะ
+    status String @db.VarChar(20)
 
     /// วันที่สร้าง
     created_at DateTime @default(now())
@@ -2825,6 +2830,8 @@ model sale_order_line {
     note                String?               @db.Text
     lot_id              Int?
     lot                 item_lot?             @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id      Int?
+    lot_balance         item_lot_balance?     @relation(fields: [lot_balance_id], references: [lot_balance_id])
 
     /// สถานะ
     status     String   @default("PENDING") @db.VarChar(20)
@@ -3105,38 +3112,40 @@ model item_lot_balance {
     lot_id  Int
     item_id Int
 
-    branch_id     Int?
-    warehouse_id  Int
-    location_id   Int
+    branch_id    Int?
+    warehouse_id Int
+    location_id  Int
 
     // ===== BASE STOCK =====
     /// จำนวนคงเหลือจริงที่มีอยู่
-    qty_on_hand   Decimal @default(0) @db.Decimal(18, 6)
-    
+    qty_on_hand Decimal @default(0) @db.Decimal(18, 6)
+
     // ===== RESERVATIONS (breakdown) =====
     /// จำนวนที่ถูกจองไว้ (อนุญาตให้เกิน)
-    qty_booked      Decimal @default(0) @db.Decimal(18, 6)
-    
+    qty_booked Decimal @default(0) @db.Decimal(18, 6)
+
     /// จำนวนที่ allocate ให้ Sales Order แล้ว
     qty_so_allocated Decimal @default(0) @db.Decimal(18, 6)
-    
+
     /// จำนวนที่ pending issue (GRN / Transfer ฯลฯ)
     qty_pending_issue Decimal @default(0) @db.Decimal(18, 6)
-    
+
     // ===== CALCULATED =====
     /// Total reserved = booked + so_allocated + pending_issue
-    qty_reserved  Decimal @default(0) @db.Decimal(18, 6)
-    
+    qty_reserved Decimal @default(0) @db.Decimal(18, 6)
+
     /// Available = qty_on_hand - qty_reserved
     qty_available Decimal @default(0) @db.Decimal(18, 6)
 
     updated_at DateTime @updatedAt
 
-    lot       item_lot    @relation(fields: [lot_id], references: [lot_id])
-    item      item        @relation(fields: [item_id], references: [item_id])
-    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
-    warehouse warehouse   @relation(fields: [warehouse_id], references: [warehouse_id])
-    location  location    @relation(fields: [location_id], references: [location_id])
+    lot                  item_lot                @relation(fields: [lot_id], references: [lot_id])
+    item                 item                    @relation(fields: [item_id], references: [item_id])
+    branch               org_branch?             @relation(fields: [branch_id], references: [branch_id])
+    warehouse            warehouse               @relation(fields: [warehouse_id], references: [warehouse_id])
+    location             location                @relation(fields: [location_id], references: [location_id])
+    saleOrderLines       sale_order_line[]
+    saleReservationLines sale_reservation_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])

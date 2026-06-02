@@ -30,6 +30,8 @@ export class UpdateSaleReservationLineMapper { // Renamed file, class name remai
                 discount_rate: data.discount_rate
             }),
 
+                   ...(data.status !== undefined && { status: data.status }),
+
             discount_amount: calc.discountAmount,
             net_amount: calc.netAmount,
         };

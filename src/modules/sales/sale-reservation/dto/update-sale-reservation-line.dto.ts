@@ -62,4 +62,14 @@ export class UpdateSaleReservationLineDto {
     @IsOptional()
     @IsNumber({ maxDecimalPlaces: 2 })
     net_amount?: number;
+
+      @IsOptional()
+  @IsString()
+  status?: string;
+
+  
+      @IsOptional()
+  @IsNumber()
+              lot_balance_id?: number;
+
 }

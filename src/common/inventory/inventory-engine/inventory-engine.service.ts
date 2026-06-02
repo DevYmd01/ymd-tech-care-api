@@ -17,6 +17,6 @@ export class InventoryEngineService {
     if (!policy) {
       throw new BadRequestException(`ไม่พบนโยบายสำหรับประเภทรายการ: ${input.trans_type}`);
     }
-   
+
   }
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 import { AllocationLine, CommitPolicy }
   from './allocation.types';
@@ -11,17 +11,17 @@ export class StockCommitService {
 
   static async commit(
 
+
     allocations: AllocationLine[],
 
     policy: CommitPolicy,
 
+    txClient?: Prisma.TransactionClient,
+    
+    ref_doc_no?: string,
   ) {
-
-    return prisma.$transaction(
-
-      async (tx) => {
-
-        for (const row of allocations) {
+    const execution = async (tx: Prisma.TransactionClient) => {
+      for (const row of allocations) {
 
           // ==================================================
           // FIND BALANCE
@@ -109,7 +109,7 @@ export class StockCommitService {
           // ==================================================
 
           await tx.item_lot_balance.update({
-
+            
             where: {
               lot_balance_id:
                 row.item_lot_balance_id,
@@ -179,9 +179,11 @@ export class StockCommitService {
         }
 
         return true;
-      }
-    );
+    };
 
+    if (txClient) {
+      return execution(txClient);
+    }
+    return prisma.$transaction(execution);
   }
-
 }

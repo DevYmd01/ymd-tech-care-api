@@ -27,9 +27,14 @@ import { LotTransactionModule } from '../lot-transaction/lot-transaction.module'
 import { InventoryOrchestratorService } from './commit/Inventory-orchestrator.service';
 
 
+import { CommonUomModule } from '@/common/uom/uom.module';
+
+
+
 @Module({
   imports: [
     LotTransactionModule,
+    CommonUomModule,
   ],
 
   controllers: [
@@ -51,6 +56,7 @@ import { InventoryOrchestratorService } from './commit/Inventory-orchestrator.se
     TransferLotService,
 
     InventoryOrchestratorService,
+    CommonUomModule,
   ],
 
   exports: [

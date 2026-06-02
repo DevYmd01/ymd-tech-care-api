@@ -106,5 +106,5 @@ export class CreateSaleReservationHeaderDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CreateSaleReservationLineDto)
-    saleReservationLines: CreateSaleReservationLineDto[];
+    saleReservationLines!: CreateSaleReservationLineDto[];
 }

@@ -12,6 +12,7 @@ import { CreateSaleReservationLineMapper } from './mapper/create-sale-reservatio
 import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
 import { UpdateSaleReservationHeaderRepository } from './repository/update-sale-reservation-header.repository';
 import { UpdateSaleReservationLineRepository } from './repository/update-sale-reservation-line.repository'; // Keep this, it's a repository
+import { LotBalanceModule } from '@/common/inventory/lot-balance/lot-balance.module'
 
 @Module({
   controllers: [SaleReservationController],
@@ -27,6 +28,10 @@ import { UpdateSaleReservationLineRepository } from './repository/update-sale-re
     UpdateSaleReservationHeaderRepository,
     UpdateSaleReservationLineRepository, // Keep this, it's a repository
   ],
-  imports: [DocumentNumberModule, StockOptionsModule]
+  imports: [
+    DocumentNumberModule, 
+    StockOptionsModule,
+   LotBalanceModule, //ภายในเก็บ InventoryOrchestratorService ไว้
+   ]
 })
 export class SaleReservationModule {}

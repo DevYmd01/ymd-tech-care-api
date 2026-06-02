@@ -57,4 +57,14 @@ export class CreateSaleReservationLineDto {
       @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   net_amount?: number;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  // เพิ่มมาใหม่ เพื่อจัดการ lot
+  @IsOptional()
+  @IsNumber()
+  lot_balance_id?: number;
+
 }
