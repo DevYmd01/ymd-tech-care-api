@@ -22,8 +22,9 @@ import { UpdateSaleReservationLineMapper } from './mapper/update-sale-reservatio
 import { UpdateSaleReservationHeaderDto } from './dto/update-sale-reservation-header.dto';
 import { UpdateSaleReservationLineDto } from './dto/update-sale-reservation-line.dto';
 
-import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service'
+import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service';
 
+import { InventoryReservationService } from '@/common/inventory/lot-balance/commit/Inventory-reversation.service';
 
 @Injectable()
 export class SaleReservationService {
@@ -41,6 +42,7 @@ export class SaleReservationService {
     private readonly updateSaleReservationHeaderRepository: UpdateSaleReservationHeaderRepository,
     private readonly updateSaleReservationLineRepository: UpdateSaleReservationLineRepository,
     private readonly inventoryOrchestratorService: InventoryOrchestratorService,
+    private readonly inventoryReservationService: InventoryReservationService,
   ) { }
 
   async create(createSaleReservationHeaderDto: CreateSaleReservationHeaderDto) {
@@ -115,7 +117,7 @@ export class SaleReservationService {
          console.log('All lines processed and stock committed', line.uom_id);
         await this.inventoryOrchestratorService.process(tx, {
           system_document_code: "RS",
-          doc_type_no: 1,
+          doc_type_no: 0,
 
           // ---- แปลงค่าหน่วยมาตารฐาน ----
           item_uom_id: line.uom_id,
@@ -128,6 +130,12 @@ export class SaleReservationService {
           item_lot_balance_id: line.lot_balance_id,
           qty: Number(line.qty),
         })
+
+        await this.inventoryReservationService.reserve(tx, {
+          item_lot_balance_id: line.lot_balance_id,
+          item_uom_id: line.uom_id,
+          qty: Number(line.qty),
+        });
        
       }
 
@@ -558,13 +566,19 @@ export class SaleReservationService {
           // Reverse สต็อกเดิมออกก่อนลบ
           await this.inventoryOrchestratorService.process(tx, {
             system_document_code: "RS",
-            doc_type_no: 1,
+            doc_type_no: 0,
             item_uom_id: (line as any).uom_id,
             ref_doc_no: existingHeader.reservation_no,
             lot_id: Number((line as any).lot_id),
             item_lot_balance_id: Number((line as any).lot_balance_id),
             qty: -Number((line as any).qty), // ส่งค่าติดลบเพื่อคืนสต็อก
           });
+
+                  await this.inventoryReservationService.reserve(tx, {
+           item_lot_balance_id: Number((line as any).lot_balance_id),
+          item_uom_id: Number((line as any).uom_id),
+          qty: -Number((line as any).qty),
+        });
         }
         await tx.sale_reservation_line.deleteMany({ // ใช้ sale_reservation_line
           where: {
@@ -588,13 +602,20 @@ export class SaleReservationService {
           // 1. Reverse สต็อกเดิมตามค่าเก่า
           await this.inventoryOrchestratorService.process(tx, {
             system_document_code: "RS",
-            doc_type_no: 1,
+            doc_type_no: 0,
             item_uom_id: (oldLine as any).uom_id,
             ref_doc_no: existingHeader.reservation_no,
             lot_id: Number((oldLine as any).lot_id),
             item_lot_balance_id: Number((oldLine as any).lot_balance_id),
             qty: -Number((oldLine as any).qty),
           });
+
+        await this.inventoryReservationService.reserve(tx, { 
+          item_lot_balance_id: Number((line as any).lot_balance_id),
+          item_uom_id: Number((line as any).uom_id),
+          qty: -Number((line as any).qty),
+        });
+          
         }
 console.log('UPDATE NEW 1 ', {
   lot_id: line.lot_id,
@@ -604,12 +625,19 @@ console.log('UPDATE NEW 1 ', {
         // 2. Commit สต็อกใหม่ตามค่าที่แก้ไข
         await this.inventoryOrchestratorService.process(tx, {
           system_document_code: "RS",
-          doc_type_no: 1,
-          item_uom_id: line.uom_id!,
+          doc_type_no: 0,
+          item_uom_id: Number((line as any).uom_id),
           ref_doc_no: existingHeader.reservation_no,
           lot_id: Number(line.lot_id),
           item_lot_balance_id: Number(line.lot_balance_id),
           qty: Number(line.qty),
+        });
+
+        
+        await this.inventoryReservationService.reserve(tx, {
+          item_lot_balance_id: Number((line as any).lot_balance_id),
+          item_uom_id: Number((line as any).uom_id),
+          qty: Number((line as any).qty),
         });
 
         const updateLineData = UpdateSaleReservationLineMapper.toPrismaUpdateInput(line, calcObj); // ใช้ mapper ที่ถูกต้อง
@@ -631,11 +659,17 @@ console.log('UPDATE NEW 2', {
         // Commit สต็อกสำหรับรายการที่เพิ่มใหม่
         await this.inventoryOrchestratorService.process(tx, {
           system_document_code: "RS",
-          doc_type_no: 1,
+          doc_type_no: 0,
           item_uom_id: (line as any).uom_id,
           ref_doc_no: existingHeader.reservation_no,
           lot_id: Number((line as any).lot_id),
           item_lot_balance_id: Number((line as any).lot_balance_id),
+          qty: Number((line as any).qty),
+        });
+
+                await this.inventoryReservationService.reserve(tx, {
+          item_lot_balance_id: Number((line as any).lot_balance_id),
+          item_uom_id: Number((line as any).uom_id),
           qty: Number((line as any).qty),
         });
       }

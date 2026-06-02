@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 // import { AllocationLine } from './allocation.types';
 import { IcOptionReader } from '../../option/infrastructure/ic-option.reader';
 import { PolicyBuilder } from '../../inventory-policy/policy-builder';
 import { StockCommitService } from '../../lot-balance/commit/stock-commit.service';
-import { PrismaService } from '@/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { UomConversionService } from '@/common/uom/item-uom/service/uom-conversion.service';
 
@@ -12,7 +10,6 @@ import { UomConversionService } from '@/common/uom/item-uom/service/uom-conversi
 export class InventoryOrchestratorService {
 
      constructor(
-      private readonly prisma: PrismaService,
       private readonly uomConversionService: UomConversionService,
    ) {}
 
@@ -139,4 +136,8 @@ export class InventoryOrchestratorService {
         result
       };
     }
+
+
+
+    
 }
