@@ -17,8 +17,8 @@ import { Type } from 'class-transformer';
 
 export class CreateSaleOrderLineDto {
 
-    @IsNumber()
-    so_id!: number;
+    // @IsNumber()
+    // so_id!: number;
 
     @IsNumber()
     reservation_line_id!: number;

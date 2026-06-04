@@ -46,4 +46,21 @@ export class CreateSaleOrderApprovalLineDto {
     @IsOptional()
     @IsString()
     remarks?: string;
+
+    // @IsOptional()
+    // @IsNumber()
+    // warehouse_id?: number;
+
+    // @IsOptional()
+    // @IsNumber()
+    // location_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    lot_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    lot_balance_id?: number;
+
 }

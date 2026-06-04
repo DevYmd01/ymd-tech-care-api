@@ -233,6 +233,13 @@ async function main() {
       sort_order: 1,
       is_active: true,
     },
+            {
+      system_document_code: 'SOA',
+      system_document_name: 'รายการอนุมัติสั่งขาย',
+      system_document_name_eng: 'Sales Order Approval',
+      sort_order: 1,
+      is_active: true,
+    },
   ]
 
   for (const d of salesDocuments) {

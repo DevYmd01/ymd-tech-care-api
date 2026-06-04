@@ -12,6 +12,10 @@ import { CreateSaleOrderApprovalLineMapper } from './mapper/create-sale-order-ap
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
+import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
+import { LotBalanceModule } from '@/common/inventory/lot-balance/lot-balance.module';
+
+
 @UseGuards(AuthGuard('jwt'))
 @Module({
   controllers: [SaleOrderApprovalController],
@@ -24,8 +28,9 @@ import { AuthGuard } from '@nestjs/passport';
     CreateSaleOrderApprovalLineRepository,
     CreateSaleOrderApprovalHeaderMapper,
     CreateSaleOrderApprovalLineMapper,
+
   ],
-  imports: [DocumentNumberModule],
+  imports: [DocumentNumberModule, StockOptionsModule, LotBalanceModule],
   exports: [SaleOrderApprovalService],
 })
 export class SaleOrderApprovalModule {}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSaleOrderApprovalHeaderDto } from './dto/create-sale-order-ap-header.dto'; 
-import { CreateSaleOrderApprovalLineDto } from './dto/create-sale-order-ap-line.dto';  
+import { CreateSaleOrderApprovalHeaderDto } from './dto/create-sale-order-ap-header.dto';
+import { CreateSaleOrderApprovalLineDto } from './dto/create-sale-order-ap-line.dto';
 import { CreateSaleOrderApprovalHeaderMapper } from './mapper/create-sale-order-ap-header.mapper';
 import { CreateSaleOrderApprovalHeaderRepository } from './repository/create-sale-order-ap-header.repository';
 import { CreateSaleOrderApprovalLineMapper } from './mapper/create-sale-order-ap-line.mapper';
@@ -8,9 +8,12 @@ import { CreateSaleOrderApprovalLineRepository } from './repository/create-sale-
 import { TaxService } from './domain/service/tax.domain.service';
 import { CalculationDomainService } from './domain/service/calculation.domain.service';
 import { DocumentNumberService } from '@/modules/document-number/document-number.service';
-import { PrismaService } from '@/prisma/prisma.service';    
+import { PrismaService } from '@/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service';
+import { InventorySoAllocationService } from '@/common/inventory/lot-balance/commit/inventory-so-allocation.service';
+
 
 
 @Injectable()
@@ -24,270 +27,301 @@ export class SaleOrderApprovalService {
         private readonly taxService: TaxService,
         private readonly calculationDomainService: CalculationDomainService,
         private readonly documentNumberService: DocumentNumberService,
-        private readonly prisma: PrismaService
-    ) {}
+        private readonly prisma: PrismaService,
+        private readonly inventoryOrchestratorService: InventoryOrchestratorService,
+        private readonly inventorySoAllocationService: InventorySoAllocationService,
+    ) { }
 
-async create(createDto: CreateSaleOrderApprovalHeaderDto) {
-    return this.prisma.$transaction(async (tx) => {
+    async create(createDto: CreateSaleOrderApprovalHeaderDto) {
+        return this.prisma.$transaction(async (tx) => {
 
-        const isCancelled =
-            createDto.status === 'REJECTED' ||
-            createDto.status === 'CANCELLED';
+            const isCancelled =
+                createDto.status === 'REJECTED' ||
+                createDto.status === 'CANCELLED';
 
-        // 🔹 สร้าง document
-        const documentNo = await this.documentNumberService.generate({
-            module_code: 'SOA',
-            document_type_code: 'SOA',
-            branch_id: 0,
-        });
-
-        // 🔹 1. tax
-        let taxRate = new Prisma.Decimal(0);
-        if (createDto.tax_code_id) {
-            const tax = await this.taxService.getTaxById(createDto.tax_code_id);
-            taxRate = new Prisma.Decimal(tax.tax_rate).div(100);
-        }
-
-        // 🔹 IMPORTANT (เหมือน SQ)
-        let subtotal = new Prisma.Decimal(0);
-        let discountAmount = new Prisma.Decimal(0);
-        let netAmount = new Prisma.Decimal(0);
-
-        // 🔹 2. ดึง SO lines
-        const lineIds = createDto.CreateSaleOrderApprovalLineDtos.map(
-            (l) => l.so_line_id
-        );
-
-        const soLines = await tx.sale_order_line.findMany({
-            where: { so_line_id: { in: lineIds } },
-        });
-
-        const soLineMap = new Map(
-            soLines.map((line) => [line.so_line_id, line])
-        );
-
-        // 🔹 FIX never[]
-        const calculatedLines: {
-            line: CreateSaleOrderApprovalLineDto;
-            calc: {
-                subtotal: Prisma.Decimal;
-                discountAmount: Prisma.Decimal;
-                netAmount: Prisma.Decimal;
-            };
-        }[] = [];
-
-        // 🔹 3. คำนวณ line (เหมือน SQ)
-        for (const line of createDto.CreateSaleOrderApprovalLineDtos) {
-            const soLine = soLineMap.get(line.so_line_id);
-
-            if (!soLine) {
-                throw new Error(`SO line not found: ${line.so_line_id}`);
-            }
-
-            const unitPrice =
-                typeof soLine.unit_price === 'number'
-                    ? soLine.unit_price
-                    : (soLine.unit_price as any)?.toNumber() ?? 0;
-
-            const lineAmount =
-                this.calculationDomainService.calculateLine({
-                    qty: line.approved_qty,
-                    unit_price: unitPrice,
-                    discount_expression:
-                        soLine.discount_expression ?? undefined,
-                });
-
-            subtotal = subtotal.plus(lineAmount.subtotal);
-            discountAmount = discountAmount.plus(lineAmount.discountAmount);
-            netAmount = netAmount.plus(lineAmount.netAmount);
-
-            calculatedLines.push({
-                line,
-                calc: lineAmount,
-            });
-        }
-
-        // 🔹 4. header
-        const soHeader = await tx.sale_order_header.findUnique({
-            where: { so_id: createDto.so_id },
-        });
-
-        if (!soHeader) {
-            throw new Error(`SO Header not found: ${createDto.so_id}`);
-        }
-
-        const exchangeRate =
-            typeof soHeader.exchange_rate === 'number'
-                ? soHeader.exchange_rate
-                : (soHeader.exchange_rate as any)?.toNumber() ?? 1;
-
-        const headerTotals =
-            this.calculationDomainService.calculateHeaderTotal({
-                subtotal: netAmount.toNumber(),
-                exchange_rate: exchangeRate,
-                discount_expression: String(
-                    soHeader.discount_expression ?? '0'
-                ),
-                tax_rate: taxRate.toNumber(),
+            // 🔹 สร้าง document
+            const documentNo = await this.documentNumberService.generate({
+                module_code: 'SOA',
+                document_type_code: 'SOA',
+                branch_id: 0,
             });
 
-        // 🔹 5. create header
-        const headerData =
-            CreateSaleOrderApprovalHeaderMapper.toPrismaCreateInput(
-                createDto,
-                documentNo,
-                headerTotals
-            );
-
-        const createdHeader =
-            await this.createSaleOrderApprovalHeaderRepository.create(
-                tx,
-                headerData
-            );
-
-        // 🔹 6. create line + update SO line (เหมือน SQ)
-        for (const { line, calc } of calculatedLines) {
-            const soLine = soLineMap.get(line.so_line_id)!;
-            const soQty = Number(soLine.qty);
-
-            const existingApproved =
-                await tx.sale_order_approval_line.aggregate({
-                    where: { so_line_id: line.so_line_id },
-                    _sum: { approved_qty: true },
-                });
-
-            const currentApproved =
-                existingApproved._sum.approved_qty?.toNumber() ?? 0;
-
-            const incomingQty =
-                typeof line.approved_qty === 'number'
-                    ? line.approved_qty
-                    : Number(line.approved_qty ?? 0);
-
-            let newTotal = currentApproved;
-
-            if (!isCancelled) {
-                newTotal = currentApproved + incomingQty;
+            // 🔹 1. tax
+            let taxRate = new Prisma.Decimal(0);
+            if (createDto.tax_code_id) {
+                const tax = await this.taxService.getTaxById(createDto.tax_code_id);
+                taxRate = new Prisma.Decimal(tax.tax_rate).div(100);
             }
 
-            // 🔹 create line
-            const lineData =
-                CreateSaleOrderApprovalLineMapper.toPrismaCreateInput(
+            // 🔹 IMPORTANT (เหมือน SQ)
+            let subtotal = new Prisma.Decimal(0);
+            let discountAmount = new Prisma.Decimal(0);
+            let netAmount = new Prisma.Decimal(0);
+
+            // 🔹 2. ดึง SO lines
+            const lineIds = createDto.CreateSaleOrderApprovalLineDtos.map(
+                (l) => l.so_line_id
+            );
+
+            const soLines = await tx.sale_order_line.findMany({
+                where: { so_line_id: { in: lineIds } },
+            });
+
+            const soLineMap = new Map(
+                soLines.map((line) => [line.so_line_id, line])
+            );
+
+            // 🔹 FIX never[]
+            const calculatedLines: {
+                line: CreateSaleOrderApprovalLineDto;
+                calc: {
+                    subtotal: Prisma.Decimal;
+                    discountAmount: Prisma.Decimal;
+                    netAmount: Prisma.Decimal;
+                };
+            }[] = [];
+
+            // 🔹 3. คำนวณ line (เหมือน SQ)
+            for (const line of createDto.CreateSaleOrderApprovalLineDtos) {
+                const soLine = soLineMap.get(line.so_line_id);
+
+                if (!soLine) {
+                    throw new Error(`SO line not found: ${line.so_line_id}`);
+                }
+
+                const unitPrice =
+                    typeof soLine.unit_price === 'number'
+                        ? soLine.unit_price
+                        : (soLine.unit_price as any)?.toNumber() ?? 0;
+
+                const lineAmount =
+                    this.calculationDomainService.calculateLine({
+                        qty: line.approved_qty,
+                        unit_price: unitPrice,
+                        discount_expression:
+                            soLine.discount_expression ?? undefined,
+                    });
+
+                subtotal = subtotal.plus(lineAmount.subtotal);
+                discountAmount = discountAmount.plus(lineAmount.discountAmount);
+                netAmount = netAmount.plus(lineAmount.netAmount);
+
+                calculatedLines.push({
                     line,
-                    createdHeader.so_approval_id,
-                    calc
-                );
-
-            await this.createSaleOrderApprovalLineRepository.create(
-                tx,
-                lineData
-            );
-
-            // 🔹 calc status
-            let status: 'PENDING' | 'PARTIAL' | 'APPROVED' | 'REJECTED';
-
-            if (isCancelled) {
-                if (newTotal === 0) status = 'REJECTED';
-                else if (newTotal < soQty) status = 'PARTIAL';
-                else status = 'APPROVED';
-            } else {
-                if (newTotal === 0) status = 'PENDING';
-                else if (newTotal < soQty) status = 'PARTIAL';
-                else status = 'APPROVED';
+                    calc: lineAmount,
+                });
             }
 
-            // 🔹 update SO line
-            await tx.sale_order_line.update({
-                where: { so_line_id: line.so_line_id },
-                data: {
-                    approved_qty: newTotal,
-                    status,
-                },
-            });
-        }
-
-        // 🔹 7. update SO header
-        const soHeaderUpdated = await tx.sale_order_header.findUnique({
-            where: { so_id: createDto.so_id },
-            include: { saleOrderLines: true },
-        });
-
-        if (soHeaderUpdated) {
-            const totalRequested =
-                soHeaderUpdated.saleOrderLines.reduce(
-                    (sum, l) => sum + Number(l.qty),
-                    0
-                );
-
-            const totalApproved =
-                soHeaderUpdated.saleOrderLines.reduce(
-                    (sum, l) =>
-                        sum + Number((l as any).approved_qty ?? 0),
-                    0
-                );
-
-            let headerStatus:
-                | 'PENDING'
-                | 'PARTIAL'
-                | 'APPROVED'
-                | 'REJECTED';
-
-            if (isCancelled) {
-                if (totalApproved === 0) headerStatus = 'REJECTED';
-                else if (totalApproved < totalRequested)
-                    headerStatus = 'PARTIAL';
-                else headerStatus = 'APPROVED';
-            } else {
-                if (totalApproved === 0) headerStatus = 'PENDING';
-                else if (totalApproved < totalRequested)
-                    headerStatus = 'PARTIAL';
-                else headerStatus = 'APPROVED';
-            }
-
-            await tx.sale_order_header.update({
+            // 🔹 4. header
+            const soHeader = await tx.sale_order_header.findUnique({
                 where: { so_id: createDto.so_id },
-                data: { status: headerStatus },
             });
-        }
 
-        // 🔹 8. return
-        return tx.sale_order_approval_header.findUnique({
-            where: { so_approval_id: createdHeader.so_approval_id },
+            if (!soHeader) {
+                throw new Error(`SO Header not found: ${createDto.so_id}`);
+            }
+
+            const exchangeRate =
+                typeof soHeader.exchange_rate === 'number'
+                    ? soHeader.exchange_rate
+                    : (soHeader.exchange_rate as any)?.toNumber() ?? 1;
+
+            const headerTotals =
+                this.calculationDomainService.calculateHeaderTotal({
+                    subtotal: netAmount.toNumber(),
+                    exchange_rate: exchangeRate,
+                    discount_expression: String(
+                        soHeader.discount_expression ?? '0'
+                    ),
+                    tax_rate: taxRate.toNumber(),
+                });
+
+            // 🔹 5. create header
+            const headerData =
+                CreateSaleOrderApprovalHeaderMapper.toPrismaCreateInput(
+                    createDto,
+                    documentNo,
+                    headerTotals
+                );
+
+            const createdHeader =
+                await this.createSaleOrderApprovalHeaderRepository.create(
+                    tx,
+                    headerData
+                );
+
+            // 🔹 6. create line + update SO line (เหมือน SQ)
+            for (const { line, calc } of calculatedLines) {
+                const soLine = soLineMap.get(line.so_line_id)!;
+                const soQty = Number(soLine.qty);
+
+                const existingApproved =
+                    await tx.sale_order_approval_line.aggregate({
+                        where: { so_line_id: line.so_line_id },
+                        _sum: { approved_qty: true },
+                    });
+
+                const currentApproved =
+                    existingApproved._sum.approved_qty?.toNumber() ?? 0;
+
+                const incomingQty =
+                    typeof line.approved_qty === 'number'
+                        ? line.approved_qty
+                        : Number(line.approved_qty ?? 0);
+
+                let newTotal = currentApproved;
+
+                if (!isCancelled) {
+                    newTotal = currentApproved + incomingQty;
+                }
+
+                // 🔹 create line
+                const lineData =
+                    CreateSaleOrderApprovalLineMapper.toPrismaCreateInput(
+                        line,
+                        createdHeader.so_approval_id,
+                        calc
+                    );
+
+                await this.createSaleOrderApprovalLineRepository.create(
+                    tx,
+                    lineData
+                );
+
+                // 🔹 บันทึกรายการเคลื่อนไหวสต็อก (Stock Movement) ผ่าน Orchestrator ด้วยรหัสเอกสาร SOA
+                await this.inventoryOrchestratorService.process(tx, {
+                    system_document_code: 'SOA',
+                    doc_type_no: 0,
+                    item_uom_id: line.uom_id,
+                    ref_doc_no: documentNo,
+                    lot_id: Number(line.lot_id),
+                    item_lot_balance_id: Number(line.lot_balance_id),
+                    qty: isCancelled ? -Number(incomingQty) : Number(incomingQty),
+                });
+
+                // 🔹 จัดการสถานะการจอง (Allocation) สำหรับ Sale Order ตามผลการอนุมัติ
+                if (isCancelled) {
+                    // หากเป็นการปฏิเสธ (Rejected/Cancelled) ให้คืนค่าจาก Allocated กลับไปเป็น Booked
+                    await this.inventorySoAllocationService.unallocate(tx, {
+                        item_uom_id: line.uom_id,
+                        item_lot_balance_id: Number(line.lot_balance_id),
+                        qty: Number(incomingQty),
+                    });
+                }
+                // else {
+                //     // หากเป็นการอนุมัติ (Approved) ให้ยืนยันยอดการจองในส่วน Allocated
+                //     await this.inventorySoAllocationService.allocate(tx, {
+                //         item_uom_id: line.uom_id,
+                //         item_lot_balance_id: Number(line.lot_balance_id),
+                //         qty: Number(incomingQty),
+                //     });
+                // }
+
+                // 🔹 calc status
+                let status: 'PENDING' | 'PARTIAL' | 'APPROVED' | 'REJECTED';
+
+                if (isCancelled) {
+                    if (newTotal === 0) status = 'REJECTED';
+                    else if (newTotal < soQty) status = 'PARTIAL';
+                    else status = 'APPROVED';
+                } else {
+                    if (newTotal === 0) status = 'PENDING';
+                    else if (newTotal < soQty) status = 'PARTIAL';
+                    else status = 'APPROVED';
+                }
+
+                // 🔹 update SO line
+                await tx.sale_order_line.update({
+                    where: { so_line_id: line.so_line_id },
+                    data: {
+                        approved_qty: newTotal,
+                        status,
+                    },
+                });
+            }
+
+            // 🔹 7. update SO header
+            const soHeaderUpdated = await tx.sale_order_header.findUnique({
+                where: { so_id: createDto.so_id },
+                include: { saleOrderLines: true },
+            });
+
+            if (soHeaderUpdated) {
+                const totalRequested =
+                    soHeaderUpdated.saleOrderLines.reduce(
+                        (sum, l) => sum + Number(l.qty),
+                        0
+                    );
+
+                const totalApproved =
+                    soHeaderUpdated.saleOrderLines.reduce(
+                        (sum, l) =>
+                            sum + Number((l as any).approved_qty ?? 0),
+                        0
+                    );
+
+                let headerStatus:
+                    | 'PENDING'
+                    | 'PARTIAL'
+                    | 'APPROVED'
+                    | 'REJECTED';
+
+                if (isCancelled) {
+                    if (totalApproved === 0) headerStatus = 'REJECTED';
+                    else if (totalApproved < totalRequested)
+                        headerStatus = 'PARTIAL';
+                    else headerStatus = 'APPROVED';
+                } else {
+                    if (totalApproved === 0) headerStatus = 'PENDING';
+                    else if (totalApproved < totalRequested)
+                        headerStatus = 'PARTIAL';
+                    else headerStatus = 'APPROVED';
+                }
+
+                await tx.sale_order_header.update({
+                    where: { so_id: createDto.so_id },
+                    data: { status: headerStatus },
+                });
+            }
+
+            // 🔹 8. return
+            return tx.sale_order_approval_header.findUnique({
+                where: { so_approval_id: createdHeader.so_approval_id },
+                include: { saleOrderApprovalLines: true },
+            });
+        });
+    }
+
+    async findAll() {
+        return this.prisma.sale_order_approval_header.findMany({
             include: { saleOrderApprovalLines: true },
         });
-    });
-}
+    }
 
-async findAll() {
-    return this.prisma.sale_order_approval_header.findMany({
-        include: { saleOrderApprovalLines: true },
-    }); 
-}
-
-async soApprovalPending() {
-    return this.prisma.sale_order_header.findMany({
-        where: {
+    async soApprovalPending() {
+        return this.prisma.sale_order_header.findMany({
+            where: {
                 status: {
                     in: ['PENDING', 'PARTIAL'],
                 },
             },
-        include: { saleOrderLines: true },
-    });
-}
+            include: { saleOrderLines: true },
+        });
+    }
 
-async findOne(id: number) {
-    return this.prisma.sale_order_approval_header.findUnique({
-        where: { so_approval_id: id },
-        include: { saleOrderApprovalLines: true },
-    });
+    async findOne(id: number) {
+        return this.prisma.sale_order_approval_header.findUnique({
+            where: { so_approval_id: id },
+            include: { saleOrderApprovalLines: true },
+        });
 
-}
+    }
 
-async findPendingApproval(id: number) {
-    return this.prisma.sale_order_header.findUnique({
-        where: { so_id: id },
-        include: { saleOrderLines: true },
-    });
-}
+    async findPendingApproval(id: number) {
+        return this.prisma.sale_order_header.findUnique({
+            where: { so_id: id },
+            include: { saleOrderLines: true },
+        });
+    }
 
 }

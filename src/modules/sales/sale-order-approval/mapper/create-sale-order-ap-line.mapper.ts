@@ -20,6 +20,7 @@ export class CreateSaleOrderApprovalLineMapper {
       uom: {
         connect: { item_uom_id: dto.uom_id },
       },
+
       approved_qty: dto.approved_qty,
       qty: dto.qty,
       unit_price: dto.unit_price,
