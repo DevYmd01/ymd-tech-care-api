@@ -36,6 +36,12 @@ import { CommonUomModule } from '@/common/uom/uom.module';
 import { InventoryReservationService } from './commit/Inventory-reversation.service';
 import { StockReservationService } from './commit/stock-reservation.service';
 
+// ===========================
+// SO ALLOCATION MODULE
+// ===========================
+import { InventorySoAllocationService } from './commit/inventory-so-allocation.service';
+import { StockSoAllocationService } from './commit/stock-so-allocation.service';
+
 
 @Module({
   imports: [
@@ -63,8 +69,10 @@ import { StockReservationService } from './commit/stock-reservation.service';
 
     InventoryOrchestratorService,
     StockReservationService,
+    StockSoAllocationService,
     CommonUomModule,
     InventoryReservationService,
+    InventorySoAllocationService,
   ],
 
   exports: [
@@ -79,6 +87,7 @@ import { StockReservationService } from './commit/stock-reservation.service';
     
     InventoryOrchestratorService, // เป็นฟังชั่นรวมการจัดการข้อมูล
     InventoryReservationService, // บริการสำหรับการจองสินค้า
+    InventorySoAllocationService, // บริการสำหรับการจัดสรรสินค้าตาม SO
   ],
 })
 export class LotBalanceModule {}

@@ -18,6 +18,7 @@ import { UpdateSaleOrderLineMapper } from './mapper/update-sale-order-line.mappe
 import { UpdateSaleOrderHeaderDto } from './dto/update-sale-order-header.dto';
 import { UpdateSaleOrderLineDto } from './dto/update-sale-order-line.dto';
 import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service';
+import { InventorySoAllocationService } from '@/common/inventory/lot-balance/commit/inventory-so-allocation.service';
 
 
 @Injectable()
@@ -37,6 +38,7 @@ export class SaleOrderService {
         private readonly updateSaleOrderHeaderMapper: UpdateSaleOrderHeaderMapper,
         private readonly updateSaleOrderLineMapper: UpdateSaleOrderLineMapper,
         private readonly inventoryOrchestratorService: InventoryOrchestratorService,
+        private readonly inventorySoAllocationService: InventorySoAllocationService,
     ) { }
 
 
@@ -101,6 +103,30 @@ export class SaleOrderService {
             for (const { line, calc } of calculatedLines) {
                 const createLineData = CreateSaleOrderLineMapper.toPrismaCreateInput(line, calc, createdHeader.so_id);
                 await this.createSaleOrderLineRepository.create(tx, createLineData);
+
+                await this.inventoryOrchestratorService.process(tx, {
+                    system_document_code: "SO",
+                    doc_type_no: 0,
+
+                    // ---- แปลงค่าหน่วยมาตารฐาน ----
+                    item_uom_id: line.uom_id,
+
+                    // doc_type: string,
+                    ref_doc_no: documentNo,
+
+                    // ---- commit ----
+                    lot_id: Number(line.lot_id),
+                    item_lot_balance_id: line.lot_balance_id,
+                    qty: Number(line.qty),
+                })
+
+                await this.inventorySoAllocationService.allocate(tx, {
+                    // ---- แปลงค่าหน่วยมาตารฐาน ----
+                    item_uom_id: line.uom_id,
+                    item_lot_balance_id: line.lot_balance_id,
+                    qty: Number(line.qty),
+                });
+
             }
             // 7. คืนค่าข้อมูลที่ถูกสร้างเรียบร้อยแล้ว
             return tx.sale_order_header.findUnique({ where: { so_id: createdHeader.so_id }, include: { saleOrderLines: true } });
@@ -276,145 +302,221 @@ export class SaleOrderService {
     }
 
 
-async update(
-    so_id: number,
-    dto: UpdateSaleOrderHeaderDto,
-) {
-    return this.prisma.$transaction(async (tx) => {
+    async update(
+        so_id: number,
+        dto: UpdateSaleOrderHeaderDto,
+    ) {
+        return this.prisma.$transaction(async (tx) => {
 
-        // 1. ตรวจสอบ SO header (ใช้ table ให้ตรง!)
-        const existingHeader = await tx.sale_order_header.findUnique({
-            where: { so_id },
-            include: { saleOrderLines: true },
-        });
-
-        if (!existingHeader) {
-            throw new BadRequestException(`Sale Order ${so_id} not found`);
-        }
-
-        // 2. tax config
-        const taxConfig = await this.taxService.getTaxById(dto.tax_code_id);
-        const taxRate = new Prisma.Decimal(taxConfig.tax_rate).div(100);
-
-        let subtotal = new Prisma.Decimal(0);
-        let discountAmount = new Prisma.Decimal(0);
-        let netAmount = new Prisma.Decimal(0);
-
-        const calculatedLines: {
-            line: UpdateSaleOrderLineDto;
-            calc: any;
-        }[] = [];
-
-        // 3. calc line
-        for (const line of dto.saleOrderLines || []) { // Corrected property name
-            const calc = this.calculationDomainService.calculateLine({
-                qty: line.qty,
-                unit_price: line.unit_price,
-                discount_expression: line.discount_expression
-                    ? String(line.discount_expression)
-                    : undefined,
+            // 1. ตรวจสอบ SO header (ใช้ table ให้ตรง!)
+            const existingHeader = await tx.sale_order_header.findUnique({
+                where: { so_id },
+                include: { saleOrderLines: true },
             });
 
-            subtotal = subtotal.plus(calc.subtotal);
-            discountAmount = discountAmount.plus(calc.discountAmount);
-            netAmount = netAmount.plus(calc.netAmount);
+            if (!existingHeader) {
+                throw new BadRequestException(`Sale Order ${so_id} not found`);
+            }
 
-            calculatedLines.push({ line, calc });
-        }
+            // 2. tax config
+            const taxConfig = await this.taxService.getTaxById(dto.tax_code_id);
+            const taxRate = new Prisma.Decimal(taxConfig.tax_rate).div(100);
 
-        // 4. header total (ใช้ Decimal ตรง ๆ)
-       // 4. header total - ใช้ netAmount แทน subtotal!
-const headerDocTotals =
-    this.calculationDomainService.calculateHeaderTotal({
-        subtotal: netAmount.toNumber(), // 👈 เปลี่ยนจาก subtotal เป็น netAmount
-        exchange_rate: dto.exchange_rate,
-        discount_expression: dto.discount_expression
-            ? String(dto.discount_expression)
-            : undefined,
-        tax_rate: taxRate.toNumber(),
-    });
+            let subtotal = new Prisma.Decimal(0);
+            let discountAmount = new Prisma.Decimal(0);
+            let netAmount = new Prisma.Decimal(0);
 
-        // 5. update header
-        const updateHeaderData =
-            UpdateSaleOrderHeaderMapper.toPrismaUpdateInput(
-                dto, // so_no is not part of the DTO for update, and not expected by the mapper
-                headerDocTotals,
+            const calculatedLines: {
+                line: UpdateSaleOrderLineDto;
+                calc: any;
+            }[] = [];
+
+            // 3. calc line
+            for (const line of dto.saleOrderLines || []) { // Corrected property name
+                const calc = this.calculationDomainService.calculateLine({
+                    qty: line.qty,
+                    unit_price: line.unit_price,
+                    discount_expression: line.discount_expression
+                        ? String(line.discount_expression)
+                        : undefined,
+                });
+
+                subtotal = subtotal.plus(calc.subtotal);
+                discountAmount = discountAmount.plus(calc.discountAmount);
+                netAmount = netAmount.plus(calc.netAmount);
+
+                calculatedLines.push({ line, calc });
+            }
+
+            // 4. header total (ใช้ Decimal ตรง ๆ)
+            // 4. header total - ใช้ netAmount แทน subtotal!
+            const headerDocTotals =
+                this.calculationDomainService.calculateHeaderTotal({
+                    subtotal: netAmount.toNumber(), // 👈 เปลี่ยนจาก subtotal เป็น netAmount
+                    exchange_rate: dto.exchange_rate,
+                    discount_expression: dto.discount_expression
+                        ? String(dto.discount_expression)
+                        : undefined,
+                    tax_rate: taxRate.toNumber(),
+                });
+
+            // 5. update header
+            const updateHeaderData =
+                UpdateSaleOrderHeaderMapper.toPrismaUpdateInput(
+                    dto, // so_no is not part of the DTO for update, and not expected by the mapper
+                    headerDocTotals,
+                );
+
+            await this.updateSaleOrderHeaderRepository.update(
+                so_id,
+                updateHeaderData,
+                tx,
             );
 
-        await this.updateSaleOrderHeaderRepository.update(
-            so_id,
-            updateHeaderData,
-            tx,
-        );
+            // 6. diff line (ใช้ so_line_id)
+            const existingLines = existingHeader.saleOrderLines || [];
+            // Corrected property name
+            const diff = diffById(
+                existingLines,
+                dto.saleOrderLines || [],
+                "so_line_id",
+            );
 
-        // 6. diff line (ใช้ so_line_id)
-        const existingLines = existingHeader.saleOrderLines || [];
-        // Corrected property name
-        const diff = diffById(
-            existingLines,
-            dto.saleOrderLines || [],
-            "so_line_id",
-        );
+            // 7. delete
+            if (diff.toDelete.length > 0) {
+                for (const line of diff.toDelete) {
+                    // Reverse สต็อกเดิมออกก่อนลบ
+                    await this.inventoryOrchestratorService.process(tx, {
+                        system_document_code: "SO",
+                        doc_type_no: 0,
+                        item_uom_id: (line as any).uom_id,
+                        ref_doc_no: existingHeader.so_no,
+                        lot_id: Number((line as any).lot_id),
+                        item_lot_balance_id: Number((line as any).lot_balance_id),
+                        qty: -Number((line as any).qty), // ส่งค่าติดลบเพื่อคืนสต็อก
+                    });
 
-        // 7. delete
-        if (diff.toDelete.length > 0) {
-            await tx.sale_order_line.deleteMany({
-                where: {
-                    so_line_id: {
-                        in: diff.toDelete.map((l: any) => l.so_line_id),
+                    // คืนค่าการจอง (Allocation) เดิมออกก่อนลบ
+                    await this.inventorySoAllocationService.unallocate(tx, {
+                        item_uom_id: (line as any).uom_id,
+                        item_lot_balance_id: Number((line as any).lot_balance_id),
+                        qty: Number((line as any).qty),
+                    });
+                }
+                await tx.sale_order_line.deleteMany({
+                    where: {
+                        so_line_id: {
+                            in: diff.toDelete.map((l: any) => l.so_line_id),
+                        },
                     },
+                });
+            }
+
+            // 8. update
+            for (const line of diff.toUpdate) {
+                const calc = calculatedLines.find( // Explicitly cast line to UpdateSaleOrderLineDto
+                    (l) => l.line.so_line_id === line.so_line_id,
+                )?.calc;
+
+                if (!calc) continue;
+
+                const oldLine = existingLines.find((l: any) => l.so_line_id === line.so_line_id);
+                if (oldLine) {
+                    // 1. Reverse สต็อกเดิมตามค่าเก่า
+                    await this.inventoryOrchestratorService.process(tx, {
+                        system_document_code: "SO",
+                        doc_type_no: 0,
+                        item_uom_id: (oldLine as any).uom_id,
+                        ref_doc_no: existingHeader.so_no,
+                        lot_id: Number((oldLine as any).lot_id),
+                        item_lot_balance_id: Number((oldLine as any).lot_balance_id),
+                        qty: -Number((oldLine as any).qty),
+                    });
+
+                    // คืนค่าการจอง (Allocation) ของข้อมูลเดิมก่อนแก้ไข
+                    await this.inventorySoAllocationService.unallocate(tx, {
+                        item_uom_id: (oldLine as any).uom_id,
+                        item_lot_balance_id: Number((oldLine as any).lot_balance_id),
+                        qty: Number((oldLine as any).qty),
+                    });
+                }
+
+                // 2. Commit สต็อกใหม่ตามค่าที่แก้ไข
+                await this.inventoryOrchestratorService.process(tx, {
+                    system_document_code: "SO",
+                    doc_type_no: 0,
+                    item_uom_id: Number((line as any).uom_id),
+                    ref_doc_no: existingHeader.so_no,
+                    lot_id: Number(line.lot_id),
+                    item_lot_balance_id: Number(line.lot_balance_id),
+                    qty: Number(line.qty),
+                });
+
+                // จองสินค้า (Allocate) ตามจำนวนใหม่ที่แก้ไข
+                await this.inventorySoAllocationService.allocate(tx, {
+                    item_uom_id: Number((line as any).uom_id),
+                    item_lot_balance_id: Number(line.lot_balance_id),
+                    qty: Number(line.qty),
+                });
+
+                const updateLineData =
+                    UpdateSaleOrderLineMapper.toPrismaUpdateInput(
+                        line as UpdateSaleOrderLineDto, // Cast to expected type
+                        calc,
+                        so_id,
+                    );
+
+                await this.updateSaleOrderLineRepository.update(
+                    line.so_line_id!,
+                    updateLineData,
+                    tx,
+                );
+            }
+
+            // 9. create
+            for (const line of diff.toCreate) {
+                const calc = calculatedLines.find((l) => l.line === line)?.calc;
+                if (!calc) continue;
+
+                const createLineData =
+                    CreateSaleOrderLineMapper.toPrismaCreateInput(
+                        line as any,
+                        calc,
+                        so_id,
+                    );
+
+                await this.createSaleOrderLineRepository.create( // Corrected argument order
+                    tx,
+                    createLineData,
+                );
+
+                // Commit สต็อกสำหรับรายการที่เพิ่มใหม่
+                await this.inventoryOrchestratorService.process(tx, {
+                    system_document_code: "SO",
+                    doc_type_no: 0,
+                    item_uom_id: (line as any).uom_id,
+                    ref_doc_no: existingHeader.so_no,
+                    lot_id: Number((line as any).lot_id),
+                    item_lot_balance_id: Number((line as any).lot_balance_id),
+                    qty: Number((line as any).qty),
+                });
+
+                // จองสินค้า (Allocate) สำหรับรายการที่เพิ่มมาใหม่
+                await this.inventorySoAllocationService.allocate(tx, {
+                    item_uom_id: (line as any).uom_id,
+                    item_lot_balance_id: Number((line as any).lot_balance_id),
+                    qty: Number((line as any).qty),
+                });
+            }
+
+            // 10. return
+            return tx.sale_order_header.findUnique({
+                where: { so_id },
+                include: {
+                    saleOrderLines: true,
                 },
             });
-        }
-
-        // 8. update
-        for (const line of diff.toUpdate) {
-            const calc = calculatedLines.find( // Explicitly cast line to UpdateSaleOrderLineDto
-                (l) => l.line.so_line_id === line.so_line_id,
-            )?.calc;
-
-            if (!calc) continue;
-
-            const updateLineData =
-                UpdateSaleOrderLineMapper.toPrismaUpdateInput(
-                    line as UpdateSaleOrderLineDto, // Cast to expected type
-                    calc,
-                    so_id,
-                );
-
-            await this.updateSaleOrderLineRepository.update(
-                line.so_line_id!,
-                updateLineData,
-                tx,
-            );
-        }
-
-        // 9. create
-        for (const line of diff.toCreate) {
-            const calc = calculatedLines.find((l) => l.line === line)?.calc;
-            if (!calc) continue;
-
-            const createLineData =
-                CreateSaleOrderLineMapper.toPrismaCreateInput(
-                    line as any,
-                    calc,
-                    so_id,
-                );
-
-            await this.createSaleOrderLineRepository.create( // Corrected argument order
-                tx,
-                createLineData,
-            );
-        }
-
-        // 10. return
-        return tx.sale_order_header.findUnique({
-            where: { so_id },
-            include: {
-                saleOrderLines: true,
-            },
         });
-    });
-}
+    }
 
 }

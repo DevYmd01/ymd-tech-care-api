@@ -18,6 +18,7 @@ import {LotBalanceModule} from '@/common/inventory/lot-balance/lot-balance.modul
 import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
 
 
+
 @Module({
   controllers: [SaleOrderController],
   providers: [

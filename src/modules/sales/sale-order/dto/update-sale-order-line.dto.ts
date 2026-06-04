@@ -71,4 +71,9 @@ so_line_id?: number;
     @IsOptional()
     @IsNumber({ maxDecimalPlaces: 2 })
     net_amount?: number;
+
+      // เพิ่มมาใหม่ เพื่อจัดการ lot
+  @IsOptional()
+  @IsNumber()
+  lot_balance_id?: number;
 }

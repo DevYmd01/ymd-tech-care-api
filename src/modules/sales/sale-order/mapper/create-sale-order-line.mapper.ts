@@ -38,6 +38,14 @@ export class CreateSaleOrderLineMapper {
           }
         : {}),
 
+        ...(data.lot_balance_id
+          ? {
+              lot_balance: {
+                connect: { lot_balance_id: data.lot_balance_id },
+              },
+            }
+          : {}),
+
       uom: {
         connect: { item_uom_id: data.uom_id },
       },
