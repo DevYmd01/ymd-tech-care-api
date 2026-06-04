@@ -8,6 +8,8 @@ import { DeliveryLineMapper } from './mapper/delivery-line.mapper';
 import { PrismaService } from '@/prisma/prisma.service';
 import { DocumentNumberModule } from '@/modules/document-number/document-number.module';
 import { PrismaModule } from '@/prisma/prisma.module';
+import { LotBalanceModule } from '@/common/inventory/lot-balance/lot-balance.module'
+import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
 
 @Module({
   controllers: [DeliveryController],
@@ -19,6 +21,6 @@ import { PrismaModule } from '@/prisma/prisma.module';
     DeliveryHeaderMapper,
     DeliveryLineMapper
   ],
-  imports: [ DocumentNumberModule, PrismaModule ]
+  imports: [ DocumentNumberModule, PrismaModule, LotBalanceModule, StockOptionsModule ]
 })
 export class DeliveryModule {}

@@ -15,6 +15,7 @@ export class DeliveryLineMapper {
             warehouse: { connect: { warehouse_id: data.warehouse_id } },
             location: data.location_id ? { connect: { location_id: data.location_id } } : undefined,    
             lot: data.lot_id ? { connect: { lot_id: data.lot_id } } : undefined,
+            lot_balance: data.lot_balance_id ? { connect: { lot_balance_id: data.lot_balance_id } } : undefined,
             remarks: data.remarks,
             serial_no: data.serial_no,
         };
@@ -31,6 +32,7 @@ export class DeliveryLineMapper {
             warehouse: { connect: { warehouse_id: data.warehouse_id } },
             location: data.location_id ? { connect: { location_id: data.location_id } } : undefined,    
             lot: data.lot_id ? { connect: { lot_id: data.lot_id } } : undefined,
+            lot_balance: data.lot_balance_id ? { connect: { lot_balance_id: data.lot_balance_id } } : undefined,
             remarks: data.remarks,
             serial_no: data.serial_no,
         };

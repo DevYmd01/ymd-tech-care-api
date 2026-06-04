@@ -9,6 +9,9 @@ import { DeliveryHeaderMapper } from './mapper/delivery-header.mapper';
 import { DeliveryLineMapper } from './mapper/delivery-line.mapper';
 import { diffById } from '@/common/utils';
 
+import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service';
+
+
 @Injectable()
 export class DeliveryService {
     constructor(
@@ -16,6 +19,7 @@ export class DeliveryService {
         private readonly documentNumberService: DocumentNumberService,
         private readonly deliveryHeaderRepository: DeliveryHeaderRepository,
         private readonly deliveryLineRepository: DeliveryLineRepository,
+        private readonly inventoryOrchestratorService: InventoryOrchestratorService,
     ) { }
 
     async create(
@@ -52,20 +56,28 @@ export class DeliveryService {
                         createDeliveryHeaderDto.deliveryLines &&
                         createDeliveryHeaderDto.deliveryLines.length > 0
                     ) {
-                        // Use Promise.all for concurrent creation of delivery lines
-                        await Promise.all(
-                            createDeliveryHeaderDto.deliveryLines.map(async (line) => {
-                                const lineData =
-                                    DeliveryLineMapper.toPrismaCreateInput(
-                                        line,
-                                        deliveryHeader.delivery_id,
-                                    );
-                                await this.deliveryLineRepository.create(
-                                    prisma,
-                                    lineData,
+                        for (const line of createDeliveryHeaderDto.deliveryLines) {
+                            const lineData =
+                                DeliveryLineMapper.toPrismaCreateInput(
+                                    line,
+                                    deliveryHeader.delivery_id,
                                 );
-                            }),
-                        );
+                            await this.deliveryLineRepository.create(
+                                prisma,
+                                lineData,
+                            );
+
+                            // 🔹 บันทึกรายการเคลื่อนไหวสต็อก (Stock Movement)
+                            await this.inventoryOrchestratorService.process(prisma, {
+                                system_document_code: 'DLVRY',
+                                doc_type_no: 0,
+                                item_uom_id: line.uom_id,
+                                ref_doc_no: delivery_no,
+                                lot_id: Number(line.lot_id),
+                                item_lot_balance_id: Number(line.lot_balance_id),
+                                qty: Number(line.qty_shipped),
+                            });
+                        }
                     }
 
                     // Return complete document
@@ -139,37 +151,84 @@ export class DeliveryService {
                         'delivery_line_id',
                     );
 
-                    // Delete lines that are no longer present in the incoming DTO
-                    await Promise.all(toDelete.map(async (lineToDelete) => {
-                        await this.deliveryLineRepository.delete(
-                            prisma,
-                            lineToDelete.delivery_line_id,
-                        );
-                    }));
+                    // 🔹 7. ลบรายการที่ถูกเอาออก (Reverse สต็อกเดิมออกก่อนลบ)
+                    if (toDelete.length > 0) {
+                        for (const line of toDelete) {
+                            await this.inventoryOrchestratorService.process(prisma, {
+                                system_document_code: 'DLVRY',
+                                doc_type_no: 0,
+                                item_uom_id: (line as any).uom_id,
+                                ref_doc_no: existingDelivery.delivery_no,
+                                lot_id: Number((line as any).lot_id),
+                                item_lot_balance_id: Number((line as any).lot_balance_id),
+                                qty: -Number((line as any).qty_shipped),
+                            });
 
-                    // Update existing lines
-                    await Promise.all(toUpdate.map(async (lineToUpdate) => {
+                            await this.deliveryLineRepository.delete(
+                                prisma,
+                                line.delivery_line_id,
+                            );
+                        }
+                    }
+
+                    // 🔹 8. อัปเดตรายการเดิม (Reverse ของเก่า และ Commit ของใหม่)
+                    for (const line of toUpdate) {
+                        const oldLine = existingDelivery.deliveryLines.find(
+                            (l) => l.delivery_line_id === line.delivery_line_id,
+                        );
+
+                        if (oldLine) {
+                            // Reverse สต็อกเดิมตามค่าเก่า
+                            await this.inventoryOrchestratorService.process(prisma, {
+                                system_document_code: 'DLVRY',
+                                doc_type_no: 0,
+                                item_uom_id: (oldLine as any).uom_id,
+                                ref_doc_no: existingDelivery.delivery_no,
+                                lot_id: Number((oldLine as any).lot_id),
+                                item_lot_balance_id: Number((oldLine as any).lot_balance_id),
+                                qty: -Number((oldLine as any).qty_shipped),
+                            });
+                        }
+
+                        // Commit สต็อกใหม่ตามค่าที่แก้ไข
+                        await this.inventoryOrchestratorService.process(prisma, {
+                            system_document_code: 'DLVRY',
+                            doc_type_no: 0,
+                            item_uom_id: (line as any).uom_id,
+                            ref_doc_no: existingDelivery.delivery_no,
+                            lot_id: Number((line as any).lot_id),
+                            item_lot_balance_id: Number((line as any).lot_balance_id),
+                            qty: Number((line as any).qty_shipped),
+                        });
+
                         const lineUpdateData = DeliveryLineMapper.toPrismaUpdateInput(
-                            lineToUpdate as UpdateDeliveryLineDto, // Cast for type safety
+                            line as UpdateDeliveryLineDto,
                         );
                         await this.deliveryLineRepository.update(
                             prisma,
-                            lineToUpdate.delivery_line_id!,
+                            line.delivery_line_id!,
                             lineUpdateData,
                         );
-                    }));
+                    }
 
-                    // Create new lines
-                    await Promise.all(toCreate.map(async (lineToCreate) => {
+                    // 🔹 9. สร้างรายการใหม่ (Commit สต็อกใหม่)
+                    for (const line of toCreate) {
+                        await this.inventoryOrchestratorService.process(prisma, {
+                            system_document_code: 'DLVRY',
+                            doc_type_no: 0,
+                            item_uom_id: (line as any).uom_id,
+                            ref_doc_no: existingDelivery.delivery_no,
+                            lot_id: Number((line as any).lot_id),
+                            item_lot_balance_id: Number((line as any).lot_balance_id),
+                            qty: Number((line as any).qty_shipped),
+                        });
+
                         const lineCreateData = DeliveryLineMapper.toPrismaCreateInput(
-                            lineToCreate as CreateDeliveryLineDto, // Cast for type safety
+                            line as CreateDeliveryLineDto,
                             delivery_id,
                         );
-                        await this.deliveryLineRepository.create(
-                            prisma,
-                            lineCreateData,
-                        );
-                    }));
+                        await this.deliveryLineRepository.create(prisma, lineCreateData);
+                    }
 
                     // 4. Return the complete updated delivery header with its lines
                     const updatedDelivery = await prisma.delivery_header.findUnique({

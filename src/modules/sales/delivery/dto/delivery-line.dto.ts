@@ -36,6 +36,9 @@ export class CreateDeliveryLineDto {
     @IsInt()
     @IsOptional()
     lot_id?: number;
+    @IsInt()
+    @IsOptional()
+    lot_balance_id?: number;
     @IsString()
     @IsOptional()
     remarks?: string;
@@ -76,4 +79,8 @@ export class UpdateDeliveryLineDto {
     @IsString()
     @IsOptional()
     serial_no?: string;
+
+    @IsInt()
+    @IsOptional()
+    lot_balance_id?: number;
 }
