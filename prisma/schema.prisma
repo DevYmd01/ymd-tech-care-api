@@ -2732,7 +2732,7 @@ model sale_reservation_line {
     lot_balance         item_lot_balance?       @relation(fields: [lot_balance_id], references: [lot_balance_id])
 
     /// สถานะ
-    status String @db.VarChar(20)
+    status String @db.VarChar(20)   @default("PENDING")
 
     /// วันที่สร้าง
     created_at DateTime @default(now())
@@ -3079,7 +3079,7 @@ model stock_transaction {
 // ITEM LOT (MASTER)
 // =========================
 // M4
-model item_lot {
+model item_lot {1
     lot_id             Int       @id @default(autoincrement())
     item_id            Int
     lot_no             String

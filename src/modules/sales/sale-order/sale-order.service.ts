@@ -17,6 +17,7 @@ import { UpdateSaleOrderHeaderMapper } from './mapper/update-sale-order-header.m
 import { UpdateSaleOrderLineMapper } from './mapper/update-sale-order-line.mapper';
 import { UpdateSaleOrderHeaderDto } from './dto/update-sale-order-header.dto';
 import { UpdateSaleOrderLineDto } from './dto/update-sale-order-line.dto';
+import { InventoryOrchestratorService } from '@/common/inventory/lot-balance/commit/Inventory-orchestrator.service';
 
 
 @Injectable()
@@ -35,6 +36,7 @@ export class SaleOrderService {
         private readonly updateSaleOrderLineRepository: UpdateSaleOrderLineRepository,
         private readonly updateSaleOrderHeaderMapper: UpdateSaleOrderHeaderMapper,
         private readonly updateSaleOrderLineMapper: UpdateSaleOrderLineMapper,
+        private readonly inventoryOrchestratorService: InventoryOrchestratorService,
     ) { }
 
 

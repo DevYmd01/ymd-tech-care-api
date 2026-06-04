@@ -14,6 +14,8 @@ import { UpdateSaleOrderLineRepository } from './repository/update-sale-order-li
 import { UpdateSaleOrderHeaderMapper } from './mapper/update-sale-order-header.mapper';
 import { UpdateSaleOrderLineMapper } from './mapper/update-sale-order-line.mapper';
 import { PrismaModule } from '@/prisma/prisma.module';
+import {LotBalanceModule} from '@/common/inventory/lot-balance/lot-balance.module';
+import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
 
 
 @Module({
@@ -34,7 +36,9 @@ import { PrismaModule } from '@/prisma/prisma.module';
   ],
   
   imports: [
-    DocumentNumberModule,PrismaModule
+    DocumentNumberModule,PrismaModule,
+    LotBalanceModule, //ภายในเก็บ InventoryOrchestratorService ไว้
+    StockOptionsModule,
   ]
 })
 export class SaleOrderModule {}
