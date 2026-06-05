@@ -33,6 +33,7 @@ export class SaleOrderApprovalService {
     ) { }
 
     async create(createDto: CreateSaleOrderApprovalHeaderDto) {
+        console.log('Creating Sale Order Approval with data:', createDto);
         return this.prisma.$transaction(async (tx) => {
 
             const isCancelled =

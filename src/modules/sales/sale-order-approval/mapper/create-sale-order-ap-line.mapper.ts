@@ -21,6 +21,11 @@ export class CreateSaleOrderApprovalLineMapper {
         connect: { item_uom_id: dto.uom_id },
       },
 
+      location: dto.location_id ? { connect: { location_id: dto.location_id } } : undefined,
+      warehouse: dto.warehouse_id ? { connect: { warehouse_id: dto.warehouse_id } } : undefined,
+      lot: dto.lot_id ? { connect: { lot_id: dto.lot_id } } : undefined,
+      lot_balance: dto.lot_balance_id ? { connect: { lot_balance_id: dto.lot_balance_id } } : undefined,
+
       approved_qty: dto.approved_qty,
       qty: dto.qty,
       unit_price: dto.unit_price,

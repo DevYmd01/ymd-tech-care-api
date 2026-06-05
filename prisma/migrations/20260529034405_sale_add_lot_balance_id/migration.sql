@@ -8,9 +8,8 @@
 ALTER TABLE "sale_order_line" ADD COLUMN     "lot_balance_id" INTEGER;
 
 -- AlterTable
-ALTER TABLE "sale_reservation_line"
-ADD COLUMN "lot_balance_id" INTEGER,
-ADD COLUMN "status" VARCHAR(20) NOT NULL DEFAULT 'OPEN';
+ALTER TABLE "sale_reservation_line" ADD COLUMN     "lot_balance_id" INTEGER,
+ADD COLUMN     "status" VARCHAR(20) NOT NULL;
 
 -- AddForeignKey
 ALTER TABLE "sale_reservation_line" ADD CONSTRAINT "sale_reservation_line_lot_balance_id_fkey" FOREIGN KEY ("lot_balance_id") REFERENCES "item_lot_balance"("lot_balance_id") ON DELETE SET NULL ON UPDATE CASCADE;

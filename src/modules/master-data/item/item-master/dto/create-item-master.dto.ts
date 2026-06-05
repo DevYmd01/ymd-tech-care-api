@@ -123,6 +123,8 @@ export class CreateItemMasterDto {
     @IsOptional()
     @IsString()
     costing_method?: string;
+@IsOptional()
+    uom_conversions: string; // JSON string for UOM conversions, e.g. {"2": 0.5} means 1 sale UOM = 0.5 base UOM
 
     // Add this for the initial barcode creation
     @IsOptional()
@@ -130,4 +132,5 @@ export class CreateItemMasterDto {
     @ValidateNested({ each: true })
     @Type(() => NestedCreateItemBarcodeDto)
     barcodes?: NestedCreateItemBarcodeDto[];
+    
 }

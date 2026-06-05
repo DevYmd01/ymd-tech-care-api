@@ -47,13 +47,13 @@ export class CreateSaleOrderApprovalLineDto {
     @IsString()
     remarks?: string;
 
-    // @IsOptional()
-    // @IsNumber()
-    // warehouse_id?: number;
+    @IsOptional()
+    @IsNumber()
+    warehouse_id?: number;
 
-    // @IsOptional()
-    // @IsNumber()
-    // location_id?: number;
+    @IsOptional()
+    @IsNumber()
+    location_id?: number;
 
     @IsOptional()
     @IsNumber()
