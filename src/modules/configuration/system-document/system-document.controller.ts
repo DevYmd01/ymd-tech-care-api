@@ -17,5 +17,10 @@ export class SystemDocumentController {
     async findOne(@Param('id') id: string) {
         return this.systemDocumentService.findOne(+id);
     }
+
+    @Get('document-code/:code')
+    async findByCode(@Param('code') code: string) {
+        return this.systemDocumentService.findByCode(code);
+    }
 }
 

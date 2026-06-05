@@ -15,4 +15,19 @@ export class SystemDocumentService {
             where: { system_document_id: id },
         });
     }
+
+    async findByCode(code: string) {
+        return this.prisma.$transaction(async (tx) => {
+        
+        const system_document = await tx.system_document.findUnique({
+            where: { system_document_code: code },
+        });
+
+        const docLinkIcs = await tx.doc_link_ic.findMany({
+            where: { system_document_id: system_document?.system_document_id },
+        });
+
+        return { ...system_document, docLinkIcs };
+    });
+    }
 }
