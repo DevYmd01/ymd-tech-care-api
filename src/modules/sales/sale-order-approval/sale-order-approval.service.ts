@@ -201,16 +201,16 @@ export class SaleOrderApprovalService {
                 });
 
                 // 🔹 จัดการสถานะการจอง (Allocation) สำหรับ Sale Order ตามผลการอนุมัติ
-                if (isCancelled) {
-                    // หากเป็นการปฏิเสธ (Rejected/Cancelled) ให้คืนค่าจาก Allocated กลับไปเป็น Booked
-                    await this.inventorySoAllocationService.unallocate(tx, {
-                        item_uom_id: line.uom_id,
-                        item_lot_balance_id: Number(line.lot_balance_id),
-                        qty: Number(line.qty),
-                    });
-                }
+                // if (isCancelled) {
+                //     // หากเป็นการปฏิเสธ (Rejected/Cancelled) ให้คืนค่าจาก Allocated กลับไปเป็น Booked
+                //     await this.inventorySoAllocationService.unallocate(tx, {
+                //         item_uom_id: line.uom_id,
+                //         item_lot_balance_id: Number(line.lot_balance_id),
+                //         qty: Number(line.qty),
+                //     });
+                // }
 
-                console.log(`Inventory ${isCancelled ? 'unallocation' : 'allocation'} for SO line ${line.so_line_id}:`)
+                // console.log(`Inventory ${isCancelled ? 'unallocation' : 'allocation'} for SO line ${line.so_line_id}:`)
                 // else {
                 //     // หากเป็นการอนุมัติ (Approved) ให้ยืนยันยอดการจองในส่วน Allocated
                 //     await this.inventorySoAllocationService.allocate(tx, {
