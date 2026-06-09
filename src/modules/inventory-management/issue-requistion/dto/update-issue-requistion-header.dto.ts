@@ -12,9 +12,9 @@ import {
     Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateIssueRequistionLineDto } from './create-issue-requistion-line.dto';
+import { UpdateIssueRequistionLineDto } from './update-issue-requistion-line.dto';
 
-export class CreateIssueRequistionHeaderDto { 
+export class UpdateIssueRequistionHeaderDto { 
 
 @IsNotEmpty()
 @IsDate()
@@ -57,7 +57,7 @@ stock_effect_ic?: number | null;
 @IsNotEmpty()
 @IsArray()
 @ValidateNested({ each: true })
-@Type(() => CreateIssueRequistionLineDto)
-lines!: CreateIssueRequistionLineDto[];
+@Type(() => UpdateIssueRequistionLineDto)
+lines!: UpdateIssueRequistionLineDto[];
 
 }

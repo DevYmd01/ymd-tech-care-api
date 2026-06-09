@@ -169,6 +169,14 @@ async function main() {
       seq_length: 4,
       running_cycle: RunningCycle.YEAR,
     },
+        {
+      module_code: 'ISSUE_REQ',
+      document_type_code: 'ISSUE_REQ',
+      prefix: 'ISSUE_REQ',
+      pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+      seq_length: 4,
+      running_cycle: RunningCycle.YEAR,
+    },
   ];
   console.log('🌱 Start seeding document_format...');
   for (const f of formats) {
@@ -212,7 +220,7 @@ async function main() {
 
 
   const salesDocuments = [
-    {
+    { 
       system_document_code: 'DLVRY',
       system_document_name: 'รายการจัดส่งสินค้า',
       system_document_name_eng: 'Delivery Order',
@@ -237,6 +245,13 @@ async function main() {
       system_document_code: 'SOA',
       system_document_name: 'รายการอนุมัติสั่งขาย',
       system_document_name_eng: 'Sales Order Approval',
+      sort_order: 1,
+      is_active: true,
+    },
+                {
+      system_document_code: 'ISSUE_REQ',
+      system_document_name: 'รายการเบิกสินค้า',
+      system_document_name_eng: 'Issue Requisition',
       sort_order: 1,
       is_active: true,
     },

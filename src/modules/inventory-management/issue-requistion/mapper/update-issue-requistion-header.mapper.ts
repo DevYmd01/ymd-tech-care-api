@@ -1,12 +1,12 @@
 import { Prisma } from "@prisma/client";
-import { CreateIssueRequistionHeaderDto } from "../dto/create-issue-requistion-header.dto";
+import { UpdateIssueRequistionHeaderDto } from "../dto/update-issue-requistion-header.dto"; 
 
-export class CreateIssueRequistionHeaderMapper {
-    static toPrismaCreateInput(
-        data: CreateIssueRequistionHeaderDto,
+export class UpdateIssueRequistionHeaderMapper {
+    static toPrismaUpdateInput(
+        data: UpdateIssueRequistionHeaderDto,
         issue_req_no: string,
         stock_effect_ic: number | null,
-    ): Prisma.issue_requistion_headerCreateInput {
+    ): Prisma.issue_requistion_headerUpdateInput {
         return {
             issue_req_no: issue_req_no,
             issue_req_date: data.issue_req_date,

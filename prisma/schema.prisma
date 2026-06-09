@@ -2846,8 +2846,7 @@ model issue_requistion_header {
 
     status String @default("PENDING") @db.VarChar(20)
 
-    stock_effect_ic Int
-
+    stock_effect_ic Int?
     created_at           DateTime                @default(now())
     updated_at           DateTime                @updatedAt
     issueRequistionLines issue_requistion_line[]

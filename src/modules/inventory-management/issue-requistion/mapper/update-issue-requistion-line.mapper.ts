@@ -1,11 +1,11 @@
 import { Prisma } from "@prisma/client";
-import { CreateIssueRequistionLineDto } from "../dto/create-issue-requistion-line.dto";
+import { UpdateIssueRequistionLineDto } from "../dto/update-issue-requistion-line.dto"; 
 
-export class CreateIssueRequistionLineMapper {
-    static toPrismaCreateInput(
-        data: CreateIssueRequistionLineDto,
+export class UpdateIssueRequistionLineMapper {
+    static toPrismaUpdateInput(
+        data: UpdateIssueRequistionLineDto,
         issue_req_id: number,
-    ): Prisma.issue_requistion_lineCreateInput {
+    ): Prisma.issue_requistion_lineUpdateInput {
         return {
             item: { connect: { item_id: data.item_id } },
             qty: new Prisma.Decimal(data.qty),
