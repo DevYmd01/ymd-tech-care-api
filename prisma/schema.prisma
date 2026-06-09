@@ -85,6 +85,7 @@ model employees {
     updatedVqHeaders                vq_header[]                      @relation("VQUpdatedBy")
     issueRequistionHeadersCreated   issue_requistion_header[]        @relation("emp_issue_req_header_created")
     issueRequistionHeadersRequested issue_requistion_header[]        @relation("emp_issue_req_header_request")
+    appvissueRequistionHeaders      appvissue_requistion_header[]
 }
 
 model employee_signature {
@@ -176,23 +177,24 @@ model employee_side {
 }
 
 model employee_department {
-    is_active                Boolean                      @default(true)
-    created_at               DateTime                     @default(now())
-    updated_at               DateTime                     @updatedAt
-    emp_dept_code            String                       @unique @db.VarChar(30)
-    emp_dept_id              Int                          @id @unique @default(autoincrement())
-    emp_dept_name            String                       @db.VarChar(200)
-    emp_dept_nameeng         String?                      @db.VarChar(200)
-    emp_side_id              Int
-    side                     employee_side                @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
-    employees                employees[]
-    priceListHeaders         price_list_header[]
-    qcHeaders                qc_header[]
-    saleReservationHeaders   sale_reservation_header[]
-    saleOrderApprovalHeaders sale_order_approval_header[]
-    saleOrderHeaders         sale_order_header[]
-    saleQuotationHeaders     sale_quotation_header[]
-    issueRequistionHeaders   issue_requistion_header[]
+    is_active                  Boolean                       @default(true)
+    created_at                 DateTime                      @default(now())
+    updated_at                 DateTime                      @updatedAt
+    emp_dept_code              String                        @unique @db.VarChar(30)
+    emp_dept_id                Int                           @id @unique @default(autoincrement())
+    emp_dept_name              String                        @db.VarChar(200)
+    emp_dept_nameeng           String?                       @db.VarChar(200)
+    emp_side_id                Int
+    side                       employee_side                 @relation(fields: [emp_side_id], references: [emp_side_id], onDelete: Cascade)
+    employees                  employees[]
+    priceListHeaders           price_list_header[]
+    qcHeaders                  qc_header[]
+    saleReservationHeaders     sale_reservation_header[]
+    saleOrderApprovalHeaders   sale_order_approval_header[]
+    saleOrderHeaders           sale_order_header[]
+    saleQuotationHeaders       sale_quotation_header[]
+    issueRequistionHeaders     issue_requistion_header[]
+    appvissueRequistionHeaders appvissue_requistion_header[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -245,83 +247,86 @@ model employee_address {
 
 /// ตารางเก็บข้อมูลสาขา 
 model org_branch {
-    branch_code              String                       @unique @db.VarChar(20)
-    branch_name              String                       @db.VarChar(200)
-    is_active                Boolean                      @default(true)
-    branch_id                Int                          @id @default(autoincrement())
-    created_at               DateTime                     @default(now())
-    updated_at               DateTime                     @updatedAt
-    deliveryHeaders          delivery_header[]
-    employees                employees[]
-    icOption                 ic_option?
-    itemLotBalances          item_lot_balance[]
-    itemStockBalances        item_stock_balance[]
-    lotTransactions          lot_transaction[]
-    poHeaders                po_header[]
-    prHeaders                pr_header[]
-    priceListHeaders         price_list_header[]
-    rfqHeaders               rfq_header[]
-    saleReservationHeaders   sale_reservation_header[]
-    saleOrderApprovalHeaders sale_order_approval_header[]
-    saleOrderHeaders         sale_order_header[]
-    saleQuotationHeaders     sale_quotation_header[]
-    stockTransactions        stock_transaction[]
-    warehouses               warehouse[]
-    issueRequistionHeaders   issue_requistion_header[]
+    branch_code                String                        @unique @db.VarChar(20)
+    branch_name                String                        @db.VarChar(200)
+    is_active                  Boolean                       @default(true)
+    branch_id                  Int                           @id @default(autoincrement())
+    created_at                 DateTime                      @default(now())
+    updated_at                 DateTime                      @updatedAt
+    deliveryHeaders            delivery_header[]
+    employees                  employees[]
+    icOption                   ic_option?
+    itemLotBalances            item_lot_balance[]
+    itemStockBalances          item_stock_balance[]
+    lotTransactions            lot_transaction[]
+    poHeaders                  po_header[]
+    prHeaders                  pr_header[]
+    priceListHeaders           price_list_header[]
+    rfqHeaders                 rfq_header[]
+    saleReservationHeaders     sale_reservation_header[]
+    saleOrderApprovalHeaders   sale_order_approval_header[]
+    saleOrderHeaders           sale_order_header[]
+    saleQuotationHeaders       sale_quotation_header[]
+    stockTransactions          stock_transaction[]
+    warehouses                 warehouse[]
+    issueRequistionHeaders     issue_requistion_header[]
+    appvissueRequistionHeaders appvissue_requistion_header[]
 
     @@map("org_branch")
 }
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_code         String                     @unique @db.VarChar(20)
-    warehouse_name         String                     @db.VarChar(200)
-    warehouse_id           Int                        @id @default(autoincrement())
-    branch_id              Int
-    address                String?
-    created_at             DateTime                   @default(now())
-    is_active              Boolean                    @default(true)
-    updated_at             DateTime                   @updatedAt
-    deliveryLines          delivery_line[]
-    regnHeaders            grn_header[]
-    itemLotBalances        item_lot_balance[]
-    itemStockBalances      item_stock_balance[]
-    locations              location[]
-    lotTransactions        lot_transaction[]
-    poHeaders              po_header[]
-    prLines                pr_line[]
-    saleOrderLines         sale_order_line[]
-    saleReservationLines   sale_reservation_line[]
-    stockTransactions      stock_transaction[]
-    branch                 org_branch                 @relation(fields: [branch_id], references: [branch_id])
-    saleOrderApprovalLines sale_order_approval_line[]
-    issueRequistionLines   issue_requistion_line[]
+    warehouse_code           String                      @unique @db.VarChar(20)
+    warehouse_name           String                      @db.VarChar(200)
+    warehouse_id             Int                         @id @default(autoincrement())
+    branch_id                Int
+    address                  String?
+    created_at               DateTime                    @default(now())
+    is_active                Boolean                     @default(true)
+    updated_at               DateTime                    @updatedAt
+    deliveryLines            delivery_line[]
+    regnHeaders              grn_header[]
+    itemLotBalances          item_lot_balance[]
+    itemStockBalances        item_stock_balance[]
+    locations                location[]
+    lotTransactions          lot_transaction[]
+    poHeaders                po_header[]
+    prLines                  pr_line[]
+    saleOrderLines           sale_order_line[]
+    saleReservationLines     sale_reservation_line[]
+    stockTransactions        stock_transaction[]
+    branch                   org_branch                  @relation(fields: [branch_id], references: [branch_id])
+    saleOrderApprovalLines   sale_order_approval_line[]
+    issueRequistionLines     issue_requistion_line[]
+    appvissueRequistionLines appvissue_requistion_line[]
 
     @@map("warehouse")
 }
 
 model location {
-    location_id            Int                        @id @default(autoincrement())
-    warehouse_id           Int
-    location_code          String                     @unique @db.VarChar(20)
-    location_name          String                     @db.VarChar(200)
-    location_nameeng       String?                    @db.VarChar(200)
-    is_active              Boolean                    @default(true)
-    created_at             DateTime                   @default(now())
-    updated_at             DateTime                   @updatedAt
-    shelf_id               Int?
-    deliveryLines          delivery_line[]
-    itemLotBalances        item_lot_balance[]
-    itemStockBalances      item_stock_balance[]
-    shelf                  shelf?                     @relation(fields: [shelf_id], references: [shelf_id])
-    warehouse              warehouse                  @relation(fields: [warehouse_id], references: [warehouse_id])
-    lotTransactions        lot_transaction[]
-    prLines                pr_line[]
-    saleOrderLines         sale_order_line[]
-    saleReservationLines   sale_reservation_line[]
-    stockTransactions      stock_transaction[]
-    saleOrderApprovalLines sale_order_approval_line[]
-    issueRequistionLines   issue_requistion_line[]
+    location_id              Int                         @id @default(autoincrement())
+    warehouse_id             Int
+    location_code            String                      @unique @db.VarChar(20)
+    location_name            String                      @db.VarChar(200)
+    location_nameeng         String?                     @db.VarChar(200)
+    is_active                Boolean                     @default(true)
+    created_at               DateTime                    @default(now())
+    updated_at               DateTime                    @updatedAt
+    shelf_id                 Int?
+    deliveryLines            delivery_line[]
+    itemLotBalances          item_lot_balance[]
+    itemStockBalances        item_stock_balance[]
+    shelf                    shelf?                      @relation(fields: [shelf_id], references: [shelf_id])
+    warehouse                warehouse                   @relation(fields: [warehouse_id], references: [warehouse_id])
+    lotTransactions          lot_transaction[]
+    prLines                  pr_line[]
+    saleOrderLines           sale_order_line[]
+    saleReservationLines     sale_reservation_line[]
+    stockTransactions        stock_transaction[]
+    saleOrderApprovalLines   sale_order_approval_line[]
+    issueRequistionLines     issue_requistion_line[]
+    appvissueRequistionLines appvissue_requistion_line[]
 
     @@map("location")
 }
@@ -343,71 +348,72 @@ model shelf {
 /// ไม่
 /// ตารางเก็บข้อมูลสินค้า 
 model item {
-    item_code              String                     @unique @db.VarChar(50)
-    item_name              String                     @db.VarChar(255)
-    item_id                Int                        @id @default(autoincrement())
-    base_uom_id            Int?
-    created_at             DateTime                   @default(now())
-    item_brand_id          Int?
-    item_category_id       Int?
-    item_class_id          Int?
-    item_design_id         Int?
-    item_group_id          Int?
-    item_pattern_id        Int?
-    item_size_id           Int?
-    item_type_id           Int?
-    sale_uom_id            Int?
-    updated_at             DateTime                   @updatedAt
-    default_issue_policy   IssuePolicy
-    lot_tracking_level     TrackingLevel
-    serial_tracking_level  TrackingLevel
-    shelf_life_days        Int?
-    item_color_id          Int?
-    item_grade_id          Int?
-    barcode_default        String?                    @db.VarChar(80)
-    is_active              Boolean                    @default(true)
-    is_batch_control       Boolean                    @default(false)
-    is_expiry_control      Boolean                    @default(false)
-    is_serial_control      Boolean                    @default(false)
-    standard_cost          Decimal?                   @db.Decimal(18, 6)
-    tax_code_id            Int?
-    item_description       String?                    @db.VarChar(255)
-    item_descriptioneng    String?                    @db.VarChar(255)
-    item_nameeng           String?                    @db.VarChar(255)
-    deliveryLines          delivery_line[]
-    baseUom                uom?                       @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
-    itemBrand              item_brand?                @relation(fields: [item_brand_id], references: [item_brand_id])
-    itemCategory           item_category?             @relation(fields: [item_category_id], references: [item_category_id])
-    itemClass              item_class?                @relation(fields: [item_class_id], references: [item_class_id])
-    itemColor              item_color?                @relation(fields: [item_color_id], references: [item_color_id])
-    itemDesign             item_design?               @relation(fields: [item_design_id], references: [item_design_id])
-    itemGrade              item_grade?                @relation(fields: [item_grade_id], references: [item_grade_id])
-    itemGroup              item_group?                @relation(fields: [item_group_id], references: [item_group_id])
-    itemPattern            item_pattern?              @relation(fields: [item_pattern_id], references: [item_pattern_id])
-    itemSize               item_size?                 @relation(fields: [item_size_id], references: [item_size_id])
-    itemType               item_type?                 @relation(fields: [item_type_id], references: [item_type_id])
-    saleUom                uom?                       @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
-    taxCode                tax_code?                  @relation(fields: [tax_code_id], references: [tax_code_id])
-    itemBarcodes           item_barcode[]
-    itemLots               item_lot[]
-    itemLotBalances        item_lot_balance[]
-    itemStockBalances      item_stock_balance[]
-    itemUoms               item_uom[]
-    lotTransactions        lot_transaction[]
-    multiPriceItems        multi_price_item[]
-    poLines                po_line[]
-    prLines                pr_line[]
-    priceListItemLines     price_list_item_line[]
-    rfqLines               rfq_line[]
-    saleOrderApprovalLines sale_order_approval_line[]
-    saleOrderLines         sale_order_line[]
-    saleQuotationLines     sale_quotation_line[]
-    saleReservationLines   sale_reservation_line[]
-    standardCostHeaders    standard_cost_header[]
-    standardCostLines      standard_cost_line[]
-    stockTransactions      stock_transaction[]
-    vqLines                vq_line[]
-    issueRequistionLines   issue_requistion_line[]
+    item_code                String                      @unique @db.VarChar(50)
+    item_name                String                      @db.VarChar(255)
+    item_id                  Int                         @id @default(autoincrement())
+    base_uom_id              Int?
+    created_at               DateTime                    @default(now())
+    item_brand_id            Int?
+    item_category_id         Int?
+    item_class_id            Int?
+    item_design_id           Int?
+    item_group_id            Int?
+    item_pattern_id          Int?
+    item_size_id             Int?
+    item_type_id             Int?
+    sale_uom_id              Int?
+    updated_at               DateTime                    @updatedAt
+    default_issue_policy     IssuePolicy
+    lot_tracking_level       TrackingLevel
+    serial_tracking_level    TrackingLevel
+    shelf_life_days          Int?
+    item_color_id            Int?
+    item_grade_id            Int?
+    barcode_default          String?                     @db.VarChar(80)
+    is_active                Boolean                     @default(true)
+    is_batch_control         Boolean                     @default(false)
+    is_expiry_control        Boolean                     @default(false)
+    is_serial_control        Boolean                     @default(false)
+    standard_cost            Decimal?                    @db.Decimal(18, 6)
+    tax_code_id              Int?
+    item_description         String?                     @db.VarChar(255)
+    item_descriptioneng      String?                     @db.VarChar(255)
+    item_nameeng             String?                     @db.VarChar(255)
+    deliveryLines            delivery_line[]
+    baseUom                  uom?                        @relation("BaseUom", fields: [base_uom_id], references: [uom_id])
+    itemBrand                item_brand?                 @relation(fields: [item_brand_id], references: [item_brand_id])
+    itemCategory             item_category?              @relation(fields: [item_category_id], references: [item_category_id])
+    itemClass                item_class?                 @relation(fields: [item_class_id], references: [item_class_id])
+    itemColor                item_color?                 @relation(fields: [item_color_id], references: [item_color_id])
+    itemDesign               item_design?                @relation(fields: [item_design_id], references: [item_design_id])
+    itemGrade                item_grade?                 @relation(fields: [item_grade_id], references: [item_grade_id])
+    itemGroup                item_group?                 @relation(fields: [item_group_id], references: [item_group_id])
+    itemPattern              item_pattern?               @relation(fields: [item_pattern_id], references: [item_pattern_id])
+    itemSize                 item_size?                  @relation(fields: [item_size_id], references: [item_size_id])
+    itemType                 item_type?                  @relation(fields: [item_type_id], references: [item_type_id])
+    saleUom                  uom?                        @relation("SaleUom", fields: [sale_uom_id], references: [uom_id])
+    taxCode                  tax_code?                   @relation(fields: [tax_code_id], references: [tax_code_id])
+    itemBarcodes             item_barcode[]
+    itemLots                 item_lot[]
+    itemLotBalances          item_lot_balance[]
+    itemStockBalances        item_stock_balance[]
+    itemUoms                 item_uom[]
+    lotTransactions          lot_transaction[]
+    multiPriceItems          multi_price_item[]
+    poLines                  po_line[]
+    prLines                  pr_line[]
+    priceListItemLines       price_list_item_line[]
+    rfqLines                 rfq_line[]
+    saleOrderApprovalLines   sale_order_approval_line[]
+    saleOrderLines           sale_order_line[]
+    saleQuotationLines       sale_quotation_line[]
+    saleReservationLines     sale_reservation_line[]
+    standardCostHeaders      standard_cost_header[]
+    standardCostLines        standard_cost_line[]
+    stockTransactions        stock_transaction[]
+    vqLines                  vq_line[]
+    issueRequistionLines     issue_requistion_line[]
+    appvissueRequistionLines appvissue_requistion_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -463,6 +469,7 @@ model item_uom {
     saleQuotationLines         sale_quotation_line[]
     saleReservationLines       sale_reservation_line[]
     issueRequistionLines       issue_requistion_line[]
+    appvissueRequistionLines   appvissue_requistion_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1003,27 +1010,28 @@ model cost_center {
 /// ตารางเก็บข้อมูลโครงการ
 model project {
     /// รหัสโครงการ
-    project_code             String                       @unique @db.VarChar(30)
+    project_code               String                        @unique @db.VarChar(30)
     /// ชื่อโครงการ
-    project_name             String                       @db.VarChar(200)
+    project_name               String                        @db.VarChar(200)
     /// รหัสโครงการ
-    project_id               Int                          @id @default(autoincrement())
+    project_id                 Int                           @id @default(autoincrement())
     /// งบประมาณ
-    budget_amount            Decimal?                     @db.Decimal(15, 2)
+    budget_amount              Decimal?                      @db.Decimal(15, 2)
     /// รายละเอียดโครงการ
-    description              String?
+    description                String?
     /// วันที่สิ้นสุดโครงการ
-    end_date                 DateTime?
+    end_date                   DateTime?
     /// วันที่เริ่มต้นโครงการ
-    start_date               DateTime?
+    start_date                 DateTime?
     /// สถานะโครงการ
-    is_active                Boolean                      @default(true)
-    prHeaders                pr_header[]
-    saleReservationHeaders   sale_reservation_header[]
-    saleOrderApprovalHeaders sale_order_approval_header[]
-    saleOrderHeaders         sale_order_header[]
-    saleQuotationHeaders     sale_quotation_header[]
-    issueRequistionHeaders   issue_requistion_header[]
+    is_active                  Boolean                       @default(true)
+    prHeaders                  pr_header[]
+    saleReservationHeaders     sale_reservation_header[]
+    saleOrderApprovalHeaders   sale_order_approval_header[]
+    saleOrderHeaders           sale_order_header[]
+    saleQuotationHeaders       sale_quotation_header[]
+    issueRequistionHeaders     issue_requistion_header[]
+    appvissueRequistionHeaders appvissue_requistion_header[]
 
     @@map("project")
 }
@@ -1447,16 +1455,17 @@ model ic_option_list {
 }
 
 model doc_link_ic {
-    doc_link_ic_id         Int                       @id @default(autoincrement())
-    system_document_id     Int
-    docu_desc              String?                   @db.VarChar(255)
-    remark                 String?                   @db.VarChar(255)
-    stock_effect_ic        Int                       @default(0)
-    is_active              Boolean                   @default(true)
-    doc_type_name          String?                   @db.VarChar(255)
-    doc_type_no            Int                       @default(0)
-    system_document        system_document           @relation(fields: [system_document_id], references: [system_document_id])
-    issueRequistionHeaders issue_requistion_header[]
+    doc_link_ic_id             Int                           @id @default(autoincrement())
+    system_document_id         Int
+    docu_desc                  String?                       @db.VarChar(255)
+    remark                     String?                       @db.VarChar(255)
+    stock_effect_ic            Int                           @default(0)
+    is_active                  Boolean                       @default(true)
+    doc_type_name              String?                       @db.VarChar(255)
+    doc_type_no                Int                           @default(0)
+    system_document            system_document               @relation(fields: [system_document_id], references: [system_document_id])
+    issueRequistionHeaders     issue_requistion_header[]
+    appvissueRequistionHeaders appvissue_requistion_header[]
 
     @@unique([system_document_id, doc_type_no, is_active])
     @@map("doc_link_ic")
@@ -2823,9 +2832,10 @@ model delivery_line {
 // ==============================
 
 model issue_requistion_header {
-    issue_req_id   Int                 @id @default(autoincrement())
-    issue_req_no   String              @unique
-    issue_req_date DateTime            @default(now())
+    issue_req_id   Int      @id @default(autoincrement())
+    issue_req_no   String   @unique
+    issue_req_date DateTime @default(now())
+
     doc_link_ic_id Int
     doc_link_ic    doc_link_ic         @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
     emp_dept_id    Int
@@ -2835,9 +2845,10 @@ model issue_requistion_header {
     remarks        String?
     branch_id      Int
     org_branch     org_branch          @relation(fields: [branch_id], references: [branch_id])
-    cancel_date    DateTime?
-    cancel_flag    String              @default("N") @db.Char(1)
-    cancel_remark  String?
+
+    cancel_date   DateTime?
+    cancel_flag   String    @default("N") @db.Char(1)
+    cancel_remark String?
 
     created_by_emp_id Int?
     created_by        employees? @relation("emp_issue_req_header_created", fields: [created_by_emp_id], references: [employee_id])
@@ -2846,10 +2857,12 @@ model issue_requistion_header {
 
     status String @default("PENDING") @db.VarChar(20)
 
-    stock_effect_ic Int?
-    created_at           DateTime                @default(now())
-    updated_at           DateTime                @updatedAt
-    issueRequistionLines issue_requistion_line[]
+    stock_effect_ic            Int?
+    created_at                 DateTime                      @default(now())
+    updated_at                 DateTime                      @updatedAt
+    issueRequistionLines       issue_requistion_line[]
+    appvissueRequistionHeaders appvissue_requistion_header[]
+    
 }
 
 model issue_requistion_line {
@@ -2870,6 +2883,55 @@ model issue_requistion_line {
     lot_balance_id    Int
     lot_balance       item_lot_balance        @relation(fields: [lot_balance_id], references: [lot_balance_id])
 }
+
+model appvissue_requistion_header {
+    appv_issue_req_id   Int                     @id @default(autoincrement())
+    appv_issue_req_no   String                  @unique
+    appv_issue_req_date DateTime                @default(now())
+    issue_req_id        Int
+    issue_req_header    issue_requistion_header @relation(fields: [issue_req_id], references: [issue_req_id])
+    approval_emp_id     Int
+    approval_emp        employees               @relation(fields: [approval_emp_id], references: [employee_id])
+
+    doc_link_ic_id Int
+    doc_link_ic    doc_link_ic         @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    emp_dept_id    Int
+    department     employee_department @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    project_id     Int
+    project        project             @relation(fields: [project_id], references: [project_id])
+    remarks        String?
+    branch_id      Int
+    org_branch     org_branch          @relation(fields: [branch_id], references: [branch_id])
+
+    stock_effect_ic Int?
+    status          String   @db.VarChar(20)
+    created_at      DateTime @default(now())
+    updated_at      DateTime @updatedAt
+
+    appvissueRequistionLines   appvissue_requistion_line[]
+}
+
+model appvissue_requistion_line {
+    issue_req_line_id Int                     @id @default(autoincrement())
+    appv_issue_req_id      Int
+    appvissue_requistion_header  appvissue_requistion_header @relation(fields: [appv_issue_req_id], references: [appv_issue_req_id])
+    item_id           Int
+    item              item                    @relation(fields: [item_id], references: [item_id])
+    qty               Decimal                 @db.Decimal(18, 6)
+    approved_qty      Decimal                 @db.Decimal(18, 6)
+    uom_id            Int
+    uom               item_uom                @relation(fields: [uom_id], references: [item_uom_id])
+    warehouse_id      Int
+    warehouse         warehouse               @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id       Int
+    location          location                @relation(fields: [location_id], references: [location_id])
+    lot_id            Int
+    lot               item_lot                @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id    Int
+    lot_balance       item_lot_balance        @relation(fields: [lot_balance_id], references: [lot_balance_id])
+}
+
+
 
 // ==============================
 // == Item Stock Balance ==
@@ -2919,23 +2981,24 @@ model stock_transaction {
 }
 
 model item_lot {
-    lot_id                 Int                        @id @default(autoincrement())
-    lot_no                 String
-    item_id                Int
-    expiry_date            DateTime?
-    mfg_date               DateTime?
-    note                   String?
-    status                 String                     @db.VarChar(20)
-    supplier_vendor_id     Int?
-    deliveryLines          delivery_line[]
-    item                   item                       @relation(fields: [item_id], references: [item_id])
-    supplier_vendor        vendor?                    @relation(fields: [supplier_vendor_id], references: [vendor_id])
-    balances               item_lot_balance[]
-    transactions           lot_transaction[]
-    saleOrderLines         sale_order_line[]
-    saleReservationLines   sale_reservation_line[]
-    saleOrderApprovalLines sale_order_approval_line[]
-    issueRequistionLines   issue_requistion_line[]
+    lot_id                   Int                         @id @default(autoincrement())
+    lot_no                   String
+    item_id                  Int
+    expiry_date              DateTime?
+    mfg_date                 DateTime?
+    note                     String?
+    status                   String                      @db.VarChar(20)
+    supplier_vendor_id       Int?
+    deliveryLines            delivery_line[]
+    item                     item                        @relation(fields: [item_id], references: [item_id])
+    supplier_vendor          vendor?                     @relation(fields: [supplier_vendor_id], references: [vendor_id])
+    balances                 item_lot_balance[]
+    transactions             lot_transaction[]
+    saleOrderLines           sale_order_line[]
+    saleReservationLines     sale_reservation_line[]
+    saleOrderApprovalLines   sale_order_approval_line[]
+    issueRequistionLines     issue_requistion_line[]
+    appvissueRequistionLines appvissue_requistion_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -2943,35 +3006,36 @@ model item_lot {
 }
 
 model item_lot_balance {
-    lot_balance_id         Int                        @id @default(autoincrement())
-    lot_id                 Int
-    item_id                Int
-    branch_id              Int?
-    warehouse_id           Int
-    location_id            Int
+    lot_balance_id           Int                         @id @default(autoincrement())
+    lot_id                   Int
+    item_id                  Int
+    branch_id                Int?
+    warehouse_id             Int
+    location_id              Int
     /// จำนวนคงเหลือจริงที่มีอยู่
-    qty_on_hand            Decimal                    @default(0) @db.Decimal(18, 6)
+    qty_on_hand              Decimal                     @default(0) @db.Decimal(18, 6)
     /// Total reserved = booked + so_allocated + pending_issue
-    qty_reserved           Decimal                    @default(0) @db.Decimal(18, 6)
+    qty_reserved             Decimal                     @default(0) @db.Decimal(18, 6)
     /// Available = qty_on_hand - qty_reserved
-    qty_available          Decimal                    @default(0) @db.Decimal(18, 6)
-    updated_at             DateTime                   @updatedAt
+    qty_available            Decimal                     @default(0) @db.Decimal(18, 6)
+    updated_at               DateTime                    @updatedAt
     /// จำนวนที่ถูกจองไว้ (อนุญาตให้เกิน)
-    qty_booked             Decimal                    @default(0) @db.Decimal(18, 6)
+    qty_booked               Decimal                     @default(0) @db.Decimal(18, 6)
     /// จำนวนที่ pending issue (GRN / Transfer ฯลฯ)
-    qty_pending_issue      Decimal                    @default(0) @db.Decimal(18, 6)
+    qty_pending_issue        Decimal                     @default(0) @db.Decimal(18, 6)
     /// จำนวนที่ allocate ให้ Sales Order แล้ว
-    qty_so_allocated       Decimal                    @default(0) @db.Decimal(18, 6)
-    branch                 org_branch?                @relation(fields: [branch_id], references: [branch_id])
-    item                   item                       @relation(fields: [item_id], references: [item_id])
-    location               location                   @relation(fields: [location_id], references: [location_id])
-    lot                    item_lot                   @relation(fields: [lot_id], references: [lot_id])
-    warehouse              warehouse                  @relation(fields: [warehouse_id], references: [warehouse_id])
-    saleOrderLines         sale_order_line[]
-    saleReservationLines   sale_reservation_line[]
-    deliveryLines          delivery_line[]
-    saleOrderApprovalLines sale_order_approval_line[]
-    issueRequistionLines   issue_requistion_line[]
+    qty_so_allocated         Decimal                     @default(0) @db.Decimal(18, 6)
+    branch                   org_branch?                 @relation(fields: [branch_id], references: [branch_id])
+    item                     item                        @relation(fields: [item_id], references: [item_id])
+    location                 location                    @relation(fields: [location_id], references: [location_id])
+    lot                      item_lot                    @relation(fields: [lot_id], references: [lot_id])
+    warehouse                warehouse                   @relation(fields: [warehouse_id], references: [warehouse_id])
+    saleOrderLines           sale_order_line[]
+    saleReservationLines     sale_reservation_line[]
+    deliveryLines            delivery_line[]
+    saleOrderApprovalLines   sale_order_approval_line[]
+    issueRequistionLines     issue_requistion_line[]
+    appvissueRequistionLines appvissue_requistion_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])

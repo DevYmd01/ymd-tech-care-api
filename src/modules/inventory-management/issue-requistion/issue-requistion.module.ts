@@ -23,9 +23,7 @@ import { DocumentNumberModule } from '@/modules/document-number/document-number.
     IssueRequistionService,
     CreateIssueRequistionHeaderRepository,
     CreateIssueRequistionLineRepository,
-    PrismaService,
-    CreateIssueRequistionHeaderMapper,
-    CreateIssueRequistionLineMapper,
+    PrismaService, // Keep PrismaService as it's directly injected into IssueRequistionService
     UpdateIssueRequistionHeaderRepository,
     UpdateIssueRequistionLineRepository,
     UpdateIssueRequistionHeaderMapper,

@@ -177,6 +177,14 @@ async function main() {
       seq_length: 4,
       running_cycle: RunningCycle.YEAR,
     },
+            {
+      module_code: 'APPV_ISSUE',
+      document_type_code: 'APPV_ISSUE',
+      prefix: 'APPV_ISSUE',
+      pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+      seq_length: 4,
+      running_cycle: RunningCycle.YEAR,
+    },
   ];
   console.log('🌱 Start seeding document_format...');
   for (const f of formats) {
@@ -252,6 +260,13 @@ async function main() {
       system_document_code: 'ISSUE_REQ',
       system_document_name: 'รายการเบิกสินค้า',
       system_document_name_eng: 'Issue Requisition',
+      sort_order: 1,
+      is_active: true,
+    },
+                    {
+      system_document_code: 'APPV_ISSUE',
+      system_document_name: 'รายการอนุมัติเบิกสินค้า',
+      system_document_name_eng: 'Approved Issue Requisition',
       sort_order: 1,
       is_active: true,
     },

@@ -24,8 +24,6 @@ export class IssueRequistionService {
         private readonly prismaService: PrismaService,
         private readonly createIssueRequistionHeaderRepository: CreateIssueRequistionHeaderRepository,
         private readonly createIssueRequistionLineRepository: CreateIssueRequistionLineRepository,
-        private readonly createIssueRequistionHeaderMapper: CreateIssueRequistionHeaderMapper,
-        private readonly createIssueRequistionLineMapper: CreateIssueRequistionLineMapper,
         private readonly lotBalanceService: LotBalanceService,
         private readonly documentNumberService: DocumentNumberService,
         private readonly inventoryOrchestratorService: InventoryOrchestratorService,
