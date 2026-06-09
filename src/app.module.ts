@@ -93,6 +93,7 @@ import { DocLinkIcModule } from './modules/configuration/doc-link-ic/doc-link-ic
 import { PreviewModule } from './common/inventory/preview/preview.module';
 import { OptionModule } from './common/inventory/option/option.module';
 import { CommonUomModule  } from './common/uom/uom.module';
+import { IssueRequistionModule } from './modules/inventory-management/issue-requistion/issue-requistion.module';
 
 @Module({
   imports: [
@@ -184,6 +185,7 @@ import { CommonUomModule  } from './common/uom/uom.module';
     PreviewModule,
     OptionModule,
     CommonUomModule,
+    IssueRequistionModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

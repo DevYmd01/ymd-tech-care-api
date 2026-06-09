@@ -24,65 +24,67 @@ model api_log {
 }
 
 model employees {
-    employee_id                  Int                              @id @default(autoincrement())
-    branch_id                    Int?
-    employee_code                String                           @unique @db.VarChar(20)
-    employee_title_th            String                           @db.VarChar(20)
-    employee_title_en            String                           @db.VarChar(20)
-    employee_firstname_th        String                           @db.VarChar(200)
-    employee_lastname_th         String                           @db.VarChar(200)
-    employee_firstname_en        String?                          @db.VarChar(200)
-    employee_lastname_en         String?                          @db.VarChar(200)
-    employee_fullname            String?                          @db.VarChar(400)
-    employee_startdate           DateTime?                        @default(now())
-    employee_resigndate          DateTime?
-    phone                        String?                          @db.VarChar(20)
-    email                        String                           @db.VarChar(255)
-    remark                       String?
-    tax_id                       String?                          @db.VarChar(20)
-    emp_type                     String?                          @default("G") @db.Char(10)
-    position_id                  Int?
-    is_active                    Boolean                          @default(true)
-    created_at                   DateTime                         @default(now())
-    updated_at                   DateTime                         @default(now()) @updatedAt
-    employee_head_code           String?                          @db.VarChar(25)
-    employee_head_id             Int?
-    tax_idcard                   String?                          @db.VarChar(20)
-    emp_dept_id                  Int?
-    employee_fullname_en         String?                          @db.VarChar(400)
-    employee_status              Int                              @default(1)
-    deliveryHeaders              delivery_header[]
-    employeeAddresses            employee_address[]
-    employeeAuths                employee_auth?
-    employeeSaleTargets          employee_sale_target[]
-    employeeSignatures           employee_signature[]
-    branch                       org_branch?                      @relation(fields: [branch_id], references: [branch_id])
-    department                   employee_department?             @relation(fields: [emp_dept_id], references: [emp_dept_id])
-    employeeHead                 employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
-    employees                    employees[]                      @relation("EmployeeManager")
-    position                     employee_position?               @relation(fields: [position_id], references: [position_id])
-    regnHeaders                  grn_header[]
-    poApprovals                  po_approval[]
-    createdPoHeaders             po_header[]                      @relation("poCreatedBy")
-    updatedPoHeaders             po_header[]                      @relation("poUpdatedBy")
-    prApprovals                  pr_approval[]
-    approved_pr                  pr_header[]                      @relation("approved_by_user")
-    requested_pr                 pr_header[]                      @relation("requester_user")
-    priceListHeaders_permit      price_list_header[]              @relation("permit_emp_price_list")
-    priceListHeaders_save        price_list_header[]              @relation("save_emp_price_list")
-    createdQcHeaders             qc_header[]                      @relation("QCCreatedBy")
-    updatedQcHeaders             qc_header[]                      @relation("QCUpdatedBy")
-    rfqHeaders                   rfq_header[]                     @relation("requested_by_user")
-    saleReservationHeaders       sale_reservation_header[]
-    saleOrderApprovalHeaders     sale_order_approval_header[]     @relation("emp_so_approval_header")
-    saleOrderSaleHeaders         sale_order_approval_header[]     @relation("emp_so_sale_header")
-    saleOrderHeaders             sale_order_header[]
-    saleQuotationApprovalHeaders sale_quotation_approval_header[]
-    saleQuotationHeaders         sale_quotation_header[]
-    standardCostHeaders_permit   standard_cost_header[]           @relation("permit_emp")
-    standardCostHeaders_save     standard_cost_header[]           @relation("save_emp")
-    createdVqHeaders             vq_header[]                      @relation("VQCreatedBy")
-    updatedVqHeaders             vq_header[]                      @relation("VQUpdatedBy")
+    employee_id                     Int                              @id @default(autoincrement())
+    branch_id                       Int?
+    employee_code                   String                           @unique @db.VarChar(20)
+    employee_title_th               String                           @db.VarChar(20)
+    employee_title_en               String                           @db.VarChar(20)
+    employee_firstname_th           String                           @db.VarChar(200)
+    employee_lastname_th            String                           @db.VarChar(200)
+    employee_firstname_en           String?                          @db.VarChar(200)
+    employee_lastname_en            String?                          @db.VarChar(200)
+    employee_fullname               String?                          @db.VarChar(400)
+    employee_startdate              DateTime?                        @default(now())
+    employee_resigndate             DateTime?
+    phone                           String?                          @db.VarChar(20)
+    email                           String                           @db.VarChar(255)
+    remark                          String?
+    tax_id                          String?                          @db.VarChar(20)
+    emp_type                        String?                          @default("G") @db.Char(10)
+    position_id                     Int?
+    is_active                       Boolean                          @default(true)
+    created_at                      DateTime                         @default(now())
+    updated_at                      DateTime                         @default(now()) @updatedAt
+    employee_head_code              String?                          @db.VarChar(25)
+    employee_head_id                Int?
+    tax_idcard                      String?                          @db.VarChar(20)
+    emp_dept_id                     Int?
+    employee_fullname_en            String?                          @db.VarChar(400)
+    employee_status                 Int                              @default(1)
+    deliveryHeaders                 delivery_header[]
+    employeeAddresses               employee_address[]
+    employeeAuths                   employee_auth?
+    employeeSaleTargets             employee_sale_target[]
+    employeeSignatures              employee_signature[]
+    branch                          org_branch?                      @relation(fields: [branch_id], references: [branch_id])
+    department                      employee_department?             @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    employeeHead                    employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
+    employees                       employees[]                      @relation("EmployeeManager")
+    position                        employee_position?               @relation(fields: [position_id], references: [position_id])
+    regnHeaders                     grn_header[]
+    poApprovals                     po_approval[]
+    createdPoHeaders                po_header[]                      @relation("poCreatedBy")
+    updatedPoHeaders                po_header[]                      @relation("poUpdatedBy")
+    prApprovals                     pr_approval[]
+    approved_pr                     pr_header[]                      @relation("approved_by_user")
+    requested_pr                    pr_header[]                      @relation("requester_user")
+    priceListHeaders_permit         price_list_header[]              @relation("permit_emp_price_list")
+    priceListHeaders_save           price_list_header[]              @relation("save_emp_price_list")
+    createdQcHeaders                qc_header[]                      @relation("QCCreatedBy")
+    updatedQcHeaders                qc_header[]                      @relation("QCUpdatedBy")
+    rfqHeaders                      rfq_header[]                     @relation("requested_by_user")
+    saleReservationHeaders          sale_reservation_header[]
+    saleOrderApprovalHeaders        sale_order_approval_header[]     @relation("emp_so_approval_header")
+    saleOrderSaleHeaders            sale_order_approval_header[]     @relation("emp_so_sale_header")
+    saleOrderHeaders                sale_order_header[]
+    saleQuotationApprovalHeaders    sale_quotation_approval_header[]
+    saleQuotationHeaders            sale_quotation_header[]
+    standardCostHeaders_permit      standard_cost_header[]           @relation("permit_emp")
+    standardCostHeaders_save        standard_cost_header[]           @relation("save_emp")
+    createdVqHeaders                vq_header[]                      @relation("VQCreatedBy")
+    updatedVqHeaders                vq_header[]                      @relation("VQUpdatedBy")
+    issueRequistionHeadersCreated   issue_requistion_header[]        @relation("emp_issue_req_header_created")
+    issueRequistionHeadersRequested issue_requistion_header[]        @relation("emp_issue_req_header_request")
 }
 
 model employee_signature {
@@ -190,6 +192,7 @@ model employee_department {
     saleOrderApprovalHeaders sale_order_approval_header[]
     saleOrderHeaders         sale_order_header[]
     saleQuotationHeaders     sale_quotation_header[]
+    issueRequistionHeaders   issue_requistion_header[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -264,6 +267,7 @@ model org_branch {
     saleQuotationHeaders     sale_quotation_header[]
     stockTransactions        stock_transaction[]
     warehouses               warehouse[]
+    issueRequistionHeaders   issue_requistion_header[]
 
     @@map("org_branch")
 }
@@ -291,6 +295,7 @@ model warehouse {
     stockTransactions      stock_transaction[]
     branch                 org_branch                 @relation(fields: [branch_id], references: [branch_id])
     saleOrderApprovalLines sale_order_approval_line[]
+    issueRequistionLines   issue_requistion_line[]
 
     @@map("warehouse")
 }
@@ -316,6 +321,7 @@ model location {
     saleReservationLines   sale_reservation_line[]
     stockTransactions      stock_transaction[]
     saleOrderApprovalLines sale_order_approval_line[]
+    issueRequistionLines   issue_requistion_line[]
 
     @@map("location")
 }
@@ -401,6 +407,7 @@ model item {
     standardCostLines      standard_cost_line[]
     stockTransactions      stock_transaction[]
     vqLines                vq_line[]
+    issueRequistionLines   issue_requistion_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -455,6 +462,7 @@ model item_uom {
     saleQuotationApprovalLines sale_quotation_approval_line[]
     saleQuotationLines         sale_quotation_line[]
     saleReservationLines       sale_reservation_line[]
+    issueRequistionLines       issue_requistion_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1015,6 +1023,7 @@ model project {
     saleOrderApprovalHeaders sale_order_approval_header[]
     saleOrderHeaders         sale_order_header[]
     saleQuotationHeaders     sale_quotation_header[]
+    issueRequistionHeaders   issue_requistion_header[]
 
     @@map("project")
 }
@@ -1438,17 +1447,19 @@ model ic_option_list {
 }
 
 model doc_link_ic {
-    doc_link_ic_id     Int             @id @default(autoincrement())
-    system_document_id Int
-    docu_desc          String?         @db.VarChar(255)
-    remark             String?         @db.VarChar(255)
-    stock_effect_ic    Int             @default(0)
-    is_active          Boolean         @default(true)
-    doc_type_name      String?         @db.VarChar(255)
-    doc_type_no        Int             @default(0)
-    system_document    system_document @relation(fields: [system_document_id], references: [system_document_id])
+    doc_link_ic_id         Int                       @id @default(autoincrement())
+    system_document_id     Int
+    docu_desc              String?                   @db.VarChar(255)
+    remark                 String?                   @db.VarChar(255)
+    stock_effect_ic        Int                       @default(0)
+    is_active              Boolean                   @default(true)
+    doc_type_name          String?                   @db.VarChar(255)
+    doc_type_no            Int                       @default(0)
+    system_document        system_document           @relation(fields: [system_document_id], references: [system_document_id])
+    issueRequistionHeaders issue_requistion_header[]
 
     @@unique([system_document_id, doc_type_no, is_active])
+    @@map("doc_link_ic")
 }
 
 model system_document {
@@ -2807,6 +2818,64 @@ model delivery_line {
     warehouse        warehouse         @relation(fields: [warehouse_id], references: [warehouse_id])
 }
 
+// ==============================
+// == Inventory Management Models ==
+// ==============================
+
+model issue_requistion_header {
+    issue_req_id   Int                 @id @default(autoincrement())
+    issue_req_no   String              @unique
+    issue_req_date DateTime            @default(now())
+    doc_link_ic_id Int
+    doc_link_ic    doc_link_ic         @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    emp_dept_id    Int
+    department     employee_department @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    project_id     Int
+    project        project             @relation(fields: [project_id], references: [project_id])
+    remarks        String?
+    branch_id      Int
+    org_branch     org_branch          @relation(fields: [branch_id], references: [branch_id])
+    cancel_date    DateTime?
+    cancel_flag    String              @default("N") @db.Char(1)
+    cancel_remark  String?
+
+    created_by_emp_id Int?
+    created_by        employees? @relation("emp_issue_req_header_created", fields: [created_by_emp_id], references: [employee_id])
+    request_by_emp_id Int?
+    request_by        employees? @relation("emp_issue_req_header_request", fields: [request_by_emp_id], references: [employee_id])
+
+    status String @default("PENDING") @db.VarChar(20)
+
+    stock_effect_ic Int
+
+    created_at           DateTime                @default(now())
+    updated_at           DateTime                @updatedAt
+    issueRequistionLines issue_requistion_line[]
+}
+
+model issue_requistion_line {
+    issue_req_line_id Int                     @id @default(autoincrement())
+    issue_req_id      Int
+    issue_req_header  issue_requistion_header @relation(fields: [issue_req_id], references: [issue_req_id])
+    item_id           Int
+    item              item                    @relation(fields: [item_id], references: [item_id])
+    qty               Decimal                 @db.Decimal(18, 6)
+    uom_id            Int
+    uom               item_uom                @relation(fields: [uom_id], references: [item_uom_id])
+    warehouse_id      Int
+    warehouse         warehouse               @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id       Int
+    location          location                @relation(fields: [location_id], references: [location_id])
+    lot_id            Int
+    lot               item_lot                @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id    Int
+    lot_balance       item_lot_balance        @relation(fields: [lot_balance_id], references: [lot_balance_id])
+}
+
+// ==============================
+// == Item Stock Balance ==
+// ==============================
+
 model item_stock_balance {
     stock_balance_id Int         @id @default(autoincrement())
     item_id          Int
@@ -2867,6 +2936,7 @@ model item_lot {
     saleOrderLines         sale_order_line[]
     saleReservationLines   sale_reservation_line[]
     saleOrderApprovalLines sale_order_approval_line[]
+    issueRequistionLines   issue_requistion_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -2902,6 +2972,7 @@ model item_lot_balance {
     saleReservationLines   sale_reservation_line[]
     deliveryLines          delivery_line[]
     saleOrderApprovalLines sale_order_approval_line[]
+    issueRequistionLines   issue_requistion_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])
