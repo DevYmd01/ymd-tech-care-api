@@ -2859,6 +2859,7 @@ model issue_requistion_header {
 
     stock_effect_ic            Int?
     doc_type_no Int?
+    doc_type_name String? @db.VarChar(50)
 
     created_at                 DateTime                      @default(now())
     updated_at                 DateTime                      @updatedAt
@@ -2907,7 +2908,8 @@ model appvissue_requistion_header {
 
     stock_effect_ic Int?
     doc_type_no     Int?
-    
+    doc_type_name String? @db.VarChar(50)
+
     status          String   @db.VarChar(20)
     created_at      DateTime @default(now())
     updated_at      DateTime @updatedAt

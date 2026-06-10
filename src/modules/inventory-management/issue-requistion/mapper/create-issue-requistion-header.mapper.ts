@@ -6,6 +6,8 @@ export class CreateIssueRequistionHeaderMapper {
         data: CreateIssueRequistionHeaderDto,
         issue_req_no: string,
         stock_effect_ic: number | null,
+        doc_type_no: number,
+        doc_type_name: string,
     ): Prisma.issue_requistion_headerCreateInput {
         return {
             issue_req_no: issue_req_no,
@@ -19,7 +21,8 @@ export class CreateIssueRequistionHeaderMapper {
             request_by: { connect: { employee_id: data.request_by_emp_id } },
             status: data.status,
             stock_effect_ic: stock_effect_ic,
-            doc_type_no: data.doc_type_no,
+            doc_type_no: doc_type_no,
+            doc_type_name: doc_type_name,
         };
     }
 }

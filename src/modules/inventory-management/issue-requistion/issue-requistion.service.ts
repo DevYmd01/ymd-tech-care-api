@@ -46,6 +46,8 @@ export class IssueRequistionService {
 
                 let stock_effect_ic: number | null = null;
                 let doc_type_no = 0;
+                let doc_type_name = '';
+
                 if (createIssueRequistionDto.doc_link_ic_id) {
                     const docLinkIc = await tx.doc_link_ic.findUnique({
                         where: { doc_link_ic_id: createIssueRequistionDto.doc_link_ic_id },
@@ -56,6 +58,7 @@ export class IssueRequistionService {
                     }
                     stock_effect_ic = docLinkIc.stock_effect_ic;
                     doc_type_no = Number(docLinkIc.doc_type_no || 0);
+                    doc_type_name = docLinkIc.doc_type_name || '';
                 }
 
                 // 2. แปลงข้อมูลและสร้าง Header
@@ -63,6 +66,9 @@ export class IssueRequistionService {
                     createIssueRequistionDto,
                     issue_req_no,
                     stock_effect_ic,
+                    doc_type_no,
+                    doc_type_name,
+
                 );
                 
                 const header = await this.createIssueRequistionHeaderRepository.create(tx, headerData);
@@ -134,6 +140,7 @@ export class IssueRequistionService {
                 // ค้นหาการตั้งค่า IC จาก doc_link_ic (ใช้ ID ใหม่จาก DTO หรือ ID เดิมจาก Header)
                 let stock_effect_ic: number | null = existingHeader.stock_effect_ic;
                 let doc_type_no = 0;
+                let doc_type_name = '';
                 const targetDocLinkId = updateIssueRequistionDto.doc_link_ic_id || existingHeader.doc_link_ic_id;
                 
                 if (targetDocLinkId) {
@@ -143,6 +150,7 @@ export class IssueRequistionService {
                     if (docLinkIc) {
                         stock_effect_ic = docLinkIc.stock_effect_ic;
                         doc_type_no = Number(docLinkIc.doc_type_no || 0);
+                        doc_type_name = docLinkIc.doc_type_name || '';
                     }
                 }
 
@@ -151,6 +159,8 @@ export class IssueRequistionService {
                     updateIssueRequistionDto,
                     existingHeader.issue_req_no,
                     stock_effect_ic,
+                    doc_type_no,
+                    doc_type_name
                 );
                 await this.updateIssueRequistionHeaderRepository.update(tx, id, updateHeaderData);
 
