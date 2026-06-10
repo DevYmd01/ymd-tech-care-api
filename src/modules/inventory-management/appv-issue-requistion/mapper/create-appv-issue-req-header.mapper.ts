@@ -6,6 +6,8 @@ export class CreateAppvIssueReqHeaderMapper {
         data: CreateApprovedIssueRequisitionHeaderDto,
         issue_req_no: string,
         stock_effect_ic: number | null,
+        doc_type_no: number,
+        doc_type_name: string,
     ): Prisma.appvissue_requistion_headerCreateInput {
         return {
 
@@ -20,7 +22,8 @@ export class CreateAppvIssueReqHeaderMapper {
             approval_emp: { connect: { employee_id: data.approval_emp_id } },
             status: data.status,
             stock_effect_ic: stock_effect_ic,
-            doc_type_no: data.doc_type_no,
+            doc_type_no: doc_type_no,
+            doc_type_name: doc_type_name,
         };
     }
 }

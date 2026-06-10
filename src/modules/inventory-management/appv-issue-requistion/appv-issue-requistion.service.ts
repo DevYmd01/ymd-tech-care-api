@@ -38,6 +38,8 @@ export class AppvIssueRequistionService {
                 // 2. ดึงค่า stock_effect_ic และ doc_type_no จาก doc_link_ic
                 let stock_effect_ic: number | null = null;
                 let doc_type_no = 0;
+                let doc_type_name = '';
+
                 if (createApprovedIssueRequisitionHeaderDto.doc_link_ic_id) {
                     const docLinkIc = await tx.doc_link_ic.findUnique({
                         where: { doc_link_ic_id: createApprovedIssueRequisitionHeaderDto.doc_link_ic_id },
@@ -48,6 +50,7 @@ export class AppvIssueRequistionService {
                     }
                     stock_effect_ic = docLinkIc.stock_effect_ic;
                     doc_type_no = Number(docLinkIc.doc_type_no || 0);
+                    doc_type_name = docLinkIc.doc_type_name || '';
                 }
 
                 // 3. แปลงข้อมูลและสร้าง Header
@@ -55,6 +58,8 @@ export class AppvIssueRequistionService {
                     createApprovedIssueRequisitionHeaderDto,
                     appv_issue_req_no,
                     stock_effect_ic,
+                    doc_type_no,
+                    doc_type_name,
                 );
                 const header = await this.createAppvIssueReqHeaderRepository.create(tx, headerData);
 
