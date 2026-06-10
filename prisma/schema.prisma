@@ -2858,6 +2858,8 @@ model issue_requistion_header {
     status String @default("PENDING") @db.VarChar(20)
 
     stock_effect_ic            Int?
+    doc_type_no Int?
+
     created_at                 DateTime                      @default(now())
     updated_at                 DateTime                      @updatedAt
     issueRequistionLines       issue_requistion_line[]
@@ -2904,6 +2906,8 @@ model appvissue_requistion_header {
     org_branch     org_branch          @relation(fields: [branch_id], references: [branch_id])
 
     stock_effect_ic Int?
+    doc_type_no     Int?
+    
     status          String   @db.VarChar(20)
     created_at      DateTime @default(now())
     updated_at      DateTime @updatedAt
@@ -2931,6 +2935,9 @@ model appvissue_requistion_line {
     lot_balance       item_lot_balance        @relation(fields: [lot_balance_id], references: [lot_balance_id])
 }
 
+
+
+    
 
 
 // ==============================

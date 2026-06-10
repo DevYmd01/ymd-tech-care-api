@@ -20,6 +20,7 @@ export class CreateAppvIssueReqHeaderMapper {
             approval_emp: { connect: { employee_id: data.approval_emp_id } },
             status: data.status,
             stock_effect_ic: stock_effect_ic,
+            doc_type_no: data.doc_type_no,
         };
     }
 }

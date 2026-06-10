@@ -19,6 +19,7 @@ export class CreateIssueRequistionHeaderMapper {
             request_by: { connect: { employee_id: data.request_by_emp_id } },
             status: data.status,
             stock_effect_ic: stock_effect_ic,
+            doc_type_no: data.doc_type_no,
         };
     }
 }

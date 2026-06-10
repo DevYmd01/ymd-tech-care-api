@@ -18,8 +18,20 @@ export class AppvIssueRequistionController {
         return this.appvIssueRequistionService.findAll();
     }
 
+    @Get('pending-approva')
+    async findPendingApproval() {
+        return this.appvIssueRequistionService.findPendingApproval();
+    }
+
+
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return this.appvIssueRequistionService.findOne(+id);
+    }
+
+
+    @Get('pending-approva/:issue_req_id')
+    async findPendingApprovalByIssueReqId(@Param('issue_req_id') issue_req_id: string) {
+        return this.appvIssueRequistionService.findPendingApprovalByIssueReqId(+issue_req_id);
     }
 }

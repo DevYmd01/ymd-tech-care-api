@@ -53,6 +53,8 @@ status!: string;
 
 @IsOptional()
 stock_effect_ic?: number | null;
+@IsOptional()
+doc_type_no?: number | null; 
 
 @IsNotEmpty()
 @IsArray()

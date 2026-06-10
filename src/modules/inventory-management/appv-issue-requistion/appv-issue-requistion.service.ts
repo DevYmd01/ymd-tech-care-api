@@ -58,27 +58,35 @@ export class AppvIssueRequistionService {
                 );
                 const header = await this.createAppvIssueReqHeaderRepository.create(tx, headerData);
 
-                // 4. จัดการข้อมูลรายการ (Lines)
+                // 4. อัปเดตสถานะของเอกสารใบเบิกต้นทาง (Issue Requisition) ตามสถานะการอนุมัติ (เช่น APPROVED หรือ REJECTED)
+                await tx.issue_requistion_header.update({
+                    where: { issue_req_id: createApprovedIssueRequisitionHeaderDto.issue_req_id },
+                    data: { status: createApprovedIssueRequisitionHeaderDto.status },
+                });
+
+                // 5. จัดการข้อมูลรายการ (Lines)
                 if (createApprovedIssueRequisitionHeaderDto.lines && createApprovedIssueRequisitionHeaderDto.lines.length > 0) {
                     for (const line of createApprovedIssueRequisitionHeaderDto.lines) {
                         // บันทึก Line ลงฐานข้อมูล
                         const lineData = CreateAppvIssueReqLineMapper.toPrismaCreateInput(line, header.appv_issue_req_id);
                         await this.createAppvIssueReqLineRepository.create(tx, lineData);
 
-                        // 5. บันทึก Stock Movement ผ่าน Inventory Orchestrator (ใช้ approved_qty)
-                        await this.inventoryOrchestratorService.process(tx, {
-                            system_document_code: 'APPV_ISSUE',
-                            doc_type_no: doc_type_no,
-                            item_uom_id: line.uom_id,
-                            ref_doc_no: appv_issue_req_no,
-                            lot_id: Number(line.lot_id),
-                            item_lot_balance_id: Number(line.lot_balance_id),
-                            qty: Number(line.approved_qty),
-                        });
+                        // 6. บันทึก Stock Movement เฉพาะในกรณีที่สถานะเป็น 'APPROVED' เท่านั้น
+                        if (createApprovedIssueRequisitionHeaderDto.status === 'APPROVED') {
+                            await this.inventoryOrchestratorService.process(tx, {
+                                system_document_code: 'APPV_ISSUE',
+                                doc_type_no: doc_type_no,
+                                item_uom_id: line.uom_id,
+                                ref_doc_no: appv_issue_req_no,
+                                lot_id: Number(line.lot_id),
+                                item_lot_balance_id: Number(line.lot_balance_id),
+                                qty: Number(line.approved_qty),
+                            });
+                        }
                     }
                 }
 
-                // 6. ดึงข้อมูลที่สร้างเสร็จสมบูรณ์กลับมาแสดงผล
+                // 7. ดึงข้อมูลที่สร้างเสร็จสมบูรณ์กลับมาแสดงผล
                 return await tx.appvissue_requistion_header.findUnique({
                     where: { appv_issue_req_id: header.appv_issue_req_id },
                     include: { appvissueRequistionLines: true },
@@ -105,6 +113,24 @@ export class AppvIssueRequistionService {
             where: { appv_issue_req_id: id },
             include: {
                 appvissueRequistionLines: true,
+            },
+        });
+    }
+
+    async findPendingApproval() {
+        return this.prismaService.issue_requistion_header.findMany({
+            where: { status: 'PENDING' },
+            include: {
+                issueRequistionLines: true,
+            },
+        });
+    }
+
+    async findPendingApprovalByIssueReqId(issue_req_id: number) {
+        return this.prismaService.issue_requistion_header.findMany({
+            where: { status: 'PENDING', issue_req_id },
+            include: {
+                issueRequistionLines: true,
             },
         });
     }
