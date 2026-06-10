@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
 import { IssueStockService } from './issue-stock.service';
 import { CreateIssueStockHeaderDto } from './dto/create-issue-stock-header.dto';
+import { UpdateIssueStockHeaderDto } from './dto/update-issue-stock-header.dto';
 
 @Controller('issue-stock')
 export class IssueStockController {
@@ -22,6 +23,10 @@ export class IssueStockController {
     return this.issueStockService.findPendingIssueStock();
   }
 
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateIssueStockDto: UpdateIssueStockHeaderDto) {
+    return this.issueStockService.update(+id, updateIssueStockDto);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -6,6 +6,10 @@ import { CreateIssueStockHeaderRepository } from './repository/create-issue-stoc
 import { CreateIssueStockLineRepository } from './repository/create-issue-stock-line.repository';
 import { CreateIssueStockHeaderMapper } from './mapper/create-issue-stock-header.mapper';
 import { CreateIssueStockLineMapper } from './mapper/create-issue-stock-line.mapper';
+import { UpdateIssueStockHeaderRepository } from './repository/update-issue-stock-header.repository';
+import { UpdateIssueStockLineRepository } from './repository/update-issue-stock-line.repository';
+import { UpdateIssueStockHeaderMapper } from './mapper/update-issue-stock-header.mapper';
+import { UpdateIssueStockLineMapper } from './mapper/update-issue-stock-line.mapper';
 
 import { LotBalanceModule } from '@/common/inventory/lot-balance/lot-balance.module';
 import { StockOptionsModule } from '@/common/inventory/stock-options/stock-options.module';
@@ -20,6 +24,10 @@ import { DocumentNumberModule } from '@/modules/document-number/document-number.
     PrismaService,
     CreateIssueStockHeaderMapper,
     CreateIssueStockLineMapper,
+    UpdateIssueStockHeaderRepository,
+    UpdateIssueStockLineRepository,
+    UpdateIssueStockHeaderMapper,
+    UpdateIssueStockLineMapper
   ],
   imports: [LotBalanceModule, StockOptionsModule, DocumentNumberModule]
 })
