@@ -95,6 +95,7 @@ import { OptionModule } from './common/inventory/option/option.module';
 import { CommonUomModule  } from './common/uom/uom.module';
 import { IssueRequistionModule } from './modules/inventory-management/issue-requistion/issue-requistion.module';
 import { AppvIssueRequistionModule } from './modules/inventory-management/appv-issue-requistion/appv-issue-requistion.module';
+import { IssueStockModule } from './modules/inventory-management/issue-stock/issue-stock.module';
 
 @Module({
   imports: [
@@ -188,6 +189,7 @@ import { AppvIssueRequistionModule } from './modules/inventory-management/appv-i
     CommonUomModule,
     IssueRequistionModule,
     AppvIssueRequistionModule,
+    IssueStockModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
