@@ -289,14 +289,21 @@ async function main() {
                         {
       system_document_code: 'ISSUE_STOCK',
       system_document_name: 'ใบเบิกสินค้า',
-      system_document_name_eng: 'Approved Issue Requisition',
+      system_document_name_eng: 'Stock Issue',
+      sort_order: 1,
+      is_active: true,
+    },
+                       {
+      system_document_code: 'RIS',
+      system_document_name: 'ใบรับคืนจากการเบิก',
+      system_document_name_eng: 'Return Issue Stock',
       sort_order: 1,
       is_active: true,
     },
                    {
       system_document_code: 'TR',
       system_document_name: 'รายการขอโอนย้ายสินค้า',
-      system_document_name_eng: 'Approved Issue Requisition',
+      system_document_name_eng: 'Transfer Requisition',
       sort_order: 1,
       is_active: true,
     },

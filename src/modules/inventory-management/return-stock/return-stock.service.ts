@@ -29,8 +29,8 @@ export class ReturnStockService {
             try {
                 // 1. สร้างเลขที่เอกสาร (Document Number)
                 const return_stock_no = await this.documentNumberService.generate({
-                    module_code: 'TR',
-                    document_type_code: 'TR',
+                    module_code: 'RIS',
+                    document_type_code: 'RIS',
                     branch_id: createReturnStockDto.branch_id || 0,
                 });
 
@@ -68,7 +68,7 @@ export class ReturnStockService {
                     await this.createReturnStockLineRepository.create(tx, lineData);
 
                     await this.inventoryOrchestratorService.process(tx, {
-                        system_document_code: 'TR',
+                        system_document_code: 'RIS',
                         doc_type_no: doc_type_no,
                         item_uom_id: line.uom_id,
                         ref_doc_no: return_stock_no,
