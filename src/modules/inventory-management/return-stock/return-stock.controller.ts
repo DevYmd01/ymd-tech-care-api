@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch } from '@nestjs/common';
 import { ReturnStockService } from './return-stock.service';
 import { CreateReturnStockHeaderDto } from './dto/create-return-stock-header.dto';
+import { UpdateReturnStockHeaderDto } from './dto/update-return-stock-header.dto';
 import { SearchPendingDto } from './dto/search.dto';
 
 
@@ -36,6 +37,12 @@ export class ReturnStockController {
     async findOne(@Param('id') id: number) {
         return await this.returnStockService.findOne(id);
     }
+
+    @Patch(':id')
+    async update(@Param('id') id: number, @Body() updateReturnStockHeaderDto: UpdateReturnStockHeaderDto) {
+        return await this.returnStockService.update(+id, updateReturnStockHeaderDto);
+    }
+
 
 
     // @Get('pending/:issue_stock_id')

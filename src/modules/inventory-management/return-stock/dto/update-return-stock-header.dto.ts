@@ -12,9 +12,9 @@ import {
     Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateReturnStockLineDto } from './create-return-stock-line.dto';
+import { UpdateReturnStockLineDto } from './update-return-stock-line.dto';
 
-export class CreateReturnStockHeaderDto { 
+export class UpdateReturnStockHeaderDto { 
 
 @IsNotEmpty()
 @IsDate()
@@ -67,7 +67,7 @@ doc_type_no?: number | null;
 @IsNotEmpty()
 @IsArray()
 @ValidateNested({ each: true })
-@Type(() => CreateReturnStockLineDto)
-lines!: CreateReturnStockLineDto[];
+@Type(() => UpdateReturnStockLineDto)
+lines!: UpdateReturnStockLineDto[];
 
 }

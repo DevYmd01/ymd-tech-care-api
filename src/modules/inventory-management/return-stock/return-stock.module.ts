@@ -12,6 +12,12 @@ import { CreateReturnStockLineRepository } from './repository/create-return-stoc
 import { CreateReturnStockHeaderMapper } from './mapper/create-return-stock-header.mapper';
 import { CreateReturnStockLineMapper } from './mapper/create-return-stock-line.mapper';
 
+import { UpdateReturnStockHeaderRepository } from './repository/update-return-stock-header.repository';
+import { UpdateReturnStockLineRepository } from './repository/update-return-stock-line.repository';
+import { UpdateReturnStockHeaderMapper } from './mapper/update-return-stock-header.mapper';
+import { UpdateReturnStockLineMapper } from './mapper/update-return-stock-line.mapper';
+
+
 @Module({
   controllers: [ReturnStockController],
   providers: [
@@ -20,7 +26,11 @@ import { CreateReturnStockLineMapper } from './mapper/create-return-stock-line.m
     CreateReturnStockHeaderRepository,
     CreateReturnStockLineRepository,
     CreateReturnStockHeaderMapper,
-    CreateReturnStockLineMapper
+    CreateReturnStockLineMapper,
+    UpdateReturnStockHeaderRepository,
+    UpdateReturnStockLineRepository,
+    UpdateReturnStockHeaderMapper,
+    UpdateReturnStockLineMapper
   ],
   imports: [LotBalanceModule, StockOptionsModule, DocumentNumberModule]
 })

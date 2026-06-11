@@ -14,8 +14,8 @@ import {
 import { Type } from 'class-transformer';
 
 
-export class CreateReturnStockLineDto {
-    
+export class UpdateReturnStockLineDto {
+
     @IsOptional()
     @IsInt()
     return_stock_line_id?: number;

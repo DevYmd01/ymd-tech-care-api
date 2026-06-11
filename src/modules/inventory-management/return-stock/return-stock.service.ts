@@ -14,6 +14,14 @@ import { CreateReturnStockLineMapper } from './mapper/create-return-stock-line.m
 import { CreateReturnStockHeaderRepository } from './repository/create-return-stock-header.repository';
 import { CreateReturnStockLineRepository } from './repository/create-return-stock-line.repository';
 
+import { UpdateReturnStockHeaderDto } from './dto/update-return-stock-header.dto';
+import { UpdateReturnStockLineDto } from './dto/update-return-stock-line.dto';
+import { UpdateReturnStockHeaderMapper } from './mapper/update-return-stock-header.mapper';
+import { UpdateReturnStockLineMapper } from './mapper/update-return-stock-line.mapper';
+import { UpdateReturnStockHeaderRepository } from './repository/update-return-stock-header.repository';
+import { UpdateReturnStockLineRepository } from './repository/update-return-stock-line.repository';
+
+
 @Injectable()
 export class ReturnStockService {
     constructor(
@@ -22,6 +30,8 @@ export class ReturnStockService {
         private readonly createReturnStockLineRepository: CreateReturnStockLineRepository,
         private readonly documentNumberService: DocumentNumberService,
         private readonly inventoryOrchestratorService: InventoryOrchestratorService,
+        private readonly updateReturnStockHeaderRepository: UpdateReturnStockHeaderRepository,
+        private readonly updateReturnStockLineRepository: UpdateReturnStockLineRepository
     ) {}
 
     async create(createReturnStockDto: CreateReturnStockHeaderDto) {
@@ -207,4 +217,93 @@ export class ReturnStockService {
             },
         };
     }
+
+
+    async update(return_stock_id: number, updateReturnStockDto: UpdateReturnStockHeaderDto) {
+
+        console.log(updateReturnStockDto)
+
+        return this.prismaService.$transaction(async (tx) => {
+            try {
+                // 1. ค้นหาเอกสารเดิม
+                const existingHeader = await tx.return_issue_stock_header.findUnique({
+                    where: { return_stock_id },
+                    include: { returnIssueStockLines: true },
+                });
+
+                if (!existingHeader) {
+                    throw new BadRequestException(`Return Stock with ID ${return_stock_id} not found`);
+                }
+
+                // 2. ดึงค่า stock_effect_ic และ doc_type จาก doc_link_ic (ถ้ามีการเปลี่ยน)
+                let stock_effect_ic: number | null = existingHeader.stock_effect_ic;
+                let doc_type_no = existingHeader.doc_type_no;
+                let doc_type_name = existingHeader.doc_type_name;
+
+                if (updateReturnStockDto.doc_link_ic_id && updateReturnStockDto.doc_link_ic_id !== existingHeader.doc_link_ic_id) {
+                    const docLinkIc = await tx.doc_link_ic.findUnique({
+                        where: { doc_link_ic_id: updateReturnStockDto.doc_link_ic_id },
+                    });
+
+                    if (!docLinkIc) {
+                        throw new BadRequestException(`doc_link_ic with ID ${updateReturnStockDto.doc_link_ic_id} not found`);
+                    }
+                    stock_effect_ic = docLinkIc.stock_effect_ic;
+                    doc_type_no = Number(docLinkIc.doc_type_no || 0);
+                    doc_type_name = docLinkIc.doc_type_name || '';
+                }
+
+                // 3. อัปเดต Header
+                const headerData = UpdateReturnStockHeaderMapper.toPrismaUpdateInput(
+                    updateReturnStockDto,
+                    stock_effect_ic,
+                    doc_type_no,
+                    doc_type_name
+                );
+
+                await this.updateReturnStockHeaderRepository.update(tx, return_stock_id, headerData);
+
+                // 4. จัดการ Lines (เปรียบเทียบข้อมูลใหม่กับข้อมูลเดิม)
+                const existingLines = existingHeader.returnIssueStockLines || [];
+                const diff = diffById(
+                    existingLines,
+                    updateReturnStockDto.lines as any || [],
+                    "return_stock_line_id",
+                );
+
+                // 4.1 ลบรายการที่ถูกเอาออก
+                if (diff.toDelete && diff.toDelete.length > 0) {
+                    for (const line of diff.toDelete) {
+                        await this.updateReturnStockLineRepository.delete(tx, line.return_stock_line_id);
+                        // หากจำเป็นต้องปรับปรุงสต็อก (InventoryOrchestratorService) สามารถเรียกที่นี่ได้
+                    }
+                }
+
+                // 4.2 เพิ่มรายการใหม่
+                for (const line of diff.toCreate) {
+                    const lineData = CreateReturnStockLineMapper.toPrismaCreateInput(line as CreateReturnStockLineDto, return_stock_id);
+                    await this.createReturnStockLineRepository.create(tx, lineData);
+                }
+
+                // 4.3 อัปเดตรายการเดิม
+                for (const line of diff.toUpdate) {
+                    const lineData = UpdateReturnStockLineMapper.toPrismaUpdateInput(line as any);
+                    await this.updateReturnStockLineRepository.update(tx, line.return_stock_line_id, lineData);
+                }
+
+                // 5. ส่งผลลัพธ์กลับ
+                return await tx.return_issue_stock_header.findUnique({
+                    where: { return_stock_id },
+                    include: { returnIssueStockLines: true },
+                });
+            } catch (error) {
+                if (error instanceof Error) {
+                    throw new InternalServerErrorException(`Failed to update Return Stock: ${error.message}`);
+                }
+                throw error;
+            }
+        });
+    }
+
+    
 }
