@@ -193,6 +193,14 @@ async function main() {
       seq_length: 4,
       running_cycle: RunningCycle.YEAR,
     },
+                        {
+      module_code: 'RIS',
+      document_type_code: 'RIS',
+      prefix: 'RIS',
+      pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+      seq_length: 4,
+      running_cycle: RunningCycle.YEAR,
+    },
                     {
       module_code: 'TR',
       document_type_code: 'TR',
