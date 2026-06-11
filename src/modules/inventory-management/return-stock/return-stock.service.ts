@@ -169,7 +169,7 @@ export class ReturnStockService {
         const skip = (page - 1) * safeLimit;
         
         const whereCondition: any = {
-            status: status ? status : { in: ['COMPLETED'] },
+            status: status ? status : { in: ['CONFIRMED'] },
         };
 
         if (issue_stock_no) {
