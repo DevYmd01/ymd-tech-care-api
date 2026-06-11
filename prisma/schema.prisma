@@ -88,6 +88,8 @@ model employees {
     appvissueRequistionHeaders      appvissue_requistion_header[]
     issueStockHeadersCreated        issue_stock_header[]             @relation("emp_issue_stock_header_created")
     issueStockHeadersReceived       issue_stock_header[]             @relation("emp_issue_stock_header_received")
+    returnIssueStockHeadersCreated  return_issue_stock_header[]      @relation("emp_return_stock_header_created")
+    returnIssueStockHeadersReceived return_issue_stock_header[]      @relation("emp_return_stock_header_received")
 }
 
 model employee_signature {
@@ -198,6 +200,7 @@ model employee_department {
     issueRequistionHeaders     issue_requistion_header[]
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
+    returnIssueStockHeaders    return_issue_stock_header[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -275,6 +278,7 @@ model org_branch {
     issueRequistionHeaders     issue_requistion_header[]
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
+    returnIssueStockHeaders    return_issue_stock_header[]
 
     @@map("org_branch")
 }
@@ -305,6 +309,7 @@ model warehouse {
     issueRequistionLines     issue_requistion_line[]
     appvissueRequistionLines appvissue_requistion_line[]
     issueStockLines          issue_stock_line[]
+    returnIssueStockLines    return_issue_stock_line[]
 
     @@map("warehouse")
 }
@@ -333,6 +338,7 @@ model location {
     issueRequistionLines     issue_requistion_line[]
     appvissueRequistionLines appvissue_requistion_line[]
     issueStockLines          issue_stock_line[]
+    returnIssueStockLines    return_issue_stock_line[]
 
     @@map("location")
 }
@@ -421,6 +427,7 @@ model item {
     issueRequistionLines     issue_requistion_line[]
     appvissueRequistionLines appvissue_requistion_line[]
     issueStockLines          issue_stock_line[]
+    returnIssueStockLines    return_issue_stock_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -478,6 +485,7 @@ model item_uom {
     issueRequistionLines       issue_requistion_line[]
     appvissueRequistionLines   appvissue_requistion_line[]
     issueStockLines            issue_stock_line[]
+    returnIssueStockLines      return_issue_stock_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1041,6 +1049,7 @@ model project {
     issueRequistionHeaders     issue_requistion_header[]
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
+    returnIssueStockHeaders    return_issue_stock_header[]
 
     @@map("project")
 }
@@ -1476,6 +1485,7 @@ model doc_link_ic {
     issueRequistionHeaders     issue_requistion_header[]
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
+    returnIssueStockHeaders    return_issue_stock_header[]
 
     @@unique([system_document_id, doc_type_no, is_active])
     @@map("doc_link_ic")
@@ -2976,40 +2986,110 @@ model issue_stock_header {
     doc_type_no     Int?
     doc_type_name   String? @db.VarChar(50)
 
-    status          String             @db.VarChar(20)
-    created_at      DateTime           @default(now())
-    updated_at      DateTime           @updatedAt
-    issueStockLines issue_stock_line[]
+    status                  String                      @db.VarChar(20)
+    created_at              DateTime                    @default(now())
+    updated_at              DateTime                    @updatedAt
+    issueStockLines         issue_stock_line[]
+    returnIssueStockHeaders return_issue_stock_header[]
 }
+
+// 1. ค้นหาเอกสารเดิม
 
 model issue_stock_line {
     issue_stock_line_id       Int                       @id @default(autoincrement())
     appvissue_req_line_id     Int
     appvissue_requistion_line appvissue_requistion_line @relation(fields: [appvissue_req_line_id], references: [appvissue_req_line_id])
 
+    issue_stock_id      Int
+    issue_stock_header  issue_stock_header @relation(fields: [issue_stock_id], references: [issue_stock_id])
+    item_id             Int
+    item                item               @relation(fields: [item_id], references: [item_id])
+    qty                 Decimal            @db.Decimal(18, 6)
+    uom_id              Int
+    uom                 item_uom           @relation(fields: [uom_id], references: [item_uom_id])
+    warehouse_id        Int
+    warehouse           warehouse          @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id         Int
+    location            location           @relation(fields: [location_id], references: [location_id])
+    lot_id              Int
+    lot                 item_lot           @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id      Int
+    lot_balance         item_lot_balance   @relation(fields: [lot_balance_id], references: [lot_balance_id])
+    // ต้นทุน/หน่วย
+    unit_cost_price     Decimal            @db.Decimal(18, 6)
+    // จำนวนเงิน
+    goods_amount        Decimal            @db.Decimal(18, 6)
+    // ราคาซื้อมาตรฐาน
+    standard_buy_price  Decimal            @db.Decimal(18, 6)
+    // ต้นทุนมาตรฐาน
+    standard_cost_price Decimal            @db.Decimal(18, 6)
+
+    created_at            DateTime                  @default(now())
+    updated_at            DateTime                  @updatedAt
+    returnIssueStockLines return_issue_stock_line[]
+}
+
+model return_issue_stock_header {
+    return_stock_id   Int      @id @default(autoincrement())
+    return_stock_no   String   @unique
+    return_stock_date DateTime @default(now())
+
     issue_stock_id     Int
     issue_stock_header issue_stock_header @relation(fields: [issue_stock_id], references: [issue_stock_id])
-    item_id            Int
-    item               item               @relation(fields: [item_id], references: [item_id])
-    qty                Decimal            @db.Decimal(18, 6)
-    uom_id             Int
-    uom                item_uom           @relation(fields: [uom_id], references: [item_uom_id])
-    warehouse_id       Int
-    warehouse          warehouse          @relation(fields: [warehouse_id], references: [warehouse_id])
-    location_id        Int
-    location           location           @relation(fields: [location_id], references: [location_id])
-    lot_id             Int
-    lot                item_lot           @relation(fields: [lot_id], references: [lot_id])
-    lot_balance_id     Int
-    lot_balance        item_lot_balance   @relation(fields: [lot_balance_id], references: [lot_balance_id])
+
+    created_by_emp_id  Int
+    created_by         employees  @relation("emp_return_stock_header_created", fields: [created_by_emp_id], references: [employee_id])
+    received_by_emp_id Int?
+    received_by        employees? @relation("emp_return_stock_header_received", fields: [received_by_emp_id], references: [employee_id])
+
+    doc_link_ic_id Int
+    doc_link_ic    doc_link_ic         @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    emp_dept_id    Int
+    department     employee_department @relation(fields: [emp_dept_id], references: [emp_dept_id])
+    project_id     Int
+    project        project             @relation(fields: [project_id], references: [project_id])
+    remarks        String?
+    branch_id      Int
+    org_branch     org_branch          @relation(fields: [branch_id], references: [branch_id])
+
+    stock_effect_ic Int?
+    doc_type_no     Int?
+    doc_type_name   String? @db.VarChar(50)
+
+    status                String                    @db.VarChar(20)
+    created_at            DateTime                  @default(now())
+    updated_at            DateTime                  @updatedAt
+    returnIssueStockLines return_issue_stock_line[]
+}
+
+model return_issue_stock_line {
+    return_stock_line_id Int              @id @default(autoincrement())
+    issue_stock_line_id  Int?
+    issue_stock_line     issue_stock_line?  @relation(fields: [issue_stock_line_id], references: [issue_stock_line_id])
+
+    return_stock_id     Int
+    return_stock_header return_issue_stock_header @relation(fields: [return_stock_id], references: [return_stock_id])
+    item_id             Int
+    item                item                      @relation(fields: [item_id], references: [item_id])
+    qty                 Decimal                   @db.Decimal(18, 6)
+    uom_id              Int
+    uom                 item_uom                  @relation(fields: [uom_id], references: [item_uom_id])
+    warehouse_id        Int
+    warehouse           warehouse                 @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id         Int
+    location            location                  @relation(fields: [location_id], references: [location_id])
+    lot_id              Int
+    lot                 item_lot                  @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id      Int
+    lot_balance         item_lot_balance          @relation(fields: [lot_balance_id], references: [lot_balance_id])
     // ต้นทุน/หน่วย
-    unit_cost_price     Decimal @db.Decimal(18, 6)
+    unit_cost_price     Decimal                   @db.Decimal(18, 6)
     // จำนวนเงิน
-    goods_amount           Decimal @db.Decimal(18, 6)
+    goods_amount        Decimal                   @db.Decimal(18, 6)
     // ราคาซื้อมาตรฐาน
-    standard_buy_price  Decimal @db.Decimal(18, 6)
+    standard_buy_price  Decimal                   @db.Decimal(18, 6)
     // ต้นทุนมาตรฐาน
-    standard_cost_price Decimal @db.Decimal(18, 6)
+    standard_cost_price Decimal                   @db.Decimal(18, 6)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -3082,6 +3162,7 @@ model item_lot {
     issueRequistionLines     issue_requistion_line[]
     appvissueRequistionLines appvissue_requistion_line[]
     issueStockLines          issue_stock_line[]
+    returnIssueStockLines    return_issue_stock_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -3120,6 +3201,7 @@ model item_lot_balance {
     issueRequistionLines     issue_requistion_line[]
     appvissueRequistionLines appvissue_requistion_line[]
     issueStockLines          issue_stock_line[]
+    returnIssueStockLines    return_issue_stock_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])
