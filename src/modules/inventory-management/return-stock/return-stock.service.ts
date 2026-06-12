@@ -57,6 +57,7 @@ export class ReturnStockService {
                     if (!docLinkIc) {
                         throw new BadRequestException(`doc_link_ic with ID ${createReturnStockDto.doc_link_ic_id} not found`);
                     }
+                    
                     stock_effect_ic = docLinkIc.stock_effect_ic;
                     doc_type_no = Number(docLinkIc.doc_type_no || 0);
                     doc_type_name = docLinkIc.doc_type_name || '';
