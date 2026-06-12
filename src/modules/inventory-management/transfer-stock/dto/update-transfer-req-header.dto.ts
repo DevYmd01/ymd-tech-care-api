@@ -20,7 +20,7 @@ export class UpdateTransferHeaderDto {
     @IsNumber()
     @Type(() => Number)
     from_branch_id!: number;
-
+ 
     @IsNotEmpty()
     @IsNumber()
     @Type(() => Number)

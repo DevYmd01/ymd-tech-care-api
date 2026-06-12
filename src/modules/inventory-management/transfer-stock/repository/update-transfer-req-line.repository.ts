@@ -14,4 +14,12 @@ export class UpdateTransferReqLineRepository {
         });
     }
 
+    async delete(
+        tx: Prisma.TransactionClient,
+        transfer_req_line_id: number
+    ) {
+        return tx.transfer_requisition_line.delete({
+            where: { transfer_req_line_id },
+        });
+    }
 }
