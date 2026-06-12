@@ -11,7 +11,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateAppvTransferLineDto {
+export class UpdateAppvTransferLineDto {
+
+    @IsOptional()
+    @IsInt()
+    @Type(() => Number)
+    appv_transfer_line_id?: number;
+
     @IsNotEmpty()
     @IsInt()
     @Type(() => Number)

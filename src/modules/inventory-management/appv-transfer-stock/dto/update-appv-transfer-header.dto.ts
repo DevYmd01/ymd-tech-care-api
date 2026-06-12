@@ -9,14 +9,14 @@ import {
     IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateAppvTransferLineDto } from './create-appv-transfer-line.dto';
+import { UpdateAppvTransferLineDto } from './update-appv-transfer-line.dto';
 
-export class CreateAppvTransferHeaderDto {
+export class UpdateAppvTransferHeaderDto {
     @IsNotEmpty()
     @Type(() => Date)
     appv_transfer_date!: Date;
 
-        @IsNotEmpty()
+    @IsNotEmpty()
     @IsNumber()
     @Type(() => Number)
     transfer_req_id!: number;
@@ -49,7 +49,7 @@ export class CreateAppvTransferHeaderDto {
     @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => CreateAppvTransferLineDto)
-    lines!: CreateAppvTransferLineDto[];
+    @Type(() => UpdateAppvTransferLineDto)
+    lines!: UpdateAppvTransferLineDto[];
 
 }
