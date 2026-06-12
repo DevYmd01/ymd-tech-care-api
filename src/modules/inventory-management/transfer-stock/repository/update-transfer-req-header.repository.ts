@@ -2,12 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 @Injectable()
-export class CreateTransferReqHeaderRepository {
-    async create(
+export class UpdateTransferReqHeaderRepository {
+    async update(
         tx: Prisma.TransactionClient,
-        data: Prisma.transfer_requisition_headerCreateInput
+        transfer_req_id: number,
+        data: Prisma.transfer_requisition_headerUpdateInput
     ) {
-        return tx.transfer_requisition_header.create({
+        return tx.transfer_requisition_header.update({
+            where: { transfer_req_id },
             data,
         });
     }
