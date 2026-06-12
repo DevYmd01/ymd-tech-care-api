@@ -98,6 +98,7 @@ import { AppvIssueRequistionModule } from './modules/inventory-management/appv-i
 import { IssueStockModule } from './modules/inventory-management/issue-stock/issue-stock.module';
 import { ReturnStockModule } from './modules/inventory-management/return-stock/return-stock.module';
 import { TransferStockModule } from './modules/inventory-management/transfer-stock/transfer-stock.module';
+import { AppvTransferStockModule } from './modules/inventory-management/appv-transfer-stock/appv-transfer-stock.module';
 
 @Module({
   imports: [
@@ -194,6 +195,7 @@ import { TransferStockModule } from './modules/inventory-management/transfer-sto
     IssueStockModule,
     ReturnStockModule,
     TransferStockModule,
+    AppvTransferStockModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],

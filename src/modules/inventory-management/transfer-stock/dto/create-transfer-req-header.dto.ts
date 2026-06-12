@@ -19,11 +19,6 @@ export class CreateTransferHeaderDto {
     @IsNotEmpty()
     @IsNumber()
     @Type(() => Number)
-    from_branch_id!: number;
-
-    @IsNotEmpty()
-    @IsNumber()
-    @Type(() => Number)
     branch_id!: number;
 
     @IsNotEmpty()

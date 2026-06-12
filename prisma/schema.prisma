@@ -93,6 +93,8 @@ model employees {
     transferRequisitionHeadersCerated  transfer_requisition_header[]    @relation("emp_transfer_stock_header_created")
     transferRequisitionHeadersTransfer transfer_requisition_header[]    @relation("emp_transfer_stock_header_transfer")
     transferRequisitionHeadersCancel   transfer_requisition_header[]    @relation("emp_transfer_stock_header_cancel")
+    appvTransferHeadersCreate          appv_transfer_header[]           @relation("emp_appv_transfer_stock_header_create")
+    appvTransferHeadersCancel          appv_transfer_header[]           @relation("emp_appv_transfer_stock_header_cancel")
 }
 
 model employee_signature {
@@ -283,70 +285,75 @@ model org_branch {
     issueStockHeaders          issue_stock_header[]
     returnIssueStockHeaders    return_issue_stock_header[]
     transferRequisitionHeaders transfer_requisition_header[]
+    appvTransferHeaders        appv_transfer_header[]
 
     @@map("org_branch")
 }
 
 /// ตารางเก็บข้อมูลคลัง 
 model warehouse {
-    warehouse_code           String                      @unique @db.VarChar(20)
-    warehouse_name           String                      @db.VarChar(200)
-    warehouse_id             Int                         @id @default(autoincrement())
-    branch_id                Int
-    address                  String?
-    created_at               DateTime                    @default(now())
-    is_active                Boolean                     @default(true)
-    updated_at               DateTime                    @updatedAt
-    deliveryLines            delivery_line[]
-    regnHeaders              grn_header[]
-    itemLotBalances          item_lot_balance[]
-    itemStockBalances        item_stock_balance[]
-    locations                location[]
-    lotTransactions          lot_transaction[]
-    poHeaders                po_header[]
-    prLines                  pr_line[]
-    saleOrderLines           sale_order_line[]
-    saleReservationLines     sale_reservation_line[]
-    stockTransactions        stock_transaction[]
-    branch                   org_branch                  @relation(fields: [branch_id], references: [branch_id])
-    saleOrderApprovalLines   sale_order_approval_line[]
-    issueRequistionLines     issue_requistion_line[]
-    appvissueRequistionLines appvissue_requistion_line[]
-    issueStockLines          issue_stock_line[]
-    returnIssueStockLines    return_issue_stock_line[]
+    warehouse_code               String                      @unique @db.VarChar(20)
+    warehouse_name               String                      @db.VarChar(200)
+    warehouse_id                 Int                         @id @default(autoincrement())
+    branch_id                    Int
+    address                      String?
+    created_at                   DateTime                    @default(now())
+    is_active                    Boolean                     @default(true)
+    updated_at                   DateTime                    @updatedAt
+    deliveryLines                delivery_line[]
+    regnHeaders                  grn_header[]
+    itemLotBalances              item_lot_balance[]
+    itemStockBalances            item_stock_balance[]
+    locations                    location[]
+    lotTransactions              lot_transaction[]
+    poHeaders                    po_header[]
+    prLines                      pr_line[]
+    saleOrderLines               sale_order_line[]
+    saleReservationLines         sale_reservation_line[]
+    stockTransactions            stock_transaction[]
+    branch                       org_branch                  @relation(fields: [branch_id], references: [branch_id])
+    saleOrderApprovalLines       sale_order_approval_line[]
+    issueRequistionLines         issue_requistion_line[]
+    appvissueRequistionLines     appvissue_requistion_line[]
+    issueStockLines              issue_stock_line[]
+    returnIssueStockLines        return_issue_stock_line[]
     transferRequisitionLinesFrom transfer_requisition_line[] @relation("from_warehouse")
-    transferRequisitionLinesTo transfer_requisition_line[] @relation("to_warehouse")
+    transferRequisitionLinesTo   transfer_requisition_line[] @relation("to_warehouse")
+    appvTransferLinesFrom            appv_transfer_line[] @relation("from_warehouse")
+    appvTransferLinesTo            appv_transfer_line[] @relation("to_warehouse")
 
     @@map("warehouse")
 }
 
 model location {
-    location_id              Int                         @id @default(autoincrement())
-    warehouse_id             Int
-    location_code            String                      @unique @db.VarChar(20)
-    location_name            String                      @db.VarChar(200)
-    location_nameeng         String?                     @db.VarChar(200)
-    is_active                Boolean                     @default(true)
-    created_at               DateTime                    @default(now())
-    updated_at               DateTime                    @updatedAt
-    shelf_id                 Int?
-    deliveryLines            delivery_line[]
-    itemLotBalances          item_lot_balance[]
-    itemStockBalances        item_stock_balance[]
-    shelf                    shelf?                      @relation(fields: [shelf_id], references: [shelf_id])
-    warehouse                warehouse                   @relation(fields: [warehouse_id], references: [warehouse_id])
-    lotTransactions          lot_transaction[]
-    prLines                  pr_line[]
-    saleOrderLines           sale_order_line[]
-    saleReservationLines     sale_reservation_line[]
-    stockTransactions        stock_transaction[]
-    saleOrderApprovalLines   sale_order_approval_line[]
-    issueRequistionLines     issue_requistion_line[]
-    appvissueRequistionLines appvissue_requistion_line[]
-    issueStockLines          issue_stock_line[]
-    returnIssueStockLines    return_issue_stock_line[]
+    location_id                  Int                         @id @default(autoincrement())
+    warehouse_id                 Int
+    location_code                String                      @unique @db.VarChar(20)
+    location_name                String                      @db.VarChar(200)
+    location_nameeng             String?                     @db.VarChar(200)
+    is_active                    Boolean                     @default(true)
+    created_at                   DateTime                    @default(now())
+    updated_at                   DateTime                    @updatedAt
+    shelf_id                     Int?
+    deliveryLines                delivery_line[]
+    itemLotBalances              item_lot_balance[]
+    itemStockBalances            item_stock_balance[]
+    shelf                        shelf?                      @relation(fields: [shelf_id], references: [shelf_id])
+    warehouse                    warehouse                   @relation(fields: [warehouse_id], references: [warehouse_id])
+    lotTransactions              lot_transaction[]
+    prLines                      pr_line[]
+    saleOrderLines               sale_order_line[]
+    saleReservationLines         sale_reservation_line[]
+    stockTransactions            stock_transaction[]
+    saleOrderApprovalLines       sale_order_approval_line[]
+    issueRequistionLines         issue_requistion_line[]
+    appvissueRequistionLines     appvissue_requistion_line[]
+    issueStockLines              issue_stock_line[]
+    returnIssueStockLines        return_issue_stock_line[]
     transferRequisitionLinesFrom transfer_requisition_line[] @relation("from_location")
-    transferRequisitionLinesTo transfer_requisition_line[] @relation("to_location")
+    transferRequisitionLinesTo   transfer_requisition_line[] @relation("to_location")
+    appvTransferLinesFrom            appv_transfer_line[] @relation("from_location")
+    appvTransferLinesTo            appv_transfer_line[] @relation("to_location")
 
     @@map("location")
 }
@@ -437,6 +444,7 @@ model item {
     issueStockLines          issue_stock_line[]
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
+    appvTransferLines        appv_transfer_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -496,6 +504,7 @@ model item_uom {
     issueStockLines            issue_stock_line[]
     returnIssueStockLines      return_issue_stock_line[]
     transferRequisitionLines   transfer_requisition_line[]
+    appvTransferLines          appv_transfer_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1497,6 +1506,7 @@ model doc_link_ic {
     issueStockHeaders          issue_stock_header[]
     returnIssueStockHeaders    return_issue_stock_header[]
     transferRequisitionHeaders transfer_requisition_header[]
+    appvTransferHeaders        appv_transfer_header[]
 
     @@unique([system_document_id, doc_type_no, is_active])
     @@map("doc_link_ic")
@@ -3127,7 +3137,7 @@ model transfer_requisition_header {
     remarks String?
 
     cancel_date   DateTime?
-    cancel_flag   String    @default("N") @db.Char(1)
+    cancel_flag   String     @default("N") @db.Char(1)
     cancel_remark String?
     cancel_emp_id Int?
     cancel_emp    employees? @relation("emp_transfer_stock_header_cancel", fields: [cancel_emp_id], references: [employee_id])
@@ -3135,6 +3145,7 @@ model transfer_requisition_header {
     created_at               DateTime                    @default(now())
     updated_at               DateTime                    @updatedAt
     transferRequisitionLines transfer_requisition_line[]
+    appvTransferHeaders      appv_transfer_header[]
 }
 
 model transfer_requisition_line {
@@ -3161,10 +3172,67 @@ model transfer_requisition_line {
     remarks              String?
     created_at           DateTime                    @default(now())
     updated_at           DateTime                    @updatedAt
+    appvTransferLines    appv_transfer_line[]
 }
 
+// D11
+model appv_transfer_header {
+    appv_transfer_id    Int                         @id @default(autoincrement())
+    appv_transfer_no    String                      @unique
+    appv_transfer_date  DateTime                    @default(now())
+    transfer_req_id     Int
+    transfer_req_header transfer_requisition_header @relation(fields: [transfer_req_id], references: [transfer_req_id])
+    remarks             String?
+    branch_id           Int
+    branch              org_branch                  @relation(fields: [branch_id], references: [branch_id])
 
+    status          String      @db.VarChar(20)
+    doc_link_ic_id  Int
+    doc_link_ic     doc_link_ic @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    stock_effect_ic Int?
+    doc_type_no     Int?
+    doc_type_name   String?     @db.VarChar(50)
 
+    approval_emp_id Int
+    approval_emp    employees @relation("emp_appv_transfer_stock_header_create", fields: [approval_emp_id], references: [employee_id])
+
+    cancel_date       DateTime?
+    cancel_flag       String               @default("N") @db.Char(1)
+    cancel_remark     String?
+    cancel_emp_id     Int?
+    cancel_emp        employees?           @relation("emp_appv_transfer_stock_header_cancel", fields: [cancel_emp_id], references: [employee_id])
+    appvTransferLines appv_transfer_line[]
+}
+
+// D12
+model appv_transfer_line {
+    appv_transfer_line_id Int                       @id @default(autoincrement())
+    appv_transfer_id      Int
+    appv_transfer_header  appv_transfer_header      @relation(fields: [appv_transfer_id], references: [appv_transfer_id])
+    transfer_req_line_id  Int
+    transfer_req_line     transfer_requisition_line @relation(fields: [transfer_req_line_id], references: [transfer_req_line_id])
+    item_id               Int
+    item                  item                      @relation(fields: [item_id], references: [item_id])
+    qty                   Decimal                   @db.Decimal(18, 6)
+    qty_approved          Decimal                   @db.Decimal(18, 6)
+    uom_id                Int
+    uom                   item_uom                  @relation(fields: [uom_id], references: [item_uom_id])
+    from_warehouse_id     Int
+    from_warehouse        warehouse                 @relation("from_warehouse", fields: [from_warehouse_id], references: [warehouse_id])
+    from_location_id      Int
+    from_location         location                  @relation("from_location", fields: [from_location_id], references: [location_id])
+    to_warehouse_id       Int
+    to_warehouse          warehouse                 @relation("to_warehouse", fields: [to_warehouse_id], references: [warehouse_id])
+    to_location_id        Int
+    to_location           location                  @relation("to_location", fields: [to_location_id], references: [location_id])
+    lot_id                Int
+    lot                   item_lot                  @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id        Int
+    lot_balance           item_lot_balance          @relation(fields: [lot_balance_id], references: [lot_balance_id])
+    remarks               String?
+    created_at            DateTime                  @default(now())
+    updated_at            DateTime                  @updatedAt
+}
 
 // ==============================
 // == Item Stock Balance ==
@@ -3235,6 +3303,7 @@ model item_lot {
     issueStockLines          issue_stock_line[]
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
+    appvTransferLines        appv_transfer_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -3275,6 +3344,7 @@ model item_lot_balance {
     issueStockLines          issue_stock_line[]
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
+    appvTransferLines        appv_transfer_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])
