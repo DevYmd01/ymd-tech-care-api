@@ -95,6 +95,10 @@ model employees {
     transferRequisitionHeadersCancel   transfer_requisition_header[]    @relation("emp_transfer_stock_header_cancel")
     appvTransferHeadersCreate          appv_transfer_header[]           @relation("emp_appv_transfer_stock_header_create")
     appvTransferHeadersCancel          appv_transfer_header[]           @relation("emp_appv_transfer_stock_header_cancel")
+    transferOutHeadersCancel           transfer_out_header[]            @relation("emp_transfer_out_header_cancel")
+    transferOutHeadersCreated          transfer_out_header[]            @relation("emp_transfer_out_header_created")
+    transferInHeadersCancel            transfer_in_header[]             @relation("emp_transfer_in_header_cancel")
+    transferInHeadersCreated           transfer_in_header[]             @relation("emp_transfer_in_header_created")
 }
 
 model employee_signature {
@@ -286,6 +290,8 @@ model org_branch {
     returnIssueStockHeaders    return_issue_stock_header[]
     transferRequisitionHeaders transfer_requisition_header[]
     appvTransferHeaders        appv_transfer_header[]
+    transferOutHeaders         transfer_out_header[]
+    transferInHeaders          transfer_in_header[]
 
     @@map("org_branch")
 }
@@ -319,8 +325,12 @@ model warehouse {
     returnIssueStockLines        return_issue_stock_line[]
     transferRequisitionLinesFrom transfer_requisition_line[] @relation("from_warehouse")
     transferRequisitionLinesTo   transfer_requisition_line[] @relation("to_warehouse")
-    appvTransferLinesFrom            appv_transfer_line[] @relation("from_warehouse")
-    appvTransferLinesTo            appv_transfer_line[] @relation("to_warehouse")
+    appvTransferLinesFrom        appv_transfer_line[]        @relation("from_warehouse")
+    appvTransferLinesTo          appv_transfer_line[]        @relation("to_warehouse")
+    transferOutLinesFrom         transfer_out_line[]         @relation("from_warehouse")
+    transferOutLinesTo           transfer_out_line[]         @relation("to_warehouse")
+    transferInLinesFrom              transfer_in_line[] @relation("from_warehouse")
+    transferInLinesTo              transfer_in_line[] @relation("to_warehouse")
 
     @@map("warehouse")
 }
@@ -352,8 +362,12 @@ model location {
     returnIssueStockLines        return_issue_stock_line[]
     transferRequisitionLinesFrom transfer_requisition_line[] @relation("from_location")
     transferRequisitionLinesTo   transfer_requisition_line[] @relation("to_location")
-    appvTransferLinesFrom            appv_transfer_line[] @relation("from_location")
-    appvTransferLinesTo            appv_transfer_line[] @relation("to_location")
+    appvTransferLinesFrom        appv_transfer_line[]        @relation("from_location")
+    appvTransferLinesTo          appv_transfer_line[]        @relation("to_location")
+    transferOutLinesFrom         transfer_out_line[]         @relation("from_location")
+    transferOutLinesTo           transfer_out_line[]         @relation("to_location")
+    transferInLinesFrom              transfer_in_line[] @relation("from_location")
+    transferInLinesTo              transfer_in_line[] @relation("to_location")
 
     @@map("location")
 }
@@ -445,6 +459,8 @@ model item {
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
     appvTransferLines        appv_transfer_line[]
+    transferOutLines         transfer_out_line[]
+    transferInLines          transfer_in_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -505,6 +521,8 @@ model item_uom {
     returnIssueStockLines      return_issue_stock_line[]
     transferRequisitionLines   transfer_requisition_line[]
     appvTransferLines          appv_transfer_line[]
+    transferOutLines           transfer_out_line[]
+    transferInLines            transfer_in_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1507,6 +1525,8 @@ model doc_link_ic {
     returnIssueStockHeaders    return_issue_stock_header[]
     transferRequisitionHeaders transfer_requisition_header[]
     appvTransferHeaders        appv_transfer_header[]
+    transferOutHeaders         transfer_out_header[]
+    transferInHeaders          transfer_in_header[]
 
     @@unique([system_document_id, doc_type_no, is_active])
     @@map("doc_link_ic")
@@ -2925,6 +2945,12 @@ model issue_requistion_line {
     lot               item_lot                @relation(fields: [lot_id], references: [lot_id])
     lot_balance_id    Int
     lot_balance       item_lot_balance        @relation(fields: [lot_balance_id], references: [lot_balance_id])
+
+    // ใช่ตรวจสอบจำนวนอนุมัติ
+    status        String  @default("PENDING") @db.VarChar(20)
+    approved_qty  Decimal @default(0)
+    rejected_qty  Decimal @default(0)
+    remaining_qty Decimal @default(0)
 }
 
 model appvissue_requistion_header {
@@ -3172,7 +3198,14 @@ model transfer_requisition_line {
     remarks              String?
     created_at           DateTime                    @default(now())
     updated_at           DateTime                    @updatedAt
-    appvTransferLines    appv_transfer_line[]
+
+    //  ใช้ตรวจสอบอนุมัติ
+    status        String  @default("PENDING") @db.VarChar(20)
+    approved_qty  Decimal @default(0)
+    rejected_qty  Decimal @default(0)
+    remaining_qty Decimal @default(0)
+
+    appvTransferLines appv_transfer_line[]
 }
 
 // D11
@@ -3196,12 +3229,15 @@ model appv_transfer_header {
     approval_emp_id Int
     approval_emp    employees @relation("emp_appv_transfer_stock_header_create", fields: [approval_emp_id], references: [employee_id])
 
-    cancel_date       DateTime?
-    cancel_flag       String               @default("N") @db.Char(1)
-    cancel_remark     String?
-    cancel_emp_id     Int?
-    cancel_emp        employees?           @relation("emp_appv_transfer_stock_header_cancel", fields: [cancel_emp_id], references: [employee_id])
-    appvTransferLines appv_transfer_line[]
+    cancel_date   DateTime?
+    cancel_flag   String     @default("N") @db.Char(1)
+    cancel_remark String?
+    cancel_emp_id Int?
+    cancel_emp    employees? @relation("emp_appv_transfer_stock_header_cancel", fields: [cancel_emp_id], references: [employee_id])
+
+    appvTransferLines  appv_transfer_line[]
+    transferOutHeaders transfer_out_header[]
+    transferInHeaders  transfer_in_header[]
 }
 
 // D12
@@ -3232,7 +3268,130 @@ model appv_transfer_line {
     remarks               String?
     created_at            DateTime                  @default(now())
     updated_at            DateTime                  @updatedAt
+    transferOutLines      transfer_out_line[]
+    transferInLines       transfer_in_line[]
 }
+
+model transfer_out_header {
+    transfer_out_id   Int      @id @default(autoincrement())
+    transfer_out_no   String   @unique
+    transfer_out_date DateTime @default(now())
+
+    appv_transfer_id     Int
+    appv_transfer_header appv_transfer_header @relation(fields: [appv_transfer_id], references: [appv_transfer_id])
+
+    remarks   String?
+    branch_id Int
+    branch    org_branch @relation(fields: [branch_id], references: [branch_id])
+
+    status          String      @db.VarChar(20)
+    doc_link_ic_id  Int
+    doc_link_ic     doc_link_ic @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    stock_effect_ic Int?
+    doc_type_no     Int?
+    doc_type_name   String?     @db.VarChar(50)
+
+    cancel_date   DateTime?
+    cancel_flag   String     @default("N") @db.Char(1)
+    cancel_remark String?
+    cancel_emp_id Int?
+    cancel_emp    employees? @relation("emp_transfer_out_header_cancel", fields: [cancel_emp_id], references: [employee_id])
+
+    created_by_emp_id Int
+    created_by        employees           @relation("emp_transfer_out_header_created", fields: [created_by_emp_id], references: [employee_id])
+    created_at        DateTime            @default(now())
+    updated_at        DateTime            @updatedAt
+    transferOutLines  transfer_out_line[]
+    transferInLines   transfer_in_line[]
+}
+
+model transfer_out_line {
+    transfer_out_line_id  Int                 @id @default(autoincrement())
+    transfer_out_id       Int
+    transfer_out_header   transfer_out_header @relation(fields: [transfer_out_id], references: [transfer_out_id])
+    appv_transfer_line_id Int?
+    appv_transfer_line    appv_transfer_line? @relation(fields: [appv_transfer_line_id], references: [appv_transfer_line_id])
+    item_id               Int
+    item                  item                @relation(fields: [item_id], references: [item_id])
+    qty                   Decimal             @db.Decimal(18, 6)
+    uom_id                Int
+    uom                   item_uom            @relation(fields: [uom_id], references: [item_uom_id])
+    from_warehouse_id     Int
+    from_warehouse        warehouse           @relation("from_warehouse", fields: [from_warehouse_id], references: [warehouse_id])
+    from_location_id      Int
+    from_location         location            @relation("from_location", fields: [from_location_id], references: [location_id])
+    to_warehouse_id       Int
+    to_warehouse          warehouse           @relation("to_warehouse", fields: [to_warehouse_id], references: [warehouse_id])
+    to_location_id        Int
+    to_location           location            @relation("to_location", fields: [to_location_id], references: [location_id])
+    lot_id                Int
+    lot                   item_lot            @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id        Int
+    lot_balance           item_lot_balance    @relation(fields: [lot_balance_id], references: [lot_balance_id])
+    remarks               String?
+    created_at            DateTime            @default(now())
+    updated_at            DateTime            @updatedAt
+}
+
+model transfer_in_header {
+    transfer_in_id   Int      @id @default(autoincrement())
+    transfer_in_no   String   @unique
+    transfer_in_date DateTime @default(now())
+
+    appv_transfer_id     Int
+    appv_transfer_header appv_transfer_header @relation(fields: [appv_transfer_id], references: [appv_transfer_id])
+
+    remarks   String?
+    branch_id Int
+    branch    org_branch @relation(fields: [branch_id], references: [branch_id])
+
+    status          String      @db.VarChar(20)
+    doc_link_ic_id  Int
+    doc_link_ic     doc_link_ic @relation(fields: [doc_link_ic_id], references: [doc_link_ic_id])
+    stock_effect_ic Int?
+    doc_type_no     Int?
+    doc_type_name   String?     @db.VarChar(50)
+
+    cancel_date   DateTime?
+    cancel_flag   String     @default("N") @db.Char(1)
+    cancel_remark String?
+    cancel_emp_id Int?
+    cancel_emp    employees? @relation("emp_transfer_in_header_cancel", fields: [cancel_emp_id], references: [employee_id])
+
+    created_by_emp_id Int
+    created_by        employees @relation("emp_transfer_in_header_created", fields: [created_by_emp_id], references: [employee_id])
+    created_at        DateTime  @default(now())
+    updated_at        DateTime  @updatedAt
+}
+
+model transfer_in_line {
+    transfer_in_line_id   Int                 @id @default(autoincrement())
+    transfer_in_id        Int
+    transfer_in_header    transfer_out_header @relation(fields: [transfer_in_id], references: [transfer_out_id])
+    appv_transfer_line_id Int?
+    appv_transfer_line    appv_transfer_line? @relation(fields: [appv_transfer_line_id], references: [appv_transfer_line_id])
+    item_id               Int
+    item                  item                @relation(fields: [item_id], references: [item_id])
+    qty                   Decimal             @db.Decimal(18, 6)
+    uom_id                Int
+    uom                   item_uom            @relation(fields: [uom_id], references: [item_uom_id])
+    from_warehouse_id     Int
+    from_warehouse        warehouse           @relation("from_warehouse", fields: [from_warehouse_id], references: [warehouse_id])
+    from_location_id      Int
+    from_location         location            @relation("from_location", fields: [from_location_id], references: [location_id])
+    to_warehouse_id       Int
+    to_warehouse          warehouse           @relation("to_warehouse", fields: [to_warehouse_id], references: [warehouse_id])
+    to_location_id        Int
+    to_location           location            @relation("to_location", fields: [to_location_id], references: [location_id])
+    lot_id                Int
+    lot                   item_lot            @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id        Int
+    lot_balance           item_lot_balance    @relation(fields: [lot_balance_id], references: [lot_balance_id])
+    remarks               String?
+    created_at            DateTime            @default(now())
+    updated_at            DateTime            @updatedAt
+}
+
 
 // ==============================
 // == Item Stock Balance ==
@@ -3304,6 +3463,8 @@ model item_lot {
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
     appvTransferLines        appv_transfer_line[]
+    transferOutLines         transfer_out_line[]
+    transferInLines          transfer_in_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -3345,6 +3506,8 @@ model item_lot_balance {
     returnIssueStockLines    return_issue_stock_line[]
     transferRequisitionLines transfer_requisition_line[]
     appvTransferLines        appv_transfer_line[]
+    transferOutLines         transfer_out_line[]
+    transferInLines          transfer_in_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])

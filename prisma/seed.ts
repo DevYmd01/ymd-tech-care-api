@@ -209,6 +209,14 @@ async function main() {
       seq_length: 4,
       running_cycle: RunningCycle.YEAR,
     },
+                        {
+      module_code: 'APPV_TR',
+      document_type_code: 'APPV_TR',
+      prefix: 'TR',
+      pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+      seq_length: 4,
+      running_cycle: RunningCycle.YEAR,
+    },
   ];
   console.log('🌱 Start seeding document_format...');
   for (const f of formats) {
@@ -310,6 +318,13 @@ async function main() {
     },
                    {
       system_document_code: 'TR',
+      system_document_name: 'รายการขอโอนย้ายสินค้า',
+      system_document_name_eng: 'Transfer Requisition',
+      sort_order: 1,
+      is_active: true,
+    },
+                       {
+      system_document_code: 'APPV_TR',
       system_document_name: 'รายการขอโอนย้ายสินค้า',
       system_document_name_eng: 'Transfer Requisition',
       sort_order: 1,
