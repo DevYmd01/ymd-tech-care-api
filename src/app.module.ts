@@ -100,6 +100,7 @@ import { ReturnStockModule } from './modules/inventory-management/return-stock/r
 import { TransferStockModule } from './modules/inventory-management/transfer-stock/transfer-stock.module';
 import { AppvTransferStockModule } from './modules/inventory-management/appv-transfer-stock/appv-transfer-stock.module';
 import { TransferOutModule } from './modules/inventory-management/transfer-out/transfer-out.module';
+import { TransferInModule } from './modules/inventory-management/transfer-in/transfer-in.module';
 
 @Module({
   imports: [
@@ -198,6 +199,7 @@ import { TransferOutModule } from './modules/inventory-management/transfer-out/t
     TransferStockModule,
     AppvTransferStockModule,
     TransferOutModule,
+    TransferInModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
