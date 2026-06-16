@@ -3302,7 +3302,7 @@ model transfer_out_header {
     created_at        DateTime            @default(now())
     updated_at        DateTime            @updatedAt
     transferOutLines  transfer_out_line[]
-    transferInLines   transfer_in_line[]
+    
 }
 
 model transfer_out_line {
@@ -3362,12 +3362,13 @@ model transfer_in_header {
     created_by        employees @relation("emp_transfer_in_header_created", fields: [created_by_emp_id], references: [employee_id])
     created_at        DateTime  @default(now())
     updated_at        DateTime  @updatedAt
+    transferInLines   transfer_in_line[]
 }
 
 model transfer_in_line {
     transfer_in_line_id   Int                 @id @default(autoincrement())
     transfer_in_id        Int
-    transfer_in_header    transfer_out_header @relation(fields: [transfer_in_id], references: [transfer_out_id])
+    transfer_in_header    transfer_in_header @relation(fields: [transfer_in_id], references: [transfer_in_id])
     appv_transfer_line_id Int?
     appv_transfer_line    appv_transfer_line? @relation(fields: [appv_transfer_line_id], references: [appv_transfer_line_id])
     item_id               Int
