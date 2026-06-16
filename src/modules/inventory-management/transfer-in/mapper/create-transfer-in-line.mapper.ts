@@ -3,7 +3,7 @@ import { CreateTransferInLineDto } from "../dto/create-transfer-in-line.dto";
 
 export class CreateTransferInLineMapper {
     
-  static toPersistence(
+  static toPrismaCreateInput(
     data: CreateTransferInLineDto,
     transfer_in_id: number,
   ): Prisma.transfer_in_lineCreateInput {

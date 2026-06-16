@@ -20,6 +20,11 @@ export class AppvTransferStockController {
         return await this.appvTransferStockService.findAll(searchTransferDto);
     }
 
+        @Get('pending-approval')
+    async findPendingApproval() {
+        return await this.appvTransferStockService.findPendingApproval();
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return await this.appvTransferStockService.findOne(+id);
@@ -30,10 +35,7 @@ export class AppvTransferStockController {
         return await this.appvTransferStockService.update(+id, updateAppvTransferHeaderDto);
     }
 
-    @Get('pending-approva')
-    async findPendingApproval() {
-        return await this.appvTransferStockService.findPendingApproval();
-    }
+
 
 
 

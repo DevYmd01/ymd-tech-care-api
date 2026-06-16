@@ -3,7 +3,7 @@ import { CreateTransferInHeaderDto } from "../dto/create-transfer-in-header.dto"
 
 export class CreateTransferInHeaderMapper {
     
-  static toPersistence(
+  static toPrismaCreateInput(
     data: CreateTransferInHeaderDto,
             transfer_in_no: string,
             stock_effect_ic: number | null,
