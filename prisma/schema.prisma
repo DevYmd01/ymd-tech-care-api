@@ -2284,6 +2284,7 @@ model po_approval {
     quote_discount_amount Decimal?           @db.Decimal(18, 2)
     approval_emp_id       Int
     approval_emp_name     String             @db.VarChar(255)
+    receipt_status             String             @default("PENDING") @db.VarChar(20)
     poApprovalLines       po_approval_line[]
     approval_emp          employees          @relation(fields: [approval_emp_id], references: [employee_id])
     base_currency         currency?          @relation("po_approval-base_currency", fields: [base_currency_id], references: [currency_id])
@@ -2300,7 +2301,6 @@ model po_approval_line {
     po_line_id       Int
     approval_id      Int
     approved_qty     Decimal     @db.Decimal(18, 3)
-    status           String
     remarks          String?
     approved_at      DateTime?
     approved_by      Int?
@@ -2310,6 +2310,10 @@ model po_approval_line {
     approval         po_approval @relation(fields: [approval_id], references: [approval_id])
     po_line          po_line     @relation(fields: [po_line_id], references: [po_line_id])
 
+    status        String  @default("PENDING") @db.VarChar(20)
+    receipt_qty  Decimal @default(0)
+    rejected_qty  Decimal @default(0)
+    remaining_qty Decimal @default(0)
     @@map("approval_po_line")
 }
 
