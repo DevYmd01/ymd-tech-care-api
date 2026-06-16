@@ -381,7 +381,7 @@ export class AppvTransferStockService {
                 },
             },
             include: {
-                appvTransferHeaders: true,
+                transferRequisitionLines: true,
             },
         });
     }
