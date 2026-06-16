@@ -12,6 +12,13 @@ import { CreateGrnLineMapper } from './mapper/create-grn-line.mapper';
 import { CreateGrnHeaderRepository } from './repository/create-grn-header.repository';
 import {CreateGrnLineRepository } from './repository/create-grn-line.repository';
 
+import { UpdateGrnHeaderDto } from './dto/update-grn-header.dto';
+import { UpdateGrnLineDto } from './dto/update-grn-line.dto';
+import { UpdateGrnHeaderMapper } from './mapper/update-grn-header.mapper';
+import { UpdateGrnLineMapper } from './mapper/update-grn-line.mapper';
+import { UpdateGrnHeaderRepository } from './repository/update-grn-header.repository';
+import { UpdateGrnLineRepository } from './repository/update-grn-line.repository';
+
 @Injectable()
 export class GrnService {
     constructor(
@@ -20,6 +27,8 @@ export class GrnService {
         private readonly createGrnLineRepository: CreateGrnLineRepository,
         private readonly documentNumberService: DocumentNumberService,
         private readonly inventoryOrchestratorService: InventoryOrchestratorService,
+        private readonly updateGrnHeaderRepository: UpdateGrnHeaderRepository,
+        private readonly updateGrnLineRepository: UpdateGrnLineRepository
     ) {}
 
     async create(createGrnHeaderDto: CreateGrnHeaderDto, request: any) {
@@ -193,6 +202,16 @@ export class GrnService {
         });
     }
 
+
+
+    // async update(id: number, updateGrnHeaderDto: UpdateGrnHeaderDto, request: any) {
+    //    return this.prismaService.$transaction(async (tx) => {
+    //         try {
+    //         }
+    //         catch (error) {
+    //         }
+    //     });
+    // }
 
 
 

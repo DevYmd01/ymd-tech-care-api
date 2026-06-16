@@ -1,6 +1,8 @@
-import { Controller, Get, Query, Param, Body, Post , Request } from '@nestjs/common';
+import { Controller, Get, Query, Param, Body, Post , Request, Patch} from '@nestjs/common';
 import { GrnService } from './grn.service';
 import { CreateGrnHeaderDto } from './dto/create-grn-header.dto';
+import { UpdateGrnHeaderDto } from './dto/update-grn-header.dto';
+
 
 @Controller('grn')
 export class GrnController {
@@ -26,6 +28,11 @@ export class GrnController {
     async findOne(@Param('id') id: string) {
         return this.grnService.findOne(+id);
     }
+
+    // @Patch(':id')
+    // update(@Param('id') id: string, @Body() updateGrnHeaderDto: UpdateGrnHeaderDto, @Request() req: any) {
+    //     return this.grnService.update(+id, updateGrnHeaderDto, req.user);
+    // }
 
 
 }
