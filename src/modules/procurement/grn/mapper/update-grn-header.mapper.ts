@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { UpdateGrnHeaderDto } from "../dto/update-grn-header.dto";
 
-export class CreateGrnHeaderMapper {
+export class UpdateGrnHeaderMapper {
     static toPrismaUpdateInput(
         data: UpdateGrnHeaderDto,
     ): Prisma.grn_headerUpdateInput {

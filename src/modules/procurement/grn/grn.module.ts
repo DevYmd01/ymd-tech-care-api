@@ -12,7 +12,10 @@ import { CreateGrnLineMapper } from './mapper/create-grn-line.mapper';
 import { CreateGrnHeaderRepository } from './repository/create-grn-header.repository';
 import { CreateGrnLineRepository } from './repository/create-grn-line.repository';
 
-
+import { UpdateGrnHeaderMapper } from './mapper/update-grn-header.mapper';
+import { UpdateGrnLineMapper } from './mapper/update-grn-line.mapper';
+import { UpdateGrnHeaderRepository } from './repository/update-grn-header.repository';
+import { UpdateGrnLineRepository } from './repository/update-grn-line.repository';
 
 @Module({
   controllers: [GrnController],
@@ -23,6 +26,10 @@ import { CreateGrnLineRepository } from './repository/create-grn-line.repository
     CreateGrnLineMapper,
     CreateGrnHeaderRepository,
     CreateGrnLineRepository,
+    UpdateGrnHeaderMapper,
+    UpdateGrnLineMapper,
+    UpdateGrnHeaderRepository,
+    UpdateGrnLineRepository
   ],
   imports: [
     LotBalanceModule,
