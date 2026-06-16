@@ -61,7 +61,6 @@ model employees {
     employeeHead                       employees?                       @relation("EmployeeManager", fields: [employee_head_id], references: [employee_id])
     employees                          employees[]                      @relation("EmployeeManager")
     position                           employee_position?               @relation(fields: [position_id], references: [position_id])
-    regnHeaders                        grn_header[]
     poApprovals                        po_approval[]
     createdPoHeaders                   po_header[]                      @relation("poCreatedBy")
     updatedPoHeaders                   po_header[]                      @relation("poUpdatedBy")
@@ -99,6 +98,8 @@ model employees {
     transferOutHeadersCreated          transfer_out_header[]            @relation("emp_transfer_out_header_created")
     transferInHeadersCancel            transfer_in_header[]             @relation("emp_transfer_in_header_cancel")
     transferInHeadersCreated           transfer_in_header[]             @relation("emp_transfer_in_header_created")
+    grnHeadersReceived                 grn_header[]                     @relation("received_by")
+    grnHeadersCreated                  grn_header[]                     @relation("created_by")
 }
 
 model employee_signature {
@@ -210,6 +211,7 @@ model employee_department {
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
     returnIssueStockHeaders    return_issue_stock_header[]
+    grnHeaders                 grn_header[]
 }
 
 /// ตารางเก็บข้อมูลบริษัท
@@ -292,6 +294,7 @@ model org_branch {
     appvTransferHeaders        appv_transfer_header[]
     transferOutHeaders         transfer_out_header[]
     transferInHeaders          transfer_in_header[]
+    grnHeaders                 grn_header[]
 
     @@map("org_branch")
 }
@@ -307,7 +310,6 @@ model warehouse {
     is_active                    Boolean                     @default(true)
     updated_at                   DateTime                    @updatedAt
     deliveryLines                delivery_line[]
-    regnHeaders                  grn_header[]
     itemLotBalances              item_lot_balance[]
     itemStockBalances            item_stock_balance[]
     locations                    location[]
@@ -329,8 +331,9 @@ model warehouse {
     appvTransferLinesTo          appv_transfer_line[]        @relation("to_warehouse")
     transferOutLinesFrom         transfer_out_line[]         @relation("from_warehouse")
     transferOutLinesTo           transfer_out_line[]         @relation("to_warehouse")
-    transferInLinesFrom              transfer_in_line[] @relation("from_warehouse")
-    transferInLinesTo              transfer_in_line[] @relation("to_warehouse")
+    transferInLinesFrom          transfer_in_line[]          @relation("from_warehouse")
+    transferInLinesTo            transfer_in_line[]          @relation("to_warehouse")
+    grnLines                     grn_line[]
 
     @@map("warehouse")
 }
@@ -366,8 +369,9 @@ model location {
     appvTransferLinesTo          appv_transfer_line[]        @relation("to_location")
     transferOutLinesFrom         transfer_out_line[]         @relation("from_location")
     transferOutLinesTo           transfer_out_line[]         @relation("to_location")
-    transferInLinesFrom              transfer_in_line[] @relation("from_location")
-    transferInLinesTo              transfer_in_line[] @relation("to_location")
+    transferInLinesFrom          transfer_in_line[]          @relation("from_location")
+    transferInLinesTo            transfer_in_line[]          @relation("to_location")
+    grnLines                     grn_line[]
 
     @@map("location")
 }
@@ -461,6 +465,7 @@ model item {
     appvTransferLines        appv_transfer_line[]
     transferOutLines         transfer_out_line[]
     transferInLines          transfer_in_line[]
+    grnLines                 grn_line[]
 
     @@index([lot_tracking_level])
     @@index([serial_tracking_level])
@@ -523,6 +528,7 @@ model item_uom {
     appvTransferLines          appv_transfer_line[]
     transferOutLines           transfer_out_line[]
     transferInLines            transfer_in_line[]
+    grnLines                   grn_line[]
 
     @@unique([item_id, from_uom_id, to_uom_id, customer_id])
     @@map("item_uom")
@@ -1087,6 +1093,7 @@ model project {
     appvissueRequistionHeaders appvissue_requistion_header[]
     issueStockHeaders          issue_stock_header[]
     returnIssueStockHeaders    return_issue_stock_header[]
+    grnHeaders                 grn_header[]
 
     @@map("project")
 }
@@ -2180,7 +2187,6 @@ model po_header {
     base_discount_amount  Decimal?      @db.Decimal(18, 2)
     quote_discount_amount Decimal?      @db.Decimal(18, 2)
     qc_id                 Int?
-    regnHeaders           grn_header[]
     poApprovals           po_approval[]
     branch                org_branch    @relation(fields: [branch_id], references: [branch_id])
     createdPoHeaders      employees?    @relation("poCreatedBy", fields: [created_by], references: [employee_id])
@@ -2239,6 +2245,7 @@ model po_line {
     rfqLine               rfq_line?          @relation(fields: [rfq_line_id], references: [rfq_line_id])
     taxCode               tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
     uom                   uom                @relation(fields: [uom_id], references: [uom_id])
+    grnLines              grn_line[]
 }
 
 model po_approval {
@@ -2283,6 +2290,7 @@ model po_approval {
     poHeader              po_header          @relation(fields: [po_header_id], references: [po_header_id])
     quote_currency        currency?          @relation("po_approval-quote_currency", fields: [quote_currency_id], references: [currency_id])
     tax_code              tax_code?          @relation(fields: [tax_code_id], references: [tax_code_id])
+    grnHeaders            grn_header[]
 
     @@map("po_approval")
 }
@@ -2307,49 +2315,77 @@ model po_approval_line {
 
 model grn_header {
     /// รหัสใบรับสินค้า (PK)
-    grn_id       Int        @id @default(autoincrement())
+    grn_id   Int      @id @default(autoincrement())
     /// เลขที่ใบรับสินค้า
-    grn_no       String     @unique @db.VarChar(30)
-    /// รหัสใบสั่งซื้อ (FK)
-    po_header_id Int
+    grn_no   String   @unique @db.VarChar(30)
     /// วันที่ใบรับสินค้า
-    grn_date     DateTime   @default(now())
+    grn_date DateTime @default(now())
+
+    /// รหัสใบสั่งซื้อ (FK)
+
+    po_approval_id Int?
+    po_approval    po_approval? @relation(fields: [po_approval_id], references: [approval_id])
+
     /// สถานะ
-    status       String     @db.VarChar(20)
+    status         String     @db.VarChar(20)
     /// รหัสผู้รับสินค้า (FK)
-    received_by  Int?
+    received_by_id Int?
+    received_dy    employees? @relation("received_by", fields: [received_by_id], references: [employee_id])
+    created_by_id  Int?
+    created_by     employees? @relation("created_by", fields: [created_by_id], references: [employee_id])
+
+    project_id  Int?
+    project     project?             @relation(fields: [project_id], references: [project_id])
+    emp_dept_id Int?
+    department  employee_department? @relation(fields: [emp_dept_id], references: [emp_dept_id])
+
     /// รหัสสาขา (FK)
-    branch_id    Int?
-    /// รหัสคลังสินค้า (FK)
-    warehouse_id Int?
+    branch_id Int?
+    branch    org_branch? @relation(fields: [branch_id], references: [branch_id])
+
     /// หมายเหตุ
-    remarks      String?
+    remarks    String?
     /// วันที่สร้าง
-    created_at   DateTime   @default(now())
+    created_at DateTime   @default(now())
     /// วันที่แก้ไขล่าสุด
-    updated_at   DateTime   @updatedAt
-    poHeader     po_header  @relation(fields: [po_header_id], references: [po_header_id])
-    receivedBy   employees? @relation(fields: [received_by], references: [employee_id])
-    warehouse    warehouse? @relation(fields: [warehouse_id], references: [warehouse_id])
+    updated_at DateTime   @updatedAt
+    grnLines   grn_line[]
 }
 
 model grn_line {
     /// รหัสใบรับสินค้า (PK)
-    grn_line_id  Int     @id @default(autoincrement())
+    grn_line_id Int        @id @default(autoincrement())
     /// รหัสใบรับสินค้า (FK)
-    grn_id       Int
+    grn_id      Int
+    grn_header  grn_header @relation(fields: [grn_id], references: [grn_id])
+
+    // ข้อมูลอนุมัติ
+    po_line_id   Int?
+    po_line      po_line?  @relation(fields: [po_line_id], references: [po_line_id])
     /// ลำดับ
     line_no      Int
     /// รหัสสินค้า (FK)
     item_id      Int?
-    /// รหัสสินค้า (FK)
-    pr_line_id   Int
+    item         item?     @relation(fields: [item_id], references: [item_id])
     /// รายละเอียด
-    description  String? @db.VarChar(255)
-    /// จำนวน
-    qty_received Decimal @db.Decimal(18, 6)
+    remarks      String?   @db.VarChar(255)
+    /// จำนวนที่รับเข้าจริง
+    qty_received Decimal   @db.Decimal(18, 6)
     /// รหัสหน่วยนับ (FK)
     uom_id       Int
+    item_uom     item_uom? @relation(fields: [uom_id], references: [item_uom_id])
+
+    warehouse_id   Int
+    warehouse      warehouse        @relation(fields: [warehouse_id], references: [warehouse_id])
+    location_id    Int
+    location       location         @relation(fields: [location_id], references: [location_id])
+    lot_id         Int
+    lot            item_lot         @relation(fields: [lot_id], references: [lot_id])
+    lot_balance_id Int
+    lot_balance    item_lot_balance @relation(fields: [lot_balance_id], references: [lot_balance_id])
+    status         String           @default("PENDING") @db.VarChar(20)
+    created_at     DateTime         @default(now())
+    updated_at     DateTime         @updatedAt
 }
 
 model audit_log {
@@ -3302,7 +3338,6 @@ model transfer_out_header {
     created_at        DateTime            @default(now())
     updated_at        DateTime            @updatedAt
     transferOutLines  transfer_out_line[]
-    
 }
 
 model transfer_out_line {
@@ -3359,16 +3394,16 @@ model transfer_in_header {
     cancel_emp    employees? @relation("emp_transfer_in_header_cancel", fields: [cancel_emp_id], references: [employee_id])
 
     created_by_emp_id Int
-    created_by        employees @relation("emp_transfer_in_header_created", fields: [created_by_emp_id], references: [employee_id])
-    created_at        DateTime  @default(now())
-    updated_at        DateTime  @updatedAt
+    created_by        employees          @relation("emp_transfer_in_header_created", fields: [created_by_emp_id], references: [employee_id])
+    created_at        DateTime           @default(now())
+    updated_at        DateTime           @updatedAt
     transferInLines   transfer_in_line[]
 }
 
 model transfer_in_line {
     transfer_in_line_id   Int                 @id @default(autoincrement())
     transfer_in_id        Int
-    transfer_in_header    transfer_in_header @relation(fields: [transfer_in_id], references: [transfer_in_id])
+    transfer_in_header    transfer_in_header  @relation(fields: [transfer_in_id], references: [transfer_in_id])
     appv_transfer_line_id Int?
     appv_transfer_line    appv_transfer_line? @relation(fields: [appv_transfer_line_id], references: [appv_transfer_line_id])
     item_id               Int
@@ -3392,7 +3427,6 @@ model transfer_in_line {
     created_at            DateTime            @default(now())
     updated_at            DateTime            @updatedAt
 }
-
 
 // ==============================
 // == Item Stock Balance ==
@@ -3466,6 +3500,7 @@ model item_lot {
     appvTransferLines        appv_transfer_line[]
     transferOutLines         transfer_out_line[]
     transferInLines          transfer_in_line[]
+    grnLines                 grn_line[]
 
     @@unique([item_id, lot_no])
     @@index([item_id])
@@ -3509,6 +3544,7 @@ model item_lot_balance {
     appvTransferLines        appv_transfer_line[]
     transferOutLines         transfer_out_line[]
     transferInLines          transfer_in_line[]
+    grnLines                 grn_line[]
 
     @@unique([item_id, lot_id, warehouse_id, location_id, branch_id])
     @@index([item_id])

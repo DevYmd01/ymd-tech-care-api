@@ -129,6 +129,14 @@ async function main() {
       seq_length: 4,
       running_cycle: RunningCycle.YEAR,
     },
+                                    {
+      module_code: 'GRN',
+      document_type_code: 'GRN',
+      prefix: 'GRN',
+      pattern: '{PREFIX}-{BR}-{YYYY}{MM}-{RUN}',
+      seq_length: 4,
+      running_cycle: RunningCycle.YEAR,
+    },
     {
       module_code: 'SQ',
       document_type_code: 'SQ',
@@ -276,6 +284,13 @@ async function main() {
 
 
   const salesDocuments = [
+                               {
+      system_document_code: 'GRN',
+      system_document_name: 'รายการใบรับสินค้า',
+      system_document_name_eng: 'Goods Receipt Note',
+      sort_order: 1,
+      is_active: true,
+    },
     { 
       system_document_code: 'DLVRY',
       system_document_name: 'รายการจัดส่งสินค้า',

@@ -101,6 +101,8 @@ import { TransferStockModule } from './modules/inventory-management/transfer-sto
 import { AppvTransferStockModule } from './modules/inventory-management/appv-transfer-stock/appv-transfer-stock.module';
 import { TransferOutModule } from './modules/inventory-management/transfer-out/transfer-out.module';
 import { TransferInModule } from './modules/inventory-management/transfer-in/transfer-in.module';
+import { GrnService } from './modules/procurement/grn/grn.service';
+import { GrnModule } from './modules/procurement/grn/grn.module';
 
 @Module({
   imports: [
@@ -200,9 +202,10 @@ import { TransferInModule } from './modules/inventory-management/transfer-in/tra
     AppvTransferStockModule,
     TransferOutModule,
     TransferInModule,
+    GrnModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PdfService],
+  providers: [AppService, PdfService, GrnService],
 })
 
 export class AppModule implements NestModule {
