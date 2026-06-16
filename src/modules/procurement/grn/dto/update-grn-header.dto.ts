@@ -51,6 +51,4 @@ export class UpdateGrnHeaderDto {
     @ValidateNested({ each: true })
     @Type(() => CreateGrnLineDto)
     grn_lines!: CreateGrnLineDto[];
-
-
 }

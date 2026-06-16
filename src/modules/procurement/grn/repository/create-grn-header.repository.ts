@@ -11,5 +11,4 @@ export class CreateGrnHeaderRepository {
             data,
         });
     }
-
 }
